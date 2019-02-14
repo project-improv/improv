@@ -147,6 +147,8 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui_large.Ui_MainWindow):
             QtCore.QTimer.singleShot(100, self.update)
     
     def updateVideo(self):
+        ''' TODO: Bug on clicking ROI --> trace and report to pyqtgraph
+        '''
         image = None
         try:
             raw, color, image = self.nexus.getPlotRaw(self.slider.value())
