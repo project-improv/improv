@@ -238,7 +238,6 @@ class Nexus():
                 #queue full, keep going anyway TODO: add repeat trying as async task
 
     def quit(self):
-        #print('-------------------------last in store:', self.limbo.get_all())
         with open('timing/noticiations.txt', 'w') as output:
             output.write(str(self.listing))
         
