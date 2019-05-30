@@ -81,7 +81,6 @@ class MeanAnalysis(Analysis):
                     
             total_times.append(time.time()-t)
         print('Analysis broke, avg time per frame: ', np.mean(total_times))
-        print('Analysis contouring calc mean time: ', np.mean(self.updateCoordsTime))
         print('Analysis got through ', self.frame, ' frames')
 
 
@@ -98,7 +97,8 @@ class MeanAnalysis(Analysis):
             (self.C, self.coords, self.image, self.raw) = res
 
             # Keep internal running count 
-            self.frame += 1
+            # self.frame += 1 #DANGER
+            self.frame = self.C.shape[1]
             # From the input_stim_queue update the current stimulus (once per frame)
             self.stimInd.append(self.curr_stim)
             

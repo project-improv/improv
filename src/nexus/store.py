@@ -144,34 +144,16 @@ class Limbo(StoreInterface):
         
         return object_id
 
-#    def putArray(self, data, size=1000):
-#        ''' General put for numpy array objects into the store
-#            TODO: use pandas
-#            Unknown errors
-#        '''
-#    
-#        arr = arrow.array(data)
-#        id = plasma.ObjectID(np.random.bytes(20))
-#        buf = memoryview(self.client.create(id, size))
-
-    
-    def putBuffer(self, data, data_name):
-        ''' Try to serialize the data to store as buffer
-            TODO: convert unknown data types to dicts for serializing
-                using SerializationContext
-            TODO: consider to_components for large np arrays
+    def putArray(self, data):
+        ''' General put for numpy array objects into the store
+            TODO: add pandas?
             Unknown errors
-            
-            doc: arrow.apache.org/docs/python/ipc.html Arbitrary Object Serialization
         '''
-    
-        try:
-            buf = arrow.serialize(data).to_buffer()
-        except Exception as e:
-            logger.error('Error: {}'.format(e))
-            raise Exception
+        buf = arrow.serialize(data).to_buffer()
 
-        return self.put(buf, data_name)
+
+    def _getArray(self, buf):
+        return arrow.deserialize(buf)
 
 
     def updateStored(self, object_name, object_id):
@@ -222,6 +204,9 @@ class Limbo(StoreInterface):
             logger.warning('Object {} cannot be found.'.format(object_name))
             #print(self.client.list())
             raise ObjectNotFoundError
+        elif isinstance(res, arrow.lib.Buffer):
+            logger.info('Deserializing first')
+            return self._getArray(res)
         else:
             return res
 
@@ -234,7 +219,7 @@ class Limbo(StoreInterface):
             return res
 
 
-    def delete(self, object_name):
+    def deleteName(self, object_name):
         ''' Deletes an object from the store based on name
             assumes we have id from name
             This prevents us from deleting other portions of 
@@ -251,6 +236,11 @@ class Limbo(StoreInterface):
             #print(self.client.list())
             self.stored.pop(object_name)
             
+    def delete(self, id):
+        try:
+            self.client.delete([id])
+        except Exception as e:
+            logger.error('Couldnt delete: {}'.format(e))
     
     def _delete(self, object_name):
         ''' Deletes object from store

@@ -40,6 +40,8 @@ class FileAcquirer(Acquirer):
            Open file stream
            #TODO: implement more than h5 files
         '''        
+        #self.lower_priority = True
+
         self.framerate = 1/framerate 
 
         if os.path.exists(filename):
@@ -67,6 +69,7 @@ class FileAcquirer(Acquirer):
         ''' Run indefinitely. Calls runAcquirer after checking for singals
         '''
         total_times = []
+        #self.changePriority() #run once, at start of process
         while True:
             t = time.time()
             if self.flag:

@@ -158,7 +158,7 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
 
         #re-update
         if self.checkBox.isChecked():
-            QtCore.QTimer.singleShot(5, self.update)
+            QtCore.QTimer.singleShot(10, self.update)
         
         self.total_times.append(time.time()-t)
     

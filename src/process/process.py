@@ -61,7 +61,7 @@ class CaimanProcessor(Processor):
 
             home = expanduser("~")
             cwd = os.getcwd()
-            params_dict = {'fnames': [cwd+'/data/Tolias_mesoscope_2.hdf5'], #cwd+'/data/Tolias_mesoscope_2.hdf5'],
+            params_dict = {'fnames': [cwd+'/data/Tolias_mesoscope_1.hdf5', cwd+'/data/Tolias_mesoscope_2.hdf5'],
                    'fr': 15,
                    'decay_time': 0.5,
                    'gSig': (3,3),
@@ -144,6 +144,7 @@ class CaimanProcessor(Processor):
                     #     print('Total number of dropped frames ', len(self.dropped_frames))
                     #     print('mean time per fit frame ', np.mean(self.process_time))
                     #     #return
+                    total_times.append(time.time()-t)
                 except Exception as e:
                     logger.exception('What happened: {0}'.format(e))
                     #break  
@@ -156,6 +157,7 @@ class CaimanProcessor(Processor):
                     print('Total number of dropped frames ', len(self.dropped_frames))
                     print('mean time per fit frame ', np.mean(self.process_time))
                     print('mean time per process frame ', np.mean(self.procFrame_time))
+                    print('mean time per put analysis ', np.mean(self.putAnalysis_time))
                     logger.warning('Received quit signal, aborting')
                     break
                 elif signal == Spike.pause():
@@ -167,7 +169,6 @@ class CaimanProcessor(Processor):
             except Empty as e:
                 pass #no signal from Nexus
             
-            total_times.append(time.time()-t)
         print('Processor broke, avg time per frame: ', np.mean(total_times))
         print('Processor got through ', self.frame_number, ' frames')
 
@@ -195,14 +196,17 @@ class CaimanProcessor(Processor):
                 self._fitFrame(self.frame_number+init, self.frame.reshape(-1, order='F'))
                 self.process_time.append([time.time()-t])
                 #if frame_count % 5 == 0: 
+                t = time.time()
                 self.putEstimates(self.onAc.estimates, output) # currently every frame. User-specified?
-                self.frame_number += 1
+                self.putAnalysis_time.append([time.time()-t])
             except ObjectNotFoundError:
-                logger.error('Frame unavailable from store, droppping')
+                logger.error('Processor: Frame unavailable from store, droppping')
                 self.dropped_frames.append(self.frame_number)
-                self.frame_number += 1
             except KeyError as e:
-                logger.error('Key error... {0}'.format(e))
+                logger.error('Processor: Key error... {0}'.format(e))
+                # Proceed at all costs
+                self.dropped_frames.append(self.frame_number)
+            self.frame_number += 1
         else:
             pass
             # logger.error('Done with all available frames: {0}'.format(self.frame_number))
