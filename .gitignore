@@ -120,7 +120,7 @@ dmypy.json
 *.xml
 basic_demo.yaml
 *.iml
-*lmdb*
 *.hdf5
 *.ipynb
+*.mdb
 
