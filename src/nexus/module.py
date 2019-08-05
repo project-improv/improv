@@ -1,6 +1,7 @@
 import asyncio
 from queue import Empty
 import time
+from typing import Awaitable, Callable
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
