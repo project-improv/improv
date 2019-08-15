@@ -72,3 +72,33 @@ def julia_benchmark(funclist, iterations=iterations):
 
 if __name__ == '__main__':
     julia_benchmark([from_julia, to_julia, to_julia_zero_copy])
+
+# Data analysis and plot
+#
+# import pandas as pd
+# size = len(all_time[0])
+# scale = size * [80128] + size * [800128] + size * [8000128] + size * [8000128] + size * [80000128]
+#
+# df1 = pd.DataFrame(columns=['scale', 'name', 'time'])
+# df1['scale'] = scale
+# df1['name'] = ['from_julia'] * 5000
+# df1['time'] = np.concatenate(all_time[0:5])
+# df1 = df1.drop(0)
+#
+# df2 = pd.DataFrame(columns=['scale', 'name', 'time'])
+# df2['scale'] = scale
+# df2['name'] = ['to_julia'] * 5000
+# df2['time'] = np.concatenate(all_time[5:10])
+#
+# df3 = pd.DataFrame(columns=['scale', 'name', 'time'])
+# df3['scale'] = scale
+# df3['name'] = ['to_julia_zero_copy'] * 5000
+# df3['time'] = np.concatenate(all_time[10:15])
+#
+# final = pd.concat([df1, df2, df3])
+#
+# sns.set(font_scale=1.3)
+# plt.figure(figsize=(12, 9), dpi=300)
+# ax = sns.lineplot(x='scale', y='time', hue='name', data=final, ci=95, markers=True)
+# ax.set(xscale='log', yscale='log', ylabel='log time (s)', xlabel='Bytes')
+# sns.despine(left=True)
