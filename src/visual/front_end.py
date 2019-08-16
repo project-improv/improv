@@ -270,6 +270,7 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
             r = self.thresh_r
             r[np.nonzero(r)] = val
         self.updateThreshGraph(r)
+        self.saveUserCommands('radius', val)
 
     def slider2Moved(self):
         r1,r2 = self.slider2.range()
@@ -281,6 +282,16 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
         r[0:t1] = 0
         r[t2+1:self.num] = 0
         self.updateThreshGraph(r)
+        self.saveUserCommands('angles', [r1, r2])
+
+    def saveUserCommands(self, name, value):
+        self.comm.put({
+            'type': 'params',
+            'target_module': 'GUI',
+            'tweak_obj': 'config',
+            'change': {name: value},
+        })
+
 
     def updateThreshGraph(self, r):
         self.thresh_r = r 

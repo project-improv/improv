@@ -1,5 +1,6 @@
 import sys
 import os
+import pickle
 import time
 import subprocess
 from multiprocessing import Process, Queue, Manager, cpu_count, set_start_method
@@ -119,10 +120,10 @@ class Nexus():
         # Instantiate selected class
         mod = import_module(module.packagename)
         clss = getattr(mod, module.classname)
-        if module.config is None:
-            instance = clss(module.name, **module.options)
-        else:
+        try:
             instance = clss(module.name, **module.options, config=module.config)
+        except TypeError:
+            instance = clss(module.name, **module.options)
 
         # Add link to Limbo store
         instance.setStore(store.Limbo(module.name))
@@ -313,7 +314,7 @@ class Nexus():
         '''Receive flags from the Front End as user input
             TODO: Not all needed
         '''
-        logger.info('Received signal from GUI: ' + incoming)
+        # logger.info(f'Received signal from GUI: {incoming}')
 
         if incoming == Spike.run():
             logger.info('Begin run!')
@@ -333,43 +334,46 @@ class Nexus():
             logger.info('Pausing processes')
             # TODO. Alsoresume, reset
         elif incoming == Spike.params():
-            self.processParamsSignal(incoming)
+            self.processParamsSignal(incoming, 'GUI')
 
         else:
             logger.error(f'Signal received from Nexus but cannot identify {incoming}')
 
     def processModuleSignal(self, sig, name):
-        if sig is not None:
-            logger.info('Received signal '+str(sig[0])+' from '+name)
-            if sig == Spike.params():
-                self.processParamsSignal(sig)
+        if sig == Spike.params():
+            self.processParamsSignal(sig, name[:-5])  # Remove _comm
 
-            elif sig[0]==Spike.ready():
+        else:
+            logger.info('Received signal ' + str(sig[0]) + ' from ' + name)
+            if sig[0]==Spike.ready():
                 self.moduleStates[name.split('_')[0]] = sig[0]
                 logger.info(self.moduleStates)
                 if all(val==Spike.ready() for val in self.moduleStates.values()):
                     self.allowStart = True      #TODO: replace with q_sig to FE/Visual
                     logger.info('Allowing start')
 
-    def processParamsSignal(self, incoming):
+    def processParamsSignal(self, params_signal, signal_origin):
         """
         Process params update signal.
 
         Updates Nexus Tweak and forward this signal to the target_module for further updating.
 
-        :param incoming: Params signal (see definition at module.Spike)
-        :type incoming: dict
+        :param params_signal: Params signal (see definition at module.Spike)
+        :type params_signal: dict
+        :param signal_origin: Name of instigating module
+        :type signal_origin: str
 
         """
-        assert incoming['type'] == 'params'
-        try:
-            target_module = incoming['target_module']
-        except KeyError as e:
-            logger.error(f'Invalid target module name: {e}.')
-        else:
-            for key, value in incoming['change'].items():
-                getattr(self.tweak.modules[target_module], incoming['tweak_obj'])[key] = value
-            self.sig_queues[f'{target_module}_sig'].put(incoming)
+        assert params_signal['type'] == 'params'
+
+        target_module = params_signal['target_module']
+        getattr(self.tweak.modules[target_module], params_signal['tweak_obj']).update(params_signal['change'])
+        logger.info(f"Tweak: {target_module} changed parameter to {params_signal['change']}")
+
+        self.limbo.put(pickle.dumps(self.tweak), 'tweak')
+        if target_module != signal_origin:
+            self.sig_queues[f'{target_module}_sig'].put(params_signal)
+
 
     def destroyNexus(self):
         ''' Method that calls the internal method

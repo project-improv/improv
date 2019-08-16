@@ -110,7 +110,7 @@ class CaimanProcessor(Processor):
         # TODO: Institute check here as requirement to Nexus
         
         self.opts = CNMFParams(params_dict=self.params)
-        self.params = CNMFDict(self.params, cnmfparams=self.opts, client=self.client)  # Enables update synchronization
+        self.params = CNMFDict(self.params, cnmfparams=self.opts, client=self.client, q_comm=self.q_comm)
 
         self.onAc = OnACID(params = self.opts)
         self.frame_number = 0 #self.params['init_batch']
@@ -208,12 +208,17 @@ class CaimanProcessor(Processor):
             # self.q_comm.put(None)
             # self.done = True
 
-    def updateParams(self, incoming: dict):  # namedtuple
+    def updateParams(self, incoming):
+        """
+        Apply change received from params signal to local {self.params}, which updates all necessary components.
+
+        :param incoming: Parameter
+        :type incoming: dict
+        """
         assert incoming['target_module'] == 'Processor'
         if incoming['tweak_obj'] == 'config':
             for key, value in incoming['change'].items():
                 self.params[key] = value
-        logger.info('Updated Successfully!')
 
     def finalProcess(self, output):
         if self.onAc.params.get('online', 'normalize'):
@@ -420,10 +425,16 @@ class NaNFrameException(Exception):
 
 
 class CNMFDict(dict):
-    def __init__(self, *args, cnmfparams=None, client=None, **kwargs):
+    """
+    Dictionary that updates CNMFParams and Nexus Tweak when its value is changed.
+
+    Can catch exception from CNMFParams and revert.
+    """
+    def __init__(self, *args, cnmfparams=None, client=None, q_comm=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.CNMFParams: CNMFParams = cnmfparams
         self.client: Limbo = client
+        self.q_comm = q_comm
 
     def __setitem__(self, key, value):
         old = self.get(key)
@@ -433,10 +444,15 @@ class CNMFDict(dict):
         except Exception as e:
             logger.error(f'CNMFParams change failed! Reverting to old config. {e}')
             if old is None:
-                del self[key]
+                self.pop(key)
             else:
                 self[key] = old
-
+            self.CNMFParams.change_params(self)
+            value = old
         else:
-            self.client.put(dict(self), 'params_dict')
-            logger.info(colorama.Fore.GREEN + f'{key} changed from {old} to {value}' + colorama.Fore.RESET)
+            logger.info(colorama.Fore.GREEN + f'Processor: {key} changed from {old} to {value}' + colorama.Fore.RESET)
+        finally:
+            self.q_comm.put({'type': 'params',
+                             'target_module': 'Processor',
+                             'tweak_obj': 'config',
+                             'change': {key: value}})

@@ -1,8 +1,6 @@
 import os
 import yaml
-import io
-import colorama
-from collections import namedtuple
+
 import logging; logger = logging.getLogger(__name__)
 
 #TODO: Write a save function for Tweak objects output as YAML configFile but using TweakModule objects
@@ -23,6 +21,9 @@ class Tweak():
         
         self.modules = {}
         self.connections = {}
+
+    def __repr__(self):
+        return str(self.__dict__)
         
     def createConfig(self):
         ''' Read yaml config file and create config for Nexus
@@ -42,9 +43,8 @@ class Tweak():
             if "GUI" in name:
                 self.hasGUI = True
                 self.gui = tweakModule
-            
-            else:
-                self.modules.update({name:tweakModule})
+
+            self.modules.update({name:tweakModule})
         
         #print('self.modules:  ', self.modules)
 
@@ -69,7 +69,7 @@ class TweakModule():
         self.name = name
         self.packagename = packagename
         self.classname = classname
-        self.config = None
+        self.config = {}
 
         if 'config_file' in options:  # Module-specific config file
             config_file = options.pop('config_file')

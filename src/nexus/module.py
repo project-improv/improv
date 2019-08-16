@@ -120,18 +120,22 @@ class Spike():
 
         Standard format: dict
             'type': 'params'
-            'target_module' = Module to change parameter
-            'tweak_obj' = Tweak object to change (options or config)
+            'target_module' = Module to change parameter or None
+
+            'tweak_obj' = Tweak object to change (options or config).
+                          If the name of signal's originator does not match {target_module},
+                          the signal will be forwarded to {target_module}.
+
             'change' = {key : new value}.
 
         """
         def __eq__(self, other):
             try:
-                other['type'] = 'params'
+                if other['type'] == 'params':
+                    return True
             except TypeError or KeyError:
                 return False
-            else:
-                return True
+            return False
 
     params_template = ParamsTemplate()
 
