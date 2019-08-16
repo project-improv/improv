@@ -28,7 +28,7 @@ class DisplayVisual(Module):
         self.rasp = FrontEnd(self.visual, self.q_comm)
         self.rasp.show()
         logger.info('GUI ready')
-        self.q_comm.put([Spike.ready()])
+        self.q_comm.put(Spike.ready())
         self.visual.q_comm.put([Spike.ready()])
         self.app.exec_()
         logger.info('Done running GUI')

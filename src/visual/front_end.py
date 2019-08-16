@@ -138,12 +138,12 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
         '''Run ImageProcessor in separate thread
         '''
         #self.flag = True
-        self.comm.put([Spike.run()])
+        self.comm.put(Spike.run())
         logger.info('-------------------------   put run in comm')
         #TODO: grey out button until self.t is done, but allow other buttons to be active
 
     def _setup(self):
-        self.comm.put([Spike.setup()])
+        self.comm.put(Spike.setup())
         self.visual.setup()
 
     def _loadTweak(self, file):
