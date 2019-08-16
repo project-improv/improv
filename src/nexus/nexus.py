@@ -300,7 +300,7 @@ class Nexus():
                 if t in done or polling[i].status == 'done': #catch tasks that complete await wait/gather
                     r = polling[i].result
                     if 'GUI' in pollingNames[i]:
-                        self.processGuiSignal(r, pollingNames[i])
+                        self.processGuiSignal(r)
                     else:
                         self.processModuleSignal(r, pollingNames[i])
                     tasks[i] = (asyncio.ensure_future(polling[i].get_async()))
@@ -309,36 +309,34 @@ class Nexus():
 
         logger.warning('Shutting down polling')
 
-    def processGuiSignal(self, incoming, name):
+    def processGuiSignal(self, incoming):
         '''Receive flags from the Front End as user input
             TODO: Not all needed
         '''
-        if incoming == Spike.params():
+        logger.info('Received signal from GUI: ' + incoming)
+
+        if incoming == Spike.run():
+            logger.info('Begin run!')
+            #self.flags['run'] = True
+            self.run()
+        elif incoming == Spike.setup():
+            logger.info('Running setup')
+            self.setup()
+        elif incoming == Spike.ready():
+            logger.info('GUI ready')
+            self.moduleStates['GUI'] = Spike.ready()
+        elif incoming == Spike.quit():
+            logger.warning('Quitting the program!')
+            self.flags['quit'] = True
+            self.quit()
+        elif incoming == Spike.pause():
+            logger.info('Pausing processes')
+            # TODO. Alsoresume, reset
+        elif incoming == Spike.params():
             self.processParamsSignal(incoming)
 
         else:
-            name = name.split('_')[0]
-            logger.info('Received signal from GUI: ' + incoming[0])
-            if incoming[0]:
-                if incoming[0] == Spike.run():
-                    logger.info('Begin run!')
-                    #self.flags['run'] = True
-                    self.run()
-                elif incoming[0] == Spike.setup():
-                    logger.info('Running setup')
-                    self.setup()
-                elif incoming[0] == Spike.ready():
-                    logger.info('GUI ready')
-                    self.moduleStates[name] = incoming[0]
-                elif incoming[0] == Spike.quit():
-                    logger.warning('Quitting the program!')
-                    self.flags['quit'] = True
-                    self.quit()
-                elif incoming[0] == Spike.pause():
-                    logger.info('Pausing processes')
-                    # TODO. Alsoresume, reset
-            else:
-                logger.error('Signal received from Nexus but cannot identify {}'.format(incoming))
+            logger.error(f'Signal received from Nexus but cannot identify {incoming}')
 
     def processModuleSignal(self, sig, name):
         if sig is not None:
@@ -348,30 +346,30 @@ class Nexus():
 
             elif sig[0]==Spike.ready():
                 self.moduleStates[name.split('_')[0]] = sig[0]
+                logger.info(self.moduleStates)
                 if all(val==Spike.ready() for val in self.moduleStates.values()):
                     self.allowStart = True      #TODO: replace with q_sig to FE/Visual
                     logger.info('Allowing start')
 
     def processParamsSignal(self, incoming):
+        """
+        Process params update signal.
+
+        Updates Nexus Tweak and forward this signal to the target_module for further updating.
+
+        :param incoming: Params signal (see definition at module.Spike)
+        :type incoming: dict
+
+        """
+        assert incoming['type'] == 'params'
         try:
             target_module = incoming['target_module']
         except KeyError as e:
-            logger.error(f'Invalid target module name {e}.')
+            logger.error(f'Invalid target module name: {e}.')
         else:
             for key, value in incoming['change'].items():
                 getattr(self.tweak.modules[target_module], incoming['tweak_obj'])[key] = value
             self.sig_queues[f'{target_module}_sig'].put(incoming)
-
-    # async def sendModuleSignal(self):
-    #     while not self.allowStart:
-    #         await asyncio.sleep(0.5)
-    #
-    #     await asyncio.sleep(7)
-    #     print('Starting change!')
-    #     self.sig_queues['Processor_sig'].put({'type': 'params',
-    #                                           'target_module': 'Processor',
-    #                                           'tweak_obj': 'config',
-    #                                           'change': {'update_freq': 700}})
 
     def destroyNexus(self):
         ''' Method that calls the internal method
