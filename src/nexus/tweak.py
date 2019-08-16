@@ -1,7 +1,8 @@
 import os
 import yaml
 import io
-
+import colorama
+from collections import namedtuple
 import logging; logger = logging.getLogger(__name__)
 
 #TODO: Write a save function for Tweak objects output as YAML configFile but using TweakModule objects
@@ -62,9 +63,25 @@ class Tweak():
         cfg = self.modules
         yaml.safe_dump(cfg)
 
+
 class TweakModule():
     def __init__(self, name, packagename, classname, options=None):
         self.name = name
         self.packagename = packagename
         self.classname = classname
+        self.config = None
+
+        if 'config_file' in options:  # Module-specific config file
+            config_file = options.pop('config_file')
+            with open(config_file) as f:
+                self.config = yaml.load(f)
+
         self.options = options
+
+    def __repr__(self):
+        return f'{self.name}, {self.options}, {self.config}'
+
+
+if __name__ == '__main__':
+    t = Tweak('../basic_demo.yaml')
+    t.createConfig()

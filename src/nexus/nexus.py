@@ -3,6 +3,7 @@ import os
 import time
 import subprocess
 from multiprocessing import Process, Queue, Manager, cpu_count, set_start_method
+
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import numpy as np
 from PyQt5 import QtGui, QtWidgets
@@ -10,6 +11,7 @@ import pyarrow.plasma as plasma
 from importlib import import_module
 from nexus import store
 from nexus.tweak import Tweak
+from nexus.module import Spike
 from acquire.acquire import FileAcquirer
 from visual.visual import CaimanVisual, DisplayVisual
 from visual.front_end import FrontEnd
@@ -117,7 +119,10 @@ class Nexus():
         # Instantiate selected class
         mod = import_module(module.packagename)
         clss = getattr(mod, module.classname)
-        instance = clss(module.name, **module.options)
+        if module.config is None:
+            instance = clss(module.name, **module.options)
+        else:
+            instance = clss(module.name, **module.options, config=module.config)
 
         # Add link to Limbo store
         instance.setStore(store.Limbo(module.name))
@@ -285,6 +290,7 @@ class Nexus():
         tasks = []
         for q in polling:
             tasks.append(asyncio.ensure_future(q.get_async()))
+        # asyncio.ensure_future(self.sendModuleSignal())
 
         while not self.flags['quit']:   
             done, pending = await asyncio.wait(tasks, return_when=concurrent.futures.FIRST_COMPLETED)
@@ -303,45 +309,70 @@ class Nexus():
 
         logger.warning('Shutting down polling')
 
-    def processGuiSignal(self, flag, name):
+    def processGuiSignal(self, incoming, name):
         '''Receive flags from the Front End as user input
             TODO: Not all needed
         '''
-        name = name.split('_')[0]
-        logger.info('Received signal from GUI: '+flag[0])
-        if flag[0]:
-            if flag[0] == Spike.run():
-                logger.info('Begin run!')
-                #self.flags['run'] = True
-                self.run()
-            elif flag[0] == Spike.setup():
-                logger.info('Running setup')
-                self.setup()
-            elif flag[0] == Spike.ready():
-                logger.info('GUI ready')
-                self.moduleStates[name] = flag[0]
-            elif flag[0] == Spike.quit():
-                logger.warning('Quitting the program!')
-                self.flags['quit'] = True
-                self.quit()
-            elif flag[0] == Spike.load():
-                logger.info('Loading Tweak config from file '+flag[1])
-                self.loadTweak(flag[1])
-            elif flag[0] == Spike.pause():
-                logger.info('Pausing processes')
-                # TODO. Alsoresume, reset
+        if incoming == Spike.params():
+            self.processParamsSignal(incoming)
+
         else:
-            logger.error('Signal received from Nexus but cannot identify {}'.format(flag))
+            name = name.split('_')[0]
+            logger.info('Received signal from GUI: ' + incoming[0])
+            if incoming[0]:
+                if incoming[0] == Spike.run():
+                    logger.info('Begin run!')
+                    #self.flags['run'] = True
+                    self.run()
+                elif incoming[0] == Spike.setup():
+                    logger.info('Running setup')
+                    self.setup()
+                elif incoming[0] == Spike.ready():
+                    logger.info('GUI ready')
+                    self.moduleStates[name] = incoming[0]
+                elif incoming[0] == Spike.quit():
+                    logger.warning('Quitting the program!')
+                    self.flags['quit'] = True
+                    self.quit()
+                elif incoming[0] == Spike.pause():
+                    logger.info('Pausing processes')
+                    # TODO. Alsoresume, reset
+            else:
+                logger.error('Signal received from Nexus but cannot identify {}'.format(incoming))
 
     def processModuleSignal(self, sig, name):
         if sig is not None:
             logger.info('Received signal '+str(sig[0])+' from '+name)
-            if sig[0]==Spike.ready():
+            if sig == Spike.params():
+                self.processParamsSignal(sig)
+
+            elif sig[0]==Spike.ready():
                 self.moduleStates[name.split('_')[0]] = sig[0]
                 if all(val==Spike.ready() for val in self.moduleStates.values()):
                     self.allowStart = True      #TODO: replace with q_sig to FE/Visual
                     logger.info('Allowing start')
-            
+
+    def processParamsSignal(self, incoming):
+        try:
+            target_module = incoming['target_module']
+        except KeyError as e:
+            logger.error(f'Invalid target module name {e}.')
+        else:
+            for key, value in incoming['change'].items():
+                getattr(self.tweak.modules[target_module], incoming['tweak_obj'])[key] = value
+            self.sig_queues[f'{target_module}_sig'].put(incoming)
+
+    # async def sendModuleSignal(self):
+    #     while not self.allowStart:
+    #         await asyncio.sleep(0.5)
+    #
+    #     await asyncio.sleep(7)
+    #     print('Starting change!')
+    #     self.sig_queues['Processor_sig'].put({'type': 'params',
+    #                                           'target_module': 'Processor',
+    #                                           'tweak_obj': 'config',
+    #                                           'change': {'update_freq': 700}})
+
     def destroyNexus(self):
         ''' Method that calls the internal method
             to kill the process running the store (plasma server)
@@ -540,7 +571,7 @@ if __name__ == '__main__':
     # set_start_method('fork')
 
     nexus = Nexus('Nexus')
-    nexus.createNexus(file='eva_demo.yaml')
+    nexus.createNexus(file='../basic_demo.yaml')
     #nexus.setupAll()
     nexus.startNexus() #start polling, create processes
     

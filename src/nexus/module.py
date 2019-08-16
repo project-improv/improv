@@ -1,4 +1,5 @@
 from queue import Empty
+from typing import Sequence
 import time
 
 import logging; logger = logging.getLogger(__name__)
@@ -112,6 +113,28 @@ class Spike():
         TODO: doc each of these with expected handling behavior
         NOTE: add functionality as class objects..? Any advantage to this?
     '''
+
+    class ParamsTemplate:
+        """
+        Signal + information of parameter change.
+
+        Standard format: dict
+            'type': 'params'
+            'target_module' = Module to change parameter
+            'tweak_obj' = Tweak object to change (options or config)
+            'change' = {key : new value}.
+
+        """
+        def __eq__(self, other):
+            try:
+                other['type'] = 'params'
+            except TypeError or KeyError:
+                return False
+            else:
+                return True
+
+    params_template = ParamsTemplate()
+
     @staticmethod
     def run():
         return 'run'
@@ -144,12 +167,16 @@ class Spike():
     def ready():
         return 'ready'
 
+    @staticmethod
+    def params():
+        return Spike.params_template
+
 
 class RunManager():
     ''' TODO: Update logger messages with module's name
     TODO: make async version of runmanager
     '''
-    def __init__(self, name, runMethod, setup, q_sig, q_comm):
+    def __init__(self, name, runMethod, setup, q_sig, q_comm, paramsMethod=None):
         self.run = False
         self.config = False
         self.runMethod = runMethod
@@ -157,9 +184,11 @@ class RunManager():
         self.q_sig = q_sig
         self.q_comm = q_comm
         self.moduleName = name
+        self.paramsMethod = paramsMethod
 
         #TODO make this tunable
         self.timeout = 0.000001
+        self.spike = Spike()
 
     def __enter__(self):
         self.start = time.time()
@@ -178,9 +207,11 @@ class RunManager():
                     logger.error('Module '+self.moduleName+' exception during setup: {}'.format(e))  
                     raise Exception
                 self.config = False #Run once
-            try: 
+
+            try:
                 signal = self.q_sig.get(timeout=self.timeout)
-                if signal == Spike.run(): 
+
+                if signal == Spike.run():
                     self.run = True
                     logger.warning('Received run signal, begin running')
                 elif signal == Spike.setup():
@@ -194,6 +225,10 @@ class RunManager():
                 elif signal == Spike.resume(): #currently treat as same as run
                     logger.warning('Received resume signal, resuming')
                     self.run = True
+                elif signal == Spike.params() and self.paramsMethod is not None:
+                    logger.info('Params recognized')
+                    self.paramsMethod(signal)
+
             except Empty as e:
                 pass #no signal from Nexus
         return None #Status...?
