@@ -1,23 +1,23 @@
+import datetime
+import logging
+import pickle
 import sys
-import os
-from PyQt5 import QtGui,QtCore,QtWidgets
-from PyQt5.QtGui import QColor
-from PyQt5.QtCore import pyqtSignal, Qt
-from visual import rasp_ui_huge as rasp_ui
-from nexus.store import Limbo
-import numpy as np
-from math import floor
 import time
-import pyqtgraph
-from pyqtgraph import EllipseROI, PolyLineROI
-from threading import Thread
-from multiprocessing import Process
-from PyQt5.QtWidgets import QMessageBox, QFileDialog
-from matplotlib import cm
-from queue import Empty
-from nexus.module import Spike
+from math import floor
 
-import logging; logger = logging.getLogger(__name__)
+import numpy as np
+import pyqtgraph
+import tifffile as tiff
+from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import QMessageBox, QFileDialog
+from pyqtgraph import EllipseROI, PolyLineROI
+
+from nexus.module import Spike
+from visual import rasp_ui_huge as rasp_ui
+
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 #TODO: Behavioral stimuli/timing as input, dynamic calculation of tuning curves
@@ -52,6 +52,12 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
 
         self.rawplot_2.getImageItem().mouseClickEvent = self.mouseClick #Select a neuron
         self.slider.valueChanged.connect(_call(self.sliderMoved)) #Threshold for magnitude selection
+
+        self.plots = {'raw': self.rawplot, 'color': self.rawplot_2, 'image': self.rawplot_3}
+        self.currentImages = dict.fromkeys(self.plots)
+        self.firstImage = {key: True for key in self.plots.keys()}
+
+        self.currentCurves = dict.fromkeys({'Cx', 'C', 'Cpop', 'tune'})
 
     def extraSetup(self):
         self.slider2 = QRangeSlider(self.frame_3)
@@ -178,26 +184,23 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
     def updateVideo(self):
         ''' TODO: Bug on clicking ROI --> trace and report to pyqtgraph
         '''
-        #t = time.time()
-        image = None
         try:
-            raw, color = self.visual.getFrames()
-            image = self.visual.plotThreshFrame(self.thresh_r)
-            if raw is not None:
-                if np.unique(raw).size > 1:
-                    self.rawplot.setImage(raw, autoHistogramRange=False)
-                    self.rawplot.ui.histogram.vb.setLimits(yMin=50)
-            if color is not None:
-                self.rawplot_2.setImage(color)
-                self.rawplot_2.ui.histogram.vb.setLimits(yMin=8, yMax=255)
-            if image is not None:
-                self.rawplot_3.setImage(image)
-                self.rawplot_3.ui.histogram.vb.setLimits(yMin=8, yMax=255)
-
+            self.currentImages['raw'], self.currentImages['color'] = self.visual.getFrames()
+            self.currentImages['image'] = self.visual.plotThreshFrame(self.thresh_r)
         except Exception as e:
             logger.error('Error in FrontEnd update Video:  {}'.format(e))
 
-        #print('update Video time ', time.time()-t)
+        for name, plot in self.plots.items():
+            if self.currentImages[name] is not None:
+                if self.firstImage[name]:
+                    plot.setImage(self.currentImages[name], autoHistogramRange=False)
+                    plot.tVals = None  # Prevent AttrErr upon invocation of ROI in color.
+                    self.firstImage[name] = False
+                else:
+                    view: pyqtgraph.ViewBox = plot.getView()  # Preserve zoom and translation in ViewBox
+                    state = view.getState()
+                    plot.setImage(self.currentImages[name], autoHistogramRange=False)
+                    view.setState(state)
 
     def updateLines(self):
         ''' Helper function to plot the line traces
@@ -212,6 +215,7 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
         tune = None
         try:
             (Cx, C, Cpop, tune) = self.visual.getCurves()
+            self.currentCurves = {'Cx': Cx, 'C': C, 'Cpop': C, 'tune': tune}
         except TypeError:
             pass
         except Exception as e:
@@ -247,7 +251,7 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
                 self.polar1.setData(self.x2, self.y2, pen=penW)
         else:
             logger.error('Visual received None tune')
-        
+
         #print('Full update Lines time ', time.time()-t)
 
     def mouseClick(self, event):
@@ -261,6 +265,26 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
         selectedraw[0] = int(mousePoint.x())
         selectedraw[1] = int(mousePoint.y())
         self._updateRedCirc()
+
+    def keyPressEvent(self, e):
+        if e.key() == 83:  # s
+            self.saveCurrentImages()
+
+    def saveCurrentImages(self):
+        """
+        Save current images and plot data
+            - raw, color, image in .TIF
+            - Cx, C, Cpop, tune in pickle
+        """
+        t = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S.%f")[:-3]
+
+        for name, img in self.currentImages.items():
+            tiff.imsave(f'../outputs/{t}_frame_{self.visual.frame_num}.tif', img)
+
+        with open(f'../outputs/{t}_frame_{self.visual.frame_num}_plots.pickle', 'wb') as f:
+            pickle.dump(self.currentCurves, f)
+
+        logger.info(f'Saved images and plot as {t}_frame_{self.visual.frame_num}')
 
     def sliderMoved(self):
         val = self.slider.value()
@@ -440,7 +464,7 @@ class QRangeSlider(QtWidgets.QWidget):
         # self._max_slider.setValue(upper)
 
         self._update_layout()
-        
+
 
 if __name__=="__main__":
     app = QtGui.QApplication(sys.argv)
