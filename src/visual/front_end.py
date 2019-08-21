@@ -4,6 +4,7 @@ import pickle
 import sys
 import time
 from math import floor
+from pathlib import Path
 
 import numpy as np
 import pyqtgraph
@@ -281,10 +282,13 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
         """
         t = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S.%f")[:-3]
 
-        for name, img in self.currentImages.items():
-            tiff.imsave(f'../outputs/{t}_frame_{self.visual.frame_num}.tif', img)
+        directory = Path(f'../outputs/')
+        directory.mkdir(parents=True, exist_ok=True)
 
-        with open(f'../outputs/{t}_frame_{self.visual.frame_num}_plots.pickle', 'wb') as f:
+        for name, img in self.currentImages.items():
+            tiff.imsave(directory / f'{t}_frame_{self.visual.frame_num}.tif', img)
+
+        with open(directory / f'{t}_frame_{self.visual.frame_num}_plots.pickle', 'wb') as f:
             pickle.dump(self.currentCurves, f)
 
         logger.info(f'Saved images and plot as {t}_frame_{self.visual.frame_num}')
@@ -344,11 +348,10 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
             currentValue = 1
 
         if newThresh != currentValue:
-            self.thresh_r = self.thresh_r / currentValue
+            print('Updating threshold')
+            self.thresh_r = (self.thresh_r / currentValue).astype(int)
             self.thresh_r *= newThresh
-            self.thresh_r = self.thresh_r.astype(int)
-
-        self.saveUserCommands('threshold', newThresh)
+            self.saveUserCommands('threshold', newThresh)
 
         # val = self.slider.value()
         # if np.count_nonzero(self.thresh_r) == 0:
