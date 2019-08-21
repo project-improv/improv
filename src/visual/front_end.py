@@ -286,7 +286,7 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
         directory.mkdir(parents=True, exist_ok=True)
 
         for name, img in self.currentImages.items():
-            tiff.imsave(directory / f'{t}_frame_{self.visual.frame_num}.tif', img)
+            tiff.imsave(directory / f'{t}_frame_{self.visual.frame_num}_{name}.tif', img)
 
         with open(directory / f'{t}_frame_{self.visual.frame_num}_plots.pickle', 'wb') as f:
             pickle.dump(self.currentCurves, f)
