@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import QMessageBox, QFileDialog
 from pyqtgraph import EllipseROI, PolyLineROI
 
 from nexus.module import Spike
+from .widgets import PathSlider
 from visual import rasp_ui_huge as rasp_ui
 
 logger = logging.getLogger(__name__)
@@ -51,20 +52,22 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
         
 
         self.rawplot_2.getImageItem().mouseClickEvent = self.mouseClick #Select a neuron
-        self.slider.valueChanged.connect(_call(self.sliderMoved)) #Threshold for magnitude selection
 
         self.plots = {'raw': self.rawplot, 'color': self.rawplot_2, 'image': self.rawplot_3}
         self.currentImages = dict.fromkeys(self.plots)
         self.firstImage = {key: True for key in self.plots.keys()}
 
         self.currentCurves = dict.fromkeys({'Cx', 'C', 'Cpop', 'tune'})
+        self.thresh_r = np.array(0)
 
     def extraSetup(self):
-        self.slider2 = QRangeSlider(self.frame_3)
-        #self.slider2.setGeometry(QtCore.QRect(20, 100, 155, 50))
-        self.slider2.setGeometry(QtCore.QRect(55, 120, 155, 50))
-        self.slider2.setObjectName("slider2")
-        self.slider2.rangeChanged.connect(_call(self.slider2Moved)) #Threshold for angular selection
+        self.slider2 = PathSlider(self.frame_3, minSize=150, minimum=0, maximum=360)
+        #self.slider2 = QRangeSlider(self.frame_3)
+        self.slider2.setGeometry(QtCore.QRect(20, 100, 155, 50))
+        # self.slider2.setGeometry(QtCore.QRect(150, 0, 200, 200))
+        # self.slider2.setObjectName("slider2")
+        self.slider2.rangeChanged.connect(self.updatePhaseRange) #Threshold for angular selection
+        self.slider2.threshChanged.connect(self.updateThreshold)
 
     def customizePlots(self):
         self.checkBox.setChecked(True)
@@ -273,7 +276,7 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
     def saveCurrentImages(self):
         """
         Save current images and plot data
-            - raw, color, image in .TIF
+            - raw, color, image in .tif
             - Cx, C, Cpop, tune in pickle
         """
         t = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S.%f")[:-3]
@@ -286,27 +289,74 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
 
         logger.info(f'Saved images and plot as {t}_frame_{self.visual.frame_num}')
 
-    def sliderMoved(self):
-        val = self.slider.value()
-        if np.count_nonzero(self.thresh_r) == 0:
-            r = np.full(self.num,val)
-        else:
-            r = self.thresh_r
-            r[np.nonzero(r)] = val
-        self.updateThreshGraph(r)
-        self.saveUserCommands('radius', val)
+    def updatePhaseRange(self, start, end):
+        """
+        Updates the range of angles of interest as input from the circular slider.
+        {self.thresh_r} is an ndarray of size {self.num}, which is 360° divided into {self.num} sections.
+        All input within range {idx * 360/self.num} are lumped together (inclusive).
+        Values in range of interest is {self.slider2.sliderVal} else 0.
 
-    def slider2Moved(self):
-        r1,r2 = self.slider2.range()
-        r = np.full(self.num, self.slider.value())
-        r1 = 4*np.pi*(r1-4)/360
-        r2 = 4*np.pi*(r2-4)/360
-        t1 = np.argmin(np.abs(np.array(r1)-self.theta))
-        t2 = np.argmin(np.abs(np.array(r2)-self.theta))
-        r[0:t1] = 0
-        r[t2+1:self.num] = 0
-        self.updateThreshGraph(r)
-        self.saveUserCommands('angles', [r1, r2])
+        :param start: Start angle from circular slider {self.slider2.rangeChanged}
+        :param end: End angle from circular slider
+
+        >>> self.num = 21; self.slider2.sliderVal = 3
+        >>> self.updatePhaseRange(12, 45)
+        >>> print(self.thresh_r)
+        [3 3 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+
+        """
+        assert 0 <= start < 360
+        assert 0 <= end < 360
+
+        r = np.zeros(self.num, dtype=int)
+        idxStart, idxEnd = int(start // (360 / self.num)), int(end // (360 / self.num))
+
+        if start < end:
+            r[idxStart:idxEnd+1] = self.slider2.sliderVal
+
+        else:  # Over 360
+            r[idxStart:] = self.slider2.sliderVal
+            r[:idxEnd+1] = self.slider2.sliderVal
+
+        self.thresh_r = r
+        self.saveUserCommands('phase', [start, end])
+        # r1, r2 = self.slider2.range()
+        # r = np.full(self.num, self.slider.value())
+        #
+        # r1 = 4*np.pi*(r1-4)/360
+        # r2 = 4*np.pi*(r2-4)/360
+        # t1 = np.argmin(np.abs(np.array(r1)-self.theta))
+        # t2 = np.argmin(np.abs(np.array(r2)-self.theta))
+        # r[0:t1] = 0
+        # r[t2+1:self.num] = 0
+        # self.updateThreshGraph(r)
+
+    def updateThreshold(self, newThresh):
+        """
+        Changes non-zero {self.thresh_r} values into {newThresh}.
+        :param newThresh: new threshold from {self.slider2.threshChanged}
+
+        """
+        assert newThresh >= 0
+
+        currentValue = np.max(self.thresh_r)
+        if currentValue == 0:
+            currentValue = 1
+
+        if newThresh != currentValue:
+            self.thresh_r = self.thresh_r / currentValue
+            self.thresh_r *= newThresh
+            self.thresh_r = self.thresh_r.astype(int)
+
+        self.saveUserCommands('threshold', newThresh)
+
+        # val = self.slider.value()
+        # if np.count_nonzero(self.thresh_r) == 0:
+        #     r = np.full(self.num,val)
+        # else:
+        #     r = self.thresh_r
+        #     r[np.nonzero(r)] = val
+        # self.updateThreshGraph(val)
 
     def saveUserCommands(self, name, value):
         self.comm.put({
@@ -318,7 +368,7 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
 
 
     def updateThreshGraph(self, r):
-        self.thresh_r = r 
+        self.thresh_r = r
         x = self.thresh_r * np.cos(self.theta)
         y = self.thresh_r * np.sin(self.theta)
         self.polar3.setData(x, y, pen=pyqtgraph.mkPen(width=2, color='g'))
