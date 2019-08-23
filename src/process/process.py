@@ -3,6 +3,7 @@ import pickle
 import cv2
 import numpy as np
 import scipy.sparse
+from collections import UserDict
 from nexus.store import Limbo, CannotGetObjectError, ObjectNotFoundError
 from caiman.source_extraction import cnmf
 from caiman.source_extraction.cnmf.utilities import detrend_df_f
@@ -217,8 +218,7 @@ class CaimanProcessor(Processor):
         """
         assert incoming['target_module'] == 'Processor'
         if incoming['tweak_obj'] == 'config':
-            for key, value in incoming['change'].items():
-                self.params[key] = value
+            self.params.update(incoming['change'])
 
     def finalProcess(self, output):
         if self.onAc.params.get('online', 'normalize'):
@@ -424,7 +424,7 @@ class NaNFrameException(Exception):
     pass
 
 
-class CNMFDict(dict):
+class CNMFDict(UserDict):
     """
     Dictionary that updates CNMFParams and Nexus Tweak when its value is changed.
 
