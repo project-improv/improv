@@ -12,6 +12,10 @@ class PathSlider(QtWidgets.QAbstractSlider):
         """
         PyQt5 Widget: Path-based range slider (designed for circle)
 
+        Dragging at any end adjusts the range.
+        Dragging within the range moves the range.
+        Dragging outside the range has no effects.
+
         :param minSize: Radius of the circle
         :type minSize: int
         :param path: QPainterPath of the intended shape
@@ -175,16 +179,50 @@ class PathSlider(QtWidgets.QAbstractSlider):
 
     def update_pos(self, event: QtGui.QMouseEvent):  # Triggered at mouse click
         point = event.pos()
+
         if self.strokePath.contains(point):
             theta = self._coordToPos(point)
             if event.button() != QtCore.Qt.NoButton:  # User is clicking something.
                 distStart = min([abs(theta - self.startPoint), abs(self.startPoint - theta + self.maxValue)])
                 distEnd = min([abs(theta - self.endPoint), abs(self.endPoint - theta + self.maxValue)])
-                self.dragging = 'start' if distStart < distEnd else 'end'  # Determine which end is the user dragging.
 
-            setattr(self, f'{self.dragging}Point', theta)  # Update start, end location
-            eval(f'self.{self.dragging}Changed.emit(theta)')  # Emit start/endChanged signal
+                if min(distEnd, distStart) < 20:  # Adjust ends only.
+                    self.dragging = 'start' if distStart < distEnd else 'end'
+                elif self._checkRange(theta):  # If within range, adjust both ends.
+                    self.dragging = theta
+                else:
+                    self.dragging = None
+
+            else:  # Continuous drag
+                if self.dragging in ['start', 'end']:
+                    self._changeValue(self.dragging, theta)
+
+                elif isinstance(self.dragging, int):
+                    self._changeValue('start', self.startPoint + (theta - self.dragging))
+                    self._changeValue('end', self.endPoint + (theta - self.dragging))
+                    self.dragging = theta
+
             self.update()
+
+    def _changeValue(self, point, new):
+        assert point in ['start', 'end']
+        if new < 0:
+            new += 360
+        elif new >= 360:
+            new -= 360
+        setattr(self, f'{point}Point', new)
+        eval(f'self.{point}Changed.emit(new)')
+
+    def _checkRange(self, i):
+        """ Check if {i} is within {self.startPoint} and {self.endPoint} """
+        if self.startPoint < i < self.endPoint:
+            return True
+
+        if self.endPoint < self.startPoint:  # More than 360
+            if i > self.endPoint or i < self.startPoint:
+                return True
+
+        return False
 
     def minimumSizeHint(self):
         return QtCore.QSize(15, 15)
@@ -201,5 +239,6 @@ class PathSlider(QtWidgets.QAbstractSlider):
         super(PathSlider, self).mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
+        self.dragging = None
         self.rangeChanged.emit(self.startPoint, self.endPoint)
         super().mouseReleaseEvent(event)
