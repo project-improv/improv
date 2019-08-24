@@ -71,6 +71,9 @@ class CaimanVisual(Visual):
 
         self.flip = False
         self.flag = False
+        self.rotater: Rotater = None
+        self.newFrameAvail = True
+
 
     def setup(self):
         ''' Setup 
@@ -101,8 +104,7 @@ class CaimanVisual(Visual):
             ids = self.q_in.get(timeout=0.0001)
             if self.draw:
                 (self.Cx, self.C, self.Cpop, self.tune, self.color, self.coords) = self.client.getList(ids)
-                self.getCurves()
-                self.getFrames()
+                self.newFrameAvail = True
                 self.total_times.append([time.time(), time.time()-t])
             ##############FIXME frame number!
             self.frame_num += 1
@@ -129,10 +131,13 @@ class CaimanVisual(Visual):
     def getFrames(self):
         ''' Return the raw and colored frames for display
         '''
-        if self.raw.shape[0] > self.raw.shape[1]:
-            self.raw = np.rot90(self.raw, 1)
-        if self.color.shape[0] > self.color.shape[1]:
-            self.color = np.rot90(self.color, 1)
+        if self.raw is not None and self.color is not None and self.rotater is None:
+            self.rotater = Rotater(img_dim=self.raw.shape)
+
+        if self.newFrameAvail:
+            self.raw = self.rotater.rotate_image(self.raw)
+            self.color = self.rotater.rotate_image(self.color)
+            self.newFrameAvail = False
 
         return self.raw, self.color
 
@@ -145,7 +150,7 @@ class CaimanVisual(Visual):
         neurons = [o['neuron_id']-1 for o in self.coords]
         com = np.array([o['CoM'] for o in self.coords])
         #dist = cdist(com, [np.array([y, self.raw.shape[0]-x])])
-        dist = cdist(com, [np.array([x, y])])
+        dist = cdist(self.rotater.rotate_coord(com, 'CoM'), [np.array([x, y])])
         if np.min(dist) < 50:
             selected = neurons[np.argmin(dist)]
             self.selectedNeuron = selected
@@ -181,6 +186,7 @@ class CaimanVisual(Visual):
                 for i,c in enumerate(coords):
                     #c = np.array(c)
                     ind = c[~np.isnan(c).any(axis=1)].astype(int)
+                    ind = self.rotater.rotate_coord(ind, 'contour')
                     #rot_ind = np.array([[i[1],self.raw.shape[0]-i[0]] for i in ind])
                     cv2.fillConvexPoly(image2, ind, self._threshNeuron(i, thresh_r))
             return image2
@@ -189,17 +195,41 @@ class CaimanVisual(Visual):
 
     def _threshNeuron(self, ind, thresh_r):
         ests = self.tune[0]
+
+        dark = (255,255,255,0)
+        bright = (255,255,255,150)
+
         thresh = np.max(thresh_r)
-        display = (255,255,255,150)
+        display = bright
         act = np.zeros(ests.shape[1])
         if ests[ind] is not None:
             intensity = np.max(ests[ind])
             act[:len(ests[ind])] = ests[ind]
-            if thresh > intensity: 
-                display = (255,255,255,0)
-            elif np.any(act[np.where(thresh_r==0)[0]]>0.5):
-                display = (255,255,255,0)
+            if intensity < thresh:
+                display = dark
+            elif np.any(act[np.where(thresh_r==0)[0]] > 0.5):
+                display = dark
         return display
+
+
+class Rotater:
+    """
+    Class for rotation of images and all components within to ensure that all images are vertical for display.
+    """
+    def __init__(self, img_dim: tuple):
+        self.img_dim = img_dim
+        self.rotate = True if img_dim[0] > img_dim[1] else False
+        self.idx = {'contour': 1,
+                    'CoM': 0}
+
+    def rotate_image(self, img: np.ndarray):
+        return np.rot90(img) if self.rotate else img
+
+    def rotate_coord(self, coord: np.ndarray, type_):
+        if self.rotate:
+            coord[:, [1, 0]] = coord[:, [0, 1]]
+            coord[:, self.idx[type_]] = self.img_dim[1] - coord[:, self.idx[type_]]
+        return coord
 
 #------------  Code below for running idependently 
 
