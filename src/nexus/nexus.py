@@ -372,7 +372,10 @@ class Nexus():
 
         self.limbo.put(pickle.dumps(self.tweak), 'tweak')
         if target_module != signal_origin:
-            self.sig_queues[f'{target_module}_sig'].put(params_signal)
+            if isinstance(target_module, str):
+                self.sig_queues[f'{target_module}_sig'].put(params_signal)
+            else:
+                [self.sig_queues[f'{m}_sig'].put(params_signal) for m in target_module]
 
 
     def destroyNexus(self):
