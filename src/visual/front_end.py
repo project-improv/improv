@@ -344,14 +344,14 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
         assert newThresh >= 0
 
         currentValue = np.max(self.thresh_r)
-        if currentValue == 0:
-            currentValue = 1
-
         if newThresh != currentValue:
-            print('Updating threshold')
-            self.thresh_r = (self.thresh_r / currentValue).astype(int)
-            self.thresh_r *= newThresh
-            self.saveUserCommands('threshold', newThresh)
+            if currentValue < 1:
+                self.updatePhaseRange(self.slider2.startPoint, self.slider2.endPoint)
+            else:
+                print('Updating threshold')
+                self.thresh_r = (self.thresh_r / currentValue).astype(int)
+                self.thresh_r *= newThresh
+                self.saveUserCommands('threshold', newThresh)
 
         # val = self.slider.value()
         # if np.count_nonzero(self.thresh_r) == 0:
