@@ -431,10 +431,10 @@ class CNMFDict(UserDict):
     Can catch exception from CNMFParams and revert.
     """
     def __init__(self, *args, cnmfparams=None, client=None, q_comm=None, **kwargs):
-        super().__init__(*args, **kwargs)
         self.CNMFParams: CNMFParams = cnmfparams
         self.client: Limbo = client
         self.q_comm = q_comm
+        super().__init__(*args, **kwargs)
 
     def __setitem__(self, key, value):
         old = self.get(key)
