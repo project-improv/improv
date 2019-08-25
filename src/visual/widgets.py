@@ -1,3 +1,5 @@
+import numpy as np
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
@@ -42,6 +44,7 @@ class PathSlider(QtWidgets.QAbstractSlider):
         self.sliderVal = 1
 
         self.dragging = 'start'  # or 'end'
+        self.lastUpdate = np.array((0, 0))
 
         self.initLabels(minSize=minSize)
 
@@ -139,7 +142,7 @@ class PathSlider(QtWidgets.QAbstractSlider):
         angle_range = self.endPoint - self.startPoint
         end_angle = self.endPoint if angle_range > 0 else self.endPoint + self.maxValue
 
-        for i in range(self.startPoint, end_angle):  # Tessellate, draw a line for every angle
+        for i in range(self.startPoint - self.startPoint % 3, end_angle, 3):  # Tessellate, draw a line for every angle
             p = self.scaledPath.pointAtPercent(i % self.maxValue / self.maxValue)
             highlight_path.lineTo(p)
 
@@ -149,21 +152,6 @@ class PathSlider(QtWidgets.QAbstractSlider):
         painter.setPen(activeHighlight)
         painter.setBrush(QtGui.QBrush(QtGui.QColor(activeHighlight)))
         painter.drawPath(stroker.createStroke(highlight_path).simplified())
-
-        opt = QtWidgets.QStyleOptionSlider()
-        r = self.style().subControlRect(QtWidgets.QStyle.CC_Slider, opt, QtWidgets.QStyle.SC_SliderHandle, self)
-        pixmap = QtGui.QPixmap(r.width() + 2*2, r.height() + 2*2)
-        pixmap.fill(QtCore.Qt.transparent)
-        r = pixmap.rect().adjusted(2, 2, -2, -2)
-
-        pixmap_painter = QtGui.QPainter(pixmap)
-        pixmap_painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        pixmap_painter.setPen(QtGui.QPen(self.palette().color(QtGui.QPalette.Shadow), 2))
-        pixmap_painter.setBrush(self.palette().color(QtGui.QPalette.Base))
-        pixmap_painter.drawRoundedRect(r, 4, 4)
-        pixmap_painter.end()
-        r.moveCenter(p.toPoint())
-        painter.drawPixmap(r, pixmap)
 
     def _coordToPos(self, point: QtCore.QPoint):
         """ Convert QPoint into slider value """
@@ -202,7 +190,9 @@ class PathSlider(QtWidgets.QAbstractSlider):
                     self._changeValue('end', self.endPoint + (theta - self.dragging))
                     self.dragging = theta
 
-            self.update()
+            if np.max(np.abs(np.array((self.startPoint, self.endPoint)) - self.lastUpdate)) > 3:
+                self.lastUpdate = np.array((self.startPoint, self.endPoint))
+                self.update()
 
     def _changeValue(self, point, new):
         assert point in ['start', 'end']
