@@ -44,52 +44,7 @@ class CaimanProcessor(Processor):
         super().__init__(*args)
         self.ests = None #neural activity
         self.coords = None
-        self.params: CNMFDict = config
-
-    # def loadParams(self, param_file=None):
-    #     ''' Load parameters from file or 'defaults' into store
-    #         TODO: accept user input from GUI
-    #         This also effectively registers specific params
-    #         that CaimanProcessor needs with Nexus
-    #     '''
-    #     #TODO: Convert this to Tweak and load from there
-    #
-    #     if param_file is not None:
-    #         try:
-    #             params_dict = self._load_params_from_file(param_file)
-    #         except Exception as e:
-    #             logger.exception('File cannot be loaded. {0}'.format(e))
-    #     else:
-    #         # defaults from demo scripts; CNMFParams does not set
-    #         # each parameter needed by default (TODO change that?)
-    #         # TODO add parameter validation inside Tweak
-    #         home = expanduser("~")
-    #         cwd = os.getcwd()
-    #         params_dict = {'fnames': ['../data/Tolias_mesoscope_2.hdf5'], #Tolias_mesoscope_2.hdf5'],
-    #                'fr': 15,
-    #                'decay_time': 0.5,
-    #                'gSig': (5,5),
-    #                'p': 1,
-    #                'min_SNR': 1,
-    #                'rval_thr': 0.9,
-    #                'ds_factor': 1,
-    #                'nb': 2,
-    #                'motion_correct': True,
-    #                'init_batch': 100,
-    #                'init_method': 'bare',
-    #                'normalize': True,
-    #                'sniper_mode': True,
-    #                'K': 2,
-    #                'epochs': 1,
-    #                'max_shifts_online': np.ceil(10).astype('int'),
-    #                'pw_rigid': False,
-    #                'dist_shape_update': True,
-    #                'show_movie': False,
-    #                'update_freq': 500,
-    #                'minibatch_shape': 100,
-    #                'output': 'outputEstimates'}
-    #     self.client.put(params_dict, 'params_dict')
-    #     #TODO: return code
+        self.params: dict = config
 
     def setup(self):
         ''' Create OnACID object and initialize it
