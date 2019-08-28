@@ -26,6 +26,7 @@ modules:
   InputStim:
     package: acquire.acquire
     class: BehaviorAcquirer
+    config_file: ../behavior_config.yml
 
 
 connections:
