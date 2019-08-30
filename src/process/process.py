@@ -67,6 +67,8 @@ class CaimanProcessor(Processor):
         
         self.opts = CNMFParams(params_dict=self.params)
         self.params = CNMFDict(self.params, cnmfparams=self.opts, client=self.client, q_comm=self.q_comm)
+        # Tell Analysis the neuron half-wdith in order to draw neurons.
+        self.sendParams('Analysis', tweak_obj='config', params={'neuron_half_width': self.opts.get('init', 'gSig')})
 
         self.onAc = OnACID(params = self.opts)
         self.frame_number = 0 #self.params['init_batch']
@@ -75,6 +77,14 @@ class CaimanProcessor(Processor):
         self.max_shifts_online = self.onAc.params.get('online', 'max_shifts_online')
 
         return self
+
+    def sendParams(self, destination: str, *, tweak_obj: str, params: dict):
+        self.q_comm.put({
+            'type': 'params',
+            'target_module': destination,
+            'tweak_obj': tweak_obj,
+            'change': params,
+        })
 
     def run(self):
         '''Run the processor continually on input frames

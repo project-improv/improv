@@ -48,6 +48,7 @@ class MeanAnalysis(Analysis):
         self.stimDict = {}
         self.onSum = 0
         self.offSum = 0
+        self.neuron_half_width = None
 
     def run(self):
         self.total_times = []
@@ -58,7 +59,7 @@ class MeanAnalysis(Analysis):
 
         np.seterr(divide='raise')
 
-        with RunManager(self.name, self.runAvg, self.setup, self.q_sig, self.q_comm) as rm:
+        with RunManager(self.name, self.runAvg, self.setup, self.q_sig, self.q_comm, paramsMethod=self.updateParams) as rm:
             logger.info(rm)
         
         print('Analysis broke, avg time per frame: ', np.mean(self.total_times))
@@ -75,6 +76,11 @@ class MeanAnalysis(Analysis):
         np.savetxt('analysis_proc_C.txt', np.array(self.C))
         np.savetxt('analysis_spikeAvg.txt', np.array(self.spikeAvg))
 
+    def updateParams(self, incoming):
+        assert incoming['target_module'] == 'Analysis'
+        if incoming['tweak_obj'] == 'config':
+            if 'neuron_half_width' in incoming['change']:
+                self.neuron_half_width = incoming['change']['neuron_half_width']
 
     def runAvg(self):
         ''' Take numpy estimates and frame_number
@@ -284,37 +290,69 @@ class MeanAnalysis(Analysis):
     #     self.stimtime.append(time.time()-t)
 
     def plotColorFrame(self):
-        ''' Computes colored nicer background+components frame
-        '''
+        """
+        Paints overlay elements on to processed image.
+
+        :return: Processed image with neuron overlays
+        :rtype: np.ndarray
+        """
+
         t = time.time()
         image = self.image
-        color = np.stack([image, image, image, image], axis=-1).astype(np.uint8).copy()
-        color[...,3] = 255
-        if self.coords is not None:
-            for i,c in enumerate(self.coords):
-                #c = np.array(c)
-                ind = c[~np.isnan(c).any(axis=1)].astype(int)
-                cv2.fillConvexPoly(color, ind, self._tuningColor(i, color[ind[:,1], ind[:,0]]))
 
-        # if self.image.shape[0] < self.image.shape[1]:
-        #         self.flip = True
-        #         raw = raw.T
-        # else:
-        #     np.swapaxes(color,0,1)
+        frame = np.stack([image, image, image, image], axis=-1).astype(np.uint8).copy()
+        frame[...,3] = 255
+
+        if self.neuron_half_width is not None:
+            centers_of_mass = [o['CoM'] for o in self.coordDict]
+            for i, CoM in enumerate(centers_of_mass):
+                CoM = np.flip(CoM)
+                type_, color = self._tuningColor(i)
+
+                if type_ == 'circle':
+                    cv2.circle(frame, tuple(CoM), radius=max(self.neuron_half_width), color=color,
+                               thickness=1, lineType=cv2.LINE_AA)  # Anti-aliasing
+                else:  # Crosshair
+                    x, y = int(CoM[0]), int(CoM[1])
+                    cv2.line(frame, (x-3, y), (x+3, y), color=color, thickness=1, lineType=cv2.LINE_AA)
+                    cv2.line(frame, (x, y-3), (x, y+3), color=color, thickness=1, lineType=cv2.LINE_AA)
+
+        # if self.coords is not None:
+        #     for i,c in enumerate(self.coords): # iterate through neurons
+        #         # self.coords: list = [[x, y] for x, y in neuron_borders]
+        #         #c = np.array(c)
+        #         # Remove all points that contain at least one NaN
+        #         ind = c[~np.isnan(c).any(axis=1)].astype(int)
+        #         cv2.fillConvexPoly(color, ind, self._tuningColor(i, color[ind[:,1], ind[:,0]]))
+
+
         #TODO: user input for rotating frame? See Visual class
-        #print('time plotColorFrame ', time.time()-t)
-        self.colortime.append(time.time()-t)
-        return color
 
-    def _tuningColor(self, ind, inten):
-        if self.estsAvg[ind] is not None:
-            try:
-                h = np.nanargmax(self.estsAvg[ind])*36/360
-                intensity = 1- np.mean(inten[0][0])/255.0
-                r, g, b, = colorsys.hls_to_rgb(h, intensity, 0.8)
-                r, g, b = [x*255.0 for x in (r, g, b)]
-                return (r, g, b)+ (intensity*150,)
-            except ValueError:
-                return (255,255,255,0)
+        self.colortime.append(time.time()-t)
+        return frame
+
+    def _tuningColor(self, ind):
+        """
+        Return color of neuron specified by the index in RGB.
+        Color is defined in the HSL system.
+            Hue is the phase on the tuning.
+            Saturation is the max intensity / sum(intensity).
+                If all is zero, return white crosshair.
+            Lightness is kept at 0.5 to maximize color.
+
+        :returns type of overlay, RGBA color
+        :rtype str, tuple[int]
+        """
+        tuning = self.estsAvg[ind]
+        if tuning is not None:
+            intensity = max(tuning) / sum(tuning)
+            if np.isnan(intensity):
+                return 'crosshair', (255, 255, 255, 255)
+
+            h = np.nanargmax(tuning) * 36 / 360
+            r, g, b, = colorsys.hls_to_rgb(h, 0.5, intensity)
+            r, g, b = [x*255.0 for x in (r, g, b)]
+            return 'circle', (r, g, b) + (1*150,)
+
         else:
-            return (255,255,255,0)
+            return 'crosshair', (255,255,255,255)
