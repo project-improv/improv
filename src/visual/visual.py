@@ -217,15 +217,18 @@ class Rotater:
     Class for rotation of images and all components within to ensure that all images are vertical for display.
     """
     def __init__(self, img_dim: tuple):
+        assert len(img_dim) == 2 and min(img_dim) > 0
         self.img_dim = img_dim
         self.rotate = True if img_dim[0] > img_dim[1] else False
         self.idx = {'contour': 1,
                     'CoM': 0}
 
     def rotate_image(self, img: np.ndarray):
+        assert img.shape[:2] == self.img_dim
         return np.rot90(img) if self.rotate else img
 
     def rotate_coord(self, coord: np.ndarray, type_):
+        assert type_ in self.idx.keys()
         if self.rotate:
             coord[:, [1, 0]] = coord[:, [0, 1]]
             coord[:, self.idx[type_]] = self.img_dim[1] - coord[:, self.idx[type_]]
