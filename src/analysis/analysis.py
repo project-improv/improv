@@ -78,7 +78,7 @@ class MeanAnalysis(Analysis):
 
     def updateParams(self, incoming):
         assert incoming['target_module'] == 'Analysis'
-        if incoming['tweak_obj'] == 'config':
+        if incoming['tweak_obj'] == 'options':
             if 'neuron_half_width' in incoming['change']:
                 self.neuron_half_width = incoming['change']['neuron_half_width']
 

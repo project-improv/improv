@@ -40,11 +40,11 @@ class CaimanProcessor(Processor):
        interface with our pipeline.
        Uses code from caiman/source_extraction/cnmf/online_cnmf.py
     '''
-    def __init__(self, *args, config=None):
+    def __init__(self, *args, config_from_file=None):
         super().__init__(*args)
         self.ests = None #neural activity
         self.coords = None
-        self.params: dict = config
+        self.params: dict = config_from_file
 
     def setup(self):
         ''' Create OnACID object and initialize it
@@ -61,14 +61,14 @@ class CaimanProcessor(Processor):
 
         # self.loadParams(param_file=self.param_file)
         # self.params = self.client.get('params_dict')
-        
+
         # MUST include inital set of frames
         # TODO: Institute check here as requirement to Nexus
         
         self.opts = CNMFParams(params_dict=self.params)
         self.params = CNMFDict(self.params, cnmfparams=self.opts, client=self.client, q_comm=self.q_comm)
         # Tell Analysis the neuron half-wdith in order to draw neurons.
-        self.sendParams('Analysis', tweak_obj='config', params={'neuron_half_width': self.opts.get('init', 'gSig')})
+        self.sendParams('Analysis', tweak_obj='options', params={'neuron_half_width': self.opts.get('init', 'gSig')})
 
         self.onAc = OnACID(params = self.opts)
         self.frame_number = 0 #self.params['init_batch']
@@ -182,7 +182,7 @@ class CaimanProcessor(Processor):
         :type incoming: dict
         """
         assert incoming['target_module'] == 'Processor'
-        if incoming['tweak_obj'] == 'config':
+        if incoming['tweak_obj'] == 'config_from_file':
             self.params.update(incoming['change'])
 
     def finalProcess(self, output):
@@ -276,8 +276,8 @@ class CaimanProcessor(Processor):
         mn = self.onAc.M - self.onAc.N
         image = None
         try:
-            components = self.onAc.estimates.Ab[:,mn:].dot(self.onAc.estimates.C_on[mn:self.onAc.M,(self.frame_number-1)%self.onAc.window]).reshape(self.onAc.dims, order='F')
-            background = self.onAc.estimates.Ab[:,:mn].dot(self.onAc.estimates.C_on[:mn,(self.frame_number-1)%self.onAc.window]).reshape(self.onAc.dims, order='F')
+            components = self.onAc.estimates.Ab[:,mn:].dot(self.onAc.estimates.C_on[mn:self.onAc.M,(self.frame_number-1)]).reshape(self.onAc.dims, order='F')
+            background = self.onAc.estimates.Ab[:,:mn].dot(self.onAc.estimates.C_on[:mn,(self.frame_number-1)]).reshape(self.onAc.dims, order='F')
             image = ((components + background) - self.onAc.bnd_Y[0])/np.diff(self.onAc.bnd_Y)
             image = np.minimum((image*255.),255).astype('u1')
         except ValueError as ve:
@@ -345,7 +345,7 @@ class CaimanProcessor(Processor):
         if self.onAc.params.get('online', 'motion_correct'):
             try:
                 templ = self.onAc.estimates.Ab.dot(
-                self.onAc.estimates.C_on[:self.onAc.M, (frame_number-1)%self.onAc.window]).reshape(
+                self.onAc.estimates.C_on[:self.onAc.M, (frame_number-1)]).reshape(
                 self.onAc.params.get('data', 'dims'), order='F')*self.onAc.img_norm
             except Exception as e:
                 logger.error('Unknown exception {0}'.format(e))
@@ -419,5 +419,5 @@ class CNMFDict(UserDict):
         finally:
             self.q_comm.put({'type': 'params',
                              'target_module': 'Processor',
-                             'tweak_obj': 'config',
+                             'tweak_obj': 'config_from_file',
                              'change': {key: value}})
