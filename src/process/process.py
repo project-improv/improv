@@ -3,6 +3,7 @@ import pickle
 import cv2
 import numpy as np
 import scipy.sparse
+from collections import UserDict
 from nexus.store import Limbo, CannotGetObjectError, ObjectNotFoundError
 from caiman.source_extraction import cnmf
 from caiman.source_extraction.cnmf.utilities import detrend_df_f
@@ -16,6 +17,7 @@ import os
 from queue import Empty
 from nexus.module import Module, Spike, RunManager
 import traceback
+import colorama
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -38,62 +40,11 @@ class CaimanProcessor(Processor):
        interface with our pipeline.
        Uses code from caiman/source_extraction/cnmf/online_cnmf.py
     '''
-    def __init__(self, *args, config_file=None):
+    def __init__(self, *args, config_from_file=None):
         super().__init__(*args)
         self.ests = None #neural activity
         self.coords = None
-        self.param_file = config_file
-
-    def loadParams(self, param_file=None):
-        ''' Load parameters from file or 'defaults' into store
-            TODO: accept user input from GUI
-            This also effectively registers specific params
-            that CaimanProcessor needs with Nexus
-        '''
-        #TODO: Convert this to Tweak and load from there
-
-        if param_file is not None:
-            try:
-                params_dict = self._load_params_from_file(param_file)
-            except Exception as e:
-                logger.exception('File cannot be loaded. {0}'.format(e))
-        else:
-            # defaults from demo scripts; CNMFParams does not set
-            # each parameter needed by default (TODO change that?)
-            # TODO add parameter validation inside Tweak
-            home = expanduser("~")
-            cwd = os.getcwd()
-            params_dict = {'fnames': [cwd+'/data/tbif_ex.h5'], #Tolias_mesoscope_2.hdf5'],
-                   'fr': 15,
-                   'decay_time': 0.5,
-                   'gSig': (5,5),
-                   'p': 1,
-                   'min_SNR': 1,
-                   'rval_thr': 0.9,
-                   'ds_factor': 1,
-                   'nb': 2,
-                   'motion_correct': True,
-                   'init_batch': 100,
-                   'init_method': 'bare',
-                   'normalize': True,
-                   'sniper_mode': True,
-                   'K': 2,
-                   'epochs': 1,
-                   'max_shifts_online': np.ceil(10).astype('int'),
-                   'pw_rigid': False,
-                   'dist_shape_update': True,
-                   'show_movie': False,
-                   'update_freq': 500,
-                   'minibatch_shape': 100,
-                   'output': 'outputEstimates'}
-        self.client.put(params_dict, 'params_dict')
-        #TODO: return code    
-
-    def _load_params_from_file(self, param_file):
-        '''Filehandler for loading caiman parameters
-            TODO
-        '''
-        return {}
+        self.params: dict = config_from_file
 
     def setup(self):
         ''' Create OnACID object and initialize it
@@ -106,14 +57,19 @@ class CaimanProcessor(Processor):
         self.coords = None
         self.ests = None
         self.A = None
+        self.client.put(self.params, 'params_dict')
 
-        self.loadParams(param_file=self.param_file)
-        self.params = self.client.get('params_dict')
-        
+        # self.loadParams(param_file=self.param_file)
+        # self.params = self.client.get('params_dict')
+
         # MUST include inital set of frames
         # TODO: Institute check here as requirement to Nexus
         
         self.opts = CNMFParams(params_dict=self.params)
+        self.params = CNMFDict(self.params, cnmfparams=self.opts, client=self.client, q_comm=self.q_comm)
+        # Tell Analysis the neuron half-wdith in order to draw neurons.
+        self.sendParams('Analysis', tweak_obj='options', params={'neuron_half_width': self.opts.get('init', 'gSig')})
+
         self.onAc = OnACID(params = self.opts)
         self.frame_number = 0 #self.params['init_batch']
         #TODO: Need to rewrite init online as well to receive individual frames.
@@ -121,6 +77,14 @@ class CaimanProcessor(Processor):
         self.max_shifts_online = self.onAc.params.get('online', 'max_shifts_online')
 
         return self
+
+    def sendParams(self, destination: str, *, tweak_obj: str, params: dict):
+        self.q_comm.put({
+            'type': 'params',
+            'target_module': destination,
+            'tweak_obj': tweak_obj,
+            'change': params,
+        })
 
     def run(self):
         '''Run the processor continually on input frames
@@ -135,7 +99,7 @@ class CaimanProcessor(Processor):
         self.timestamp = []
         self.counter = 0
 
-        with RunManager(self.name, self.runProcess, self.setup, self.q_sig, self.q_comm) as rm:
+        with RunManager(self.name, self.runProcess, self.setup, self.q_sig, self.q_comm, paramsMethod=self.updateParams) as rm:
             logger.info(rm)
             
         print('Processor broke, avg time per frame: ', np.mean(self.total_times))
@@ -198,7 +162,7 @@ class CaimanProcessor(Processor):
                 # Proceed at all costs
                 self.dropped_frames.append(self.frame_number)
             except Exception as e:
-                logger.error('Processor unknown error: {}: {} during frame number {}'.format(type(e).__name__, 
+                logger.error('Processor unknown error: {}: {} during frame number {}'.format(type(e).__name__,
                                                                                             e, self.frame_number))
                 print(traceback.format_exc())
                 self.dropped_frames.append(self.frame_number)
@@ -210,7 +174,18 @@ class CaimanProcessor(Processor):
             # self.q_comm.put(None)
             # self.done = True
 
-    def finalProcess(self, output):    
+    def updateParams(self, incoming):
+        """
+        Apply change received from params signal to local {self.params}, which updates all necessary components.
+
+        :param incoming: Parameter
+        :type incoming: dict
+        """
+        assert incoming['target_module'] == 'Processor'
+        if incoming['tweak_obj'] == 'config_from_file':
+            self.params.update(incoming['change'])
+
+    def finalProcess(self, output):
         if self.onAc.params.get('online', 'normalize'):
             # normalize final estimates for this set of files. Useful?
             #self._normAnalysis()
@@ -301,8 +276,8 @@ class CaimanProcessor(Processor):
         mn = self.onAc.M - self.onAc.N
         image = None
         try:
-            components = self.onAc.estimates.Ab[:,mn:].dot(self.onAc.estimates.C_on[mn:self.onAc.M,(self.frame_number-1)%self.onAc.window]).reshape(self.onAc.dims, order='F')
-            background = self.onAc.estimates.Ab[:,:mn].dot(self.onAc.estimates.C_on[:mn,(self.frame_number-1)%self.onAc.window]).reshape(self.onAc.dims, order='F')
+            components = self.onAc.estimates.Ab[:,mn:].dot(self.onAc.estimates.C_on[mn:self.onAc.M,(self.frame_number-1)]).reshape(self.onAc.dims, order='F')
+            background = self.onAc.estimates.Ab[:,:mn].dot(self.onAc.estimates.C_on[:mn,(self.frame_number-1)]).reshape(self.onAc.dims, order='F')
             image = ((components + background) - self.onAc.bnd_Y[0])/np.diff(self.onAc.bnd_Y)
             image = np.minimum((image*255.),255).astype('u1')
         except ValueError as ve:
@@ -370,7 +345,7 @@ class CaimanProcessor(Processor):
         if self.onAc.params.get('online', 'motion_correct'):
             try:
                 templ = self.onAc.estimates.Ab.dot(
-                self.onAc.estimates.C_on[:self.onAc.M, (frame_number-1)%self.onAc.window]).reshape(
+                self.onAc.estimates.C_on[:self.onAc.M, (frame_number-1)]).reshape(
                 self.onAc.params.get('data', 'dims'), order='F')*self.onAc.img_norm
             except Exception as e:
                 logger.error('Unknown exception {0}'.format(e))
@@ -414,9 +389,35 @@ class NaNFrameException(Exception):
     pass
 
 
+class CNMFDict(UserDict):
+    """
+    Dictionary that updates CNMFParams and Nexus Tweak when its value is changed.
 
+    Can catch exception from CNMFParams and revert.
+    """
+    def __init__(self, *args, cnmfparams=None, client=None, q_comm=None, **kwargs):
+        self.CNMFParams: CNMFParams = cnmfparams
+        self.client: Limbo = client
+        self.q_comm = q_comm
+        super().__init__(*args, **kwargs)
 
-
-
-
-
+    def __setitem__(self, key, value):
+        old = self.get(key)
+        super().__setitem__(key, value)
+        try:
+            self.CNMFParams.change_params(self)
+        except Exception as e:
+            logger.error(f'CNMFParams change failed! Reverting to old config. {e}')
+            if old is None:
+                self.pop(key)
+            else:
+                self[key] = old
+            self.CNMFParams.change_params(self)
+            value = old
+        else:
+            logger.info(colorama.Fore.GREEN + f'Processor: {key} changed from {old} to {value}' + colorama.Fore.RESET)
+        finally:
+            self.q_comm.put({'type': 'params',
+                             'target_module': 'Processor',
+                             'tweak_obj': 'config_from_file',
+                             'change': {key: value}})

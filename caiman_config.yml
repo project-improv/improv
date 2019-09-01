@@ -1,0 +1,24 @@
+K: 2
+decay_time: 0.5
+dist_shape_update: true
+ds_factor: 1
+epochs: 1
+fnames:
+- ../data/Tolias_mesoscope_2.hdf5
+fr: 15
+gSig: !!python/tuple [5,5]
+init_batch: 100
+init_method: bare
+max_shifts_online: 10
+min_SNR: 1
+minibatch_shape: 100
+motion_correct: true
+nb: 2
+normalize: true
+output: outputEstimates
+p: 1
+pw_rigid: false
+rval_thr: 0.9
+show_movie: false
+sniper_mode: true
+update_freq: 500

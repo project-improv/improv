@@ -202,24 +202,21 @@ class BehaviorAcquirer(Module):
         TODO: needs to be associated with time, then frame number
     '''
 
-    def __init__(self, *args, param_file=None, **kwargs):
+    def __init__(self, *args, config=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.param_file = param_file
+        self.config: dict = config
+        self.behaviors = None
+
+        self.n = 0
 
     def setup(self):
         ''' Pre-define set of input stimuli
         '''
-        self.n = 0 #our fake frame number here
         #TODO: Consider global frame_number in store...or signal from Nexus
-
-        #TODO: Convert this to Tweak and load from there
-        if self.param_file is not None:
-            try:
-                params_dict = None #self._load_params_from_file(param_file)
-            except Exception as e:
-                logger.exception('File cannot be loaded. {0}'.format(e))
-        else:
-            self.behaviors = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] #10 sets of input stimuli
+        try:
+            self.behaviors = self.config['behaviors']
+        except (TypeError, KeyError):
+            self.behaviors = [i for i in range(10)]
 
     def run(self):
         ''' Run continuously, waiting for input

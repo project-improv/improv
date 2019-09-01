@@ -1,6 +1,5 @@
 import os
 import yaml
-import io
 
 import logging; logger = logging.getLogger(__name__)
 
@@ -22,6 +21,9 @@ class Tweak():
         
         self.modules = {}
         self.connections = {}
+
+    def __repr__(self):
+        return str(self.__dict__)
         
     def createConfig(self):
         ''' Read yaml config file and create config for Nexus
@@ -41,9 +43,8 @@ class Tweak():
             if "GUI" in name:
                 self.hasGUI = True
                 self.gui = tweakModule
-            
-            else:
-                self.modules.update({name:tweakModule})
+
+            self.modules.update({name:tweakModule})
         
         #print('self.modules:  ', self.modules)
 
@@ -62,9 +63,25 @@ class Tweak():
         cfg = self.modules
         yaml.safe_dump(cfg)
 
+
 class TweakModule():
     def __init__(self, name, packagename, classname, options=None):
         self.name = name
         self.packagename = packagename
         self.classname = classname
+        self.config_from_file = {}
+
+        if 'config_file' in options:  # Module-specific config file
+            config_file = options.pop('config_file')
+            with open(config_file) as f:
+                self.config_from_file = yaml.load(f)
+
         self.options = options
+
+    def __str__(self):
+        return f'{self.name}, {self.options}, {self.config_from_file}'
+
+
+if __name__ == '__main__':
+    t = Tweak('../basic_demo.yaml')
+    t.createConfig()

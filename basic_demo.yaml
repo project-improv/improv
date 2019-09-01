@@ -7,12 +7,13 @@ modules:
   Acquirer:
     package: acquire.acquire
     class: FileAcquirer
-    filename: data/tbif_ex.h5
+    filename: ../data/Tolias_mesoscope_2.hdf5
     framerate: 15
 
   Processor:
     package: process.process
     class: CaimanProcessor
+    config_file: ../caiman_config.yml
 
   Visual:
     package: visual.visual
@@ -25,6 +26,7 @@ modules:
   InputStim:
     package: acquire.acquire
     class: BehaviorAcquirer
+    config_file: ../behavior_config.yml
 
 
 connections:
