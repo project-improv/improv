@@ -121,7 +121,7 @@ class Nexus():
         mod = import_module(module.packagename)
         clss = getattr(mod, module.classname)
         try:
-            instance = clss(module.name, **module.options, config=module.config)
+            instance = clss(module.name, **module.options, config=module.config_from_file)
         except TypeError:
             instance = clss(module.name, **module.options)
 

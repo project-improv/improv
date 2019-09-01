@@ -69,17 +69,17 @@ class TweakModule():
         self.name = name
         self.packagename = packagename
         self.classname = classname
-        self.config = {}
+        self.config_from_file = {}
 
         if 'config_file' in options:  # Module-specific config file
             config_file = options.pop('config_file')
             with open(config_file) as f:
-                self.config = yaml.load(f)
+                self.config_from_file = yaml.load(f)
 
         self.options = options
 
-    def __repr__(self):
-        return f'{self.name}, {self.options}, {self.config}'
+    def __str__(self):
+        return f'{self.name}, {self.options}, {self.config_from_file}'
 
 
 if __name__ == '__main__':
