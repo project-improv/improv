@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import QMessageBox, QFileDialog
 from matplotlib import cm
 from queue import Empty
 from nexus.actor import Spike
+from .widgets import PathSlider
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -50,7 +51,13 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
         
 
         self.rawplot_2.getImageItem().mouseClickEvent = self.mouseClick #Select a neuron
-        self.slider.valueChanged.connect(_call(self.sliderMoved)) #Threshold for magnitude selection
+
+        self.plots = {'raw': self.rawplot, 'color': self.rawplot_2, 'image': self.rawplot_3}
+        self.currentImages = dict.fromkeys(self.plots)
+        self.currentCurves = dict.fromkeys({'Cx', 'C', 'Cpop', 'tune'})
+        self.firstImage = {key: True for key in self.plots.keys()}
+        self.centeredView = None
+        self.thresh_r = np.array(0)
 
     def update(self):
         ''' Update visualization while running
@@ -79,11 +86,13 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
         self.total_times.append(time.time()-t)
 
     def extraSetup(self):
-        self.slider2 = QRangeSlider(self.frame_3)
-        #self.slider2.setGeometry(QtCore.QRect(20, 100, 155, 50))
-        self.slider2.setGeometry(QtCore.QRect(55, 120, 155, 50))
-        self.slider2.setObjectName("slider2")
-        self.slider2.rangeChanged.connect(_call(self.slider2Moved)) #Threshold for angular selection
+        self.slider2 = PathSlider(self.frame_3, minSize=150, minimum=0, maximum=360)
+        #self.slider2 = QRangeSlider(self.frame_3)
+        self.slider2.setGeometry(QtCore.QRect(20, 100, 155, 50))
+        # self.slider2.setGeometry(QtCore.QRect(55, 120, 155, 50))
+        # self.slider2.setObjectName("slider2")
+        self.slider2.rangeChanged.connect(self.updatePhaseRange) #Threshold for angular selection
+        self.slider2.threshChanged.connect(self.updateThreshold)
 
     def customizePlots(self):
         self.checkBox.setChecked(True)
@@ -177,30 +186,31 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
     def updateVideo(self):
         ''' TODO: Bug on clicking ROI --> trace and report to pyqtgraph
         '''
-        #t = time.time()
-        image = None
-        try:
-            raw, color = self.visual.getFrames()
-            image = self.visual.plotThreshFrame(self.thresh_r*2)
-            if raw is not None:
-                raw = np.rot90(raw,2)
-                if np.unique(raw).size > 1:
-                    self.rawplot.setImage(raw, autoHistogramRange=False)
-                    self.rawplot.ui.histogram.vb.setLimits(yMin=50)
-            if color is not None:
-                color = np.rot90(color,2)
-                self.rawplot_2.setImage(color)
-                self.rawplot_2.ui.histogram.vb.setLimits(yMin=8, yMax=255)
-            if image is not None:
-                image = np.rot90(image,2)
-                self.rawplot_3.setImage(image)
-                self.rawplot_3.ui.histogram.vb.setLimits(yMin=8, yMax=255)
+        # try:
+        self.currentImages['raw'], self.currentImages['color'] = self.visual.getFrames()
+        self.currentImages['image'] = self.visual.plotThreshFrame(self.thresh_r)
+        # except Exception as e:
+        #     logger.error('Error in FrontEnd update Video:  {}'.format(e))
 
-        except Exception as e:
-            logger.error('Error in FrontEnd update Video:  {}'.format(e))
-            raise Exception
+        for name, plot in self.plots.items():
+            if self.currentImages[name] is not None:
+                if self.firstImage[name]:
+                    plot.setImage(self.currentImages[name], autoHistogramRange=False)
+                    plot.tVals = None  # Prevent AttrErr upon invocation of ROI in color.
+                    self.firstImage[name] = False
+                    if name == 'color':
+                        self.centeredView = plot.getView().getState()
+                else:
+                    view: pyqtgraph.ViewBox = plot.getView()  # Preserve zoom and translation in ViewBox
+                    if name == 'raw':  # Raw not synced with others
+                        state = view.getState()
+                        plot.setImage(self.currentImages[name], autoHistogramRange=False)
+                        view.setState(state)
 
-        #print('update Video time ', time.time()-t)
+                    elif name == 'color':
+                        state = view.getState()
+                    plot.setImage(self.currentImages[name], autoHistogramRange=False)
+                    view.setState(state)
 
     def updateLines(self):
         ''' Helper function to plot the line traces
@@ -215,6 +225,7 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
         tune = None
         try:
             (Cx, C, Cpop, tune) = self.visual.getCurves()
+            self.currentCurves = {'Cx': Cx, 'C': C, 'Cpop': C, 'tune': tune}
         except TypeError:
             pass
         except Exception as e:
@@ -269,14 +280,100 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
         selectedraw[1] = int(mousePoint.y())
         self._updateRedCirc()
 
-    def sliderMoved(self):
-        val = self.slider.value()
-        if np.count_nonzero(self.thresh_r) == 0:
-            r = np.full(self.num+1,val)
-        else:
-            r = self.thresh_r
-            r[np.nonzero(r)] = val
-        self.updateThreshGraph(r)
+    def keyPressEvent(self, e):
+        if e.key() == 83:  # s
+            self.saveCurrentImages()
+        elif e.key() == 79:  # o
+            self.visual.triggerMask()
+        elif e.key() == 67:  # c: Center all views
+            [plot.getView().setState(self.centeredView) for _, plot in self.plots.items()]
+
+    def saveCurrentImages(self):
+        """
+        Save current images and plot data
+            - raw, color, image in .tif
+            - Cx, C, Cpop, tune in pickle
+        """
+        t = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S.%f")[:-3]
+
+        directory = Path(f'../outputs/')
+        directory.mkdir(parents=True, exist_ok=True)
+
+        for name, img in self.currentImages.items():
+            tiff.imsave(directory / f'{t}_frame_{self.visual.frame_num}_{name}.tif', img)
+
+        with open(directory / f'{t}_frame_{self.visual.frame_num}_plots.pickle', 'wb') as f:
+            pickle.dump(self.currentCurves, f)
+
+        logger.info(f'Saved images and plot as {t}_frame_{self.visual.frame_num}')
+
+    def updatePhaseRange(self, start, end):
+        """
+        Updates the range of angles of interest as input from the circular slider.
+        {self.thresh_r} is an ndarray of size {self.num}, which is 360° divided into {self.num} sections.
+        All input within range {idx * 360/self.num} are lumped together (inclusive).
+        Values in range of interest is {self.slider2.sliderVal} else 0.
+
+        :param start: Start angle from circular slider {self.slider2.rangeChanged}
+        :param end: End angle from circular slider
+
+        >>> self.num = 21; self.slider2.sliderVal = 3
+        >>> self.updatePhaseRange(12, 45)
+        >>> print(self.thresh_r)
+        [3 3 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+
+        """
+        assert 0 <= start < 360
+        assert 0 <= end < 360
+
+        r = np.zeros(self.num, dtype=int)
+        idxStart, idxEnd = int(start // (360 / self.num)), int(end // (360 / self.num))
+
+        if start < end:
+            r[idxStart:idxEnd+1] = self.slider2.sliderVal
+
+        else:  # Over 360
+            r[idxStart:] = self.slider2.sliderVal
+            r[:idxEnd+1] = self.slider2.sliderVal
+
+        self.thresh_r = r
+        # self.saveUserCommands('phase', [start, end]) TODO TWEAK
+        # r1, r2 = self.slider2.range()
+        # r = np.full(self.num, self.slider.value())
+        #
+        # r1 = 4*np.pi*(r1-4)/360
+        # r2 = 4*np.pi*(r2-4)/360
+        # t1 = np.argmin(np.abs(np.array(r1)-self.theta))
+        # t2 = np.argmin(np.abs(np.array(r2)-self.theta))
+        # r[0:t1] = 0
+        # r[t2+1:self.num] = 0
+        # self.updateThreshGraph(r)
+
+    def updateThreshold(self, newThresh):
+        """
+        Changes non-zero {self.thresh_r} values into {newThresh}.
+        :param newThresh: new threshold from {self.slider2.threshChanged}
+
+        """
+        assert newThresh >= 0
+
+        currentValue = np.max(self.thresh_r)
+        if newThresh != currentValue:
+            if currentValue < 1:
+                self.updatePhaseRange(self.slider2.startPoint, self.slider2.endPoint)
+            else:
+                print('Updating threshold')
+                self.thresh_r = (self.thresh_r / currentValue).astype(int)
+                self.thresh_r *= newThresh
+                # self.saveUserCommands('threshold', newThresh)  # TODO TWEAK
+
+        # val = self.slider.value()
+        # if np.count_nonzero(self.thresh_r) == 0:
+        #     r = np.full(self.num,val)
+        # else:
+        #     r = self.thresh_r
+        #     r[np.nonzero(r)] = val
+        # self.updateThreshGraph(val)
 
     def slider2Moved(self):
         r1,r2 = self.slider2.range()

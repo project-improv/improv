@@ -1,6 +1,7 @@
 import time
 import numpy as np
 import cv2
+from typing import Sequence
 from nexus.store import Limbo, ObjectNotFoundError
 from scipy.spatial.distance import cdist
 from math import floor
@@ -56,6 +57,9 @@ class CaimanVisual(Actor):
 
         self.flip = False
         self.flag = False
+        self.rotater: Rotater = None
+        self.newFrameAvail = {'raw': False, 'color': False, 'image': False}
+        self.showMask = True
 
     def setup(self):
         ''' Setup 
@@ -65,6 +69,8 @@ class CaimanVisual(Actor):
         self.tune = None
         self.raw = None
         self.color = None
+        self.colorMask = None
+        self.threshFrame = None
         self.coords = None
 
         self.draw = True
@@ -83,6 +89,7 @@ class CaimanVisual(Actor):
             id = self.links['raw_frame_queue'].get(timeout=0.0001)
             self.raw_frame_number = list(id[0].keys())[0]
             self.raw = self.client.getID(id[0][self.raw_frame_number])
+            self.newFrameAvail['raw'] = True
         except Empty as e:
             pass
         except Exception as e:
@@ -90,9 +97,9 @@ class CaimanVisual(Actor):
         try: 
             ids = self.q_in.get(timeout=0.0001)
             if self.draw:
-                (self.Cx, self.C, self.Cpop, self.tune, self.color, self.coords) = self.client.getList(ids)
-                # self.getCurves()
-                # self.getFrames()
+                (self.Cx, self.C, self.Cpop, self.tune, self.color, self.colorMask, self.coords) = self.client.getList(ids)
+                self.newFrameAvail['color'] = True
+                self.newFrameAvail['image'] = True
                 self.total_times.append([time.time(), time.time()-t])
             ##############FIXME frame number!
             self.frame_num += 1
@@ -124,12 +131,26 @@ class CaimanVisual(Actor):
     def getFrames(self):
         ''' Return the raw and colored frames for display
         '''
-        if self.raw is not None and self.raw.shape[0] > self.raw.shape[1]:
-            self.raw = np.rot90(self.raw, 1)
-        if self.color is not None and self.color.shape[0] > self.color.shape[1]:
-            self.color = np.rot90(self.color, 1)
+        if self.raw is not None and self.color is not None and self.rotater is None:  # First time
+            self.rotater = Rotater(img_dim=self.raw.shape)
 
-        return self.raw, self.color
+        if self.rotater is not None:
+
+            if self.newFrameAvail['color']:
+                self.color, self.colorMask = self.rotater.rotate_image(self.color, self.colorMask)
+                self.newFrameAvail['color'] = False
+
+            if self.newFrameAvail['raw']:
+                self.raw = self.rotater.rotate_image(self.raw)
+                self.newFrameAvail['raw'] = False
+
+        if self.showMask:
+            return self.raw, self.colorMask
+        else:
+            return self.raw, self.color
+
+    def triggerMask(self):
+        self.showMask = False if self.showMask else True
 
     def selectNeurons(self, x, y):
         ''' x and y are coordinates
@@ -140,15 +161,14 @@ class CaimanVisual(Actor):
         neurons = [o['neuron_id']-1 for o in self.coords]
         com = np.array([o['CoM'] for o in self.coords])
         #dist = cdist(com, [np.array([y, self.raw.shape[0]-x])])
-        dist = cdist(com, [np.array([self.raw.shape[0]-x, self.raw.shape[1]-y])])
+        dist = cdist(self.rotater.rotate_coord(com, 'CoM'), [np.array([x, y])])
         if np.min(dist) < 50:
             selected = neurons[np.argmin(dist)]
             self.selectedNeuron = selected
             print('Red circle at ', com[selected])
             print('Tuning curve: ', self.tune[0][selected])
             #self.com1 = [np.array([self.raw.shape[0]-com[selected][1], com[selected][0]])]
-            #self.com1 = [com[selected]]
-            self.com1 = [np.array([self.raw.shape[0]-com[selected][0], self.raw.shape[1]-com[selected][1]])]
+            self.com1 = [com[selected]]
         else:
             logger.error('No neurons nearby where you clicked')
             #self.com1 = [np.array([self.raw.shape[0]-com[0][1], com[0][0]])]
@@ -160,22 +180,18 @@ class CaimanVisual(Actor):
         if self.coords:
             com = [o['CoM'] for o in self.coords] #TODO make one line
             #first = [np.array([self.raw.shape[0]-com[0][1], com[0][0]])]
-            first = [np.array([self.raw.shape[0]-com[0][0], self.raw.shape[1]-com[0][1]])]
-            #first = [com[0]]
+            first = [com[0]]
         return first
 
     def plotThreshFrame(self, thresh_r):
         ''' Computes shaded frame for targeting panel
             based on threshold value of sliders (user-selected)
         '''
-        if self.raw is not None:
+        if self.raw is not None and self.newFrameAvail['image']:
             bnd_Y = np.percentile(self.raw, (0.001,100-0.001))
             image = (self.raw - bnd_Y[0])/np.diff(bnd_Y)
-        else:
-            return None
-        if image.shape[0] > image.shape[1]:
+            if image.shape[0] > image.shape[1]:
                 image = np.rot90(image,1)
-        if image is not None:
             image2 = np.stack([image, image, image, image], axis=-1).astype(np.uint8).copy()
             image2[...,3] = 150
             if self.coords is not None:
@@ -183,28 +199,65 @@ class CaimanVisual(Actor):
                 for i,c in enumerate(coords):
                     #c = np.array(c)
                     ind = c[~np.isnan(c).any(axis=1)].astype(int)
+                    ind = self.rotater.rotate_coord(ind, 'contour')
                     #rot_ind = np.array([[i[1],self.raw.shape[0]-i[0]] for i in ind])
                     #rot_ind = np.array([[self.raw.shape[0]-i[0],self.raw.shape[1]-i[1]] for i in ind])
                     cv2.fillConvexPoly(image2, ind, self._threshNeuron(i, thresh_r))
-            return image2
-        else: 
-            return None
+            self.threshFrame = image2
+            self.newFrameAvail['image'] = False
+
+        return self.threshFrame
 
     def _threshNeuron(self, ind, thresh_r):
         ests = self.tune[0]
+        dark = (255,255,255,0)
+        bright = (255,255,255,150)
+
         thresh = np.max(thresh_r)
-        display = (255,255,255,150)
+        display = bright
         act = np.zeros(ests.shape[1])
         if ests[ind] is not None:
             intensity = np.max(ests[ind])
             act[:len(ests[ind])] = ests[ind]
-            if thresh > intensity: 
-                display = (255,255,255,0)
-            elif np.any(act[np.where(thresh_r[:-1]==0)[0]]>0.5):
-                display = (255,255,255,0)
+            if intensity < thresh:
+                display = dark
+            elif np.any(act[np.where(thresh_r==0)[0]] > 0.5):
+                display = dark
         return display
 
-#------------  Code below for running idependently 
+
+class Rotater:
+    """
+    Class for rotation of images and all components within to ensure that all images are vertical for display.
+    """
+    def __init__(self, img_dim: tuple):
+        assert len(img_dim) == 2 and min(img_dim) > 0
+        self.img_dim = img_dim
+        self.rotate = True if img_dim[0] > img_dim[1] else False
+        self.idx = {'contour': 1,
+                    'CoM': 0}
+
+    def _rotate(self, img: np.ndarray):
+        assert img.shape[:2] == self.img_dim
+        return np.rot90(img) if self.rotate else img
+
+    def rotate_image(self, *imgs: np.ndarray):
+        if len(imgs) == 1:
+            return self._rotate(imgs[0])
+
+        if isinstance(imgs[0], Sequence):
+            return (self._rotate(img) for img in imgs[0])
+
+        return (self._rotate(img) for img in imgs)
+
+    def rotate_coord(self, coord: np.ndarray, type_):
+        assert type_ in self.idx.keys()
+        if self.rotate:
+            coord[:, [1, 0]] = coord[:, [0, 1]]
+            coord[:, self.idx[type_]] = self.img_dim[1] - coord[:, self.idx[type_]]
+        return coord
+
+#------------  Code below for running idependently
 
 def runVis():
     logger.error('trying to run')

@@ -42,6 +42,7 @@ class MeanAnalysis(Actor):
         self.runMeanOn = None
         self.runMeanOff = None
         self.recentStim = [0]*self.window
+        self.neuron_half_width = (5, 5)  # TODO: Get param from Analysis after merging this to dev
 
     def run(self):
         self.total_times = []
@@ -105,7 +106,7 @@ class MeanAnalysis(Actor):
             # Compute coloring of neurons for processed frame
             # Also rotate and stack as needed for plotting
             if self.frame % 2 == 0: #TODO: move to viz, but we don't need to compute this 30 times/sec
-                self.color = self.plotColorFrame()
+                self.color, self.colorMask = self.plotColorFrame()
 
             if self.frame >= self.window:
                 window = self.window
@@ -169,6 +170,7 @@ class MeanAnalysis(Actor):
         ids.append(self.client.put(self.Cpop, 'Cpop'+str(self.frame)))
         ids.append(self.client.put(self.tune, 'tune'+str(self.frame)))
         ids.append(self.client.put(self.color, 'color'+str(self.frame)))
+        ids.append(self.client.put(self.colorMask, 'colorMask' + str(self.frame)))
         ids.append(self.client.put(self.coordDict, 'analys_coords'+str(self.frame)))
 
         self.q_out.put(ids)
@@ -255,29 +257,50 @@ class MeanAnalysis(Actor):
         self.stimtime.append(time.time()-t)
 
     def plotColorFrame(self):
-        ''' Computes colored nicer background+components frame
-        '''
+        """
+        Paints overlay elements on to processed image.
+
+        :return: Processed image with neuron overlays
+        :rtype: np.ndarray
+        """
+
         t = time.time()
         image = self.image
-        color = np.stack([image, image, image, image], axis=-1).astype(np.uint8).copy()
-        color[...,3] = 255
-        if self.coords is not None:
-            for i,c in enumerate(self.coords):
-                #c = np.array(c)
-                ind = c[~np.isnan(c).any(axis=1)].astype(int)
-                cv2.fillConvexPoly(color, ind, self._tuningColor(i, color[ind[:,1], ind[:,0]]))
 
-        # if self.image.shape[0] < self.image.shape[1]:
-        #         self.flip = True
-        #         raw = raw.T
-        # else:
-        #     np.swapaxes(color,0,1)
+        frame = np.stack([image, image, image, image], axis=-1).astype(np.uint8).copy()
+        frame[...,3] = 255
+
+        mask = np.copy(frame)
+
+        if self.neuron_half_width is not None:
+            centers_of_mass = [o['CoM'] for o in self.coordDict]
+            for i, CoM in enumerate(centers_of_mass):
+                CoM = np.flip(CoM)
+                type_, color = self._tuningColor(i)
+
+                if type_ == 'circle':
+                    cv2.circle(mask, tuple(CoM), radius=max(self.neuron_half_width), color=color,
+                               thickness=1, lineType=cv2.LINE_AA)  # Anti-aliasing
+                else:  # Crosshair
+                    x, y = int(CoM[0]), int(CoM[1])
+                    cv2.line(mask, (x-3, y), (x+3, y), color=color, thickness=1)
+                    cv2.line(mask, (x, y-3), (x, y+3), color=color, thickness=1)
+
+        # if self.coords is not None:
+        #     for i,c in enumerate(self.coords): # iterate through neurons
+        #         # self.coords: list = [[x, y] for x, y in neuron_borders]
+        #         #c = np.array(c)
+        #         # Remove all points that contain at least one NaN
+        #         ind = c[~np.isnan(c).any(axis=1)].astype(int)
+        #         cv2.fillConvexPoly(color, ind, self._tuningColor(i, color[ind[:,1], ind[:,0]]))
+
+
         #TODO: user input for rotating frame? See Visual class
         #print('time plotColorFrame ', time.time()-t)
         self.colortime.append(time.time()-t)
-        return color
+        return frame, mask
 
-    def _tuningColor(self, ind, inten):
+    def _tuningColor(self, ind):
         if self.estsAvg[ind] is not None or np.sum(self.estsAvg[ind])>0.01:
             try:
                 tc = np.nanargmax(self.estsAvg[ind])
@@ -286,14 +309,13 @@ class MeanAnalysis(Actor):
                 # intensity = 1 - np.mean(inten[0][0])/255.0
                 # r, g, b, = colorsys.hls_to_rgb(h, intensity, 1)
                 # r, g, b = [x*255.0 for x in (r, g, b)]
-                return (r, g, b) + (255,) #(intensity*255,)
+                return 'circle', (r, g, b) + (255,) #(intensity*255,)
             except ValueError:
-                return (255,255,255,0)
+                return 'circle', (255,255,255,0)
             except Exception:
-                print('inten is ', inten)
                 print('estsAvg[i] is ', self.estsAvg[ind])
         else:
-            return (255,255,255,0)
+            return 'crosshair', (255, 255, 255, 255)
 
     def manual_Color(self, x):
         if x==0:
