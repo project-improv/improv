@@ -3,14 +3,15 @@ import pickle
 import signal
 import time
 
-from dataclasses import dataclass
-from queue import Empty
+from dataclasses import dataclass, make_dataclass
+from queue import Empty, Queue
 from pathlib import Path
+from random import random
+from threading import Thread
 from typing import List, Union
 
 import lmdb
 import numpy as np
-import pyarrow as arrow
 import pyarrow.plasma as plasma
 from pyarrow import PlasmaObjectExists, SerializationCallbackError
 from pyarrow.lib import ArrowIOError
@@ -53,7 +54,7 @@ class Limbo(StoreInterface):
 
     def __init__(self, name='default', store_loc='/tmp/store',
                  use_hdd=False, lmdb_name=None, hdd_maxstore=1e12, hdd_path='output/', flush_immediately=False,
-                 commit_freq=20):
+                 commit_freq=1):
 
         """
         Constructor for the Limbo
@@ -70,7 +71,7 @@ class Limbo(StoreInterface):
 
         :param hdd_path: Path to LMDB folder.
         :param flush_immediately: Save objects to disk immediately
-        :param commit_freq: If not flush_immediately, flush data to disk every _ puts.
+        :param commit_freq: If not flush_immediately, flush data to disk every {commit_freq} seconds.
         """
 
         self.name = name
@@ -327,8 +328,8 @@ class Limbo(StoreInterface):
 
 
 class LMDBStore(StoreInterface):
-    def __init__(self, path='output/', name=None, load=False, max_size=1e12,
-                 flush_immediately=False, commit_freq=20):
+    def __init__(self, path='../outputs/', name=None, load=False, max_size=1e12,
+                 flush_immediately=False, commit_freq=1):
         """
         Constructor for LMDB store
 
@@ -338,13 +339,16 @@ class LMDBStore(StoreInterface):
             Maximum size database may grow to; used to size the memory mapping.
             If the database grows larger than map_size, a MapFullError will be raised.
             On 64-bit there is no penalty for making this huge. Must be <2GB on 32-bit.
+        :param load: For Replayer use. Informs the class that we're loading from a previous LMDB, not create a new one.
         :param flush_immediately: Save objects to disk immediately
-        :param commit_freq: If not flush_immediately, flush data to disk every _ puts.
+        :param commit_freq: If not flush_immediately, flush data to disk every {commit_freq} seconds.
         """
 
+        # Check if LMDB folder exists.
         path = Path(path)
-        # Load
         if load:
+            if name is not None:
+                path = path / name
             if not (path / 'data.mdb').exists():
                 raise FileNotFoundError('Invalid LMDB directory.')
         else:
@@ -354,23 +358,22 @@ class LMDBStore(StoreInterface):
                 name = f'lmdb_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}'
             path = path / name
 
-        # if os.path.exists(path + name):
-        #     raise FileExistsError('LMDB of the same name already exists.')
-
         self.flush_immediately = flush_immediately
         self.lmdb_env = lmdb.open(path.as_posix(), map_size=max_size, sync=flush_immediately)
         self.lmdb_commit_freq = commit_freq
-        self.lmdb_put_cache = {}
-        self.all_obj_name = set()
 
+        self.put_queue = Queue()
+        self.put_queue_container = make_dataclass('LMDBPutContainer', [('name', str), ('obj', bytes)])
+
+        self.commit_thread = None  # Initialize only after interpreter has forked at the start of each actor.
         signal.signal(signal.SIGINT, self.flush)
 
     def get(self, key: Union[plasma.ObjectID, bytes, List[plasma.ObjectID], List[bytes]], include_metadata=False):
         """
-        Get object from key (could be any byte string or plasma.ObjectID)
+        Get object using key (could be any byte string or plasma.ObjectID)
 
         :param key:
-        :param include_metadata: returns whole LMDBData if true else returns LMDBData.obj (just the stored object)
+        :param include_metadata: returns whole LMDBData if true else LMDBData.obj (just the stored object).
         :rtype: object or LMDBData
         """
         while True:
@@ -378,8 +381,7 @@ class LMDBStore(StoreInterface):
                 if isinstance(key, str) or isinstance(key, ObjectID):
                     return self._get_one(LMDBStore._convert_obj_id_to_bytes(key), include_metadata)
                 return self._get_batch(list(map(LMDBStore._convert_obj_id_to_bytes, key)), include_metadata)
-
-            except lmdb.BadRslotError:
+            except lmdb.BadRslotError:  # Happens when multiple transactions access LMDB at the same time.
                 pass
 
     def _get_one(self, key, include_metadata):
@@ -420,37 +422,46 @@ class LMDBStore(StoreInterface):
         :return: None
         """
         # TODO: Duplication check
+        if self.commit_thread is None:
+            self.commit_thread = Thread(target=self.commit_daemon, daemon=True)
+            self.commit_thread.start()
 
-        if obj_name.startswith('q_') or obj_name.startswith('tweak'):
-            self.lmdb_put_cache[obj_name.encode()] = pickle.dumps(LMDBData(obj, time=time.time(), name=obj_name, is_queue=True))
-
-        elif obj_id is None:
-            self.lmdb_put_cache[obj_name.encode()] = pickle.dumps(LMDBData(obj, time=time.time(), name=obj_name))
-
+        if obj_name.startswith('q_') or obj_name.startswith('tweak'):  # Queue
+            name = obj_name.encode()
+            is_queue = True
         else:
-            self.lmdb_put_cache[obj_id.binary()] = pickle.dumps(LMDBData(obj, time=time.time(), name=obj_name))
-            self.all_obj_name.add(obj_id.binary())
+            name = obj_id.binary() if obj_id is not None else obj_name.encode()
+            is_queue = False
+
+        self.put_queue.put(self.put_queue_container(
+               name=name, obj=pickle.dumps(LMDBData(obj, time=time.time(), name=obj_name, is_queue=is_queue))))
 
         # Write
-        if len(self.lmdb_put_cache) > self.lmdb_commit_freq or (self.flush_immediately or flush_this_immediately):
+        if self.flush_immediately or flush_this_immediately:
             self.commit()
-            if flush_this_immediately:
-                self.lmdb_env.sync()
+            self.lmdb_env.sync()
 
-    def flush(self, signal=None, frame=None):
+    def flush(self, sig=None, frame=None):
         """ Must run before exiting. Flushes buffer to disk. """
         self.commit()
         self.lmdb_env.sync()
         self.lmdb_env.close()
         exit(0)
 
+    def commit_daemon(self):
+        time.sleep(2 * random())  # Reduce multiple commits at the same time.
+        while True:
+            time.sleep(self.lmdb_commit_freq)
+            self.commit()
+
     def commit(self):
-        """ Commit objects in {self.lmdb_put_cache} into LMDB. """
-        if len(self.lmdb_put_cache) > 0:
+        """ Commit objects in {self.put_cache} into LMDB. """
+        if not self.put_queue.empty():
+            print(self.put_queue.qsize())
             with self.lmdb_env.begin(write=True) as txn:
-                for key, value in self.lmdb_put_cache.items():
-                    txn.put(key, value, overwrite=True)
-            self.lmdb_put_cache = {}
+                while not self.put_queue.empty():
+                    container = self.put_queue.get_nowait()
+                    txn.put(container.name, container.obj, overwrite=True)
 
     def delete(self, obj_id):
         """
