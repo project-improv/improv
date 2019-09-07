@@ -53,8 +53,8 @@ class Limbo(StoreInterface):
     '''
 
     def __init__(self, name='default', store_loc='/tmp/store',
-                 use_hdd=False, lmdb_name=None, hdd_maxstore=1e12, hdd_path='output/', flush_immediately=False,
-                 commit_freq=1):
+                 use_lmdb=False, lmdb_path='../outputs/', lmdb_name=None, hdd_maxstore=1e12,
+                 flush_immediately=False, commit_freq=1):
 
         """
         Constructor for the Limbo
@@ -62,7 +62,7 @@ class Limbo(StoreInterface):
         :param name:
         :param store_loc: Apache Arrow Plasma client location
 
-        :param use_hdd: bool Also write data to disk using the LMDB
+        :param use_lmdb: bool Also write data to disk using the LMDB
 
         :param hdd_maxstore:
             Maximum size database may grow to; used to size the memory mapping.
@@ -80,11 +80,11 @@ class Limbo(StoreInterface):
         self.stored = {}
 
         # Offline db
-        self.use_hdd = use_hdd
+        self.use_hdd = use_lmdb
         self.flush_immediately = flush_immediately
 
-        if use_hdd:
-            self.lmdb_store = LMDBStore(name=lmdb_name, max_size=hdd_maxstore, path=hdd_path,
+        if use_lmdb:
+            self.lmdb_store = LMDBStore(path=lmdb_path, name=lmdb_name, max_size=hdd_maxstore,
                                         flush_immediately=flush_immediately,
                                         commit_freq=commit_freq)
 
@@ -333,8 +333,8 @@ class LMDBStore(StoreInterface):
         """
         Constructor for LMDB store
 
-        :param path: Path to LMDB folder.
-        :param name: Name of LMDB. Default to lmdb_[current time in human format].
+        :param path: Path to folder containing LMDB folder.
+        :param name: Name of LMDB. Required if not {load].
         :param max_size:
             Maximum size database may grow to; used to size the memory mapping.
             If the database grows larger than map_size, a MapFullError will be raised.
@@ -352,10 +352,9 @@ class LMDBStore(StoreInterface):
             if not (path / 'data.mdb').exists():
                 raise FileNotFoundError('Invalid LMDB directory.')
         else:
+            assert name is not None
             if not path.exists():
                 path.mkdir(parents=True)
-            if name is None:
-                name = f'lmdb_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}'
             path = path / name
 
         self.flush_immediately = flush_immediately
@@ -365,7 +364,7 @@ class LMDBStore(StoreInterface):
         self.put_queue = Queue()
         self.put_queue_container = make_dataclass('LMDBPutContainer', [('name', str), ('obj', bytes)])
 
-        self.commit_thread = None  # Initialize only after interpreter has forked at the start of each actor.
+        self.commit_thread: Thread = None  # Initialize only after interpreter has forked at the start of each actor.
         signal.signal(signal.SIGINT, self.flush)
 
     def get(self, key: Union[plasma.ObjectID, bytes, List[plasma.ObjectID], List[bytes]], include_metadata=False):
