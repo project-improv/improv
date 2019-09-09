@@ -1,17 +1,17 @@
-import time
-import sys
-import numpy as np
+import datetime
+import os
 import pickle
+import time
+import lmdb
+import numpy as np
 import pyarrow as arrow
-from pyarrow import PlasmaObjectExists
 import pyarrow.plasma as plasma
-from pyarrow.plasma import ObjectNotAvailable
+from pyarrow import PlasmaObjectExists
 from pyarrow.lib import ArrowIOError
-import subprocess
-from multiprocessing import Pool
-from concurrent.futures import ThreadPoolExecutor
-from queue import Empty
+from pyarrow.plasma import ObjectNotAvailable
+from scipy.sparse import csc_matrix
 from nexus.actor import Spike
+from queue import Empty
 
 import logging; logger=logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -29,7 +29,7 @@ class StoreInterface():
 
     def delete(self):
         raise NotImplementedError
-    
+
     def replace(self):
         raise NotImplementedError
 
@@ -45,37 +45,62 @@ class Limbo(StoreInterface):
           shortname, value is object_id
     '''
 
-    def __init__(self, name='default', store_loc='/tmp/store'):
+    def __init__(self, name='default', store_loc='/tmp/store',
+                 hdd_loc='output/', use_hdd=False, hdd_maxstore=1e12,
+                 flush_immediately=False, commit_freq=20):
+        # TODO TODO TODO: Refactor to use local hdd settings instead of put and get
+        ''' Constructor for Limbo
+            store_loc: Apache Arrow Plasma client location, default is /tmp/store
+            hdd_loc: Path to LMDB folder if used
+            use_hdd: flag to also write data to disk using the LMDB
+            hdd_maxstore: Maximum size database may grow to; used to size the memory mapping. see LMDBStore
+                TODO: NO errors raised without being handled or suggested resolution
+            flush_immediately: Save objects to disk immediately
+            commit_freq: If not flush_immediately, flush data to disk every N puts
+        '''
+
         self.name = name
         self.store_loc = store_loc
         self.client = self.connectStore(store_loc)
         self.stored = {}
 
+        # Offline db
+        self.use_hdd = use_hdd
+        self.flush_immediately = flush_immediately
+
+        if use_hdd:
+            self.lmdb_store = LMDBStore(max_size=hdd_maxstore, path=hdd_path, flush_immediately=flush_immediately,
+                                        commit_freq=commit_freq, from_limbo=True)
+
     def connectStore(self, store_loc):
         ''' Connect to the store at store_loc
             Raises exception if can't connect
-            Returns the plamaclient if successful
+            Returns the plasmaclient if successful
             Updates the client internal
         '''
         try:
             #self.client = plasma.connect(store_loc)
-            self.client = plasma.connect(store_loc, '', 0)
+            self.client: plasma.PlasmaClient = plasma.connect(store_loc, '', 0)
             logger.info('Successfully connected to store')
         except Exception as e:
             logger.exception('Cannot connect to store: {0}'.format(e))
             raise Exception
         return self.client
 
-    def put(self, object, object_name):
+    def put(self, object, object_name, save=False):
         ''' Put a single object referenced by its string name 
             into the store
         '''
         object_id = None
         try:
-            object_id = self.client.put(object)
+            # Need to pickle if object is csc_matrix
+            if isinstance(obj, csc_matrix):
+                object_id = self.client.put(pickle.dumps(object, protocol=pickle.HIGHEST_PROTOCOL))
+            else:
+                object_id = self.client.put(object)
             self.updateStored(object_name, object_id)
-            # saveObj(object, object_id)
-            #logger.debug('object successfully stored: '+object_name)
+            if self.use_hdd:
+                self.lmdb_store.put(object, object_name, obj_id=object_id, save=save)
         except PlasmaObjectExists:
             logger.error('Object already exists. Meant to call replace?')
         except ArrowIOError as e:
@@ -91,6 +116,7 @@ class Limbo(StoreInterface):
             Checks to see if it knows the object first
             Otherwise throw CannotGetObject to request dict update
             TODO: update for lists of objects
+            TODO: replace with getID
         '''
         #print('trying to get ', object_name)
         if self.stored.get(object_name) is None:
@@ -100,15 +126,26 @@ class Limbo(StoreInterface):
         else:
             return self._get(object_name)
     
-    def getID(self, obj_id):
+    def getID(self, obj_id, hdd_only=False):
         ''' Preferred mechanism for getting. TODO: Rename
         '''
-        res = self.client.get(obj_id,0)
-        if isinstance(res, type):
-            logger.warning('Object {} cannot be found.'.format(obj_id))
-            raise ObjectNotFoundError
-        else:
-            return res
+        # Check in RAM
+        if not hdd_only:
+            res = self.client.get(obj_id,0)
+            if isinstance(res, type):
+                logger.warning('Object {} cannot be found.'.format(obj_id))
+                raise ObjectNotFoundError
+            # Deal with pickled objects.
+            elif isinstance(res, bytes): #TODO don't use generic bytes
+                return pickle.loads(res)
+            else:
+                return res
+
+        # Check in disk TODO: rework logic for faster gets
+        if self.use_hdd:
+            res = self.lmdb_store.get(obj_id)
+            if res is not None:
+                return res
 
     def getList(self, ids):
         ''' Get multiple objects from the store
@@ -150,10 +187,8 @@ class Limbo(StoreInterface):
             raise Exception
 
         return notification_info
-    
+
     def random_ObjectID(self, number=1):
-        ''' Convenience function if ID needs to be specified first.
-        '''
         ids = []
         for i in range(number):
             ids.append(plasma.ObjectID(np.random.bytes(20)))
@@ -181,7 +216,7 @@ class Limbo(StoreInterface):
             Assumes we know the id for the object_name
             Raises ObjectNotFound if object_id returns no object from the store
         '''
-        res = self.client.get(self.stored.get(object_name), 0)
+        res = self.getID(self.stored.get(object_name))
         # Can also use contains() to check
         if isinstance(res, ObjectNotAvailable):
             logger.warning('Object {} cannot be found.'.format(object_name))
@@ -210,15 +245,6 @@ class Limbo(StoreInterface):
     #         self.client.delete([id])
     #     except Exception as e:
     #         logger.error('Couldnt delete: {}'.format(e))
-    
-    # def _delete(self, object_name):
-    #     ''' Deletes object from store
-    #     '''
-    #     tmp_id = self.stored.get(object_name)
-
-    #     new_client = plasma.connect('/tmp/store', '', 0)
-    #     new_client.delete([tmp_id])
-    #     new_client.disconnect()
 
     def saveStore(self, fileName='/home/store_dump'):
         ''' Save the entire store to disk
@@ -244,46 +270,111 @@ class Limbo(StoreInterface):
         '''
         raise NotImplementedError
 
-class HStore(StoreInterface):
-    ''' Implementation of the data store on disk.
-        Using dict-like structure, employs h5py via hickle
-    '''
 
-    def __init__(self):
-        ''' Construct the initial store.
+class LMDBStore(StoreInterface):
+
+    def __init__(self, path='output/', name=None, max_size=1e12,
+                 flush_immediately=False, commit_freq=20, from_limbo=False):
         '''
-        pass
+        Constructor for LMDB store
+        path: Path to LMDB folder.
+        name: Name of LMDB. Default to lmdb_[current time in human format].
+        max_size:
+            Maximum size database may grow to; used to size the memory mapping.
+            If the database grows larger than map_size, a MapFullError will be raised.
+            On 64-bit there is no penalty for making this huge. Must be <2GB on 32-bit.
+        flush_immediately: Save objects to disk immediately
+        commit_freq: If not flush_immediately, flush data to disk every _ puts.
+        from_limbo: If instantiated from Limbo. Enables object ID functionality.
+        '''
 
-    def get(self):
-        pass
+        if name is None:
+            name = f'/lmdb_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}'
 
-    def put(self):
-        pass
+        if not os.path.exists(path):
+            raise FileNotFoundError('Folder to LMDB must exist. Run $mkdir [path].')
 
-    def delete(self):
-        pass
+        if os.path.exists(path + name):
+            raise FileExistsError('LMDB of the same name already exists.')
 
-    def replace(self):
-        pass
+        self.flush_immediately = flush_immediately
+        self.lmdb_env = lmdb.open(path + name, map_size=max_size, sync=flush_immediately)
+        self.lmdb_commit_freq = commit_freq
+        self.lmdb_obj_id_to_key = {}  # Can be name or key, depending on from_limbo
+        self.lmdb_put_cache = {}
+        self.from_limbo = from_limbo
 
-    def subscribe(self):
-        pass
+    def get(self, obj_name_or_id):
+        ''' Get object from object name (!from_limbo) or ID (from_limbo). 
+            Return None if object is not found.
+        ''''
+
+        with self.lmdb_env.begin() as txn:
+            get_key = self.lmdb_obj_id_to_key[obj_name_or_id]
+            r = txn.get(get_key)
+            if r is not None:
+                return pickle.loads(r)
+            else:
+                return None
+
+    def put(self, obj, obj_name, obj_id=None, save=False):
+        '''
+        Put object ID / object pair into LMDB.
+        obj: Object to be saved
+        save: For storage of critical objects.
+        '''
+
+        put_key: bytes = b''.join([obj_name.encode(), pickle.dumps(time.time())])
+
+        if self.from_limbo:
+            self.lmdb_obj_id_to_key[obj_id] = put_key
+        else:
+            self.lmdb_obj_id_to_key[obj_name] = put_key
+
+        self.lmdb_put_cache[put_key] = pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL)
+
+        if len(self.lmdb_put_cache) > self.lmdb_commit_freq or (self.flush_immediately or save):
+            with self.lmdb_env.begin(write=True) as txn:
+                for key, value in self.lmdb_put_cache.items():
+                    txn.put(key, value, overwrite=True)
+
+            self.lmdb_put_cache = {}
+
+            if flush_this_immediately:
+                self.lmdb_env.sync()
+
+    def delete(self, obj_id):
+        ''' Delete object from LMDB.
+        '''
+        with self.lmdb_env.begin(write=True) as txn:
+            out = txn.pop(self.lmdb_obj_id_to_key[obj_id])
+        if out is None:
+            raise ObjectNotFoundError
+
+    def flush(self):
+        ''' Must run before exiting. 
+            Flushes buffer to disk.
+        '''
+        self.lmdb_env.sync()
+        self.lmdb_env.close()
+        print('Flushed!')
+
+    def replace(self): pass #TODO
+
+    def subscribe(self): pass #TODO
+
 
 def saveObj(obj, name):
     with open('/media/hawkwings/Ext Hard Drive/dump/dump'+str(name)+'.pkl', 'wb') as output:
         pickle.dump(obj, output)
 
-#class LStore(StoreInterface):
-#   ''' Implement data store using LMDB in python. TODO?
-#   '''
 
 class ObjectNotFoundError(Exception):
     pass
 
+
 class CannotGetObjectError(Exception):
     pass
-
-import pickle
 
 class Watcher():
     ''' Monitors the store as separate process
@@ -359,4 +450,3 @@ class Watcher():
 #     with open('/media/hawkwings/Ext\ Hard\ Drive/dump/dump'+str(id)+'.pkl', 'wb') as output:
 #         pickle.dump(obj, output)
 #     return id
-            
