@@ -39,6 +39,15 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
+# Extraneous
+random/
+timing/
+analyzed/
+logs/
+play/
+timing_mesoscope/
+data/
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -116,3 +125,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# LMDB
+*.mdb
+*.xml
+*.hdf5
+*.ipynb
+*.iml
