@@ -9,7 +9,7 @@ from PyQt5 import QtGui, QtWidgets
 import pyqtgraph as pg
 from visual.front_end import FrontEnd
 import sys
-from nexus.module import Module, Spike
+from nexus.actor import Actor, Spike
 from queue import Empty
 
 import logging; logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO,
                     handlers=[logging.FileHandler("example1.log"),
                               logging.StreamHandler()])
 
-class DisplayVisual(Module):
+class DisplayVisual(Actor):
 
     def run(self):
         logger.info('Loading FrontEnd')
@@ -38,22 +38,7 @@ class DisplayVisual(Module):
         self.visual = visual
         self.visual.setup()
 
-
-class Visual(Module):
-    '''Abstract lass for displaying data
-    '''
-    def plotEstimates(self):
-        ''' Always need to plot some kind of estimates
-        '''
-        raise NotImplementedError
-
-    def run(self):
-        ''' Currently not running independently
-        TODO: FIXME: implement this? Or leave tied to GUI?
-        '''
-        pass
-
-class CaimanVisual(Visual):
+class CaimanVisual(Actor):
     ''' Class for displaying data from caiman processor
     '''
 
@@ -87,6 +72,11 @@ class CaimanVisual(Visual):
         self.total_times = []
         self.timestamp = []
 
+        self.window=500
+
+    def run(self):
+        pass #NOTE: Special case here, tied to GUI
+
     def getData(self):
         t = time.time()
         try:
@@ -101,8 +91,8 @@ class CaimanVisual(Visual):
             ids = self.q_in.get(timeout=0.0001)
             if self.draw:
                 (self.Cx, self.C, self.Cpop, self.tune, self.color, self.coords) = self.client.getList(ids)
-                self.getCurves()
-                self.getFrames()
+                # self.getCurves()
+                # self.getFrames()
                 self.total_times.append([time.time(), time.time()-t])
             ##############FIXME frame number!
             self.frame_num += 1
@@ -122,16 +112,21 @@ class CaimanVisual(Visual):
             tune is a similar list to C
         '''
         if self.tune is not None:
-            self.selectedTune = self.tune[0][self.selectedNeuron,:]
+            self.selectedTune = self.tune[0][self.selectedNeuron]
+
+        if self.frame_num > self.window:
+            self.Cx = self.Cx[-self.window:]
+            self.C = self.C[:, -self.window:]
+            self.Cpop = self.Cpop[-self.window:]
         
         return self.Cx, self.C[self.selectedNeuron,:], self.Cpop, [self.selectedTune, self.tune[1]]
 
     def getFrames(self):
         ''' Return the raw and colored frames for display
         '''
-        if self.raw.shape[0] > self.raw.shape[1]:
+        if self.raw is not None and self.raw.shape[0] > self.raw.shape[1]:
             self.raw = np.rot90(self.raw, 1)
-        if self.color.shape[0] > self.color.shape[1]:
+        if self.color is not None and self.color.shape[0] > self.color.shape[1]:
             self.color = np.rot90(self.color, 1)
 
         return self.raw, self.color
@@ -145,12 +140,15 @@ class CaimanVisual(Visual):
         neurons = [o['neuron_id']-1 for o in self.coords]
         com = np.array([o['CoM'] for o in self.coords])
         #dist = cdist(com, [np.array([y, self.raw.shape[0]-x])])
-        dist = cdist(com, [np.array([x, y])])
+        dist = cdist(com, [np.array([self.raw.shape[0]-x, self.raw.shape[1]-y])])
         if np.min(dist) < 50:
             selected = neurons[np.argmin(dist)]
             self.selectedNeuron = selected
+            print('Red circle at ', com[selected])
+            print('Tuning curve: ', self.tune[0][selected])
             #self.com1 = [np.array([self.raw.shape[0]-com[selected][1], com[selected][0]])]
-            self.com1 = [com[selected]]
+            #self.com1 = [com[selected]]
+            self.com1 = [np.array([self.raw.shape[0]-com[selected][0], self.raw.shape[1]-com[selected][1]])]
         else:
             logger.error('No neurons nearby where you clicked')
             #self.com1 = [np.array([self.raw.shape[0]-com[0][1], com[0][0]])]
@@ -162,15 +160,19 @@ class CaimanVisual(Visual):
         if self.coords:
             com = [o['CoM'] for o in self.coords] #TODO make one line
             #first = [np.array([self.raw.shape[0]-com[0][1], com[0][0]])]
-            first = [com[0]]
+            first = [np.array([self.raw.shape[0]-com[0][0], self.raw.shape[1]-com[0][1]])]
+            #first = [com[0]]
         return first
 
     def plotThreshFrame(self, thresh_r):
         ''' Computes shaded frame for targeting panel
             based on threshold value of sliders (user-selected)
         '''
-        bnd_Y = np.percentile(self.raw, (0.001,100-0.001))
-        image = (self.raw - bnd_Y[0])/np.diff(bnd_Y)
+        if self.raw is not None:
+            bnd_Y = np.percentile(self.raw, (0.001,100-0.001))
+            image = (self.raw - bnd_Y[0])/np.diff(bnd_Y)
+        else:
+            return None
         if image.shape[0] > image.shape[1]:
                 image = np.rot90(image,1)
         if image is not None:
@@ -182,6 +184,7 @@ class CaimanVisual(Visual):
                     #c = np.array(c)
                     ind = c[~np.isnan(c).any(axis=1)].astype(int)
                     #rot_ind = np.array([[i[1],self.raw.shape[0]-i[0]] for i in ind])
+                    #rot_ind = np.array([[self.raw.shape[0]-i[0],self.raw.shape[1]-i[1]] for i in ind])
                     cv2.fillConvexPoly(image2, ind, self._threshNeuron(i, thresh_r))
             return image2
         else: 
@@ -197,7 +200,7 @@ class CaimanVisual(Visual):
             act[:len(ests[ind])] = ests[ind]
             if thresh > intensity: 
                 display = (255,255,255,0)
-            elif np.any(act[np.where(thresh_r==0)[0]]>0.5):
+            elif np.any(act[np.where(thresh_r[:-1]==0)[0]]>0.5):
                 display = (255,255,255,0)
         return display
 
