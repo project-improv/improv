@@ -87,7 +87,7 @@ class Limbo(StoreInterface):
             raise Exception
         return self.client
 
-    def put(self, object, object_name, save=False):
+    def put(self, obj, object_name, save=False):
         ''' Put a single object referenced by its string name 
             into the store
         '''
@@ -95,12 +95,12 @@ class Limbo(StoreInterface):
         try:
             # Need to pickle if object is csc_matrix
             if isinstance(obj, csc_matrix):
-                object_id = self.client.put(pickle.dumps(object, protocol=pickle.HIGHEST_PROTOCOL))
+                object_id = self.client.put(pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL))
             else:
-                object_id = self.client.put(object)
+                object_id = self.client.put(obj)
             self.updateStored(object_name, object_id)
             if self.use_hdd:
-                self.lmdb_store.put(object, object_name, obj_id=object_id, save=save)
+                self.lmdb_store.put(obj, object_name, obj_id=object_id, save=save)
         except PlasmaObjectExists:
             logger.error('Object already exists. Meant to call replace?')
         except ArrowIOError as e:
@@ -307,7 +307,7 @@ class LMDBStore(StoreInterface):
     def get(self, obj_name_or_id):
         ''' Get object from object name (!from_limbo) or ID (from_limbo). 
             Return None if object is not found.
-        ''''
+        '''
 
         with self.lmdb_env.begin() as txn:
             get_key = self.lmdb_obj_id_to_key[obj_name_or_id]
