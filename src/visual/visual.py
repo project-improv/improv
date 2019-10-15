@@ -45,15 +45,17 @@ class CaimanVisual(Actor):
     ''' Class for displaying data from caiman processor
     '''
 
-    def __init__(self, *args):
+    def __init__(self, *args, showConnectivity=False):
         super().__init__(*args)
 
         self.com1 = np.zeros(2)
         self.selectedNeuron = 0
         self.selectedTune = None
         self.frame_num = 0
-        self.stimStatus = dict()  # TODO: Hard-coded
-        for i in range(8):
+        self.showConnectivity = showConnectivity
+
+        self.stimStatus = dict()
+        for i in range(8):  # TODO: Hard-coded
             self.stimStatus[i] = deque()
 
         # self.flip = False #TODO
