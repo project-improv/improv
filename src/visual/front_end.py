@@ -9,7 +9,7 @@ import numpy as np
 from math import floor
 import time
 import pyqtgraph
-from pyqtgraph import EllipseROI, PolyLineROI, ColorMap
+from pyqtgraph import EllipseROI, PolyLineROI, ColorMap, PlotItem
 from queue import Empty
 from matplotlib import cm
 from matplotlib.colors import ListedColormap
@@ -29,7 +29,9 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
              4: (193,  31, 194),
              5: (119,  96, 169),
              6: ( 79,  26, 240),
-             7: ( 26, 239, 186)}
+             7: ( 26, 239, 186)}  # Length and key must match stimuli.
+
+    C_OVERLAY = (0, 255, 0, 128)
 
     def __init__(self, visual, comm, parent=None):
         ''' Setup GUI
@@ -56,6 +58,9 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
         
 
         self.rawplot_2.getImageItem().mouseClickEvent = self.mouseClick #Select a neuron
+
+        self.rawplot_3.getImageItem().mouseClickEvent = self.connectivityClick
+
         self.slider.valueChanged.connect(_call(self.sliderMoved)) #Threshold for magnitude selection
 
     def update(self):
@@ -153,8 +158,22 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
         #self.rawplot.ui.histogram.vb.disableAutoRange()
         self.rawplot.ui.histogram.vb.setLimits(yMin=-0.1, yMax=200) #0-255 needed, saturated here for easy viewing
 
+        # Plot 3: Connectivity
         if self.visual.showConnectivity:
             self.rawplot_3.setColorMap(cmapToColormap(cm.inferno))
+            pl: PlotItem = self.rawplot_3.getView()
+
+            font = QtGui.QFont()
+            font.setPixelSize(16)
+            font.setBold(True)
+
+            pl.getAxis("bottom").tickFont = font
+            pl.getAxis("bottom").setStyle(tickTextOffset=10)
+            pl.getAxis("left").tickFont = font
+
+            # To draw overlay
+            self.conn_pl = pl.plot()
+
 
     def _loadParams(self):
         ''' Button event to load parameters from file
@@ -281,6 +300,24 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
         selectedraw[0] = int(mousePoint.x())
         selectedraw[1] = int(mousePoint.y())
         self._updateRedCirc()
+
+    def connectivityClick(self, event):
+        """ Highlight the row and column of the clicked cell. Right click to remove. """
+
+        event.accept()
+        mousePoint = event.pos()
+        if event.button() == Qt.LeftButton:
+            arr = np.arange(0.5, 10.5)
+            xr = np.repeat(np.floor(mousePoint.x())+0.5, 10)
+            yr = np.repeat(np.floor(mousePoint.y())+0.5, 10)
+            x = np.concatenate((xr, arr), axis=0)
+            y = np.concatenate((arr, yr), axis=0)
+
+            # pxMode sets scale of symbolSize to be data coordinate instead of screen pixels.
+            self.conn_pl.setData(x, y, symbol='s', pxMode=False, symbolSize=1, pen=None,
+                                 symbolPen=self.C_OVERLAY, symbolBrush=self.C_OVERLAY)
+        else:
+            self.conn_pl.clear()
 
     def sliderMoved(self):
         val = self.slider.value()
