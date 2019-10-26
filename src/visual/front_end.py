@@ -468,13 +468,6 @@ class PolyROI(PolyLineROI):
         print('got positions ', positions)
         pyqtgraph.ROI.__init__(self, positions, closed, pos, **args)
 
-def cmapToColormap(cmap: ListedColormap) -> ColorMap:
-    """ Converts matplotlib cmap to pyqtgraph ColorMap. """
-
-    colordata = (np.array(cmap.colors) * 255).astype(np.uint8)
-    indices = np.linspace(0., 1., len(colordata))
-    return ColorMap(indices, colordata)
-
 
 if __name__=="__main__":
     import sys
