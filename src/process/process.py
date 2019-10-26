@@ -161,28 +161,28 @@ class CaimanProcessor(Actor):
             # TODO add parameter validation inside Tweak
             home = expanduser("~")
             cwd = os.getcwd()
-            params_dict = {'fnames': [cwd+'/data/sample.h5'],
-                   'fr': 3.6,
+            params_dict = {'fnames': [cwd+'/data/tbif_ex_crop.h5'],
+                   'fr': 3.5,
                    'decay_time': 0.5,
                    'gSig': (3,3),
                    'p': 1,
-                   'min_SNR': 0.5,
-                   'rval_thr': 0.8,
+                   'min_SNR': 1,
+                   'rval_thr': 0.9,
                    'ds_factor': 1,
                    'nb': 2,
                    'motion_correct': True,
-                   'init_batch': 5,
+                   'init_batch': 100,
                    'init_method': 'bare',
                    'normalize': True,
-                   'sniper_mode': True,
-                   'K': 10,
+                   'sniper_mode': False,
+                   'K': 20,
                    'epochs': 1,
                    'max_shifts_online': np.ceil(10).astype('int'),
                    'pw_rigid': False,
                    'dist_shape_update': True,
                    'show_movie': False,
                 #    'update_freq': 50,
-                   'minibatch_shape': 5,
+                   'minibatch_shape': 100,
                    'output': 'outputEstimates'}
         self.client.put(params_dict, 'params_dict')
 
@@ -329,7 +329,7 @@ class CaimanProcessor(Actor):
             self.A = A
             self.coords = get_contours(A, dims)
 
-        elif np.shape(A)[1] > np.shape(self.A)[1] and self.frame_number % 50 == 0: 
+        elif np.shape(A)[1] > np.shape(self.A)[1]: # and self.frame_number % 50 == 0: 
             #Only recalc if we have new components
             # FIXME: Since this is only for viz, only do this every 100 frames
             # TODO: maybe only recalc coords that are new? 
