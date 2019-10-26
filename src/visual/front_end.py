@@ -160,19 +160,27 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
 
         # Plot 3: Connectivity
         if self.visual.showConnectivity:
-            self.rawplot_3.setColorMap(cmapToColormap(cm.inferno))
-            pl: PlotItem = self.rawplot_3.getView()
+            # Load divergent, perceptually uniform LUT
+            # From https://www.kennethmoreland.com/color-maps/
+            x = np.loadtxt('visual/CoolWarmFloat257.csv', skiprows=1, delimiter=',', dtype=np.float)[1:,]
+            x = np.concatenate((x, np.ones((256, 1))), axis=1)
+            self.rawplot_3.setColorMap(ColorMap(x[:, 0], x[:, 1:4]))
 
+            # Set font
             font = QtGui.QFont()
             font.setPixelSize(16)
             font.setBold(True)
 
+            pl: PlotItem = self.rawplot_3.getView()
             pl.getAxis("bottom").tickFont = font
             pl.getAxis("bottom").setStyle(tickTextOffset=10)
             pl.getAxis("left").tickFont = font
 
-            # To draw overlay
+            self.rawplot_3.getHistogramWidget().item.axis.setTickFont(font)
+
             self.conn_pl = pl.plot()
+            self.curr_max = 0
+
 
 
     def _loadParams(self):
@@ -221,7 +229,16 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
                 self.rawplot_2.ui.histogram.vb.setLimits(yMin=8, yMax=255)
 
             if self.visual.showConnectivity:
-                self.rawplot_3.setImage(np.random.random((10, 10)))
+                img = np.random.randint(-255, 255, size=(10, 10))
+                self.rawplot_3.setImage(img)
+
+                # Check if new data are more extreme, if so adjust bounds symmetrically.
+                if np.max(img) > self.curr_max:
+                    self.curr_max = np.max(img)
+                if np.abs(np.min(img)) > self.curr_max:
+                    self.curr_max = np.abs(np.min(img))
+
+                self.rawplot_3.getHistogramWidget().item.setHistogramRange(-1 * self.curr_max, self.curr_max)
             else:
                 if image is not None:
                     image = np.rot90(image, 2)
@@ -481,14 +498,6 @@ class QRangeSlider(QtWidgets.QWidget):
         for slider in [self._min_slider, self._max_slider]:
             slider.blockSignals(True)
         self._update_layout()
-
-
-def cmapToColormap(cmap: ListedColormap) -> ColorMap:
-    """ Converts matplotlib cmap to pyqtgraph ColorMap. """
-
-    colordata = (np.array(cmap.colors) * 255).astype(np.uint8)
-    indices = np.linspace(0., 1., len(colordata))
-    return ColorMap(indices, colordata)
 
 
 if __name__=="__main__":
