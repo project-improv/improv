@@ -9,7 +9,7 @@ import numpy as np
 from math import floor
 import time
 import pyqtgraph
-from pyqtgraph import EllipseROI, PolyLineROI, ColorMap, ROI, LineSegmentROI
+from pyqtgraph import EllipseROI, PolyLineROI, ColorMap, ROI, LineSegmentROI, PlotItem
 from queue import Empty
 from matplotlib import cm
 from matplotlib.colors import ListedColormap
@@ -224,13 +224,10 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
 
         if self.visual.showConnectivity and weight is not None:
             self.rawplot_3.setImage(weight)
+            scale = max(np.abs(np.max(weight)), np.abs(np.min(weight)))
 
-            if np.max(img) > self.curr_max:
-                self.curr_max = np.max(img)
-            if np.abs(np.min(img)) > self.curr_max:
-                self.curr_max = np.abs(np.min(img))
-
-            self.rawplot_3.getHistogramWidget().item.setHistogramRange(-1 * self.curr_max, self.curr_max)
+            self.rawplot_3.getHistogramWidget().item.setHistogramRange(-1 * scale, scale)
+            self.rawplot_3.getHistogramWidget().item.setLevels(-1 * scale, scale)
         else:
             if image is not None:
                 image = np.rot90(image, 2)
