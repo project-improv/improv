@@ -237,8 +237,3 @@ class Limbo_saveTweak(StoreDependentTestCase):
         super(Limbo_saveTweak, self).tearDown()
 
 
-
-#TODO: Write test for notify  and subscribe: Nicole
-#TODO: Write test for updateStored and getStored: Nicole
-#TODO: Write test for _put and _get: Daniel
-#TODO: Write test for saveStore, saveTweak, and saveSubstore: Daniel

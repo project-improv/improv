@@ -80,6 +80,8 @@ class RunManager_setupRun(ActorDependentTestCase):
     def tearDown(self):
         super(RunManager_setupRun, self).tearDown()
 
+#TODO: extend to another 
+
 class AsyncRunManager_setupRun(ActorDependentTestCase):
 
     def setUp(self):
@@ -136,6 +138,9 @@ class AsyncRunManager_MultiActorTest(ActorDependentTestCase):
 
     def tearDown(self):
         super(AsyncRunManager_MultiActorTest, self).tearDown()
+
+#TODO: interrogate internal state more- check received each signal
+#TODO: Think about breaking behavior- edge cases
 
 
 class Actor_setLinks(ActorDependentTestCase):
