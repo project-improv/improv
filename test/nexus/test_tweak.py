@@ -37,7 +37,6 @@ class createConfBasic(StoreDependentTestCase):
     def tearDown(self):
         super(createConfBasic, self).tearDown()
 
-
 class FailCreateConf(StoreDependentTestCase):
 
     def setUp(self):
@@ -115,5 +114,27 @@ class testconnections(StoreDependentTestCase):
 
     def tearDown(self):
         super(testconnections, self).tearDown()
+
+class FailCreateConf(StoreDependentTestCase):
+
+    def setUp(self):
+        super(FailCreateConf, self).setUp()
+        self.tweak = Tweak()
+
+    def MissingPackageorClass(self):
+        cwd = os.getcwd()
+        self.tweak.createConfig(configFile= 'test/repeated_actors.yaml')
+        self.assertEqual(self.tweak.configFile, cwd+ 'test/MissingPackage.yaml')
+        self.assertRaises(KeyError)
+        #TODO: create repeated actor error
+
+    def noactors(self):
+        cwd = os.getcwd()
+        self.tweak.createConfig(configFile= 'test/no_actor.yaml')
+        self.assertRaises(AttributeError)
+
+    def tearDown(self):
+        super(FailCreateConf)
+
 
 #TODO: create config but with different config files
