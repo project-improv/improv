@@ -120,7 +120,10 @@ class TweakModule():
         self.options = options
 
 if __name__ == '__main__':
-
-    tweak= Tweak()
+    tweak = Tweak(configFile='test/basic_demo')
     tweak.createConfig()
-    print(tweak.actors)
+    for actor in tweak.actors:
+        print(actor)
+    
+    for connection in tweak.connections:
+        print(connection)
