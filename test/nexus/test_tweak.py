@@ -8,7 +8,7 @@ from src.nexus.tweak import Tweak
 from src.nexus.tweak import TweakModule
 from unittest import TestCase
 from test.test_utils import StoreDependentTestCase
-from src.nexus.tweak import RepeatedActorError
+from src.nexus.tweak import RepeatedActorError, RepeatedConnectionsError
 import visual.visual
 import acquire.acquire
 import process.process
@@ -63,8 +63,9 @@ class FailCreateConf(StoreDependentTestCase):
         self.tweak3.createConfig()
         self.assertRaises(RepeatedActorError)
 
+
     def tearDown(self):
-        super(FailCreateConf)
+        super(FailCreateConf, self).tearDown()
 
 
 class testPackageClass(StoreDependentTestCase):
@@ -85,19 +86,34 @@ class testPackageClass(StoreDependentTestCase):
         self.assertRaises(ImportError)
 
     def tearDown(self):
-        super(testPackageClass)
+        super(testPackageClass, self).tearDown()
 
 class testArgs(StoreDependentTestCase):
 
     def setUp(self):
         super(testArgs, self).setUp()
         self.tweak= Tweak(configFile= 'test/configs/bad_args.yaml')
+
     def testArgs(self):
         cwd = os.getcwd()
         self.tweak.createConfig()
         self.assertRaises(TypeError)
 
     def tearDown(self):
-        super(testArgs)
+        super(testArgs, self).tearDown()
+
+class testconnections(StoreDependentTestCase):
+
+    def setUp(self):
+        super(testconnections, self).setUp()
+        self.tweak= Tweak(configFile= 'test/configs/repeat_connection')
+
+    def repeatConnection(self):
+        cwd= os.getcwd()
+        self.tweak.createConfig()
+        self.assertRaises(RepeatedConnectionsError)
+
+    def tearDown(self):
+        super(testconnections, self).tearDown()
 
 #TODO: create config but with different config files
