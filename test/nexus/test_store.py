@@ -9,7 +9,10 @@ import numpy as np
 import pyarrow.plasma as plasma
 from pyarrow.lib import ArrowIOError
 from nexus.store import ObjectNotFoundError
+from nexus.store import CannotGetObjectError
+from nexus.store import CannotConnectToStoreError
 import pickle
+
 
 class Limbo_Connect(StoreDependentTestCase):
 
@@ -22,11 +25,15 @@ class Limbo_Connect(StoreDependentTestCase):
         self.limbo.connectStore(store_loc)
         self.assertIsInstance(self.limbo.client, plasma.PlasmaClient)
 
-    #TODO: Figure out how to raise  two exceptions in one block
-    #catching and reraising exceptions- figure out how to check
-    #def test_fail(self):
-    #    store_loc= 'asdf'
-    #    self.assertRaises((ArrowIOError, Exception), self.limbo.connectStore(store_loc))
+    def test_failToConnect(self):
+        store_loc= 'asdf'
+
+        # Handle exception thrown
+        with self.assertRaises(Exception) as cm:
+            self.limbo.connectStore(store_loc)
+
+        # Check that the exception thrown is a CannotConnectToStoreError
+        self.assertEqual(cm.exception.name, 'CannotConnectToStoreError')
 
     def tearDown(self):
         super(Limbo_Connect, self).tearDown()
@@ -56,9 +63,8 @@ class Limbo_GetID(StoreDependentTestCase):
         x= self.limbo.put(mat, 'matrix' ) #returns object_id
         self.assertIsInstance(self.limbo.getID(x), csc_matrix)
 
-    #TODO: figure out objectnotfounderror
     def test_notPut(self):
-        self.limbo.getID(self.limbo.random_ObjectID(1))
+        obj = self.limbo.getID(self.limbo.random_ObjectID(1))
         self.assertRaises(ObjectNotFoundError)
 
     def UseHDD(self):
@@ -79,7 +85,6 @@ class Limbo_getListandAll(StoreDependentTestCase):
         id3 = self.limbo.put(3, 'three')
         self.assertEqual([1, 2], self.limbo.getList(['one', 'two']))
         self.assertEqual([1, 2, 3], self.limbo.get_all())
-
 
     def tearDown(self):
         super(Limbo_getListandAll, self).tearDown()
@@ -134,10 +139,18 @@ class Limbo_PutGet(StoreDependentTestCase):
         self.assertEqual(1, self.limbo.get('one'))
         self.assertEqual(id, self.limbo.stored['one'])
 
+    def test_get_nonexistent(self):
+
+        # Handle exception thrown
+        with self.assertRaises(Exception) as cm:
+            self.limbo.get('three')
+
+        # Check that the exception thrown is a CannotGetObjectError
+        self.assertEqual(cm.exception.name, 'CannotGetObjectError')
+
     def tearDown(self):
         super(Limbo_PutGet, self).tearDown()
 
-#TODO @NICOLE: Write test for notify  and subscribe
 
 """class Limbo_Notify(StoreDependentTestCase):
     def setUp(self):
@@ -153,10 +166,6 @@ class Limbo_PutGet(StoreDependentTestCase):
         super(Limbo_Notify, self).tearDown()"""
 
 
-#TODO @NICOLE: Write test for updateStored and getStored
-
-# if calling update with name that doesn't exist in stored yet, should raise error?
-# (as of now it will simply put it in stored?)
 
 class Limbo_UpdateStored(StoreDependentTestCase):
     def setUp(self):
@@ -168,11 +177,6 @@ class Limbo_UpdateStored(StoreDependentTestCase):
         self.limbo.put(1, 'one')
         self.limbo.updateStored('one', 3)
         self.assertEqual(3,self.limbo.stored['one'])
-
-    # Test to check that updating a value that isn't in store doesn't change store.
-    def test_updateEmpty(self):
-        self.limbo.updateStored('one', 3)
-        self.assertRaises(PlasmaObjectExists)
 
     def tearDown(self):
         super(Limbo_UpdateStored, self).tearDown()
@@ -193,9 +197,6 @@ class Limbo_GetStored(StoreDependentTestCase):
         super(Limbo_GetStored, self).tearDown()
 
 
-#TODO: Write test for _put and _get
-#TODO: Write test for saveStore, saveTweak, and saveSubstore
-
 class Limbo_internalPutGet(StoreDependentTestCase):
 
     def setUp(self):
@@ -203,16 +204,24 @@ class Limbo_internalPutGet(StoreDependentTestCase):
         self.limbo = Limbo()
 
     def test_put(self):
-        id= self.limbo.random_ObjectID(1)
+        id = self.limbo.random_ObjectID(1)
         self.limbo._put(1, id[0])
         self.assertEqual(1, self.limbo.client.get(id[0]))
-    
+
     def test_get(self):
         id= self.limbo.put(1, 'one')
         self.limbo.updateStored('one', id)
         self.assertEqual(self.limbo._get('one'), 1)
 
-    #TODO: write get fail function, same issue as before
+    def test__getNonexistent(self):
+
+        # Handle exception thrown
+        with self.assertRaises(Exception) as cm:
+        # Check that the exception thrown is a ObjectNotFoundError
+            self.limbo._get('three')
+            self.assertEqual(cm.exception.name, 'ObjectNotFoundError')
+            self.assertEqual(cm.exception.message, 'Cannnot find object with ID/name "three"')
+
 
     def tearDown(self):
         super(Limbo_internalPutGet, self).tearDown()
@@ -223,7 +232,6 @@ class Limbo_saveTweak(StoreDependentTestCase):
         super(Limbo_saveTweak, self).setUp()
         self.limbo = Limbo()
 
-    #TODO: figure out file pathway
     def test_tweak(self):
         fileName= 'data/tweak_dump'
         id= self.limbo.put(1, 'one')
@@ -235,5 +243,3 @@ class Limbo_saveTweak(StoreDependentTestCase):
 
     def tearDown(self):
         super(Limbo_saveTweak, self).tearDown()
-
-
