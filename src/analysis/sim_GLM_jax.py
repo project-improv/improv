@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from functools import partial
+from typing import Dict, Tuple
+
 import jax.numpy as np
 import numpy as onp
-
-from typing import Dict, Tuple, Callable
 
 from jax import devices, jit, random, value_and_grad
 from jax.config import config
@@ -68,28 +69,26 @@ class simGLM:
         self.opt_init, self.opt_update, self.get_params = self.optimizer
         self._θ: optimizers.OptimizerState = self.opt_init(self._θ)
 
-        # A compiled function needs to know the shape of its inputs.
-        # Changing array size will trigger a recompilation.
-        # See https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html#%F0%9F%94%AA-Control-Flow
-        self._jit_ll = jit(self._ll, static_argnums=(1,))  # Will recompile every time p changes.
-        self._jit_ll_grad = jit(value_and_grad(self._ll), static_argnums=(1,))
+        self._ll_grad = value_and_grad(self._ll)
 
         self.current_N = 0
         self.current_M = 0
         self.iter = 0
 
     def ll(self, y, s) -> float:
-        return float(self._jit_ll(self.θ, self.params, *self._check_arrays(y, s)))
+        args = self._check_arrays(y, s)
+        return float(self._ll(self.θ, self.params, *args))
 
     def fit(self, y, s) -> float:
-        ll, Δ = self._jit_ll_grad(self.θ, self.params, *self._check_arrays(y, s))
+        args = self._check_arrays(y, s)
+        ll, Δ = self._ll_grad(self.θ, self.params, *args)
         self._θ: optimizers.OptimizerState = self.opt_update(self.iter, Δ, self._θ)
 
         self.iter += 1
         return float(ll)
 
     def get_grad(self, y, s) -> DeviceArray:
-        return self._jit_ll_grad(self.θ, self.params, *self._check_arrays(y, s))[1]
+        return self._ll_grad(self.θ, self.params, *self._check_arrays(y, s))[1]
 
     def _check_arrays(self, y, s) -> Tuple[onp.ndarray]:
         """
@@ -122,7 +121,7 @@ class simGLM:
             raise ValueError('Data are too wide (M exceeds limit).')
 
         self.iter += 1
-        return y, s, self.current_M * self.current_N
+        return self.current_M * self.current_N, y, s
 
     def _increase_θ_size(self) -> None:
         """
@@ -143,14 +142,18 @@ class simGLM:
         self._θ = self.opt_init(self._θ)
 
     # Compiled Functions
+    # A compiled function needs to know the shape of its inputs.
+    # Changing array size will trigger a recompilation.
+    # See https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html#%F0%9F%94%AA-Control-Flow
+
     @staticmethod
-    def _ll(θ: Dict, p: Dict, y, s, curr_mn) -> DeviceArray:
+    @partial(jit, static_argnums=(1,))
+    def _ll(θ: Dict, p: Dict, curr_mn, y, s) -> DeviceArray:
         """
         Log-likelihood of a Poisson GLM.
 
         """
         N = p['N_lim']
-
         cal_stim = θ["k"][:N, :] @ s
         cal_hist = simGLM._convolve(p, y, θ["h"][:N, :])
         cal_weight = θ["w"][:N, :N] @ y
@@ -164,14 +167,15 @@ class simGLM:
         return (np.sum(r̂) - correction - np.sum(y * np.log(r̂ + np.finfo(np.float64).eps))) / curr_mn
 
     @staticmethod
-    def _convolve(p: Dict, y, w) -> DeviceArray:
+    @partial(jit, static_argnums=(0,))
+    def _convolve(p: Dict, y, θ_h) -> DeviceArray:
         """
         Sliding window convolution for θ['h'].
 
         """
         cvd = np.zeros((y.shape[0], y.shape[1] - p['dh']))
         for i in np.arange(p['dh']):
-            w_col = np.reshape(w[:, i], (p['N_lim'], 1))
+            w_col = np.reshape(θ_h[:, i], (p['N_lim'], 1))
             cvd += w_col * y[:, i:p['M_lim'] - (p['dh'] - i)]
 
         return np.concatenate((np.zeros((p['N_lim'], p['dh'])), cvd), axis=1)
