@@ -36,6 +36,9 @@ class simGLM:
         config.update('jax_platform_name', platform)
         print('Using', devices()[0])
 
+        if not self.use_gpu:
+            config.update("jax_enable_x64", True)
+
         # p check
         if not all(k in p for k in ['ds', 'dh', 'dt', 'N_lim', 'M_lim']):
             raise ValueError('Parameter incomplete!')
@@ -72,6 +75,7 @@ class simGLM:
         self._jit_ll_grad = jit(value_and_grad(self._ll), static_argnums=(1,))
 
         self.current_N = 0
+        self.current_M = 0
         self.iter = 0
 
     def ll(self, y, s) -> float:
@@ -101,7 +105,7 @@ class simGLM:
         assert y.shape[1] == s.shape[1]
         assert s.shape[0] == self.params['ds']
 
-        self.current_N = y.shape[0]
+        self.current_N, self.current_M = y.shape
 
         N_lim = self.params['N_lim']
         M_lim = self.params['M_lim']
@@ -123,7 +127,7 @@ class simGLM:
             raise ValueError('Data are too wide (M exceeds limit).')
 
         self.iter += 1
-        return y, s
+        return y, s, self.current_M * self.current_N
 
     def _increase_θ_size(self) -> None:
         """
@@ -145,7 +149,7 @@ class simGLM:
 
     # Compiled Functions
     @staticmethod
-    def _ll(θ: Dict, p: Dict, y, s) -> DeviceArray:
+    def _ll(θ: Dict, p: Dict, y, s, curr_mn) -> DeviceArray:
         """
         Log-likelihood of a Poisson GLM.
 
@@ -160,8 +164,9 @@ class simGLM:
         total = θ["b"][:N] + (cal_stim + cal_weight + cal_hist)
 
         r̂ = p['dt'] * np.exp(total)
+        r̂_mask = np.where(np.abs(y) > np.finfo(np.float64).eps, 1, 0)  # Remove padding
 
-        return (np.sum(r̂) - np.sum(y * np.log(r̂ + np.finfo(np.float32).eps))) / np.size(y)
+        return (np.sum(r̂ * r̂_mask) - np.sum(y * np.log(r̂ + np.finfo(np.float64).eps))) / curr_mn
 
     @staticmethod
     def _convolve(p: Dict, y, w) -> DeviceArray:
