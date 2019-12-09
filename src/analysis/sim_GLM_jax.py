@@ -81,14 +81,9 @@ class simGLM:
     def ll(self, y, s) -> float:
         return float(self._jit_ll(self.θ, self.params, *self._check_arrays(y, s)))
 
-    def fit(self, y, s, lr: Tuple[Callable] = None) -> float:
+    def fit(self, y, s) -> float:
         ll, Δ = self._jit_ll_grad(self.θ, self.params, *self._check_arrays(y, s))
-
-        if lr is not None:
-            self.opt_init, self.opt_update, self.get_params = lr
-            self._θ: optimizers.OptimizerState = self.opt_update(self.iter, Δ, self._θ)
-        else:
-            self._θ: optimizers.OptimizerState = self.opt_update(self.iter, Δ, self._θ)
+        self._θ: optimizers.OptimizerState = self.opt_update(self.iter, Δ, self._θ)
 
         self.iter += 1
         return float(ll)
@@ -164,9 +159,9 @@ class simGLM:
         total = θ["b"][:N] + (cal_stim + cal_weight + cal_hist)
 
         r̂ = p['dt'] * np.exp(total)
-        r̂_mask = np.where(np.abs(y) > np.finfo(np.float64).eps, 1, 0)  # Remove padding
+        correction = p['dt'] * (np.size(y) - curr_mn)  # Remove padding
 
-        return (np.sum(r̂ * r̂_mask) - np.sum(y * np.log(r̂ + np.finfo(np.float64).eps))) / curr_mn
+        return (np.sum(r̂) - correction - np.sum(y * np.log(r̂ + np.finfo(np.float64).eps))) / curr_mn
 
     @staticmethod
     def _convolve(p: Dict, y, w) -> DeviceArray:
