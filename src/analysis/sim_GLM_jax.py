@@ -3,7 +3,7 @@
 import jax.numpy as np
 import numpy as onp
 
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Callable
 
 from jax import devices, jit, random, value_and_grad
 from jax.config import config
@@ -77,9 +77,15 @@ class simGLM:
     def ll(self, y, s) -> float:
         return float(self._jit_ll(self.θ, self.params, *self._check_arrays(y, s)))
 
-    def fit(self, y, s) -> float:
+    def fit(self, y, s, lr: Tuple[Callable] = None) -> float:
         ll, Δ = self._jit_ll_grad(self.θ, self.params, *self._check_arrays(y, s))
-        self._θ: optimizers.OptimizerState = self.opt_update(self.iter, Δ, self._θ)
+
+        if lr is not None:
+            self.opt_init, self.opt_update, self.get_params = lr
+            self._θ: optimizers.OptimizerState = self.opt_update(self.iter, Δ, self._θ)
+        else:
+            self._θ: optimizers.OptimizerState = self.opt_update(self.iter, Δ, self._θ)
+
         self.iter += 1
         return float(ll)
 
@@ -109,8 +115,9 @@ class simGLM:
             y = onp.concatenate((y, onp.zeros((N_lim - y.shape[0], y.shape[1]))), axis=0)
 
         if y.shape[1] < M_lim:
-            y = onp.concatenate((y, onp.zeros((N_lim, M_lim - y.shape[1]))), axis=1)
-            s = onp.concatenate((s, onp.zeros((self.params['ds'], M_lim - y.shape[1]))), axis=1)
+            curr_size = y.shape[1]
+            y = onp.concatenate((y, onp.zeros((N_lim, M_lim - curr_size))), axis=1)
+            s = onp.concatenate((s, onp.zeros((self.params['ds'], M_lim - curr_size))), axis=1)
 
         if y.shape[1] > M_lim:
             raise ValueError('Data are too wide (M exceeds limit).')
@@ -148,7 +155,7 @@ class simGLM:
         cal_stim = θ["k"][:N, :] @ s
         cal_hist = simGLM._convolve(p, y, θ["h"][:N, :])
         cal_weight = θ["w"][:N, :N] @ y
-        cal_weight = np.concatenate((np.zeros((N, p['dh'])), cal_weight[:, p['dh'] - 1:p['M'] - 1]), axis=1)
+        cal_weight = np.concatenate((np.zeros((N, p['dh'])), cal_weight[:, p['dh'] - 1:p['M_lim'] - 1]), axis=1)
 
         total = θ["b"][:N] + (cal_stim + cal_weight + cal_hist)
 
