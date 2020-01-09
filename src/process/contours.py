@@ -3,12 +3,13 @@ from builtins import range
 from past.utils import old_div
 
 import base64
-import cv2
+import cv2 as cv
 from IPython.display import HTML
 from math import sqrt, ceil
 import matplotlib as mpl
 import matplotlib.cm as cm
 from matplotlib.widgets import Slider
+import matplotlib.pyplot as plt
 import numpy as np
 import pylab as pl
 from scipy.ndimage.measurements import center_of_mass
@@ -114,7 +115,7 @@ def get_contours(A, dims, thr=0.9, thr_method='nrg', swap_dim=False):
                 warn("Unknown threshold method. Choosing max")
             Bvec = np.zeros(d)
             Bvec[A.indices[A.indptr[i]:A.indptr[i + 1]]] = patch_data / patch_data.max()
-
+        
         t4=time.time()
 
         thr_method_time = t4-t3
@@ -122,13 +123,54 @@ def get_contours(A, dims, thr=0.9, thr_method='nrg', swap_dim=False):
             Bmat = np.reshape(Bvec, dims, order='C')
         else:
             Bmat = np.reshape(Bvec, dims, order='F')
+        #import pdb; pdb.set_trace()
+
+        #if (i==0):
+            #visualize patch_data, contours
+        #    patch_data=np.append(patch_data, 0)
+        #    patch_data= np.append([0], patch_data)
+        #    Amat= np.reshape(patch_data, dims, order='C')
+        #    plt.subplot(1, 2, 1)
+        #    plt.imshow(Amat)
+        #    plt.subplot(1, 2, 2)
+        #    plt.imshow(Bmat)
+        #    plt.show()
 
 
         t5=time.time()
         swap_dim_time+= t5-t4
         # for each dimensions we draw the contour
         t6=time.time()
-        vertices = find_contours(Bmat.T, thr)
+        retval, thresh= cv.threshold(Bmat.T, thr, 1, cv.THRESH_BINARY)
+        thresh= thresh.astype(np.uint8)
+        vertices, hierarchy= cv.findContours(thresh, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
+        #verticesPrev = find_contours(Bmat.T, thr)
+
+        #if (i==0):
+        #    image= Bmat.T
+        #    for i,c in enumerate(verticesPrev):
+        #        #c = np.array(c)
+        #        c_img= cv.fillConvexPoly(image, c, (255,255,255,25))
+        #    plt.imshow(image)
+        #    plt.title('SkiImage contours')
+        #    plt.show()
+
+        #if (i==0):
+        #    c_img = cv.drawContours(Bmat.T, vertices, -1, (0, 255, 0), 2)
+        #    plt.figure()
+        #    plt.imshow(c_img)
+        #    plt.title('OpenCV contours')
+        #    plt.show()
+        #    fig, ax = plt.subplots()
+        #    ax.imshow(Bmat.T)
+        #    for n, contour in enumerate(verticesPrev):
+        #        ax.plot(contour[:, 1], contour[:, 0], color='black', linewidth=2)
+        #    ax.axis('image')
+        #    ax.set_xticks([])
+        #    ax.set_yticks([])
+        #    plt.title('SkiImage contours')
+        #    plt.show()
+            
         t7= time.time()
         vertices_time += t7-t6
         # this fix is necessary for having disjoint figures and borders plotted correctly
@@ -140,6 +182,7 @@ def get_contours(A, dims, thr=0.9, thr_method='nrg', swap_dim=False):
 
             #num_close_coords = np.isclose(vtx[0, :], vtx[-1, :])
             num_close_coords= [False, False]
+            vtx= np.reshape(vtx, (vtx.shape[0], vtx.shape[2]))
             for i in range(2):
                 num_close_coords[i]= (np.absolute(vtx[0, i]- vtx[-1, i])<=(0.00001+0.00000001*np.absolute(vtx[-1, i])))
 
@@ -167,7 +210,7 @@ def get_contours(A, dims, thr=0.9, thr_method='nrg', swap_dim=False):
 
             t18= time.time()
             v = np.vstack((v, vtx, np.atleast_2d([np.nan, np.nan]))) 
-            
+
             t19=time.time()
             #v = np.vstack((v,  )))
             t20= time.time()
@@ -175,10 +218,11 @@ def get_contours(A, dims, thr=0.9, thr_method='nrg', swap_dim=False):
             atleastconcat_time+= t20-t19
         t9= time.time()
         vtx_loop_time += t9-t8
+        v[:, [0, 1]]= v[:, [1, 0]]
         coordinates.append(v)
         t10=  time.time()
         append_time+= t10-t9 
-    #print("nr: "+str(nr))
+    print("nr: "+str(nr))
     print("patch_data time: " + str(patch_data_time))
     print("indx time: " + str(indx_time))
     print("Thr_method_time: "+ str(thr_method_time))
@@ -198,10 +242,10 @@ if __name__ == '__main__':
     cwd = os.getcwd()
     A= np.loadtxt(cwd+'/data/A')
     tb= time.time()
-    #for i in range(30):
-        #X= get_contours(A, (440, 256))
-    X= get_contours(A, (440, 256))
+    for i in range(30):
+        X= get_contours(A, (440, 256))
+    #X= get_contours(A, (440, 256))
     print(X[5])
     print(len(X[5]))
     ta=time.time()
-    #print("Single execute average: "+ str((ta-tb)/30))
+    print("Single execute average: "+ str((ta-tb)/30))
