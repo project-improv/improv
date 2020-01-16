@@ -6,9 +6,9 @@ actors:
 
   Acquirer:
     package: acquire.acquire
-    class: TbifAcquirer
-    filename: data/overclimbing.tbif
-    framerate: 3.6
+    class: FileAcquirer
+    filename: data/Tolias_mesoscope_2.hdf5
+    framerate: 30
 
   Processor:
     package: process.process
@@ -20,11 +20,15 @@ actors:
   
   Analysis:
     package: analysis.analysis
-    class: ModelAnalysis
+    class: MeanAnalysis
+
+  InputStim:
+    package: acquire.acquire
+    class: BehaviorAcquirer
 
 
 connections:
   Acquirer.q_out: [Processor.q_in, Visual.raw_frame_queue]
   Processor.q_out: [Analysis.q_in]
   Analysis.q_out: [Visual.q_in]
-  Acquirer.stim_queue: [Analysis.input_stim_queue]
+  InputStim.q_out: [Analysis.input_stim_queue]

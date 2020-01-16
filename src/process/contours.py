@@ -78,31 +78,13 @@ def get_contours(A, dims, thr=0.9, thr_method='nrg', swap_dim=False):
     coordinates = []
 
     # for each patches
-    patch_data_time=0
-    indx_time= 0
-    thr_method_time= 0
-    swap_dim_time= 0
-    vtx_loop_time=0
-    pars_add_time=0
-    vertices_time= 0
-    atleast_time=0
-    append_time= 0
-    close_coords_time= 0
-    newpt_time= 0
-    vtx_time= 0
-    concat_time=0
-    atleastconcat_time=0
     for i in range(nr):
         # we compute the cumulative sum of the energy of the Ath component that has been ordered from least to highest
-        t0= time.time()
+        
         patch_data = A.data[A.indptr[i]:A.indptr[i + 1]]
-        t1=  time.time()
-        patch_data_time+= t1-t0
-
-        t2= time.time()
+        
         indx = np.argsort(patch_data)[::-1]
-        t3= time.time()
-        indx_time += t3-t2
+
         if thr_method == 'nrg':
             cumEn = np.cumsum(patch_data[indx]**2)
             # we work with normalized values
@@ -116,9 +98,6 @@ def get_contours(A, dims, thr=0.9, thr_method='nrg', swap_dim=False):
             Bvec = np.zeros(d)
             Bvec[A.indices[A.indptr[i]:A.indptr[i + 1]]] = patch_data / patch_data.max()
         
-        t4=time.time()
-
-        thr_method_time = t4-t3
         if swap_dim:
             Bmat = np.reshape(Bvec, dims, order='C')
         else:
@@ -136,11 +115,9 @@ def get_contours(A, dims, thr=0.9, thr_method='nrg', swap_dim=False):
         #    plt.imshow(Bmat)
         #    plt.show()
 
-
-        t5=time.time()
-        swap_dim_time+= t5-t4
+        
         # for each dimensions we draw the contour
-        t6=time.time()
+        
         retval, thresh= cv.threshold(Bmat.T, thr, 1, cv.THRESH_BINARY)
         thresh= thresh.astype(np.uint8)
         vertices, hierarchy= cv.findContours(thresh, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
@@ -171,14 +148,12 @@ def get_contours(A, dims, thr=0.9, thr_method='nrg', swap_dim=False):
         #    plt.title('SkiImage contours')
         #    plt.show()
             
-        t7= time.time()
-        vertices_time += t7-t6
+        
         # this fix is necessary for having disjoint figures and borders plotted correctly
         v = np.atleast_2d([np.nan, np.nan])
-        t8= time.time()
-        atleast_time+= t8-t7
+        
         for _, vtx in enumerate(vertices):
-            t11= time.time()
+            
 
             #num_close_coords = np.isclose(vtx[0, :], vtx[-1, :])
             num_close_coords= [False, False]
@@ -187,55 +162,32 @@ def get_contours(A, dims, thr=0.9, thr_method='nrg', swap_dim=False):
                 num_close_coords[i]= (np.absolute(vtx[0, i]- vtx[-1, i])<=(0.00001+0.00000001*np.absolute(vtx[-1, i])))
 
             # implemented np.isclose manually, saved about 100 msec
-            t12= time.time()
-            close_coords_time+=t12-t11
+            
             num_close_coords=np.sum(num_close_coords)
             if num_close_coords < 2:
                 if num_close_coords == 0:
                     # case angle
-                    t13=time.time()
+                    
                     newpt = np.round(old_div(vtx[-1, :], [d2, d1])) * [d2, d1]
-                    t14= time.time()
-                    newpt_time+= t14-t13
+                    
                     vtx = np.vstack((vtx, newpt[np.newaxis, :]))
-                    t15= time.time()
 
-                    vtx_time += t15-t14
                 else:
                     # case one is border
-                    t16=  time.time()
+                    
                     vtx = np.vstack((vtx, vtx[0, np.newaxis]))
-                    t17= time.time()
-                    vtx_time += t17-t16
+                    
 
-            t18= time.time()
+            
             v = np.vstack((v, vtx, np.atleast_2d([np.nan, np.nan]))) 
 
-            t19=time.time()
+            
             #v = np.vstack((v,  )))
-            t20= time.time()
-            concat_time+= t19-t18
-            atleastconcat_time+= t20-t19
-        t9= time.time()
-        vtx_loop_time += t9-t8
+        
+        
         v[:, [0, 1]]= v[:, [1, 0]]
         coordinates.append(v)
-        t10=  time.time()
-        append_time+= t10-t9 
-    print("nr: "+str(nr))
-    print("patch_data time: " + str(patch_data_time))
-    print("indx time: " + str(indx_time))
-    print("Thr_method_time: "+ str(thr_method_time))
-    print("swap_dim_time: "+ str(swap_dim_time))
-    print("Vertices time: "+str(vertices_time))
-    print("Atleast_time: "+ str(atleast_time))
-    print("vtx loop time: "+ str(vtx_loop_time))
-    print("append time: "+ str(append_time))
-    print("close_coords_time: "+ str(close_coords_time))
-    print("newpt_time: "+ str(newpt_time))
-    print("vtx time: " + str(vtx_time))
-    print("concat time: "+ str(concat_time))
-    print("atleast concat time: "+ str(atleastconcat_time))
+        
     return coordinates
 
 if __name__ == '__main__':
