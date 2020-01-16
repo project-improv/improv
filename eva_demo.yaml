@@ -8,7 +8,7 @@ actors:
     package: acquire.acquire
     class: TbifAcquirer
     filename: data/overclimbing.tbif
-    framerate: 3.6
+    framerate: 2
 
   Processor:
     package: process.process
