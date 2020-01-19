@@ -39,4 +39,4 @@ dependencies:
   - scanimage-tiff-reader
   - rastermap==0.1.0
   - lmdb
-  - suite2p
+  - suite2p==0.6.16
