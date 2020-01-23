@@ -26,6 +26,8 @@ import time
 from os.path import expanduser
 import os
 
+from caiman.base.rois import com
+
 try:
     cv2.setNumThreads(0)
 except:
@@ -76,11 +78,11 @@ def get_contours(A, dims, thr=0.9, thr_method='nrg', swap_dim=False):
     x, y = np.mgrid[0:d1:1, 0:d2:1]
 
     coordinates = []
-
+    cm = com(A, *dims)
     # for each patches
     for i in range(nr):
         # we compute the cumulative sum of the energy of the Ath component that has been ordered from least to highest
-        
+        pars:Dict= dict()
         patch_data = A.data[A.indptr[i]:A.indptr[i + 1]]
         
         indx = np.argsort(patch_data)[::-1]
@@ -151,6 +153,8 @@ def get_contours(A, dims, thr=0.9, thr_method='nrg', swap_dim=False):
         
         # this fix is necessary for having disjoint figures and borders plotted correctly
         v = np.atleast_2d([np.nan, np.nan])
+        pars:Dict = dict()
+        pars['coordinates'] = []
         
         for _, vtx in enumerate(vertices):
             
@@ -176,28 +180,28 @@ def get_contours(A, dims, thr=0.9, thr_method='nrg', swap_dim=False):
                     # case one is border
                     
                     vtx = np.vstack((vtx, vtx[0, np.newaxis]))
-                    
-
             
             v = np.vstack((v, vtx, np.atleast_2d([np.nan, np.nan]))) 
-
             
-            #v = np.vstack((v,  )))
-        
-        
         v[:, [0, 1]]= v[:, [1, 0]]
-        coordinates.append(v)
+        pars['CoM'] = np.squeeze(cm[i, :])
+        pars['coordinates']= v
+        pars['neuron_id']= i+1 
+        coordinates.append(pars)
         
     return coordinates
 
 if __name__ == '__main__':
     cwd = os.getcwd()
     A= np.loadtxt(cwd+'/data/A')
-    tb= time.time()
-    for i in range(30):
-        X= get_contours(A, (440, 256))
-    #X= get_contours(A, (440, 256))
-    print(X[5])
-    print(len(X[5]))
-    ta=time.time()
-    print("Single execute average: "+ str((ta-tb)/30))
+    #for i in range(30):
+    #    X= get_contours(A, (440, 256))
+    vert = get_contours(A, (440, 256))
+    coords = [o['coordinates'] for o in vert]
+    for i,c in enumerate(coords):
+        #c = np.array(c)
+        c= c.astype('int32')
+        c_img= cv.fillConvexPoly(image, c, (255,255,255,25))
+        plt.imshow(image)
+        plt.title('OpenCV contours')
+        plt.show()
