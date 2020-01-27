@@ -13,8 +13,7 @@ from jax.interpreters.xla import DeviceArray
 
 
 class simGLM:
-    def __init__(self, p: Dict, θ=None,
-                 optimizer=optimizers.adagrad(1e-5), use_gpu=False):
+    def __init__(self, p: Dict, θ=None, optimizer=None, use_gpu=False):
         """
         A JAX implementation of simGLM.
 
@@ -65,7 +64,7 @@ class simGLM:
             self._θ = {key: np.asarray(item) for key, item in θ.items()}  # Convert to DeviceArray
 
         # Setup optimizer
-        self.optimizer = optimizer
+        self.optimizer = optimizer if optimizer is not None else optimizers.adagrad(1e-5)
         self.opt_init, self.opt_update, self.get_params = self.optimizer
         self._θ: optimizers.OptimizerState = self.opt_init(self._θ)
 
