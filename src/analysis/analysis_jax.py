@@ -15,21 +15,28 @@ logger.setLevel(logging.INFO)
 
 class ModelAnalysisJax(Actor):
 
-    def __init__(self, *args, params=None, theta=None, n_stim=21, optimizer=None, use_gpu=False):
+    def __init__(self, *args, model_params: Dict = None, theta: Dict = None, stim_n=21, optimizer: Dict = None, use_gpu=False):
         """
-        # TODO Docs.
-        :param optimizer: Choose an optimizer from jax.experimental.optimizers. Defaults to adagrad with 1e-5 learning rate.
+        Class that receives data in a format specified in CaimanProcessor. Outputs to ModelAnalysis.
+        Calculates tuning curve, overlay processed image with neurons, and fit sim_GLM.
+
+        :param model_params: Parameters for sim_GLM_jax.py. Defaults to _generate_model_params().
+        :param theta: A dictionary containing 3 weights: θ_b, θ_h, and θ_w. Dimensions must match those specified in {model_params}.
+        :param stim_n: For StimProcessor, number of stim types.
+        :param optimizer: A dictionary of the format {'name': an optimizer from jax.experimental.optimizers, **kwargs for that optimizer}.
+        :param use_gpu: JAX setting to use GPU.
         """
+
         super().__init__(*args)
 
-        self.model_params = self._generate_model_params() if params is None else params
+        self.model_params = self._generate_model_params() if model_params is None else model_params
         self.model_theta = theta
         self.model_optimizer = optimizer
         self.model_use_gpu = use_gpu
         self.model = None  # Need to initialize JAX after setup due to interpreter fork.
         self.model_lls = list()
 
-        self.n_stim = n_stim
+        self.n_stim = stim_n
         self.n_frame = 0
         self.window_size = 100
 
