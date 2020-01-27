@@ -6,8 +6,8 @@ actors:
 
   Acquirer:
     package: acquire.acquire
-    class: TbifAcquirer
-    filename: data/overclimbing.tbif
+    class: FileAcquirer
+    filename: data/tbif_ex_crop_500frames.h5
     framerate: 2
 
   Processor:
@@ -21,6 +21,8 @@ actors:
   Analysis:
     package: analysis.analysis
     class: ModelAnalysis
+
+  
 
 
 connections:
