@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from functools import partial
+from importlib import import_module
 from typing import Dict, Tuple
 
 import jax.numpy as np
 import numpy as onp
-
 from jax import devices, jit, random, value_and_grad
 from jax.config import config
-from jax.experimental import optimizers
+from jax.experimental.optimizers import OptimizerState
 from jax.interpreters.xla import DeviceArray
 
 
@@ -64,9 +64,14 @@ class simGLM:
             self._θ = {key: np.asarray(item) for key, item in θ.items()}  # Convert to DeviceArray
 
         # Setup optimizer
-        self.optimizer = optimizer if optimizer is not None else optimizers.adagrad(1e-5)
-        self.opt_init, self.opt_update, self.get_params = self.optimizer
-        self._θ: optimizers.OptimizerState = self.opt_init(self._θ)
+        if optimizer is None:
+            optimizer = {'name': 'adagrad', 'step_size': 1e-5}
+        print(f'Optimizer: {optimizer}')
+        opt_func = getattr(import_module('jax.experimental.optimizers'), optimizer['name'])
+        del optimizer['name']
+        optimizer = {k: float(v) for k, v in optimizer.items()}
+        self.opt_init, self.opt_update, self.get_params = opt_func(**optimizer)
+        self._θ: OptimizerState = self.opt_init(self._θ)
 
         self._ll_grad = value_and_grad(self._ll)
 
@@ -81,7 +86,7 @@ class simGLM:
     def fit(self, y, s) -> float:
         args = self._check_arrays(y, s)
         ll, Δ = self._ll_grad(self.θ, self.params, *args)
-        self._θ: optimizers.OptimizerState = self.opt_update(self.iter, Δ, self._θ)
+        self._θ: OptimizerState = self.opt_update(self.iter, Δ, self._θ)
 
         self.iter += 1
         return float(ll)
