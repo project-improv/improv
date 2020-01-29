@@ -2,13 +2,11 @@ import logging
 import time
 from pathlib import Path
 from queue import Empty
-
 import numpy as np
 import tifffile
 from caiman.utils.visualization import get_contours
 from scipy.sparse import csc_matrix, hstack
 from suite2p import run_s2p
-
 from nexus.actor import Actor, RunManager
 from nexus.store import ObjectNotFoundError
 
@@ -16,20 +14,17 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class BatchProcessor(Actor):
-    """
-    Process frames in batches using suite2p.
-    Analysis is called every {buffer_size} frames.
-    Designed for output to ModelAnalysis.
+class Suite2pProcessor(Actor):
+    ''' Process frames in batches using suite2p.
+        Analysis is called every {buffer_size} frames.
+        Designed for output to ModelAnalysis.
+    '''
 
-    """
-
-    def __init__(self, *args, buffer_size=200, path='output'):
-        """
-        :param buffer_size: Size of frame batches.
-        :param path: Path to saved TIFF files.
-
-        """
+    def __init__(self, *args, buffer_size=200, path='output', **kwargs):
+        ''' buffer_size: Size of frame batches.
+            path: Path to saved TIFF files.
+        '''
+        
         super().__init__(*args)
 
         self.buffer_size = buffer_size
@@ -71,11 +66,10 @@ class BatchProcessor(Actor):
             logger.info(rm)
 
     def runner(self):
-        """
-        Get raw frames from store, put them into {self.frame_buffer}.
-        Every {self.buffer_size}, call {self.call_suite}.
+        ''' Get raw frames from store, put them into {self.frame_buffer}.
+            Every {self.buffer_size}, call {self.call_suite}.
+        '''
 
-        """
         try:
             obj_id = self.q_in.get(timeout=1e-3)  # List
             frame = self.client.getID(obj_id[0][str(self.frame_number)])  # Expects np.ndarray
@@ -85,7 +79,7 @@ class BatchProcessor(Actor):
         except KeyError as e:
             logger.error('Processor: Key error... {0}'.format(e))
         except ObjectNotFoundError:
-            logger.error('Unavailable from store, dropping frame_number.')
+            logger.error('Unavailable from store, dropping frame_number {}.'.format(self.frame_number))
 
         else:
             # Put frame into buffer. Regenerate when full.
@@ -97,19 +91,18 @@ class BatchProcessor(Actor):
 
             # Save buffer as TIF and send to suite2p.
             if self.frame_number % self.buffer_size == self.buffer_size - 1:
-                print(f'Calling suite!')
+                print('Calling suite2p!')
                 self.run_suite()
 
             self.frame_number += 1
             self.t_per_frame.append([time.time(), time.time() - t])
 
     def run_suite(self):
-        """
-        Save {self.frame_buffer} into a TIFF file.
-        Call suite2p using the said TIFF file.
-        Put processed/merged results into store.
+        ''' Save {self.frame_buffer} into a TIFF file.
+            Call suite2p using the said TIFF file.
+            Put processed/merged results into store.
+        '''
 
-        """
         t0 = time.time()
 
         self.tiff_name.append(
@@ -132,18 +125,17 @@ class BatchProcessor(Actor):
         to_put = self.process_suite_results(path)
         self.put_estimates(*to_put)
         self.t_per_put.append(time.time() - t0)
-        logger.info(f'suite2p: processed to frame {self.frame_number}.')
+        logger.info('suite2p: processed up to frame {}.'.format(self.frame_number))
 
     def process_suite_results(self, path: Path):
-        """
-        Convert suite2p result into the output format of CaimanProcessor.
-        Initializes class data when run for the first time. Otherwise, merge new results.
-        Frame number is frame number when suite2p is called.
+        ''' Convert suite2p result into the output format of CaimanProcessor.
+            Initializes class data when run for the first time. Otherwise, merge new results.
+            Frame number is frame number when suite2p is called.
 
-        :param path: Path to suite2p result folder.
-        :return [coords, mean_image, S].
+            path: Path to suite2p result folder.
+            Returns list of [coords, mean_image, S].
+        '''
 
-        """
         path = path / 'suite2p' / 'plane0'
 
         # Want coords (encoded in A), image, S
@@ -179,13 +171,11 @@ class BatchProcessor(Actor):
         return get_contours(self.A, self.dim_img[::-1]), img_mean, self.S
 
     def merge_suite_results(self, new_S, new_stat):
-        """
-        Merge results from different batches of suite2p.
+        ''' Merge results from different batches of suite2p.
 
-        If L1-distance of median (x, y) is less than 4, combine spike data. Else, create new neuron.
-        If old neuron disappears, pad with 0.
-
-        """
+            If L1-distance of median (x, y) is less than 4, combine spike data. Else, create new neuron.
+            If old neuron disappears, pad with 0.
+        '''
 
         # Median, padded with idx and old/new flag.
         med = np.array([[*xy, i, 0] for i, xy in enumerate(self.median_xy)])
@@ -242,9 +232,12 @@ class BatchProcessor(Actor):
                 pass
 
     def put_estimates(self, coords, img_mean, S):
-        self.q_out.put([
-            self.client.put(coords, f'coords{self.frame_number + 1}'),
-            self.client.put(img_mean, f'proc_image{self.frame_number + 1}'),
-            self.client.put(S, f'S{self.frame_number + 1}'),
-            self.frame_number + 1
-        ])
+        ''' Put relevant analyses results into the data store
+            for later classes (e.g. ModelAnalysis) to access
+        '''
+        ids = []
+        ids.append(self.client.put(coords, 'coords'+str(self.frame_number+1)))
+        ids.append(self.client.put(img_mean, 'proc_image'+str(self.frame_number+1)))
+        ids.append(self.client.put(S, 'S'+str(self.frame_number+1)))
+        ids.append(self.frame_number+1)
+        self.q_out.put(ids)
