@@ -7,12 +7,13 @@ actors:
   Acquirer:
     package: acquire.acquire
     class: FileAcquirer
-    filename: /root/caiman_data/example_movies/Mesoscope/Tolias_mesoscope_2.hdf5
+    filename: data/Tolias_mesoscope_2.hdf5
     framerate: 15
 
   Processor:
     package: process.batch_process
-    class: BatchProcessor
+    class: Suite2pProcessor
+    daemon: False
 
   Visual:
     package: visual.visual
