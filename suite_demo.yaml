@@ -1,26 +1,27 @@
 actors:
   GUI:
     package: visual.visual
-    class: BasicVisual
+    class: DisplayVisual
     visual: Visual
 
   Acquirer:
     package: acquire.acquire
     class: FileAcquirer
     filename: data/Tolias_mesoscope_2.hdf5
-    framerate: 30
+    framerate: 15
 
   Processor:
-    package: process.process
-    class: CaimanProcessor
+    package: process.batch_process
+    class: Suite2pProcessor
+    daemon: False
 
   Visual:
     package: visual.visual
-    class: BasicCaimanVisual
+    class: CaimanVisual
   
   Analysis:
     package: analysis.analysis
-    class: MeanAnalysis
+    class: ModelAnalysis
 
   InputStim:
     package: acquire.acquire
