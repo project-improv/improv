@@ -6,13 +6,14 @@ actors:
 
   Acquirer:
     package: acquire.acquire
-    class: TbifAcquirer
-    filename: data/08-17-14_1437_F1_6dpfCOMPLETESET_WB_overclimbing_z-1.tbif
-    framerate: 2
+    class: FileAcquirer
+    filename: data/Tolias_mesoscope_2.hdf5
+    framerate: 15
 
   Processor:
-    package: process.process
-    class: CaimanProcessor
+    package: process.batch_process
+    class: Suite2pProcessor
+    daemon: False
 
   Visual:
     package: visual.visual
@@ -22,9 +23,13 @@ actors:
     package: analysis.analysis
     class: ModelAnalysis
 
+  InputStim:
+    package: acquire.acquire
+    class: BehaviorAcquirer
+
 
 connections:
   Acquirer.q_out: [Processor.q_in, Visual.raw_frame_queue]
   Processor.q_out: [Analysis.q_in]
   Analysis.q_out: [Visual.q_in]
-  Acquirer.stim_queue: [Analysis.input_stim_queue]
+  InputStim.q_out: [Analysis.input_stim_queue]
