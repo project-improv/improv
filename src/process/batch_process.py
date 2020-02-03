@@ -20,7 +20,7 @@ class Suite2pProcessor(Actor):
         Designed for output to ModelAnalysis.
     '''
 
-    def __init__(self, *args, buffer_size=200, path='output', **kwargs):
+    def __init__(self, *args, buffer_size=200, path='output/suite2p', **kwargs):
         ''' buffer_size: Size of frame batches.
             path: Path to saved TIFF files.
         '''
