@@ -74,18 +74,18 @@ class CaimanProcessor(Actor):
 
         print('Processor broke, avg time per frame: ', np.mean(self.total_times, axis=0))
         print('Processor got through ', self.frame_number, ' frames')
-        np.savetxt('timing/process_frame_time.txt', np.array(self.total_times))
-        np.savetxt('timing/process_timestamp.txt', np.array(self.timestamp))
+        np.savetxt('output/timing/process_frame_time.txt', np.array(self.total_times))
+        np.savetxt('output/timing/process_timestamp.txt', np.array(self.timestamp))
 
         self.shape_time = np.array(self.onAc.t_shapes)
         self.detect_time = np.array(self.onAc.t_detect)
 
-        np.savetxt('timing/fitframe_time.txt', np.array(self.fitframe_time))
-        np.savetxt('timing/shape_time.txt', self.shape_time)
-        np.savetxt('timing/detect_time.txt', self.detect_time)
+        np.savetxt('output/timing/fitframe_time.txt', np.array(self.fitframe_time))
+        np.savetxt('output/timing/shape_time.txt', self.shape_time)
+        np.savetxt('output/timing/detect_time.txt', self.detect_time)
 
-        np.savetxt('timing/putAnalysis_time.txt', np.array(self.putAnalysis_time))
-        np.savetxt('timing/procFrame_time.txt', np.array(self.procFrame_time))
+        np.savetxt('output/timing/putAnalysis_time.txt', np.array(self.putAnalysis_time))
+        np.savetxt('output/timing/procFrame_time.txt', np.array(self.procFrame_time))
 
         # before = self.params['init_batch']
         # nb = self.onAc.params.get('init', 'nb')
@@ -108,7 +108,7 @@ class CaimanProcessor(Actor):
             try:
                 init = self.params['init_batch']
                 S = np.stack([osi.s[init:] for osi in self.onAc.estimates.OASISinstances])
-                np.savetxt('end_spikes.txt', S)
+                np.savetxt('output/end_spikes.txt', S)
             except Exception as e:
                 logger.error('Exception {}: {} during frame number {}'.format(type(e).__name__, e, self.frame_number))
                 print(traceback.format_exc())
@@ -117,7 +117,7 @@ class CaimanProcessor(Actor):
         self.coords1 = [o['CoM'] for o in self.coords]
         print(self.coords1[0])
         print('type ', type(self.coords1[0]))
-        np.savetxt('contours.txt', np.array(self.coords1))
+        np.savetxt('output/contours.txt', np.array(self.coords1))
 
     def runProcess(self):
         ''' Run process. Runs once per frame.
@@ -253,7 +253,7 @@ class CaimanProcessor(Actor):
 
         image = self.makeImage()
         if self.frame_number == 1:
-            np.savetxt('image.txt', np.array(image))
+            np.savetxt('output/image.txt', np.array(image))
         t4 = time.time()
         dims = image.shape
         self._updateCoords(A,dims)
