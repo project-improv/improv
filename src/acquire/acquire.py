@@ -59,8 +59,8 @@ class FileAcquirer(Actor):
             
         print('Acquire broke, avg time per frame: ', np.mean(self.total_times))
         print('Acquire got through ', self.frame_num, ' frames')
-        np.savetxt('timing/acquire_frame_time.txt', np.array(self.total_times))
-        np.savetxt('timing/acquire_timestamp.txt', np.array(self.timestamp))
+        np.savetxt('output/timing/acquire_frame_time.txt', np.array(self.total_times))
+        np.savetxt('output/timing/acquire_timestamp.txt', np.array(self.timestamp))
 
     def runAcquirer(self):
         '''While frames exist in location specified during setup,
@@ -285,7 +285,7 @@ class FolderAcquirer(Actor):
         self.files = set()
 
         if not self.path.exists() or not self.path.is_dir():
-            raise AttributeError(f'Folder {self.path} does not exist.')
+            raise AttributeError('Folder {} does not exist.'.format(self.path))
 
     def setup(self):
         pass
@@ -298,7 +298,7 @@ class FolderAcquirer(Actor):
             img = self.get_tiff(file)
             self.imgs.append(img)
         self.imgs = np.array(self.imgs)
-        f = h5py.File('data/sample.h5', 'w', libver='latest')
+        f = h5py.File('output/sample.h5', 'w', libver='latest')
         f.create_dataset("default", data=self.imgs)
         f.close()
 
@@ -316,8 +316,8 @@ class FolderAcquirer(Actor):
 
         print('Acquire broke, avg time per frame: ', np.mean(self.total_times))
         print('Acquire got through ', self.frame_num, ' frames')
-        np.savetxt('timing/acquire_frame_time.txt', self.total_times)
-        np.savetxt('timing/acquire_timestamp.txt', self.timestamp)
+        np.savetxt('output/timing/acquire_frame_time.txt', self.total_times)
+        np.savetxt('output/timing/acquire_timestamp.txt', self.timestamp)
 
     def runAcquirer(self):
         ''' Main loop. If there're new files, read and put into store.
@@ -346,8 +346,7 @@ class FolderAcquirer(Actor):
             img = imread(file.as_posix())
         except ValueError as e:
             img = imread(file.as_posix())
-            logger.error(
-                'File '+file.as_posix()+' had value error {}'.format(e))
+            logger.error('File '+file.as_posix()+' had value error {}'.format(e))
         return img #[0,0,0, :, :,0]  #Extract first channel in this image set. #TODO: Likely change this
 
 import ipaddress
@@ -394,17 +393,17 @@ class ZMQAcquirer(Actor):
             print(rm)
 
         self.imgs = np.array(self.saveArray)
-        f = h5py.File('data/sample_stream.h5', 'w', libver='latest')
+        f = h5py.File('output/sample_stream.h5', 'w', libver='latest')
         f.create_dataset("default", data=self.imgs)
         f.close()
 
-        np.savetxt('./stimmed.txt', np.array(self.stimmed))
-        np.savetxt('./frametimes.txt', np.array(self.frametimes))
+        np.savetxt('output/stimmed.txt', np.array(self.stimmed))
+        np.savetxt('output/frametimes.txt', np.array(self.frametimes))
 
         print('Acquire broke, avg time per frame: ', np.mean(self.total_times))
         print('Acquire got through ', self.frame_num, ' frames')
-        np.savetxt('timing/acquire_frame_time.txt', self.total_times)
-        np.savetxt('timing/acquire_timestamp.txt', self.timestamp)
+        np.savetxt('output/timing/acquire_frame_time.txt', self.total_times)
+        np.savetxt('output/timing/acquire_timestamp.txt', self.timestamp)
 
     def runAcquirer(self):
         ''' Main loop. If there're new files, read and put into store.
@@ -490,8 +489,8 @@ class ReplayAcquirer(FileAcquirer):
 
         print('Acquire broke, avg time per frame: ', np.mean(self.total_times))
         print('Acquire got through ', self.frame_num, ' frames')
-        np.savetxt('timing/acquire_frame_time.txt', self.total_times)
-        np.savetxt('timing/acquire_timestamp.txt', self.timestamp)
+        np.savetxt('output/timing/acquire_frame_time.txt', self.total_times)
+        np.savetxt('output/timing/acquire_timestamp.txt', self.timestamp)
 
     def runAcquirer(self):
         t = time.time()
