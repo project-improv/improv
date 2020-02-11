@@ -341,10 +341,10 @@ class SpontAnalysis(Actor):
                 #c = np.array(c)
                 ind = c[~np.isnan(c).any(axis=1)].astype(int)
                 newind= ind[~np.any(ind==0., axis=1)]
-                newind= newind[~np.any(newind==255, axis=1)]
-                newind= newind[~np.any(newind==439, axis=1)]
-                newind= newind[~np.any(newind==440, axis=1)]
-                newind= newind[~np.any(newind==256, axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 0), axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 0)-1, axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 1), axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 1)-1, axis=1)]
                 if self.S[i] is not None and np.max(np.abs(self.S[i]))>5:
                     cv2.fillConvexPoly(color, ind, (255,255,255,25))
         return color
@@ -680,10 +680,10 @@ class MeanAnalysis(Actor):
                 #c = np.array(c)
                 ind = c[~np.isnan(c).any(axis=1)].astype(int)
                 newind= ind[~np.any(ind==0., axis=1)]
-                newind= newind[~np.any(newind==255, axis=1)]
-                newind= newind[~np.any(newind==439, axis=1)]
-                newind= newind[~np.any(newind==440, axis=1)]
-                newind= newind[~np.any(newind==256, axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 0), axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 0)-1, axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 1), axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 1)-1, axis=1)]
                 cv2.fillConvexPoly(color, newind, self._tuningColor(i, color[newind[:,1], newind[:,0]]))
 
         # TODO: keep list of neural colors. Compute tuning colors and IF NEW, fill ConvexPoly. 
@@ -1291,16 +1291,40 @@ class ModelAnalysis(Actor):
         color = np.stack([image, image, image, image], axis=-1).astype(np.uint8).copy()
         color[...,3] = 255
             # color = self.color.copy() #TODO: don't stack image each time?
+
+        #TODO: save color image
+        if (self.frame==500):
+            from PIL import Image
+
+            for i, c in enumerate(self.coords):
+                ind = c[~np.isnan(c).any(axis=1)].astype(int)
+                newind= ind[~np.any(ind==0., axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 0), axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 0)-1, axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 1), axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 1)-1, axis=1)]
+
+                cv2.fillConvexPoly(color, newind, (255, 255, 255, 255))
+
+            im= Image.fromarray(color)
+            im.save('color_old.png')
+            
+            print(len(self.coords))
+
         if self.coords is not None:
+            
             for i,c in enumerate(self.coords):
                 #c = np.array(c)
                 ind = c[~np.isnan(c).any(axis=1)].astype(int)
                 newind= ind[~np.any(ind==0., axis=1)]
-                newind= newind[~np.any(newind==255, axis=1)]
-                newind= newind[~np.any(newind==439, axis=1)]
-                newind= newind[~np.any(newind==440, axis=1)]
-                newind= newind[~np.any(newind==256, axis=1)]
-                cv2.fillConvexPoly(color, ind, self._tuningColor(i, color[newind[:,1], newind[:,0]]))
+                newind= newind[~np.any(newind==np.size(image, 0), axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 0)-1, axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 1), axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 1)-1, axis=1)]
+
+                cv2.fillConvexPoly(color, ind, self._tuningColor(i, color[ind[:,1], ind[:,0]]))
+
+
 
         # TODO: keep list of neural colors. Compute tuning colors and IF NEW, fill ConvexPoly. 
 

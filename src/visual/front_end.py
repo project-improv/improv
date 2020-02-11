@@ -205,6 +205,9 @@ class FrontEnd(QtGui.QMainWindow, rasp_ui.Ui_MainWindow):
             self.rawplot_2.setImage(color)
             self.rawplot_2.ui.histogram.vb.setLimits(yMin=8, yMax=255)
 
+        else:
+            print('----------------------- no color received')
+
         if self.visual.showConnectivity and weight is not None:
             self.rawplot_3.setImage(weight*100)
             colordata = (np.array(cmapToColormap(cm.viridis).color) * 255).astype(np.uint8)

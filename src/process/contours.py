@@ -198,10 +198,5 @@ if __name__ == '__main__':
     #    X= get_contours(A, (440, 256))
     vert = get_contours(A, (440, 256))
     coords = [o['coordinates'] for o in vert]
-    for i,c in enumerate(coords):
-        #c = np.array(c)
-        c= c.astype('int32')
-        c_img= cv.fillConvexPoly(image, c, (255,255,255,25))
-        plt.imshow(image)
-        plt.title('OpenCV contours')
-        plt.show()
+    print(coords)
+    np.savetxt('testcoords', np.asarray(coords))

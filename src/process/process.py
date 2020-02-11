@@ -9,7 +9,7 @@ from caiman.source_extraction.cnmf.utilities import detrend_df_f
 from caiman.source_extraction.cnmf.online_cnmf import OnACID
 from caiman.source_extraction.cnmf.params import CNMFParams
 from caiman.motion_correction import motion_correct_iteration_fast, tile_and_correct
-from process.contours import get_contours
+from caiman.utils.visualization import get_contours
 import caiman as cm
 from os.path import expanduser
 import os
