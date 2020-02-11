@@ -1293,6 +1293,7 @@ class ModelAnalysis(Actor):
             # color = self.color.copy() #TODO: don't stack image each time?
 
         #TODO: save color image
+        '''
         if (self.frame==500):
             from PIL import Image
 
@@ -1310,21 +1311,21 @@ class ModelAnalysis(Actor):
             im.save('color_old.png')
             
             print(len(self.coords))
-
+        '''
         if self.coords is not None:
             
             for i,c in enumerate(self.coords):
                 #c = np.array(c)
                 ind = c[~np.isnan(c).any(axis=1)].astype(int)
+                '''
                 newind= ind[~np.any(ind==0., axis=1)]
                 newind= newind[~np.any(newind==np.size(image, 0), axis=1)]
                 newind= newind[~np.any(newind==np.size(image, 0)-1, axis=1)]
                 newind= newind[~np.any(newind==np.size(image, 1), axis=1)]
                 newind= newind[~np.any(newind==np.size(image, 1)-1, axis=1)]
+                '''
 
                 cv2.fillConvexPoly(color, ind, self._tuningColor(i, color[ind[:,1], ind[:,0]]))
-
-
 
         # TODO: keep list of neural colors. Compute tuning colors and IF NEW, fill ConvexPoly. 
 
