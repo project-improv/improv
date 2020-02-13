@@ -60,7 +60,7 @@ class SpontAnalysis(Actor):
             logger.info(rm)
         
         N = self.p["numNeurons"]
-        np.savetxt('output/model_weights.txt', self.theta[:N*N].reshape((N,N)))
+        np.savetxt('model_weights.txt', self.theta[:N*N].reshape((N,N)))
 
         print('Analysis broke, avg time per frame: ', np.mean(self.total_times, axis=0))
         print('Analysis got through ', self.frame, ' frames')
@@ -390,16 +390,16 @@ class MeanAnalysis(Actor):
         print('Analysis broke, avg time per stim avg: ', np.mean(self.stimtime))
         print('Analysis got through ', self.frame, ' frames')
 
-        np.savetxt('output/timing/analysis_frame_time.txt', np.array(self.total_times))
-        np.savetxt('output/timing/analysisput_frame_time.txt', np.array(self.puttime))
-        np.savetxt('output/timing/analysiscolor_frame_time.txt', np.array(self.colortime))
-        np.savetxt('output/timing/analysis_timestamp.txt', np.array(self.timestamp))
+        np.savetxt('timing/analysis_frame_time.txt', np.array(self.total_times))
+        np.savetxt('timing/analysisput_frame_time.txt', np.array(self.puttime))
+        np.savetxt('timing/analysiscolor_frame_time.txt', np.array(self.colortime))
+        np.savetxt('timing/analysis_timestamp.txt', np.array(self.timestamp))
 
-        np.savetxt('output/analysis_estsAvg.txt', np.array(self.estsAvg))
-        # np.savetxt('output/analysis_estsOn.txt', np.array(self.estsOn))
-        # np.savetxt('output/analysis_estsOff.txt', np.array(self.estsOff))
-        np.savetxt('output/analysis_proc_S.txt', np.array(self.S))
-        # np.savetxt('output/analysis_spikeAvg.txt', np.array(self.spikeAvg))
+        np.savetxt('analysis_estsAvg.txt', np.array(self.estsAvg))
+        # np.savetxt('analysis_estsOn.txt', np.array(self.estsOn))
+        # np.savetxt('analysis_estsOff.txt', np.array(self.estsOff))
+        np.savetxt('analysis_proc_S.txt', np.array(self.S))
+        # np.savetxt('analysis_spikeAvg.txt', np.array(self.spikeAvg))
 
     def runAvg(self):
         ''' Take numpy estimates and frame_number
@@ -855,13 +855,13 @@ class ModelAnalysis(Actor):
         print('Analysis got through ', self.frame, ' frames')
 
         N = self.p["numNeurons"]
-        np.savetxt('output/model_weights.txt', self.theta[:N*N].reshape((N,N)))
+        np.savetxt('model_weights.txt', self.theta[:N*N].reshape((N,N)))
 
-        np.savetxt('output/timing/analysis_frame_time.txt', np.array(self.total_times))
-        np.savetxt('output/timing/analysis_timestamp.txt', np.array(self.timestamp))
-        np.savetxt('output/analysis_estsAvg.txt', np.array(self.estsAvg))
-        np.savetxt('output/analysis_proc_S.txt', np.array(self.S))
-        np.savetxt('output/analysis_LL.txt', np.array(self.LL))
+        np.savetxt('timing/analysis_frame_time.txt', np.array(self.total_times))
+        np.savetxt('timing/analysis_timestamp.txt', np.array(self.timestamp))
+        np.savetxt('analysis_estsAvg.txt', np.array(self.estsAvg))
+        np.savetxt('analysis_proc_S.txt', np.array(self.S))
+        np.savetxt('analysis_LL.txt', np.array(self.LL))
 
     def runStep(self):
         ''' Take numpy estimates and frame_number
@@ -1297,8 +1297,14 @@ class ModelAnalysis(Actor):
             for i,c in enumerate(self.coords):
                 #c = np.array(c)
                 ind = c[~np.isnan(c).any(axis=1)].astype(int)
+                newind= ind[~np.any(ind==0., axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 0), axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 0)-1, axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 1), axis=1)]
+                newind= newind[~np.any(newind==np.size(image, 1)-1, axis=1)]
+
                 #TODO: Compute all colors simultaneously! then index in...
-                cv2.fillConvexPoly(color, ind, self._tuningColor(i, color[ind[:,1], ind[:,0]]))
+                cv2.fillConvexPoly(color, newind, self._tuningColor(i, color[newind[:,1], newind[:,0]]))
 
         # TODO: keep list of neural colors. Compute tuning colors and IF NEW, fill ConvexPoly. 
 
