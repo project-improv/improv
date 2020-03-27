@@ -41,7 +41,7 @@ except:
     print("Bokeh could not be loaded. Either it is not installed or you are not running within a notebook")
 
 
-def get_contours(A, dims, thr=0.9, thr_method='nrg', swap_dim=False):
+def get_contours(A, dims, idx, thr=0.9, thr_method='nrg', swap_dim=False):
     """Gets contour of spatial components and returns their coordinates
 
      Args:
@@ -80,11 +80,10 @@ def get_contours(A, dims, thr=0.9, thr_method='nrg', swap_dim=False):
     coordinates = []
     cm = com(A, *dims)
     # for each patches
-    for i in range(nr):
+    for i in idx:
         # we compute the cumulative sum of the energy of the Ath component that has been ordered from least to highest
         pars:Dict= dict()
         patch_data = A.data[A.indptr[i]:A.indptr[i + 1]]
-        
         indx = np.argsort(patch_data)[::-1]
 
         if thr_method == 'nrg':
@@ -104,53 +103,11 @@ def get_contours(A, dims, thr=0.9, thr_method='nrg', swap_dim=False):
             Bmat = np.reshape(Bvec, dims, order='C')
         else:
             Bmat = np.reshape(Bvec, dims, order='F')
-        #import pdb; pdb.set_trace()
-
-        #if (i==0):
-            #visualize patch_data, contours
-        #    patch_data=np.append(patch_data, 0)
-        #    patch_data= np.append([0], patch_data)
-        #    Amat= np.reshape(patch_data, dims, order='C')
-        #    plt.subplot(1, 2, 1)
-        #    plt.imshow(Amat)
-        #    plt.subplot(1, 2, 2)
-        #    plt.imshow(Bmat)
-        #    plt.show()
-
-        
         # for each dimensions we draw the contour
         
         retval, thresh= cv.threshold(Bmat.T, thr, 1, cv.THRESH_BINARY)
         thresh= thresh.astype(np.uint8)
         vertices, hierarchy= cv.findContours(thresh, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
-        #verticesPrev = find_contours(Bmat.T, thr)
-
-        #if (i==0):
-        #    image= Bmat.T
-        #    for i,c in enumerate(verticesPrev):
-        #        #c = np.array(c)
-        #        c_img= cv.fillConvexPoly(image, c, (255,255,255,25))
-        #    plt.imshow(image)
-        #    plt.title('SkiImage contours')
-        #    plt.show()
-
-        #if (i==0):
-        #    c_img = cv.drawContours(Bmat.T, vertices, -1, (0, 255, 0), 2)
-        #    plt.figure()
-        #    plt.imshow(c_img)
-        #    plt.title('OpenCV contours')
-        #    plt.show()
-        #    fig, ax = plt.subplots()
-        #    ax.imshow(Bmat.T)
-        #    for n, contour in enumerate(verticesPrev):
-        #        ax.plot(contour[:, 1], contour[:, 0], color='black', linewidth=2)
-        #    ax.axis('image')
-        #    ax.set_xticks([])
-        #    ax.set_yticks([])
-        #    plt.title('SkiImage contours')
-        #    plt.show()
-            
-        
         # this fix is necessary for having disjoint figures and borders plotted correctly
         v = np.atleast_2d([np.nan, np.nan])
         pars:Dict = dict()
@@ -188,7 +145,7 @@ def get_contours(A, dims, thr=0.9, thr_method='nrg', swap_dim=False):
         pars['coordinates']= v
         pars['neuron_id']= i+1 
         coordinates.append(pars)
-        
+
     return coordinates
 
 if __name__ == '__main__':

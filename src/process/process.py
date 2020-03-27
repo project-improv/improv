@@ -177,7 +177,7 @@ class CaimanProcessor(Actor):
             # TODO add parameter validation inside Tweak
             home = expanduser("~")
             cwd = os.getcwd()
-            params_dict = {'fnames': [cwd+'/data/tbif_ex_crop_500frames.h5'], #tbif_ex.h5'],
+            params_dict = {'fnames': [cwd+'/data/Tolias_mesoscope_2.hdf5'], #tbif_ex.h5'],
                    'fr': 2,
                    'decay_time': 0.8,
                    'gSig': (3,3),
@@ -343,15 +343,33 @@ class CaimanProcessor(Actor):
         '''
         if self.coords is None: #initial calculation
             self.A = A
-            self.coords = get_contours(A, dims)
+
+            idx= [i for i in range(self.onAc.N)]
+            
+            self.coords = get_contours(A, dims, idx)
 
         elif np.shape(A)[1] > np.shape(self.A)[1]: # and self.frame_number % 50 == 0:
             #Only recalc if we have new components
             # FIXME: Since this is only for viz, only do this every 100 frames
             # TODO: maybe only recalc coords that are new?
+
             self.A = A
-            self.coords = get_contours(A, dims)
+            num_added= self.onAc.num_added
+            N= self.onAc.N
+
+            idx= [i for i in range(N-num_added, N)]
+
+            new_comp = get_contours(A, dims, idx)
+            self.coords= self.coords+new_comp
             self.counter += 1
+        else: #update shapes
+            self.A = A
+            if self.onAc.indicator_components is not None:
+                idx= [i for i in indicator_components]
+                new_comp= get_contours(A, dims, idx)
+                for comp in new_comp:
+                    i= comp['neuron_id']
+                    self.coords[i-1]= comp
 
 
     def makeImage(self):
