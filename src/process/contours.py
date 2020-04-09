@@ -151,9 +151,17 @@ def get_contours(A, dims, idx, thr=0.9, thr_method='nrg', swap_dim=False):
 if __name__ == '__main__':
     cwd = os.getcwd()
     A= np.loadtxt(cwd+'/data/A')
-    #for i in range(30):
-    #    X= get_contours(A, (440, 256))
+    #idx= [i for i in range(len(A.data()))]
+    t= time.time()
+    for i in range(30):
+        num= np.random.randint(0, 241, 200)
+        X= get_contours(A, (440, 256), num)
+    t2= time.time()
+    print('Compute 200 random contours:' +str((t2-t)/30))
+
+    '''
     vert = get_contours(A, (440, 256))
     coords = [o['coordinates'] for o in vert]
     print(coords)
     np.savetxt('testcoords', np.asarray(coords))
+    '''

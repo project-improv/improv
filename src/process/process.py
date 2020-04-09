@@ -12,6 +12,7 @@ from caiman.motion_correction import motion_correct_iteration_fast, tile_and_cor
 from process.contours import get_contours
 import caiman as cm
 from os.path import expanduser
+import matplotlib.pyplot as plt
 import os
 from queue import Empty
 from nexus.actor import Actor, Spike, RunManager
@@ -365,12 +366,11 @@ class CaimanProcessor(Actor):
         else: #update shapes
             self.A = A
             if self.onAc.indicator_components is not None:
-                idx= [i for i in indicator_components]
+                idx= [i for i in self.onAc.indicator_components]
                 new_comp= get_contours(A, dims, idx)
                 for comp in new_comp:
                     i= comp['neuron_id']
                     self.coords[i-1]= comp
-
 
     def makeImage(self):
         '''Create image data for visualiation
