@@ -8,7 +8,7 @@ Initially, I realized that the close-coordinates function was taking much longer
 
 I then looked into the function that was used to calculate the contours and decided to try to implement the OpenCV findcontours function in order to get it to run more efficiently.  The images below demonstrate that despite the OpenCV function only yielding integer values, the contours still qualitatively look the same as those from the original SkiImage function.
 
-
+<img src="contour_compare.png" style="float:left; margin-right: 20px; margin-bottom: 10px" width="200px">
 
 Changing this function brought the time down by about 300 msec. The average execution time for the overall function is now about 640 msec, representing a 40% increase in efficiency.
 
@@ -21,5 +21,5 @@ We also altered the get_contours function to allow the user to pass in a set of 
 The figure below shows a plot of number of neurons passed to get_contours and runtime. 
 This plot shows that generally, runtime scales linearly with number of neurons, although there is some margin of error as can be seen in the spikes in the plot.
  
-
+<img src="time_plot.png" style="float:left; margin-right: 20px; margin-bottom: 10px" width="200px">
 
