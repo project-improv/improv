@@ -1,9 +1,10 @@
 
 from unittest import TestCase
 from test.test_utils import StoreDependentTestCase
+from test.test_utils import ExternalStoreTestCase
 from src.nexus.store import Limbo
 from multiprocessing import Process
-from pyarrow import PlasmaObjectExists
+from pyarrow.plasma import PlasmaObjectExists
 from scipy.sparse import csc_matrix
 import numpy as np
 import pyarrow.plasma as plasma
@@ -21,8 +22,8 @@ class Limbo_Connect(StoreDependentTestCase):
         self.limbo = Limbo()
 
     def test_Connect(self):
-        store_loc='/tmp/store'
-        self.limbo.connectStore(store_loc)
+        #store_loc='/tmp/store'
+        #self.limbo.connectStore(store_loc)
         self.assertIsInstance(self.limbo.client, plasma.PlasmaClient)
 
     def test_failToConnect(self):
@@ -243,3 +244,22 @@ class Limbo_saveTweak(StoreDependentTestCase):
 
     def tearDown(self):
         super(Limbo_saveTweak, self).tearDown()
+
+
+class External_store(ExternalStoreTestCase):
+    
+    def setUp(self):
+        super(External_store, self).setUp()
+        self.limbo = Limbo()
+
+    def test_extStore(self):
+        id = self.limbo.random_ObjectID(1)
+        self.limbo.client.put(1, id[0])
+        self.limbo.client.evict(64)
+        
+        self.assertEquals(self.limbo.client.get(id[0]), 1)
+
+    def tearDown(self):
+        super(External_store, self).tearDown()
+        
+

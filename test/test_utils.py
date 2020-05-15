@@ -24,6 +24,25 @@ class StoreDependentTestCase(TestCase):
 
         self.p.kill()
 
+class ExternalStoreTestCase(TestCase):
+
+    def setUp(self):
+        ''' Start the server
+        '''
+        self.p = subprocess.Popen(['plasma_store',
+                              '-s', '/tmp/store',
+                              '-m', str(10000000),
+                              '-e', '/tmp/ext'],
+                              stdout=subprocess.DEVNULL,
+                              stderr=subprocess.DEVNULL)
+
+    def tearDown(self):
+        ''' Kill the server
+        '''
+
+        self.p.kill()
+
+
 class ActorDependentTestCase(TestCase):
 
     def setUp(self):
