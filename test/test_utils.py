@@ -25,7 +25,7 @@ class StoreDependentTestCase(TestCase):
         self.p.kill()
 
 class ExternalStoreTestCase(TestCase):
-
+    
     def setUp(self):
         ''' Start the server
         '''
