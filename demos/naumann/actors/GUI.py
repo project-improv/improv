@@ -2,7 +2,7 @@ from PyQt5 import QtGui,QtCore,QtWidgets
 from PyQt5.QtGui import QColor, QPixmap
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
-from actors import improv_fit
+from . import improv_fit
 from improv.store import Limbo
 from improv.actor import Spike
 import numpy as np
@@ -204,9 +204,9 @@ class FrontEnd(QtGui.QMainWindow, improv_fit.Ui_MainWindow):
 
         if self.visual.showConnectivity and weight is not None:
             self.rawplot_3.setImage(weight*100)
-            colordata = (np.array(cmapToColormap(cm.viridis).color) * 255).astype(np.uint8)
-            cmap = ColorMap(pos=np.linspace(0, 1, len(colordata)), color=colordata)
-            self.rawplot_3.setColorMap(cmap)
+            # colordata = (np.array(cmapToColormap(cm.viridis).color) * 255).astype(np.uint8)
+            # cmap = ColorMap(pos=np.linspace(0, 1, len(colordata)), color=colordata)
+            # self.rawplot_3.setColorMap(cmap)
             # self.rawplot_3.ui.histogram.vb.setLimits(yMin=0.1, yMax=1)
         else:
             pass
