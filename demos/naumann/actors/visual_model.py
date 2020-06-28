@@ -7,7 +7,7 @@ from math import floor
 import colorsys
 from PyQt5 import QtGui, QtWidgets
 import pyqtgraph as pg
-from actors.GUI import FrontEnd
+from .GUI import FrontEnd
 import sys
 from improv.actor import Actor, Spike
 from queue import Empty

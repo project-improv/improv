@@ -9,7 +9,7 @@ import zmq
 import json
 from pathlib import Path
 from skimage.external.tifffile import imread
-from nexus.actor import Actor, Spike, RunManager
+from improv.actor import Actor, Spike, RunManager
 from queue import Empty
 
 import logging; logger = logging.getLogger(__name__)
