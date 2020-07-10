@@ -1,0 +1,36 @@
+actors:
+  GUI:
+    package: demos.basic.actors.visual
+    class: BasicVisual
+    visual: Visual
+
+  Acquirer:
+    package: improv.actors.acquire
+    class: FileAcquirer
+    filename: data/Tolias_mesoscope_2.hdf5
+    framerate: 30
+
+  Processor:
+    package: actors.processor
+    class: BasicProcessor
+    init_filename: data/Tolias_mesoscope_2.hdf5
+    config_file: neurofind_caiman_params.txt
+
+  Visual:
+    package: demos.basic.actors.visual
+    class: BasicCaimanVisual
+  
+  Analysis:
+    package: improv.actors.analysis
+    class: MeanAnalysis
+
+  InputStim:
+    package: improv.actors.acquire
+    class: BehaviorAcquirer
+
+
+connections:
+  Acquirer.q_out: [Processor.q_in, Visual.raw_frame_queue]
+  Processor.q_out: [Analysis.q_in]
+  Analysis.q_out: [Visual.q_in]
+  InputStim.q_out: [Analysis.input_stim_queue]
