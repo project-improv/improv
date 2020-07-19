@@ -150,18 +150,21 @@ class Nexus():
         for name,link in self.data_queues.items():
             self.assignLink(name, link)
 
-        self.createWatcher()
-        self.actors['Watcher'].watchin = []
+        if self.tweak.settings['use_watcher'] is not None:
 
-        for name in self.tweak.settings['use_watcher']:
-            watch_link= Link(name+'_watch', name, 'Watcher')
-            self.assignLink(name+'.watchout', watch_link)
-            self.actors['Watcher'].watchin.append(watch_link)
+            watchin = []
+
+            for name in self.tweak.settings['use_watcher']:
+                watch_link= Link(name+'_watch', name, 'Watcher')
+                self.assignLink(name+'.watchout', watch_link)
+                watchin.append(watch_link)
+
+            self.createWatcher(watchin)
 
         #TODO: error handling for if a user tries to use q_in without defining it
 
-    def createWatcher(self):
-        watcher= BasicWatcher('Watcher')
+    def createWatcher(self, watchin):
+        watcher= BasicWatcher('Watcher', inputs=watchin)
         watcher.setStore(store.Limbo(watcher.name))
         q_comm = Link('Watcher_comm', watcher.name, self.name)
         q_sig = Link('Watcher_sig', self.name, watcher.name)
