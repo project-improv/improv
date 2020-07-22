@@ -1,3 +1,6 @@
+settings:
+  use_watcher: [Acquirer, Processor, Visual, Analysis]
+
 actors:
   GUI:
     package: demos.basic.actors.visual
@@ -7,13 +10,13 @@ actors:
   Acquirer:
     package: actors.acquire_folder
     class: FolderAcquirer
-    folder: data/NF_1
+    folder: data/NF_2
     framerate: 30
 
   Processor:
     package: actors.processor
     class: BasicProcessor
-    init_filename: data/NF_1
+    init_filename: data/first50_2.h5
     config_file: neurofind_caiman_params.txt
 
   Visual:
