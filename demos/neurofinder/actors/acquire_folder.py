@@ -25,11 +25,10 @@ class FolderAcquirer(Actor):
         super().__init__(*args, **kwargs)
         self.data = None
         self.done = False
-        self.flag = False
         self.path = Path(folder)
 
         self.frame_num = 0
-        self.files = set()
+        self.files= []
 
         if not self.path.exists() or not self.path.is_dir():
             raise AttributeError('Folder {} does not exist.'.format(self.path))
@@ -56,7 +55,7 @@ class FolderAcquirer(Actor):
         self.total_times = []
         self.timestamp = []
 
-        self.files = {f for f in self.path.iterdir() if f.suffix in ['.tif', '.tiff']}
+        self.files = [f for f in self.path.iterdir() if f.suffix in ['.tif', '.tiff']]
 
         with RunManager(self.name, self.runAcquirer, self.setup, self.q_sig, self.q_comm) as rm:
             print(rm)
@@ -67,23 +66,15 @@ class FolderAcquirer(Actor):
     def runAcquirer(self):
         ''' Main loop. If there're new files, read and put into store.
         '''
-        t = time.time()
-        files_current = {f for f in self.path.iterdir() if f.suffix in ['.tif', '.tiff']}
-        files_new = files_current - self.files
-        # files_new = files_current  # Remove before use.
+        t= time.time()
+        try:
+            obj_id = self.client.put(self.get_tiff(self.files[self.frame_num]), 'acq_raw' + str(self.frame_num))
+            self.put([[obj_id, str(self.frame_num)]], save=[True])
+            self.frame_num += 1
+        except IndexError as e:
+            pass
 
-        if len(files_new) == 0:
-            time.sleep(0.01) # Remove before use
-
-        else:  # New files
-            files_new = sorted(list(files_new))
-            for file in files_new:
-                obj_id = self.client.put(self.get_tiff(file), 'acq_raw' + str(self.frame_num))
-                self.q_out.put([{str(self.frame_num): obj_id}])
-                self.frame_num += 1
-                self.files.add(file)
-
-            self.total_times.append(time.time() - t)
+        self.total_times.append(time.time() - t)
 
     def get_tiff(self, file: Path):
         try:
