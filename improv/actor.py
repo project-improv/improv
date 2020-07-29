@@ -102,7 +102,8 @@ class Actor():
         if q_out == None:
             q_out= self.q_out
 
-        q_out.put(idnames)
+        if q_out != None:
+            q_out.put(idnames)
  
         for i in range(len(idnames)):
             if save[i]:
