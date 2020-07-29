@@ -11,7 +11,7 @@ actors:
     package: actors.acquire_folder
     class: FolderAcquirer
     folder: data/NF_2
-    framerate: 30
+    framerate: 20
 
   Processor:
     package: actors.processor
