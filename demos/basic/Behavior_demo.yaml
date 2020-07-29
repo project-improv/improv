@@ -1,5 +1,5 @@
 settings:
-  use_watcher: [Acquirer, Processor, Visual, Analysis]
+  use_watcher: [Acquirer, Processor, Visual, Analysis, Behavior, Motion]
 
 actors:
   GUI:
@@ -27,9 +27,20 @@ actors:
     package: improv.actors.analysis
     class: MeanAnalysis
 
+  Behavior:
+    package: actors.behavior
+    class: RawBehavior
+    filename: data/Cam1.h5
+
   InputStim:
     package: improv.actors.acquire
     class: BehaviorAcquirer
+
+  Motion:
+    package: actors.behavior
+    class: MotionBehavior
+    filename: data/bodymotion.mat
+
 
 connections:
   Acquirer.q_out: [Processor.q_in, Visual.raw_frame_queue]

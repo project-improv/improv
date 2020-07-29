@@ -42,11 +42,6 @@ class FileAcquirer(Actor):
 
         else: raise FileNotFoundError
 
-        #if self.saving:
-        #    save_file = self.filename.split('.')[0]+'_backup'+'.h5'
-        #    self.f = h5py.File(save_file, 'w', libver='latest')
-        #    self.dset = self.f.create_dataset("default", (len(self.data),)) #TODO: need to set maxsize to none?
-
     def run(self):
         ''' Run indefinitely. Calls runAcquirer after checking for signals
         '''
@@ -150,7 +145,6 @@ class StimAcquirer(Actor):
             self.q_out.put({self.n:self.stim[self.n]})
         time.sleep(0.068)   # simulate a particular stimulus rate
         self.n+=1
-
 
 class BehaviorAcquirer(Actor):
     ''' Actor that acquires information of behavioral stimulus
