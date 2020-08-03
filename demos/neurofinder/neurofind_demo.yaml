@@ -10,13 +10,13 @@ actors:
   Acquirer:
     package: actors.acquire_folder
     class: FolderAcquirer
-    folder: data/NF_2
-    framerate: 20
+    folder: data/NF_tr_1
+    framerate: 7
 
   Processor:
     package: actors.processor
     class: BasicProcessor
-    init_filename: data/first50_2.h5
+    init_filename: data/first50_tr1.h5
     config_file: neurofind_caiman_params.txt
 
   Visual:
@@ -29,7 +29,8 @@ actors:
 
   InputStim:
     package: improv.actors.acquire
-    class: BehaviorAcquirer
+    class: FileStim
+    File: data/Stim_neurofind.txt
 
 
 connections:
