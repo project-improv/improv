@@ -68,7 +68,8 @@ class FrontEnd(QtGui.QMainWindow, improv_fit.Ui_MainWindow):
             #plot lines
             try:
                 self.updateLines()
-            except Exception:
+            except Exception as e:
+                print('update lines error {}'.format(e))
                 import traceback
                 print('---------------------Exception in update lines: ' , traceback.format_exc())
 
@@ -238,11 +239,19 @@ class FrontEnd(QtGui.QMainWindow, improv_fit.Ui_MainWindow):
                 # print(self.visual.allStims)
                 try:
                     if len(self.visual.allStims[i]) > 0:
-                        display = np.array(self.visual.allStims[i])
+                        # display = np.array(self.visual.allStims[i])
+                        d = []
+                        for s in self.visual.allStims[i]:
+                            d.extend(np.arange(s,s+15).tolist())
+                        # display = np.arange(self.visual.allStims[i], self.visual.allStims[i]+15)
+                        display = d
                         display = np.clip(display, np.min(Cx), np.max(Cx))
-                        plot.setData(display, [int(np.max(Cpop))+1] * len(display),
+                        try:
+                            plot.setData(display, [int(np.max(Cpop))+1] * len(display),
                                     symbol='s', symbolSize=6, antialias=False,
                                     pen=None, symbolPen=self.COLOR[i], symbolBrush=self.COLOR[i])
+                        except:
+                            print(display)
                 except KeyError:
                     pass
 

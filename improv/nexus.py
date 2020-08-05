@@ -293,7 +293,7 @@ class Nexus():
         for p in self.processes:
             # if p.is_alive():
             #     p.terminate()
-            p.terminate()
+            # p.terminate()
             p.join()
 
         logger.warning('Actors terminated')

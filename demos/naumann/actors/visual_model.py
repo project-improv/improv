@@ -72,7 +72,7 @@ class CaimanVisual(Actor):
         self.total_times = []
         self.timestamp = []
 
-        self.window=500
+        self.window=150
 
     def run(self):
         pass #NOTE: Special case here, tied to GUI

@@ -102,6 +102,10 @@ class ModelAnalysis(Actor):
             self.frame = ids[-1]
             (self.coordDict, self.image, self.S) = self.client.getList(ids[:-1])
             self.C = self.S
+
+            # why are there nans in C?
+            self.C = np.where(np.isnan(self.C), 0, self.C)
+
             self.coords = [o['coordinates'] for o in self.coordDict]
             
             # Compute tuning curves based on input stimulus
@@ -115,8 +119,8 @@ class ModelAnalysis(Actor):
 
             # fit to model once we have enough neurons
             if self.C.shape[0]>=self.p['numNeurons']:
-                if self.frame % 5 == 0:
-                    self.fit()
+                # if self.frame % 5 == 0:
+                self.fit()
             
             self.globalAvg = np.mean(self.estsAvg[:,:8], axis=0)
             self.tune = [self.estsAvg[:,:8], self.globalAvg]
@@ -142,6 +146,8 @@ class ModelAnalysis(Actor):
 
             if self.C.shape[1]>0:
                 self.Cpop = np.nanmean(self.C, axis=0)
+                if np.isnan(self.Cpop).any():
+                    logger.error('Nan in Cpop')
                 self.Call = self.C #already a windowed version #[:,self.frame-window:self.frame]
             
             ## for figures only
@@ -451,8 +457,8 @@ class ModelAnalysis(Actor):
                 self.counter[self.currentStim, 1] += 10
 
             elif self.frame in range(self.stimStart+1, self.frame+26):
-                print(self.currentStim)
-                print(self.frame)
+                # print(self.currentStim)
+                # print(self.frame)
                 # continue computing the running mean for this trial
                 # print(self.frame)
                 # print(self.stimStart)
@@ -599,7 +605,7 @@ class ModelAnalysis(Actor):
         color = x @ mat_weight
 
         blend = 0.8  
-        thresh = 0.2   
+        thresh = 0 #0.2   
         thresh_max = blend * np.max(color)
 
         color = np.clip(color, thresh, thresh_max)
@@ -607,7 +613,7 @@ class ModelAnalysis(Actor):
         color /= thresh_max
         color = np.nan_to_num(color)
 
-        if color.any() and np.linalg.norm(color-np.ones(3))>0.35:
+        if color.any() and np.linalg.norm(color-np.ones(3))>0.1: #0.35:
             color *=255
             return (color[0], color[1], color[2], 255)       
         else:

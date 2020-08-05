@@ -42,6 +42,10 @@ class ZMQAcquirer(Actor):
 
         self.saveArray = []
 
+        self.tailF = False
+        self.stimF = False
+        self.frameF = False
+
         ## TODO: save initial set of frames to data/init_stream.h5
 
     def run(self):
@@ -90,6 +94,9 @@ class ZMQAcquirer(Actor):
             # sendtime = msg_parts[0].split(b' ')[1].decode()
 
             if tag == b'stimid':
+                if not self.stimF:
+                    logger.info('Receiving stimulus information')
+                    self.stimF = True
                 msg_parts = [part.strip() for part in msg.split(b' ')]
                 # print(msg_parts)
                 sendtime = msg_parts[2].decode()
@@ -102,7 +109,7 @@ class ZMQAcquirer(Actor):
 
                 #calibration check:
                 angle = 270+angle
-                if angle>360:
+                if angle>=360:
                     angle-=360
 
                 stim = 0
@@ -150,15 +157,23 @@ class ZMQAcquirer(Actor):
                     stim = 16
                 else:
                     logger.error('Stimulus unrecognized')
+                    print(msg_parts)
+                    print(angle)
 
-                logger.info('Stimulus: {}'.format(stim))
+                if stimonOff:
+                    logger.info('Stimulus: {}, angle: {}, frame {}'.format(stim, angle, self.frame_num))
                 
 
                 self.links['stim_queue'].put({self.frame_num:[stim, stimonOff]})
+                # for i in np.arange(self.frame_num,self.frame_num+15): # known stimulus duration
+                    # self.links['stim_queue'].put({i:[stim, stimonOff]})
                 self.stimmed.append([self.frame_num, stim, time.time()])
                 self.stimsendtimes.append([sendtime])
 
             elif tag == b'frame':
+                if not self.frameF:
+                    logger.info('Receiving frame information')
+                    self.frameF = True
                 t0 = time.time()
                 sendtime =  msg_parts[0].split(b' ')[2].decode()
                 # print(sendtime)
@@ -179,6 +194,9 @@ class ZMQAcquirer(Actor):
                 self.total_times.append(time.time() - t0)
 
             elif tag == b'tail':
+                if not self.tailF:
+                    logger.info('Receiving tail information')
+                    self.tailF = True
                 t0 = time.time()
                 sendtime = msg_parts[0].split(b' ')[1].decode()
                 msg = msg_parts[0].split(b' ')[4:]
