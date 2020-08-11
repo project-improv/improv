@@ -18,6 +18,7 @@ class Spike_Acquirer(Actor):
         self.data = None
         self.done = False
         self.flag = False
+        self.N= 0
         self.filename = filename
 
     def setup(self):
@@ -51,11 +52,12 @@ class Spike_Acquirer(Actor):
         '''While frames exist in location specified during setup,
            grab frame, save, put in store
         '''
-        init_batch=50
 
         if self.frame_num< self.data.shape[1]:
-            before = init_batch + (self.frame_num-500 if self.frame_num > 500 else 0)
-            S = self.data[:, before:self.frame_num+before] #.get_ordered()
+            before = self.frame_num-500 if self.frame_num > 500 else 0
+            curr= self.data[:, :self.frame_num]
+
+            S = self.data[np.any(curr, axis=1), before:self.frame_num] #.get_ordered()
 
             id = self.client.put(S, 'acq_spike'+str(self.frame_num))
             self.put([[id, 'acq_spike'+str(self.frame_num)]], save=[True])
