@@ -9,7 +9,7 @@ from improv.store import ObjectNotFoundError
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-class MeanAnalysis(Actor):
+class SpikeAnalysis(Actor):
     #TODO: Add additional error handling
     def __init__(self, *args):
         super().__init__(*args)
@@ -75,17 +75,9 @@ class MeanAnalysis(Actor):
             pass #no change in input stimulus
         try:
             ids = self.q_in.get(timeout=0.0001)
-            ids = [id[0] for id in ids]
-            if ids is not None and ids[0]==1:
-                print('analysis: missing frame')
-                self.total_times.append(time.time()-t)
-                self.q_out.put([1])
-                raise Empty
-            # t = time.time()
-            self.frame = ids[-1]
-            (self.coordDict, self.image, self.S) = self.client.getList(ids[:-1])
+            id = ids[0][0]
+            self.S = self.client.getID(id)
             self.C = self.S
-            self.coords = [o['coordinates'] for o in self.coordDict]
             
             # Compute tuning curves based on input stimulus
             # Just do overall average activity for now
@@ -97,7 +89,11 @@ class MeanAnalysis(Actor):
             # Compute coloring of neurons for processed frame
             # Also rotate and stack as needed for plotting
             # TODO: move to viz, but we don't need to compute this 30 times/sec
-            self.color = self.plotColorFrame()
+            N= self.C.shape[0]
+            self.color = [[0,0,0,0]]*N
+            for i in range(N):
+                r, g, b, ga = self._tuningColor(i, None)
+                self.color[i]= [r, g, b, ga]
 
             if self.frame >= self.window:
                 window = self.window
@@ -171,10 +167,11 @@ class MeanAnalysis(Actor):
         ids.append([self.client.put(self.Cpop, 'Cpop'+str(self.frame)), 'Cpop'+str(self.frame)])
         ids.append([self.client.put(self.tune, 'tune'+str(self.frame)), 'tune'+str(self.frame)])
         ids.append([self.client.put(self.color, 'color'+str(self.frame)), 'color'+str(self.frame)])
-        ids.append([self.client.put(self.coordDict, 'analys_coords'+str(self.frame)), 'analys_coords'+str(self.frame)])
         ids.append([self.frame, str(self.frame)])
 
-        self.put(ids, save= [False, False, False, False, False, True, False])
+        self.put(ids, save= [False, True, False, False, True, False])
+
+        self.frame+=1
 
         self.puttime.append(time.time()-t)
 

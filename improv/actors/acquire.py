@@ -56,10 +56,6 @@ class FileAcquirer(Actor):
         np.savetxt('output/timing/acquire_frame_time.txt', np.array(self.total_times))
         np.savetxt('output/timing/acquire_timestamp.txt', np.array(self.timestamp))
 
-        print('------- Acquirer loop time: '+ str(self.loop_time))
-        print('------- Acquirer putq time: '+ str(self.putq_time))
-        print('------- Acquirer putstore time: '+ str(self.putstore_time))
-
     def runAcquirer(self):
         '''While frames exist in location specified during setup,
            grab frame, save, put in store
