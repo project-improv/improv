@@ -293,8 +293,9 @@ class Nexus():
         for p in self.processes:
             # if p.is_alive():
             #     p.terminate()
-            p.terminate()
+            #p.terminate()
             p.join()
+            p.terminate()
 
         logger.warning('Done with available frames')
         print('total time ', time.time()-self.t)
