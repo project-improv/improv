@@ -52,12 +52,23 @@ class BasicProcessor(CaimanProcessor):
         np.savetxt('output/timing/putAnalysis_time.txt', np.array(self.putAnalysis_time))
         np.savetxt('output/timing/procFrame_time.txt', np.array(self.procFrame_time))
 
-        self.shape_time = np.array(self.onAc.t_shapes)
-        self.detect_time = np.array(self.onAc.t_detect)
+        #self.shape_time = np.array(self.onAc.t_shapes)
+        #self.detect_time = np.array(self.onAc.t_detect)
 
-        np.savetxt('output/timing/fitframe_time.txt', np.array(self.fitframe_time))
-        np.savetxt('output/timing/shape_time.txt', self.shape_time)
-        np.savetxt('output/timing/detect_time.txt', self.detect_time)
+        #np.savetxt('output/timing/fitframe_time.txt', np.array(self.fitframe_time))
+        #np.savetxt('output/timing/shape_time.txt', self.shape_time)
+        #np.savetxt('output/timing/detect_time.txt', self.detect_time)
+
+        if self.onAc.estimates.OASISinstances is not None:
+            try:
+                init = self.params['init_batch']
+                S = np.stack([osi.s[init:] for osi in self.onAc.estimates.OASISinstances])
+                np.savetxt('output/end_spikes.txt', S)
+            except Exception as e:
+                logger.error('Exception {}: {} during frame number {}'.format(type(e).__name__, e, self.frame_number))
+                print(traceback.format_exc())
+        else:
+            print('No OASIS')
 
     def runProcess(self):
         ''' Run process. Runs once per frame.
