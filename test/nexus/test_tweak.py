@@ -4,15 +4,13 @@ import io
 import filecmp
 
 import logging; logger = logging.getLogger(__name__)
-from src.nexus.tweak import Tweak 
-from src.nexus.tweak import TweakModule
+from improv.tweak import Tweak, TweakModule, RepeatedActorError, RepeatedConnectionsError
 from unittest import TestCase
 from test.test_utils import StoreDependentTestCase
-from src.nexus.tweak import RepeatedActorError, RepeatedConnectionsError
-import visual.visual
-import acquire.acquire
-import process.process
-import analysis.analysis
+import test.visual
+import test.acquire
+import test.process
+import test.analysis
 from inspect import signature
 
 class createConfBasic(StoreDependentTestCase):

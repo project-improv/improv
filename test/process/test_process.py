@@ -1,7 +1,7 @@
 from unittest import TestCase
 from test.test_utils import StoreDependentTestCase
-from src.nexus.store import Limbo
-from src.process.process import CaimanProcessor as cp
+from improv.nexus.store import Limbo
+from improv.process.process import CaimanProcessor as cp
 import time
 
 class Caiman_Setup(StoreDependentTestCase):
@@ -17,7 +17,7 @@ class Caiman_Setup(StoreDependentTestCase):
     def test_StartProc(self):
         #cp.setupProcess(self.proc, 'params_dict')
         self.assertTrue(1)
-    
+
     def test_runProc(self):
         self.proc.setup()
         fnames = self.limbo.get('params_dict')['fnames']

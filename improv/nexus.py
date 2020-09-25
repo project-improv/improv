@@ -77,7 +77,7 @@ class Nexus():
                 if 'daemon' in self.tweak.actors[name].options: # e.g. suite2p creates child processes.
                     p.daemon = self.tweak.actors[name].options['daemon']
                     logger.info('Setting daemon to {} for {}'.format(p.daemon,name))
-                else: 
+                else:
                     p.daemon = True #default behavior
                 self.processes.append(p)
 
@@ -231,6 +231,7 @@ class Nexus():
         for p in self.processes:
             p.start()
 
+
     def setup(self):
         for q in self.sig_queues.values():
             try:
@@ -261,7 +262,7 @@ class Nexus():
 
         self.processes.append(self.p_GUI)
         #self.processes.append(self.p_watch)
-        
+
         for p in self.processes:
             # if p.is_alive():
             #     p.terminate()
