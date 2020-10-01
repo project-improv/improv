@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO,
                               logging.StreamHandler()])
 
 class BasicVisual(Actor):
-    ''' Class used to run a GUI + Visual as a single Actor 
+    ''' Class used to run a GUI + Visual as a single Actor
         Intended to be setup with a visual actor, BasicCaimanVisual (below).
     '''
 
@@ -60,7 +60,7 @@ class BasicCaimanVisual(Actor):
         # self.flip = False #TODO
 
     def setup(self):
-        ''' Setup 
+        ''' Setup
         '''
         self.Cx = None
         self.C = None
@@ -68,7 +68,7 @@ class BasicCaimanVisual(Actor):
         self.raw = None
         self.color = None
         self.coords = None
-        
+
         self.draw = True
 
         self.total_times = []
@@ -90,7 +90,7 @@ class BasicCaimanVisual(Actor):
             pass
         except Exception as e:
             logger.error('Visual: Exception in get data: {}'.format(e))
-        try: 
+        try:
             ids = self.q_in.get(timeout=0.0001)
             if ids is not None and ids[0]==1:
                 print('visual: missing frame')
@@ -130,7 +130,7 @@ class BasicCaimanVisual(Actor):
             # self.Cx = self.Cx[-self.window:]
             self.C = self.C[:, -len(self.Cx):]
             self.Cpop = self.Cpop[-len(self.Cx):]
-        
+
         return self.Cx, self.C[self.selectedNeuron,:], self.Cpop, self.tuned
 
     def getFrames(self):
@@ -198,7 +198,7 @@ class BasicCaimanVisual(Actor):
                     #rot_ind = np.array([[self.raw.shape[0]-i[0],self.raw.shape[1]-i[1]] for i in ind])
                     cv2.fillConvexPoly(image2, ind, self._threshNeuron(i, thresh_r))
             return image2
-        else: 
+        else:
             return None
 
     def _threshNeuron(self, ind, thresh_r):
@@ -210,7 +210,7 @@ class BasicCaimanVisual(Actor):
             if ests[ind] is not None:
                 intensity = np.max(ests[ind])
                 act[:len(ests[ind])] = ests[ind]
-                if thresh > intensity: 
+                if thresh > intensity:
                     display = (255,255,255,0)
                 elif np.any(act[np.where(thresh_r[:-1]==0)[0]]>0.5):
                     display = (255,255,255,0)
