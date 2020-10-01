@@ -2,8 +2,8 @@ actors:
   Acquirer:
     package: improv.actors.acquire
     class: FileAcquirer
-    fiasdfe: data/Tolias_mesoscope_2.hdf5
-    fraefawe: 30
+    filename: data/Tolias_mesoscope_2.hdf5
+    framerate: 30
 
   Processor:
     package: improv.actors.process

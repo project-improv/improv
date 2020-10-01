@@ -21,9 +21,9 @@ class Actor():
         self.links = links
         self.done = False # TODO: obsolete, remove
 
-        self.lower_priority = False 
+        self.lower_priority = False
 
-        # start with no explicit data queues.             
+        # start with no explicit data queues.
         # q_in and q_out are for passing ID information to access data in the store
         self.q_in = None
         self.q_out = None
@@ -133,7 +133,7 @@ class Spike():
     @staticmethod
     def reset(): #TODO: implement in Nexus
         return 'reset'
-    
+
     @staticmethod
     def load():
         return 'load'
@@ -177,12 +177,12 @@ class RunManager():
                     self.setup() #subfunction for setting up the actor
                     self.q_comm.put([Spike.ready()])
                 except Exception as e:
-                    logger.error('Actor '+self.actorName+' exception during setup: {}'.format(e))  
+                    logger.error('Actor '+self.actorName+' exception during setup: {}'.format(e))
                     raise Exception
                 self.config = False #Run once
-            try: 
+            try:
                 signal = self.q_sig.get(timeout=self.timeout)
-                if signal == Spike.run(): 
+                if signal == Spike.run():
                     self.run = True
                     logger.warning('Received run signal, begin running')
                 elif signal == Spike.setup():

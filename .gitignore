@@ -43,6 +43,9 @@ pip-delete-this-directory.txt
 logs/
 data/
 
+# Demo data
+analyzed_videos/
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
