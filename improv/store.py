@@ -5,7 +5,7 @@ import time
 import numpy as np
 import pyarrow as arrow
 import pyarrow.plasma as plasma
-from pyarrow import PlasmaObjectExists
+from pyarrow.plasma import PlasmaObjectExists
 from pyarrow.lib import ArrowIOError
 from pyarrow.plasma import ObjectNotAvailable
 from scipy.sparse import csc_matrix
@@ -45,7 +45,7 @@ class Limbo(StoreInterface):
     '''
 
     def __init__(self, name='default', store_loc='/tmp/store',
-                 hdd_loc='output/', use_hdd=False, hdd_maxstore=1e12,
+                 hdd_path='output/', use_hdd=False, hdd_maxstore=1e12,
                  flush_immediately=False, commit_freq=20):
         # TODO TODO TODO: Refactor to use local hdd settings instead of put and get
         ''' Constructor for Limbo
@@ -79,7 +79,7 @@ class Limbo(StoreInterface):
         '''
         try:
             #self.client = plasma.connect(store_loc)
-            self.client: plasma.PlasmaClient = plasma.connect(store_loc, '', 0)
+            self.client: plasma.PlasmaClient = plasma.connect(store_loc, 20)
             logger.info('Successfully connected to store')
         except Exception as e:
             logger.exception('Cannot connect to store: {0}'.format(e))

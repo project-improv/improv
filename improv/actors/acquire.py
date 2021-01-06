@@ -22,7 +22,6 @@ class FileAcquirer(Actor):
         self.data = None
         self.done = False
         self.flag = False
-        self.saving = False
         self.filename = filename
         self.framerate = 1/framerate 
 
@@ -43,13 +42,13 @@ class FileAcquirer(Actor):
 
         else: raise FileNotFoundError
 
-        if self.saving:
-            save_file = self.filename.split('.')[0]+'_backup'+'.h5'
-            self.f = h5py.File(save_file, 'w', libver='latest')
-            self.dset = self.f.create_dataset("default", (len(self.data),)) #TODO: need to set maxsize to none?
+        #if self.saving:
+        #    save_file = self.filename.split('.')[0]+'_backup'+'.h5'
+        #    self.f = h5py.File(save_file, 'w', libver='latest')
+        #    self.dset = self.f.create_dataset("default", (len(self.data),)) #TODO: need to set maxsize to none?
 
     def run(self):
-        ''' Run indefinitely. Calls runAcquirer after checking for singals
+        ''' Run indefinitely. Calls runAcquirer after checking for signals
         '''
         self.total_times = []
         self.timestamp = []
@@ -59,6 +58,16 @@ class FileAcquirer(Actor):
             
         print('Done running Acquire, avg time per frame: ', np.mean(self.total_times))
         print('Acquire got through ', self.frame_num, ' frames')
+        if not os._exists('output'):
+            try:
+                os.makedirs('output')
+            except:
+                pass
+        if not os._exists('output/timing'):
+            try:
+                os.makedirs('output/timing')
+            except:
+                pass
         np.savetxt('output/timing/acquire_frame_time.txt', np.array(self.total_times))
         np.savetxt('output/timing/acquire_timestamp.txt', np.array(self.timestamp))
 
@@ -75,13 +84,14 @@ class FileAcquirer(Actor):
             ## simulate frame-dropping
             # if self.frame_num > 1500 and self.frame_num < 1800:
             #     frame = None
+            t= time.time()
             id = self.client.put(frame, 'acq_raw'+str(self.frame_num))
+            t1= time.time()
             self.timestamp.append([time.time(), self.frame_num])
             try:
-                self.q_out.put([{str(self.frame_num):id}])
+                self.put([[id, str(self.frame_num)]], save=[True])
                 self.frame_num += 1
-                if self.saving:
-                    self.saveFrame(frame) #also log to disk #TODO: spawn separate process here?     
+                 #also log to disk #TODO: spawn separate process here?  
             except Exception as e:
                 logger.error('Acquirer general exception: {}'.format(e))
 
@@ -93,8 +103,8 @@ class FileAcquirer(Actor):
             self.data = None
             self.q_comm.put(None)
             self.done = True # stay awake in case we get e.g. a shutdown signal
-            if self.saving:
-                self.f.close()
+            #if self.saving:
+            #    self.f.close()
     
     def getFrame(self, num):
         ''' Here just return frame from loaded data
@@ -118,17 +128,19 @@ class StimAcquirer(Actor):
 
     def setup(self):
         self.n= 0
+        self.sID = 0
         if os.path.exists(self.filename):
             print('Looking for ', self.filename)
             n, ext = os.path.splitext(self.filename)[:2]
             if ext== ".txt":
+                # self.stim = np.loadtxt(self.filename)
                 self.stim=[]
                 f = np.loadtxt(self.filename)
                 for _, frame in enumerate(f):
-                    stiminfo= frame[0:2]
+                    stiminfo = frame[0:2]
                     self.stim.append(stiminfo)
             else: 
-                logger.error('Cannot load file, bad extension')
+                logger.error('Cannot load file, possible bad extension')
                 raise Exception
 
         else: raise FileNotFoundError
@@ -142,9 +154,11 @@ class StimAcquirer(Actor):
     def getInput(self):
         ''' Check for input from behavioral control
         '''
-        if (self.n<len(self.stim)):
+        if self.n<len(self.stim):
+            # s = self.stim[self.sID]
+            # self.sID+=1
             self.q_out.put({self.n:self.stim[self.n]})
-        time.sleep(0.068)   # simulate a particular stimulus rate
+        time.sleep(0.5)   # simulate a particular stimulus rate
         self.n+=1
 
 
@@ -186,9 +200,9 @@ class BehaviorAcquirer(Actor):
         ''' Check for input from behavioral control
         '''
         # Faking it for now.
-        if self.n % 100 == 0:
+        if self.n % 50 == 0:
             self.curr_stim = random.choice(self.behaviors)
-            self.onoff = random.choice([0,20])
+            self.onoff = random.choice([0,10])
             self.q_out.put({self.n:[self.curr_stim, self.onoff]})
             logger.info('Changed stimulus! {}'.format(self.curr_stim))
         time.sleep(0.068)
