@@ -12,6 +12,7 @@ from caiman.motion_correction import motion_correct_iteration_fast, tile_and_cor
 from caiman.utils.visualization import get_contours
 from os.path import expanduser
 from queue import Empty
+import pyarrow.plasma as plasma
 from improv.actor import Actor, Spike, RunManager
 from improv.actors.process import CaimanProcessor
 import traceback
@@ -25,7 +26,7 @@ class BasicProcessor(CaimanProcessor):
     '''
     
     #TODO: Default data set for this. Ask for using Tolias from caiman...?
-    def __init__(self, *args, init_filename='data/Tolias...?', config_file=None):
+    def __init__(self, *args, init_filename='data/Tolias_mesoscope_2.hdf5', config_file=None):
         super().__init__(*args, init_filename=init_filename, config_file=config_file)
     
     def run(self):
@@ -46,6 +47,16 @@ class BasicProcessor(CaimanProcessor):
 
         print('Processor broke, avg time per frame: ', np.mean(self.total_times, axis=0))
         print('Processor got through ', self.frame_number, ' frames')
+        if not os._exists('output'):
+            try:
+                os.makedirs('output')
+            except:
+                pass
+        if not os._exists('output/timing'):
+            try:
+                os.makedirs('output/timing')
+            except:
+                pass
         np.savetxt('output/timing/process_frame_time.txt', np.array(self.total_times))
         np.savetxt('output/timing/process_timestamp.txt', np.array(self.timestamp))
 
@@ -72,7 +83,7 @@ class BasicProcessor(CaimanProcessor):
             t = time.time()
             self.done = False
             try:
-                self.frame = self.client.getID(frame[0][str(self.frame_number)])
+                self.frame = self.client.getID(frame[0][0])
                 self.frame = self._processFrame(self.frame, self.frame_number+init)
                 t2 = time.time()
                 self._fitFrame(self.frame_number+init, self.frame.reshape(-1, order='F'))
@@ -109,23 +120,34 @@ class BasicProcessor(CaimanProcessor):
         t2 = time.time()
         
         image = self.makeImage()
-        if self.frame_number == 1:
-            np.savetxt('output/image.txt', np.array(image))
+        # if self.frame_number == 1:
+        #     np.savetxt('output/image.txt', np.array(image))
         t3 = time.time()
         dims = image.shape
         self._updateCoords(A,dims)
         t4 = time.time()
 
         ids = []
-        ids.append(self.client.put(self.coords, 'coords'+str(self.frame_number)))
-        ids.append(self.client.put(image, 'proc_image'+str(self.frame_number)))
-        ids.append(self.client.put(C, 'C'+str(self.frame_number)))
-        ids.append(self.frame_number)
+        ids.append([self.client.put(self.coords, 'coords'+str(self.frame_number)), 'coords'+str(self.frame_number)])
+        ids.append([self.client.put(image, 'proc_image'+str(self.frame_number)), 'proc_image'+str(self.frame_number)])
+        ids.append([self.client.put(C, 'C'+str(self.frame_number)), 'C'+str(self.frame_number)])
+        ids.append([self.frame_number, str(self.frame_number)])
+
         t5 = time.time()
-        self.q_out.put(ids)
+
+        # if self.frame_number %50 == 0:
+        #     self.put(ids, save= [False, True, False, False])
+
+        # else:
+        # self.put(ids, save=[False]*4)
+
+        self.put(ids)
+
+        t6= time.time()
+
         #self.q_comm.put([self.frame_number])
 
-        self.putAnalysis_time.append([time.time()-t, t2-t, t3-t2, t4-t3, t5-t4])
+        self.putAnalysis_time.append([time.time()-t, t2-t, t3-t2, t4-t3, t6-t4])
 
 
     def _updateCoords(self, A, dims):

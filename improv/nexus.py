@@ -19,6 +19,7 @@ from improv.actor import Spike
 from queue import Empty, Full
 import logging
 from datetime import datetime
+from improv.watcher import BasicWatcher
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -74,23 +75,28 @@ class Nexus():
         for name,m in self.actors.items(): # m accesses the specific actor class instance
             if 'GUI' not in name: #GUI already started
                 p = Process(target=self.runActor, name=name, args=(m,))
-                if 'daemon' in self.tweak.actors[name].options: # e.g. suite2p creates child processes.
-                    p.daemon = self.tweak.actors[name].options['daemon']
-                    logger.info('Setting daemon to {} for {}'.format(p.daemon,name))
-                else: 
-                    p.daemon = True #default behavior
+                if 'Watcher' not in name:
+                    if 'daemon' in self.tweak.actors[name].options: # e.g. suite2p creates child processes.
+                        p.daemon = self.tweak.actors[name].options['daemon']
+                        logger.info('Setting daemon to {} for {}'.format(p.daemon,name))
+                    else: 
+                        p.daemon = True #default behavior
                 self.processes.append(p)
 
         self.start()
 
-        loop = asyncio.get_event_loop()
+        if self.tweak.hasGUI:
+            loop = asyncio.get_event_loop()
 
-        signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
-        for s in signals:
-            loop.add_signal_handler(
-                s, lambda s=s: asyncio.ensure_future(self.stop_polling(s, loop))) #TODO
+            signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
+            for s in signals:
+                loop.add_signal_handler(
+                    s, lambda s=s: asyncio.ensure_future(self.stop_polling(s, loop))) #TODO
 
-        loop.run_until_complete(self.pollQueues()) #TODO: in Link executor, complete all tasks
+            loop.run_until_complete(self.pollQueues()) #TODO: in Link executor, complete all tasks
+            logger.info('Shutdown loop')
+        else:
+            pass
 
     def loadTweak(self, file=None):
         ''' For each connection:
@@ -137,6 +143,11 @@ class Nexus():
             except Exception as e:
                 logger.error('Exception in setting up GUI {}'.format(name)+': {}'.format(e))
 
+        else:
+            # have fake GUI for communications
+            q_comm = Link('GUI_comm', 'GUI', self.name)
+            self.comm_queues.update({q_comm.name:q_comm})
+
         # First set up each class/actor
         for name,actor in self.tweak.actors.items():
             if name not in self.actors.keys():
@@ -147,7 +158,29 @@ class Nexus():
         for name,link in self.data_queues.items():
             self.assignLink(name, link)
 
+        if self.tweak.settings['use_watcher'] is not None:
+
+            watchin = []
+
+            for name in self.tweak.settings['use_watcher']:
+                watch_link= Link(name+'_watch', name, 'Watcher')
+                self.assignLink(name+'.watchout', watch_link)
+                watchin.append(watch_link)
+
+            self.createWatcher(watchin)
+
         #TODO: error handling for if a user tries to use q_in without defining it
+
+    def createWatcher(self, watchin):
+        watcher= BasicWatcher('Watcher', inputs=watchin)
+        watcher.setStore(store.Limbo(watcher.name))
+        q_comm = Link('Watcher_comm', watcher.name, self.name)
+        q_sig = Link('Watcher_sig', self.name, watcher.name)
+        self.comm_queues.update({q_comm.name:q_comm})
+        self.sig_queues.update({q_sig.name:q_sig})
+        watcher.setCommLinks(q_comm, q_sig)
+
+        self.actors.update({watcher.name: watcher})
 
     def createActor(self, name, actor):
         ''' Function to instantiate actor, add signal and comm Links,
@@ -205,6 +238,8 @@ class Nexus():
             self.actors[classname].setLinkOut(link)
         elif linktype == 'q_in':
             self.actors[classname].setLinkIn(link)
+        elif linktype == 'watchout':
+            self.actors[classname].setLinkWatch(link)
         else:
             self.actors[classname].addLink(linktype, link)
 
@@ -223,6 +258,7 @@ class Nexus():
         self.p_watch = Process(target=self.watcher.run, name='watcher_process')
         self.p_watch.daemon = True
         self.p_watch.start()
+        self.processes.append(self.p_watch)
 
     def start(self):
         logger.info('Starting processes')
@@ -265,9 +301,10 @@ class Nexus():
         for p in self.processes:
             # if p.is_alive():
             #     p.terminate()
+            p.terminate()
             p.join()
 
-        logger.warning('Done with available frames')
+        logger.warning('Actors terminated')
         print('total time ', time.time()-self.t)
 
         self.destroyNexus()
@@ -374,7 +411,8 @@ class Nexus():
         try:
             self.p_Limbo = subprocess.Popen(['plasma_store',
                               '-s', '/tmp/store',
-                              '-m', str(size)],
+                              '-m', str(size),
+                              '-e', 'hashtable://test'],
                               stdout=subprocess.DEVNULL,
                               stderr=subprocess.DEVNULL)
             logger.info('Store started successfully')

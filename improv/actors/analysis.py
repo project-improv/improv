@@ -2,6 +2,7 @@ import time
 import cv2
 import numpy as np
 from queue import Empty
+import os
 
 from improv.actor import Actor, Spike, RunManager
 from improv.store import ObjectNotFoundError
@@ -55,12 +56,20 @@ class MeanAnalysis(Actor):
         print('Analysis broke, avg time per stim avg: ', np.mean(self.stimtime))
         print('Analysis got through ', self.frame, ' frames')
 
+        if not os._exists('output'):
+            try:
+                os.makedirs('output')
+            except:
+                pass
+        if not os._exists('output/timing'):
+            try:
+                os.makedirs('output/timing')
+            except:
+                pass
         np.savetxt('output/timing/analysis_frame_time.txt', np.array(self.total_times))
         np.savetxt('output/timing/analysisput_frame_time.txt', np.array(self.puttime))
         np.savetxt('output/timing/analysiscolor_frame_time.txt', np.array(self.colortime))
         np.savetxt('output/timing/analysis_timestamp.txt', np.array(self.timestamp))
-
-        np.savetxt('output/final/analysis_tuning_curves.txt', np.array(self.polarAvg))
 
     def runAvg(self):
         ''' Take numpy estimates and frame_number
@@ -75,6 +84,7 @@ class MeanAnalysis(Actor):
             pass #no change in input stimulus
         try:
             ids = self.q_in.get(timeout=0.0001)
+            ids = [id[0] for id in ids]
             if ids is not None and ids[0]==1:
                 print('analysis: missing frame')
                 self.total_times.append(time.time()-t)
@@ -165,15 +175,16 @@ class MeanAnalysis(Actor):
         '''
         t = time.time()
         ids = []
-        ids.append(self.client.put(self.Cx, 'Cx'+str(self.frame)))
-        ids.append(self.client.put(self.Call, 'Call'+str(self.frame)))
-        ids.append(self.client.put(self.Cpop, 'Cpop'+str(self.frame)))
-        ids.append(self.client.put(self.tune, 'tune'+str(self.frame)))
-        ids.append(self.client.put(self.color, 'color'+str(self.frame)))
-        ids.append(self.client.put(self.coordDict, 'analys_coords'+str(self.frame)))
-        ids.append(self.frame)
+        ids.append([self.client.put(self.Cx, 'Cx'+str(self.frame)), 'Cx'+str(self.frame)])
+        ids.append([self.client.put(self.Call, 'Call'+str(self.frame)), 'Call'+str(self.frame)])
+        ids.append([self.client.put(self.Cpop, 'Cpop'+str(self.frame)), 'Cpop'+str(self.frame)])
+        ids.append([self.client.put(self.tune, 'tune'+str(self.frame)), 'tune'+str(self.frame)])
+        ids.append([self.client.put(self.color, 'color'+str(self.frame)), 'color'+str(self.frame)])
+        ids.append([self.client.put(self.coordDict, 'analys_coords'+str(self.frame)), 'analys_coords'+str(self.frame)])
+        ids.append([self.frame, str(self.frame)])
 
-        self.q_out.put(ids)
+        self.put(ids, save= [False, False, False, False, False, False, False])
+
         self.puttime.append(time.time()-t)
 
     def stimAvg_start(self):
