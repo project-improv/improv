@@ -14,13 +14,15 @@ class ModelAnalysis(Actor):
 
     def __init__(self, *args):
         super().__init__(*args)
-        N = 20 #guess XX neurons initially?
+        N = 5 #guess XX neurons initially
+        dh = 4
+        dk = 8
         w = np.zeros((N,N)) 
-        h = np.zeros((N,4)) #dh is 4
-        k = np.zeros((N,8))
+        h = np.zeros((N,dh))
+        k = np.zeros((N,dk))
         b = np.zeros(N)
         self.theta = np.concatenate((w,h,b,k), axis=None).flatten()
-        self.p = {'numNeurons': N, 'hist_dim': 4, 'numSamples': 1, 'dt': 0.5, 'stim_dim': 8} #TODO: from config file..
+        self.p = {'numNeurons': N, 'hist_dim': dh, 'numSamples': 1, 'dt': 0.5, 'stim_dim': dk} #TODO: from config file..
 
     def setup(self, param_file=None):
         '''
@@ -79,7 +81,7 @@ class ModelAnalysis(Actor):
         np.savetxt('output/timing/analysis_frame_time.txt', np.array(self.total_times))
         np.savetxt('output/timing/analysis_timestamp.txt', np.array(self.timestamp))
         np.savetxt('output/analysis_estsAvg.txt', np.array(self.estsAvg))
-        np.savetxt('output/analysis_proc_S.txt', np.array(self.S))
+        np.savetxt('output/analysis_proc_S_full3.txt', self.S)
         np.savetxt('output/analysis_LL.txt', np.array(self.LL))
         
         np.savetxt('output/used_stims.txt', self.currStimID)
@@ -90,7 +92,7 @@ class ModelAnalysis(Actor):
         '''
         t = time.time()
         ids = None
-        
+
         try:
             ids = self.q_in.get(timeout=0.0001)
             if ids is not None and ids[0]==1:
@@ -114,8 +116,7 @@ class ModelAnalysis(Actor):
             self.stimAvg_start()
 
             # fit to model once we have enough neurons
-            if self.C.shape[0]>=self.p['numNeurons'] and self.frame>5:
-                # if self.frame % 5 == 0:
+            if self.C.shape[0]>=self.p['numNeurons'] and self.frame>(self.p['hist_dim']+1):
                 self.fit()
             
             self.globalAvg = np.mean(self.estsAvg[:,:8], axis=0)
@@ -143,20 +144,11 @@ class ModelAnalysis(Actor):
             if self.C.shape[1]>0:
                 self.Cpop = np.nanmean(self.C, axis=0)
                 self.Call = self.C #already a windowed version #[:,self.frame-window:self.frame]
-            
-            ## for figures only
-            # if self.frame in [200, 500, 1000, 2000, 2875]:
-            #     # save weights
-            #     N = self.p["numNeurons"]
-            #     np.savetxt('output_snap/model_weights_frame'+str(self.frame)+'.txt', self.theta[:N*N].reshape((N,N)))
-            #     # save calcium traces
-            #     np.savetxt('output_snap/ests_C_frame'+str(self.frame)+'.txt', self.C)
-            #     # save computed tuning curves
-            #     np.savetxt('output_snap/tuning_curves_frame'+str(self.frame)+'.txt', self.estsAvg)
 
             self.putAnalysis()
             self.timestamp.append([time.time(), self.frame])
             self.total_times.append(time.time()-t)
+            
         except ObjectNotFoundError:
             logger.error('Estimates unavailable from store, droppping')
         except Empty as e:
@@ -173,12 +165,14 @@ class ModelAnalysis(Actor):
 
         self.p["numSamples"] = self.frame
 
-        if self.frame<50:
+        model_window = 5
+
+        if self.frame<model_window:
             y_step = self.S[:,:self.frame]
             stim_step = self.currStimID[:, :self.frame]
         else:
-            y_step =  self.S[:,self.frame-50:self.frame]
-            stim_step = self.currStimID[:, self.frame-50:self.frame]
+            y_step =  self.S[:,self.frame-model_window:self.frame]
+            stim_step = self.currStimID[:, self.frame-model_window:self.frame]
 
         y_step = np.where(np.isnan(y_step), 0, y_step) #Why are there nans here anyway?? #TODO
 
@@ -371,11 +365,11 @@ class ModelAnalysis(Actor):
 
             self.stimStart is the frame where the stimulus started.
         '''
-        print('got stim ', stim)
+        # print('got stim ', stim)
         # get frame number and stimID
         frame = list(stim.keys())[0]
-        print('got frame ', frame)
-        whichStim = stim[frame]#[0]
+        # print('got frame ', frame)
+        whichStim = stim[frame][0]
         # convert stimID into 8 cardinal directions
         stimID = self.IDstim(int(whichStim))
 
@@ -385,33 +379,33 @@ class ModelAnalysis(Actor):
             if stimID not in self.allStims.keys():
                 self.allStims.update({stimID:[]})
 
-                    # # account for stimuli we haven't yet seen
-                    # if stimID not in self.stimStart.keys():
-                    #     self.stimStart.update({stimID:None})
+                # account for stimuli we haven't yet seen
+                # if stimID not in self.stimStart.keys():
+                #     self.stimStart.update({stimID:None})
 
             # determine if this is a new stimulus trial
-            # if abs(stim[frame][1])>1 :
-            curStim = 1 #on
-            self.allStims[stimID].append(frame)
-            for i in range(10):
-                self.allStims[stimID].append(frame+i+1)
-            # else:
-            #     curStim = 0 #off
+            if abs(stim[frame][1])>1 :
+                curStim = 1 #on
+                self.allStims[stimID].append(frame)
+                for i in range(10):
+                    self.allStims[stimID].append(frame+i+1)
+            else:
+                curStim = 0 #off
             # paradigm for these trials is for each stim: [off, on, off]
-            # if self.lastOnOff is None:
-            #     self.lastOnOff = curStim
-            # elif self.lastOnOff == 0 and curStim == 1: #was off, now on
+            if self.lastOnOff is None:
+                self.lastOnOff = curStim
+            elif self.lastOnOff == 0 and curStim == 1: #was off, now on
                 # select this frame as the starting point of the new trial
                 # and stimulus has started to be shown
                 # All other computations will reference this point
-            self.stimStart = frame 
-            self.currentStim = stimID
-            if stimID<8:
-                self.currStimID[stimID, frame] = 1
-            # NOTE: this overwrites historical info on past trials
-            logger.info('Stim {} started at {}'.format(stimID,frame))
-            # else:
-            #     self.currStimID[:, frame] = np.zeros(8)
+                self.stimStart = frame 
+                self.currentStim = stimID
+                if stimID<8:
+                    self.currStimID[stimID, frame] = 1
+                # NOTE: this overwrites historical info on past trials
+                logger.info('Stim {} started at {}'.format(stimID,frame))
+            else:
+                self.currStimID[:, frame] = np.zeros(8)
             self.lastOnOff = curStim
 
     def putAnalysis(self):
@@ -456,13 +450,6 @@ class ModelAnalysis(Actor):
                 self.counter[self.currentStim, 1] += 10
 
             elif self.frame in range(self.stimStart+1, self.frame+26):
-                # print(self.currentStim)
-                # print(self.frame)
-                # continue computing the running mean for this trial
-                # print(self.frame)
-                # print(self.stimStart)
-                # print(self.ests[:,self.currentStim,1])
-                # print(self.counter[self.currentStim,1])
                 
                 self.ests[:,self.currentStim,1] = (self.counter[self.currentStim,1]*self.ests[:,self.currentStim,1] + ests[:,self.frame-1])/(self.counter[self.currentStim,1]+1)
                 self.counter[self.currentStim, 1] += 1
@@ -472,58 +459,6 @@ class ModelAnalysis(Actor):
                     self.counter[self.currentStim, 0] += 1
 
         self.estsAvg = np.squeeze(self.ests[:,:,0] - self.ests[:,:,1])        
-
-        # for s,l in self.stimStart.items():
-        #     l = np.array(l)
-        #     print('stim ', s, ' is l ', l)
-        #     if l.size>0:
-        #         onInd = np.array([np.arange(o+4,o+18) for o in np.nditer(l)]).flatten()
-        #         onInd = onInd[onInd<ests_num]
-        #         # print('on ', onInd)
-        #         offInd = np.array([np.arange(o-10,o+25) for o in np.nditer(l)]).flatten() #TODO replace
-        #         offInd = offInd[offInd>=0]
-        #         offInd = offInd[offInd<ests_num]
-        #         # print('off ', offInd)
-        #         try:
-        #             if onInd.size>0:
-        #                 onEst = np.mean(ests[:,onInd], axis=1)
-        #             else:
-        #                 onEst = np.zeros(ests.shape[0])
-        #             if offInd.size>0:
-        #                 offEst = np.mean(ests[:,offInd], axis=1)
-        #             else:
-        #                 offEst = np.zeros(ests.shape[0])
-        #             try:
-        #                 estsAvg[int(s)] = onEst - offEst #(onEst / offEst) - 1
-        #             except FloatingPointError:
-        #                 print('Could not compute on/off: ', onEst, offEst)
-        #                 estsAvg[int(s)] = onEst
-        #             except ZeroDivisionError:
-        #                 estsAvg[int(s)] = np.zeros(ests.shape[0])
-        #         except FloatingPointError: #IndexError:
-        #             logger.error('Index error ')
-        #             print('int s is ', int(s))
-            # else:
-            #     estsAvg[int(s)] = np.zeros(ests.shape[0])
-
-        # estsAvg = np.array(estsAvg)
-        # polarAvg[2] = estsAvg[9,:] #np.sum(estsAvg[[9,11,15],:], axis=0)
-        # polarAvg[1] = estsAvg[10, :]
-        # polarAvg[0] = estsAvg[3, :] #np.sum(estsAvg[[3,5,8],:], axis=0)
-        # polarAvg[7] = estsAvg[12, :]
-        # polarAvg[6] = estsAvg[13, :] #np.sum(estsAvg[[13,17,18],:], axis=0)
-        # polarAvg[5] = estsAvg[14, :]
-        # polarAvg[4] = estsAvg[4, :] #np.sum(estsAvg[[4,6,7],:], axis=0)
-        # polarAvg[3] = estsAvg[16, :]
-
-        # # for color summation
-        # polarAvg[8] = estsAvg[5, :]
-        # polarAvg[9] = estsAvg[6, :]
-        # polarAvg[10] = estsAvg[7, :]
-        # polarAvg[11] = estsAvg[8, :]
-        
-        # self.estsAvg = np.abs(np.transpose(np.array(polarAvg)))
-
         self.estsAvg = np.where(np.isnan(self.estsAvg), 0, self.estsAvg)
         self.estsAvg[self.estsAvg == np.inf] = 0
         self.estsAvg[self.estsAvg<0] = 0
@@ -623,47 +558,47 @@ class ModelAnalysis(Actor):
             the 8 cardinal directions they correspond to.
         ''' 
         stim = -10
-        # if s == 3:
-        #     stim = 0
-        # elif s==10:
-        #     stim = 1
-        # elif s==9:
-        #     stim = 2
-        # elif s==16:
-        #     stim = 3
-        # elif s==4:
-        #     stim = 4
-        # elif s==14:
-        #     stim = 5
-        # elif s==13:
-        #     stim = 6
-        # elif s==12:
-        #     stim = 7
-        # # add'l stim for specific coloring
-        # elif s==5:
-        #     stim = 8
-        # elif s==6:
-        #     stim = 9
-        # elif s==7:
-        #     stim = 10
-        # elif s==8:
-        #     stim = 11
-
         if s == 3:
             stim = 0
-        elif s == 9:
+        elif s==10:
             stim = 1
-        elif s == 15:
+        elif s==9:
             stim = 2
-        elif s == 21:
+        elif s==16:
             stim = 3
-        elif s == 27:
+        elif s==4:
             stim = 4
-        elif s == 33:
+        elif s==14:
             stim = 5
-        elif s == 39:
+        elif s==13:
             stim = 6
-        elif s == 45:
+        elif s==12:
             stim = 7
+        # add'l stim for specific coloring
+        elif s==5:
+            stim = 8
+        elif s==6:
+            stim = 9
+        elif s==7:
+            stim = 10
+        elif s==8:
+            stim = 11
+
+        # if s == 3:
+        #     stim = 0
+        # elif s == 9:
+        #     stim = 1
+        # elif s == 15:
+        #     stim = 2
+        # elif s == 21:
+        #     stim = 3
+        # elif s == 27:
+        #     stim = 4
+        # elif s == 33:
+        #     stim = 5
+        # elif s == 39:
+        #     stim = 6
+        # elif s == 45:
+        #     stim = 7
 
         return stim
