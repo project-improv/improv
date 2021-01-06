@@ -85,15 +85,18 @@ class Nexus():
 
         self.start()
 
-        loop = asyncio.get_event_loop()
+        if self.tweak.hasGUI:
+            loop = asyncio.get_event_loop()
 
-        signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
-        for s in signals:
-            loop.add_signal_handler(
-                s, lambda s=s: asyncio.ensure_future(self.stop_polling(s, loop))) #TODO
+            signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
+            for s in signals:
+                loop.add_signal_handler(
+                    s, lambda s=s: asyncio.ensure_future(self.stop_polling(s, loop))) #TODO
 
-        loop.run_until_complete(self.pollQueues()) #TODO: in Link executor, complete all tasks
-        logger.info('Shutdown loop')
+            loop.run_until_complete(self.pollQueues()) #TODO: in Link executor, complete all tasks
+            logger.info('Shutdown loop')
+        else:
+            pass
 
     def loadTweak(self, file=None):
         ''' For each connection:
@@ -139,6 +142,11 @@ class Nexus():
 
             except Exception as e:
                 logger.error('Exception in setting up GUI {}'.format(name)+': {}'.format(e))
+
+        else:
+            # have fake GUI for communications
+            q_comm = Link('GUI_comm', 'GUI', self.name)
+            self.comm_queues.update({q_comm.name:q_comm})
 
         # First set up each class/actor
         for name,actor in self.tweak.actors.items():
