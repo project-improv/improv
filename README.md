@@ -11,7 +11,7 @@ We also provide up-to-the-moment estimates of the functional connectivity by fit
 
 ### How improv works
 
-<img src="figures/improv_design.png" width=90%>
+<img src="figures/improv_design.png" width=85%>
 improv allows users to flexibly specify and manage adaptive experiments to integrate data collection, preprocessing, visualization, and user-defined analytics. All kinds of behavioral, neural, or modeling data can be incorporated, and input and output data streams are managed independently and asynchronously. With this design, streaming analyses and real-time interventions can be easily integrated into various experimental setups. improv manages the backend engineering of data flow and task execution for all steps in an experimental pipeline in real time, without requiring user oversight. Users need only define their particular processing pipeline with simple text files and are free to define their own streaming analyses via Python classes, allowing for rapid prototyping of adaptive experiments.  
   <br />
   <br />
