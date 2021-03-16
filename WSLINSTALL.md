@@ -102,8 +102,9 @@ See [Common Issues](#Common-Issues) for errors and missing dependencies that mig
 3. Run XLaunch (see [Section V](#V.-Installing-&-Running-X-Server-for-GUI-Framework))
 4. Run improv 
     ```
-    python -m nexus.nexus demos/basic/basic_demo.yaml
+    python demos/basic/basic_demo.py
     ```
+    This will create an output folder `improv_output` in the current directory.
 
 <br>
 
