@@ -8,6 +8,14 @@ loadFile = './basic_demo.yaml'
 nexus = Nexus('Nexus')
 nexus.createNexus(file=loadFile)
 
+#creates output directory for data
+directory = "improv_output" 
+parent_dir = os.getcwd()
+path = os.path.join(parent_dir, directory) 
+os.mkdir(path) 
+print("Directory '%s' created" %path)
+
+
 # All modules needed have been imported
 # so we can change the level of logging here
 # import logging
