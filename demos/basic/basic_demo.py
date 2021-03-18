@@ -13,7 +13,8 @@ nexus.createNexus(file=loadFile)
 directory = "improv_output" 
 parent_dir = os.getcwd()
 path = os.path.join(parent_dir, directory) 
-os.mkdir(path) 
+if not os.path.exists(path):
+    os.mkdir(path)
 print("Directory '%s' created" %path)
 
 
