@@ -1,8 +1,10 @@
 import logging
 import os
+import shutil
 # Matplotlib is overly verbose by default
 logging.getLogger("matplotlib").setLevel(logging.WARNING)
 from improv.nexus import Nexus
+from ..basic import demodata/Tolias_mesoscope_2.hdf5 as file1
 
 loadFile = './basic_demo.yaml'
 
@@ -16,6 +18,16 @@ path = os.path.join(parent_dir, directory)
 if not os.path.exists(path):
     os.mkdir(path)
 print("Directory '%s' created" %path)
+
+directory = "data" 
+parent_dir = os.getcwd()
+path = os.path.join(parent_dir, directory) 
+if not os.path.exists(path):
+    os.mkdir(path)
+# if the file is not already in dir
+if "Tolias_mesoscope_2.hdf5" not in path.namelist():
+    shutil.move(path, file1)
+print("File '%s' created" %file1)
 
 
 # All modules needed have been imported
