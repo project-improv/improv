@@ -37,7 +37,7 @@ path = os.path.join(parent_dir, directory)
 if not os.path.exists(path):
     os.mkdir(path)
 # if the file is not already in dir
-if "Tolias_mesoscope_2.hdf5" not in path.namelist():
+if "Tolias_mesoscope_2.hdf5" not in path.listdir(path):
     shutil.move(path, file1)
 print("File '%s' created" %file1)
 
