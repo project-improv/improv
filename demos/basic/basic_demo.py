@@ -28,7 +28,7 @@ parent_directory = os.path.split(current_directory)[0] # Repeat as needed
 newparent_directory = os.path.split(parent_directory)[0] # Repeat as needed
 print("Directory '%s' is parent directory" %newparent_directory)
 file_path = os.path.join(newparent_directory, 'demodata/Tolias_mesoscope_2.hdf5')
-file1 = open(file_path)
+file1 = file_path
 
 
 directory = "data" 
