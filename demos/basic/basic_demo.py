@@ -20,7 +20,7 @@ if not os.path.exists(path):
 print("Directory '%s' created" %path)
 
 
-current_directory = os.path.dirname(basic_demo.py)
+current_directory = os.path.dirname(path)
 
 print("Directory '%s' is current directory" %current_directory)
 
