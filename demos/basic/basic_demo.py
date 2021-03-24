@@ -12,21 +12,23 @@ nexus = Nexus('Nexus')
 nexus.createNexus(file=loadFile)
 
 #creates output directory for data
-directory = "improv_output" 
+directory = "output" 
 parent_dir = os.getcwd()
 path = os.path.join(parent_dir, directory) 
 if not os.path.exists(path):
     os.mkdir(path)
-print("Directory '%s' created" %path)
+    print("Directory '%s' created" %path)
+path = os.path.join(path, "timing")
+if not os.path.exists(path):
+    os.mkdir(path)
+    print("Directory '%s' created" %path)
 
 
 current_directory = os.path.dirname(path)
 
-print("Directory '%s' is current directory" %current_directory)
 
 parent_directory = os.path.split(current_directory)[0] # Repeat as needed
 newparent_directory = os.path.split(parent_directory)[0] # Repeat as needed
-print("Directory '%s' is parent directory" %newparent_directory)
 file_path = os.path.join(newparent_directory, 'demodata/Tolias_mesoscope_2.hdf5')
 file1 = file_path
 
@@ -36,10 +38,11 @@ parent_dir = os.getcwd()
 path = os.path.join(parent_dir, directory) 
 if not os.path.exists(path):
     os.mkdir(path)
-# if the file is not already in dir
+    print("Directory '%s' created" %path)
+
 if "Tolias_mesoscope_2.hdf5" not in os.listdir(path):
-    shutil.move(path, file1)
-print("File '%s' created" %file1)
+    shutil.move(file1, path)
+    print("File '%s' created in '%s' " %(file1, path))
 
 
 # All modules needed have been imported
