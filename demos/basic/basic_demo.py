@@ -42,7 +42,7 @@ if not os.path.exists(path):
     print("Directory '%s' created" %path)
 
 if "Tolias_mesoscope_2.hdf5" not in os.listdir(path):
-    shutil.move(file1, path)
+    shutil.copyfile(file1, path)
     print("File '%s' created in '%s' " %(file1, path))
 
 
