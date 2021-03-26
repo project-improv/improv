@@ -180,7 +180,7 @@ Several issues can appear during the CaImAn installation process. It is recommen
    - scikit-learn==0.23.2
    - numpy==1.18
    - python <= 3.7
- A requirements.txt for a functioning directory has also been included.
+A requirements.txt for a functioning directory has also been included.
 
 
 
