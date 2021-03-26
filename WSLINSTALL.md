@@ -73,7 +73,7 @@ This creates a new anaconda environment named `caiman` using Python 3.6, which s
     conda env create -f environment.yml -n caiman
     conda activate caiman 
     ```
-Alternatively, create an env with pre-installed dependencies within the improv/env directory.
+    Alternatively, create an env with pre-installed dependencies within the improv/env directory.
     ```
     conda env create -f  improv_env.yml -n caiman
     conda activate caiman 
@@ -176,10 +176,10 @@ Several issues can appear during the CaImAn installation process. It is recommen
     - Solved by commented out `self.limbo.subscribe()` in nexus.py createNexus() function and `self.client.subscribe()` in store.py under the Watcher class
 
 6. ModuleNotFound errors for specific packages
-   - Solved by ensuring the following versions of packages were installed
+   - Solved by ensuring the following versions of packages were installed:
    - scikit-learn==0.23.2
-     numpy==1.18
-     python <= 3.6
+   - numpy==1.18
+   - python <= 3.6
 
 
 
