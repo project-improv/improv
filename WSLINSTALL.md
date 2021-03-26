@@ -63,7 +63,7 @@ Furthermore, certain directories must be added to the PATH environmental variabl
     ```
     git clone https://github.com/pearsonlab/improv
     ```
-2. Clone RASP submodules
+2. Clone improv submodules
     ```
     git submodule update --init
     ```
@@ -141,7 +141,7 @@ Several issues can appear during the CaImAn installation process. It is recommen
         sudo apt-get install g++
         ```
 
-## III. Errors Running RASP
+## III. Errors Running improv
 
 1. `ImportError: libGl.so.1: cannot open shared object file`
     - Solved by running the following
@@ -172,14 +172,15 @@ Several issues can appear during the CaImAn installation process. It is recommen
         sudo apt-get install g++
         ```
 
-5. RASP freezing entirely
+5. improv freezing entirely
     - Solved by commented out `self.limbo.subscribe()` in nexus.py createNexus() function and `self.client.subscribe()` in store.py under the Watcher class
 
 6. ModuleNotFound errors for specific packages
    - Solved by ensuring the following versions of packages were installed:
    - scikit-learn==0.23.2
    - numpy==1.18
-   - python <= 3.6
+   - python <= 3.7
+   A requirements.txt for a functioning directory has also been included.
 
 
 
