@@ -1,6 +1,6 @@
-# RASP in Windows Subsystem for Linux
+# improv in Windows Subsystem for Linux
 
-### This is a guide to installing and running RASP on Windows systems using Windows Subsystem for Linux (WSL)
+### This is a guide to installing and running improv on Windows systems using Windows Subsystem for Linux (WSL)
 
 <br>
 
@@ -59,9 +59,9 @@ Furthermore, certain directories must be added to the PATH environmental variabl
     ```
 
 ## IV. RASP Installation
-1. Clone RASP
+1. Clone improv
     ```
-    git clone https://github.com/pearsonlab/rasp
+    git clone https://github.com/pearsonlab/improv
     ```
 2. Clone RASP submodules
     ```
@@ -73,6 +73,12 @@ This creates a new anaconda environment named `caiman` using Python 3.6, which s
     conda env create -f environment.yml -n caiman
     conda activate caiman 
     ```
+Alternatively, create an env with pre-installed dependencies within the improv/env directory.
+    ```
+    conda env create -f  improv_env.yml -n caiman
+    conda activate caiman 
+    ```
+
 4. Install CaImAn module <br>
 Execute the following command within the CaImAn directory and `caiman` env.
     ```
@@ -88,7 +94,7 @@ Execute the following command within the CaImAn directory and `caiman` env.
 `plasma_store_server` is most likely located in the bin directory of the `caiman` conda environment: `~/anaconda3/envs/caiman/bin`. You can find where your environment is installed by entering `conda info --envs`. <br>
 
 
-## V. Run RASP
+## V. Run improv
 See [Common Issues](#Common-Issues) for errors and missing dependencies that might need to be installed.
 
 1. Activate WSL
@@ -99,14 +105,13 @@ See [Common Issues](#Common-Issues) for errors and missing dependencies that mig
     ```
     conda activate caiman
     ```
-3. cd into `rasp/src` <br>
-This step is not needed if `rasp` is added to the `$PYTHONPATH`
-4. Move `basic_demo.yml` file to `src` dir
-6. Run XLaunch (see [Section V](#V.-Installing-&-Running-X-Server-for-GUI-Framework))
-7. Run RASP 
+3. cd into improv/demos/basic
+6. Run XLaunch (see [Section V](#V.-Installing-&-Running-X-Server-for-GUI-Framework)). The application may or may not appear on the task bar.
+7. Run improv
     ```
-    python -m nexus.nexus
+    python basic_demo.py
     ```
+   This demo will create its own data folder with the necessary data. The process should be replicated for future runs.
 
 <br>
 
@@ -169,5 +174,12 @@ Several issues can appear during the CaImAn installation process. It is recommen
 
 5. RASP freezing entirely
     - Solved by commented out `self.limbo.subscribe()` in nexus.py createNexus() function and `self.client.subscribe()` in store.py under the Watcher class
+
+6. ModuleNotFound errors for specific packages
+   - Solved by ensuring the following versions of packages were installed
+   - scikit-learn==0.23.2
+     numpy==1.18
+     python <= 3.6
+
 
 
