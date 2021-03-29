@@ -37,8 +37,6 @@ class FileAcquirer(Actor):
            Open file stream
            #TODO: implement more than h5 files
         '''    
-        data_file = filename.split('/')
-        print("datafile '%s'" %data_file)
         print('Looking for ', self.filename)
         if os.path.exists(self.filename):
             n, ext = os.path.splitext(self.filename)[:2]
@@ -49,22 +47,25 @@ class FileAcquirer(Actor):
                     print('Data length is ', len(self.data))
                     
         else:
+            my_file = self.filename.split('/')
+            myfile = my_file[1]
+            print("datafile '%s'" %myfile)
             parent_directory = os.path.split(os.getcwd())[0]
-            newparent_directory = os.path.split(parent_directory)[0]
-            newparent_directory = os.path.split(newparent_directory)[0]# Repeat as needed  
+            newparent_directory = os.path.split(parent_directory)[0]# Repeat as needed  
             file_path = os.path.join(newparent_directory, 'demodata') 
-            if data_file not in file_path:
+            print("datafile '%s'" %file_path)
+            if myfile not in os.listdir(file_path):
                 raise FileNotFoundError
-            #data_path = 'demodata' + data_file
             else: 
-                file_path = os.path.join(newparent_directory, filename)
+                file_path = os.path.join(file_path, myfile)
                 path = os.path.join(os.getcwd(), "data" ) 
+                print("path '%s'" %path)
                 if not os.path.exists(path):
                     os.mkdir(path)
                     print("Directory '%s' created" %path)
-                if data_file not in os.listdir(path):
+                if myfile not in os.listdir(path):
                     shutil.copy(file_path, path)
-                    print("File '%s' created in '%s' " %(file1, path))
+                    print("File '%s' created in '%s' " %(file_path, path))
                 
 
         #if self.saving:
