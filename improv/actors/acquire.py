@@ -37,7 +37,7 @@ class FileAcquirer(Actor):
            Open file stream
            #TODO: implement more than h5 files
         '''    
-        data_file = self.filename.split('/')
+        data_file = filename.split('/')
         print("datafile '%s'" %data_file)
         print('Looking for ', self.filename)
         if os.path.exists(self.filename):
@@ -48,23 +48,24 @@ class FileAcquirer(Actor):
                     self.data = file[keys[0]].value 
                     print('Data length is ', len(self.data))
                     
-        elif data_file in demodata:
-            
+        else:
             parent_directory = os.path.split(os.getcwd())[0]
             newparent_directory = os.path.split(parent_directory)[0]
-            newparent_directory = os.path.split(newparent_directory)[0]# Repeat as needed
-            data_path = 'demodata' + data_file
-            file_path = os.path.join(newparent_directory, data_path) 
-            path = os.path.join(os.getcwd(), "data" ) 
-            if not os.path.exists(path):
-                os.mkdir(path)
-                print("Directory '%s' created" %path)
-            if data_file not in os.listdir(path):
-                shutil.copy(file_path, path)
-                print("File '%s' created in '%s' " %(file1, path))
-
-
-        else: raise FileNotFoundError
+            newparent_directory = os.path.split(newparent_directory)[0]# Repeat as needed  
+            file_path = os.path.join(newparent_directory, 'demodata') 
+            if data_file not in file_path:
+                raise FileNotFoundError
+            #data_path = 'demodata' + data_file
+            else: 
+                file_path = os.path.join(newparent_directory, filename)
+                path = os.path.join(os.getcwd(), "data" ) 
+                if not os.path.exists(path):
+                    os.mkdir(path)
+                    print("Directory '%s' created" %path)
+                if data_file not in os.listdir(path):
+                    shutil.copy(file_path, path)
+                    print("File '%s' created in '%s' " %(file1, path))
+                
 
         #if self.saving:
         #    save_file = self.filename.split('.')[0]+'_backup'+'.h5'
