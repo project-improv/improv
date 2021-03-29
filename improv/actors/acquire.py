@@ -12,7 +12,7 @@ logger.setLevel(logging.INFO)
 
 # Classes: File Acquirer, Stim, Behavior, Tiff
 
-parent_directory = os.path.split(current_directory)[0]
+parent_directory = os.path.split(os.getcwd())[0]
 newparent_directory = os.path.split(parent_directory)[0]
 newparent_directory = os.path.split(newparent_directory)[0]# Repeat as needed
 file_path = os.path.join(newparent_directory, 'demodata/Tolias_mesoscope_2.hdf5') 
