@@ -38,7 +38,7 @@ class FileAcquirer(Actor):
            #TODO: implement more than h5 files
         '''    
         data_file = self.filename.split('/')
-        print('datafile '%s'' %data_file)
+        print("datafile '%s'" %data_file)
         print('Looking for ', self.filename)
         if os.path.exists(self.filename):
             n, ext = os.path.splitext(self.filename)[:2]
