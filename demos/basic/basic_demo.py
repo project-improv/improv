@@ -24,26 +24,6 @@ nexus.createNexus(file=loadFile)
 #     print("Directory '%s' created" %path)
 
 
-# current_directory = os.path.dirname(path)
-
-
-# parent_directory = os.path.split(current_directory)[0] # Repeat as needed
-# newparent_directory = os.path.split(parent_directory)[0]
-# newparent_directory = os.path.split(newparent_directory)[0]# Repeat as needed
-# file_path = os.path.join(newparent_directory, 'demodata/Tolias_mesoscope_2.hdf5')
-# file1 = file_path
-
-
-# directory = "data" 
-# parent_dir = os.getcwd()
-# path = os.path.join(parent_dir, directory) 
-# if not os.path.exists(path):
-#     os.mkdir(path)
-#     print("Directory '%s' created" %path)
-
-# if "Tolias_mesoscope_2.hdf5" not in os.listdir(path):
-#     shutil.copy(file1, path)
-#     print("File '%s' created in '%s' " %(file1, path))
 
 
 # All modules needed have been imported
