@@ -38,16 +38,9 @@ class FileAcquirer(Actor):
            Open file stream
            #TODO: implement more than h5 files
         '''    
-        print('Looking for ', self.filename)
-        if os.path.exists(self.filename):
-            n, ext = os.path.splitext(self.filename)[:2]
-            if ext == '.h5' or ext == '.hdf5':
-                with h5py.File(self.filename, 'r') as file:
-                    keys = list(file.keys())
-                    self.data = file[keys[0]].value 
-                    print('Data length is ', len(self.data))
+       
                     
-        else:
+       # else:
             my_file = self.filename.split('/')
             myfile = my_file[1]
             print("datafile '%s'" %myfile)
@@ -67,6 +60,15 @@ class FileAcquirer(Actor):
                 if myfile not in os.listdir(path):
                     shutil.copy(file_path, path)
                     print("File '%s' created in '%s' " %(file_path, path))
+              
+        print('Looking for ', self.filename)
+        if os.path.exists(self.filename):
+            n, ext = os.path.splitext(self.filename)[:2]
+            if ext == '.h5' or ext == '.hdf5':
+                with h5py.File(self.filename, 'r') as file:
+                    keys = list(file.keys())
+                    self.data = file[keys[0]].value 
+                    print('Data length is ', len(self.data))
                 
 
         #if self.saving:
