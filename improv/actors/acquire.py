@@ -38,6 +38,7 @@ class FileAcquirer(Actor):
            #TODO: implement more than h5 files
         '''    
         data_file = self.filename.split('/')
+        print('datafile '%s'' %data_file)
         print('Looking for ', self.filename)
         if os.path.exists(self.filename):
             n, ext = os.path.splitext(self.filename)[:2]
@@ -48,7 +49,7 @@ class FileAcquirer(Actor):
                     print('Data length is ', len(self.data))
                     
         elif data_file in demodata:
-            print('datafile', data_file)
+            
             parent_directory = os.path.split(os.getcwd())[0]
             newparent_directory = os.path.split(parent_directory)[0]
             newparent_directory = os.path.split(newparent_directory)[0]# Repeat as needed
