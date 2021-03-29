@@ -12,17 +12,6 @@ logger.setLevel(logging.INFO)
 
 # Classes: File Acquirer, Stim, Behavior, Tiff
 
-parent_directory = os.path.split(os.getcwd())[0]
-newparent_directory = os.path.split(parent_directory)[0]
-newparent_directory = os.path.split(newparent_directory)[0]# Repeat as needed
-file_path = os.path.join(newparent_directory, 'demodata/Tolias_mesoscope_2.hdf5') 
-path = os.path.join(os.getcwd(), "data" ) 
-if not os.path.exists(path):
-    os.mkdir(path)
-    print("Directory '%s' created" %path)
-if "Tolias_mesoscope_2.hdf5" not in os.listdir(path):
-    shutil.copy(file_path, path)
-    print("File '%s' created in '%s' " %(file1, path))
 
 
 
@@ -56,6 +45,22 @@ class FileAcquirer(Actor):
                     keys = list(file.keys())
                     self.data = file[keys[0]].value 
                     print('Data length is ', len(self.data))
+        elif:
+            data_file = self.filename.split('/')
+            print('datafile', data_file)
+            parent_directory = os.path.split(os.getcwd())[0]
+            newparent_directory = os.path.split(parent_directory)[0]
+            newparent_directory = os.path.split(newparent_directory)[0]# Repeat as needed
+            data_path = 'demodata' + data_file
+            file_path = os.path.join(newparent_directory, data_path) 
+            path = os.path.join(os.getcwd(), "data" ) 
+            if not os.path.exists(path):
+                os.mkdir(path)
+                print("Directory '%s' created" %path)
+            if data_file not in os.listdir(path):
+                shutil.copy(file_path, path)
+                print("File '%s' created in '%s' " %(file1, path))
+
 
         else: raise FileNotFoundError
 
