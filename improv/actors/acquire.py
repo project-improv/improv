@@ -4,6 +4,7 @@ import h5py
 import random
 import numpy as np
 from skimage.io import imread
+import shutil
 
 from improv.actor import Actor, RunManager
 
