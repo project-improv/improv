@@ -36,7 +36,8 @@ class FileAcquirer(Actor):
             Also get specified framerate, or default is 10 Hz
            Open file stream
            #TODO: implement more than h5 files
-        '''        
+        '''    
+        data_file = self.filename.split('/')
         print('Looking for ', self.filename)
         if os.path.exists(self.filename):
             n, ext = os.path.splitext(self.filename)[:2]
@@ -45,8 +46,8 @@ class FileAcquirer(Actor):
                     keys = list(file.keys())
                     self.data = file[keys[0]].value 
                     print('Data length is ', len(self.data))
-        elif:
-            data_file = self.filename.split('/')
+                    
+        elif data_file in demodata:
             print('datafile', data_file)
             parent_directory = os.path.split(os.getcwd())[0]
             newparent_directory = os.path.split(parent_directory)[0]
