@@ -40,26 +40,7 @@ class FileAcquirer(Actor):
         '''    
        
                     
-       # else:
-        my_file = self.filename.split('/')
-        myfile = my_file[1]
-        print("datafile '%s'" %myfile)
-        parent_directory = os.path.split(os.getcwd())[0]
-        newparent_directory = os.path.split(parent_directory)[0]# Repeat as needed  
-        file_path = os.path.join(newparent_directory, 'demodata') 
-        print("datafile '%s'" %file_path)
-        if myfile not in os.listdir(file_path):
-            raise FileNotFoundError
-        else: 
-            file_path = os.path.join(file_path, myfile)
-            path = os.path.join(os.getcwd(), "data" ) 
-            print("path '%s'" %path)
-            if not os.path.exists(path):
-                os.mkdir(path)
-                print("Directory '%s' created" %path)
-            if myfile not in os.listdir(path):
-               shutil.copy(file_path, path)
-               print("File '%s' created in '%s' " %(file_path, path))    
+         
               
         print('Looking for ', self.filename)
         if os.path.exists(self.filename):
