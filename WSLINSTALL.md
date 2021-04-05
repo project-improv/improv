@@ -118,9 +118,9 @@ See [Common Issues](#Common-Issues) for errors and missing dependencies that mig
 
 # Operating XLaunch
 ## I. Interaction
-Upon GUI appearance, select setup. Actions and errors should appear on the command line.
-Wait for 'improv.nexus Allowing start' command
-Select start
+1. Upon GUI appearance, select setup. Actions and errors should appear on the command line.
+2. Wait for 'improv.nexus Allowing start' command
+3. Select start. Data visualizations should appear.
 ## II. Data Extraction
 ## III. Data Visualization
 
