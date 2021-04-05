@@ -58,7 +58,7 @@ Furthermore, certain directories must be added to the PATH environmental variabl
     export DISPLAY=:0
     ```
 
-## IV. RASP Installation
+## IV. improv Installation
 1. Clone improv
     ```
     git clone https://github.com/pearsonlab/improv
@@ -106,14 +106,24 @@ See [Common Issues](#Common-Issues) for errors and missing dependencies that mig
     conda activate caiman
     ```
 3. cd into improv/demos/basic
-6. Run XLaunch (see [Section V](#V.-Installing-&-Running-X-Server-for-GUI-Framework)). The application may or may not appear on the task bar.
-7. Run improv
+4. Place desired data (Tolias_mesoscope_2.hdf5) into data directory
+5. Run XLaunch (see [Section V](#V.-Installing-&-Running-X-Server-for-GUI-Framework)). The application may or may not appear on the task bar.
+6. Run improv
     ```
     python basic_demo.py
     ```
-   This demo will create its own data folder with the necessary data. The process should be replicated for future runs.
-
+   This demo will create its own data folder if it does not already exist. The process should be replicated for future runs.
+   
 <br>
+
+# Operating XLaunch
+## I. Interaction
+Upon GUI appearance, select setup. Actions and errors should appear on the command line.
+Wait for 'improv.nexus Allowing start' command
+Select start
+## II. Data Extraction
+## III. Data Visualization
+
 
 # Common Issues
 ## I. WSL Installation from Windows Store
