@@ -23,6 +23,24 @@ nexus.createNexus(file=loadFile)
 #     os.mkdir(path)
 #     print("Directory '%s' created" %path)
 
+# else:
+       
+    
+       
+       # newparent_directory = os.path.split(parent_directory)[0]# Repeat as needed  
+       #file_path = os.path.join(newparent_directory, 'demodata') 
+       # print("datafile '%s'" %file_path)
+       # if myfile not in os.listdir(file_path):
+           # raise FileNotFoundError
+       # else: 
+            #file_path = os.path.join(file_path, myfile)
+ path = os.path.join(os.getcwd(), "data" ) 
+ print("path '%s'" %path)
+ if not os.path.exists(path):
+    os.mkdir(path)
+    print("Directory '%s' created" %path)
+    print("Place file into data directory for analysis")  
+
 
 
 
