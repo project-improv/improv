@@ -75,7 +75,7 @@ This creates a new anaconda environment named `caiman` using Python 3.6, which s
     ```
     Alternatively, create an env with pre-installed dependencies within the improv/env directory.
     ```
-    conda env create -f  improv_env.yml -n caiman
+    conda create --name caiman --file requirements.txt
     conda activate caiman 
     ```
 
