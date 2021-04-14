@@ -17,7 +17,7 @@ git submodule update --remote --merge
 
 3) Add an automatic submodule update on merges
 
-  This allows submodules to be updated more frequently without notifications from team members.
+   -This allows submodules to be updated more frequently without notifications from team members.
 
 ``
 echo "git submodule update --init --recursive" >> .git/hooks/post-merge
