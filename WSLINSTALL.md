@@ -93,7 +93,7 @@ Execute the following command within the CaImAn directory and `caiman` env.
 6. Add pyarrow `plasma_store_server` to path (See [Section I](#I.-Install-WSL)) <br>
 `plasma_store_server` is most likely located in the bin directory of the `caiman` conda environment: `~/anaconda3/envs/caiman/bin`. You can find where your environment is installed by entering `conda info --envs`. <br>
 
-Additional Common Dependencies
+7. Install any additional Common Dependencies
 
     - pyyaml
     - opencv-python (with pip)
