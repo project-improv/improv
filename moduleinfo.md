@@ -24,10 +24,13 @@ echo "git submodule update --init --recursive" >> .git/hooks/post-merge
 ``
 
 4) Set up Git to show updates to submodules on git status:
+
 ``
 git config status.submodulesummary 1
 ``
+
 5) Set the to always update from a specific module’s branch (latest commit). 
+
 ``
 git config -f .gitmodules submodule.<MODULE_NAME>.branch <BRANCH_NAME>
 ``
