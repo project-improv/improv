@@ -34,3 +34,5 @@ git config status.submodulesummary 1
 ``
 git config -f .gitmodules submodule.<MODULE_NAME>.branch <BRANCH_NAME>
 ``
+
+## Solutions to Common Errors
