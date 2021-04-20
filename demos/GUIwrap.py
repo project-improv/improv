@@ -122,6 +122,8 @@ class Ui_MainWindow(object):
 "border-color: black;\n"
 "padding: 6px\n"
 "}")
+        
+        ##this all should remain the same I believe
         self.centralwidget.setObjectName("centralwidget")
         self.frame_2 = QtWidgets.QFrame(self.centralwidget) ##frame 2 is the central control thing
         self.frame_2.setGeometry(QtCore.QRect(20, 280, 331, 321)) #all of this next code sets up the top right corner of the basic demo
@@ -188,7 +190,7 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.label.setFont(font)
         self.label.setObjectName("label")
-        self.pushButton_4 = QtWidgets.QPushButton(self.frame_3)
+        self.pushButton_4 = QtWidgets.QPushButton(self.frame_3) #frame three is pushButton_4 (STIMULATE BUTTON)
         self.pushButton_4.setGeometry(QtCore.QRect(30, 190, 115, 32))
         font = QtGui.QFont()
         font.setFamily("Helvetica Neue")
@@ -220,6 +222,8 @@ class Ui_MainWindow(object):
         self.frame_10.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_10.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_10.setObjectName("frame_10")
+        
+        ##what is grplot_5? = frame 10
         self.grplot_5 = PlotWidget(self.frame_10)
         self.grplot_5.setGeometry(QtCore.QRect(6, 6, 121, 113))
         self.grplot_5.setObjectName("grplot_5")
@@ -261,52 +265,69 @@ class Ui_MainWindow(object):
         self.label_5.setObjectName("label_5")
         self.label_6 = QtWidgets.QLabel(self.centralwidget)
         self.label_6.setGeometry(QtCore.QRect(20, 611, 331, 21))
+        
         font= QtGui.QFont()
         font.setFamily("Helvetica Neue")
         font.setPointSize(14)
         font.setBold(True)
         font.setWeight(75)
+        
         self.label_6.setFont(font)
-        self.label_6.setObjectName("label_6")
+        self.label_6.setObjectName("label_6") ##frame 6 is Threshold 
         self.frame_6 = QtWidgets.QFrame(self.centralwidget)
         self.frame_6.setGeometry(QtCore.QRect(170, 30, 431, 101))
         self.frame_6.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_6.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_6.setObjectName("frame_6")
+        
+        #grplot = frame 6
         self.grplot = PlotWidget(self.frame_6)
         self.grplot.setGeometry(QtCore.QRect(6, 6, 419, 89))
         self.grplot.setObjectName("grplot")
+        
         self.frame_7 = QtWidgets.QFrame(self.centralwidget)
         self.frame_7.setGeometry(QtCore.QRect(618, 30, 107, 103))
         self.frame_7.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_7.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_7.setObjectName("frame_7")
+        
+        #grplot_3 = frame 7
         self.grplot_3 = PlotWidget(self.frame_7)
         self.grplot_3.setGeometry(QtCore.QRect(6, 6, 95, 89))
         self.grplot_3.setObjectName("grplot_3")
+        
         self.frame_8 = QtWidgets.QFrame(self.centralwidget)
         self.frame_8.setGeometry(QtCore.QRect(170, 154, 431, 101))
         self.frame_8.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_8.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_8.setObjectName("frame_8")
+        
+        #grplot_2 = frame 8
         self.grplot_2 = PlotWidget(self.frame_8)
         self.grplot_2.setGeometry(QtCore.QRect(6, 6, 419, 89))
         self.grplot_2.setObjectName("grplot_2")
+        
         self.frame_9 = QtWidgets.QFrame(self.centralwidget)
         self.frame_9.setGeometry(QtCore.QRect(619, 155, 105, 101))
         self.frame_9.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_9.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_9.setObjectName("frame_9")
+        
+        #grplot_4 = frame 9
         self.grplot_4 = PlotWidget(self.frame_9)
         self.grplot_4.setGeometry(QtCore.QRect(6, 6, 93, 89))
         self.grplot_4.setObjectName("grplot_4")
         MainWindow.setCentralWidget(self.centralwidget)
+        
+        ##creates menu bar
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1118, 22))
         self.menubar.setObjectName("menubar")
         self.menuRASP_Display = QtWidgets.QMenu(self.menubar)
         self.menuRASP_Display.setObjectName("menuRASP_Display")
         MainWindow.setMenuBar(self.menubar)
+        
+        ##create status bar
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
@@ -315,7 +336,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def retranslateUi(self, MainWindow):
+    def retranslateUi(self, MainWindow): #applies our labels to the formatted labels
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.pushButton.setText(_translate("MainWindow", "Load\n"
