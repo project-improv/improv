@@ -1,0 +1,23 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: linux-64
+future=0.18.2=py37h89c1867_3
+h5py=2.10.0=nompi_py37hf7afa78_105
+holoviews=1.14.2=pyhd8ed1ab_0
+ipyparallel=6.3.0=py37h89c1867_2
+matplotlib=3.3.4=py37h89c1867_0
+matplotlib-base=3.3.4=py37h0c9df89_0
+numpy=1.20.1=py37haa41c4c_0
+numpydoc=1.1.0=py_1
+opencv=4.5.1=py37h89c1867_0
+psutil=5.8.0=py37h5e8e339_1
+py-opencv=4.5.1=py37h888b3d9_0
+pynwb=1.4.0=py37h89c1867_1
+tensorflow=1.14.0=h4531e10_0
+pyyaml=5.4.1=py37h5e8e339_0
+scikit-image=0.18.1=py37hdc94413_0
+scikit-learn=0.22=py37hcdab131_1
+pyqt=5.12.3=py37h89c1867_7
+pyqt-impl=5.12.3=py37he336c9b_7
+pyqt5-sip=4.19.18=py37hcd2ae1e_7
+
