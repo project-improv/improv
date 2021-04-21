@@ -4,6 +4,7 @@ import h5py
 import random
 import numpy as np
 from skimage.io import imread
+import shutil
 
 from improv.actor import Actor, RunManager
 
@@ -11,6 +12,12 @@ import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 # Classes: File Acquirer, Stim, Behavior, Tiff
+
+
+
+
+
+
 
 class FileAcquirer(Actor):
     '''Class to import data from files and output
@@ -30,7 +37,11 @@ class FileAcquirer(Actor):
             Also get specified framerate, or default is 10 Hz
            Open file stream
            #TODO: implement more than h5 files
-        '''        
+        '''    
+       
+                    
+         
+              
         print('Looking for ', self.filename)
         if os.path.exists(self.filename):
             n, ext = os.path.splitext(self.filename)[:2]
@@ -39,8 +50,7 @@ class FileAcquirer(Actor):
                     keys = list(file.keys())
                     self.data = file[keys[0]].value 
                     print('Data length is ', len(self.data))
-
-        else: raise FileNotFoundError
+                
 
         #if self.saving:
         #    save_file = self.filename.split('.')[0]+'_backup'+'.h5'
