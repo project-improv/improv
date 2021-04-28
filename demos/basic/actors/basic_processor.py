@@ -178,8 +178,8 @@ class BasicProcessor(CaimanProcessor):
         try:
             # components = self.onAc.estimates.Ab[:,mn:].dot(self.onAc.estimates.C_on[mn:self.onAc.M,(self.frame_number-1)%self.onAc.window]).reshape(self.onAc.dims, order='F')
             # background = self.onAc.estimates.Ab[:,:mn].dot(self.onAc.estimates.C_on[:mn,(self.frame_number-1)%self.onAc.window]).reshape(self.onAc.dims, order='F')
-            components = self.onAc.estimates.Ab[:,mn:].dot(self.onAc.estimates.C_on[mn:self.onAc.M,(self.frame_number-1)]).reshape(self.onAc.dims, order='F')
-            background = self.onAc.estimates.Ab[:,:mn].dot(self.onAc.estimates.C_on[:mn,(self.frame_number-1)]).reshape(self.onAc.dims, order='F')
+            components = self.onAc.estimates.Ab[:,mn:].dot(self.onAc.estimates.C_on[mn:self.onAc.M,(self.frame_number-1)]).reshape(self.onAc.estimates.dims, order='F')
+            background = self.onAc.estimates.Ab[:,:mn].dot(self.onAc.estimates.C_on[:mn,(self.frame_number-1)]).reshape(self.onAc.estimates.dims, order='F')
             image = ((components + background) - self.onAc.bnd_Y[0])/np.diff(self.onAc.bnd_Y)
             image = np.minimum((image*255.),255).astype('u1')
         except ValueError as ve:
