@@ -1,0 +1,49 @@
+Improv GUI Modularization Organization
+
+I: Necessary Files & Functions
+  -Polarplotsetup
+    This file is designed to configure the polar plots (graphs with radar patterns) on the gui. It has 
+    functions for the creation and customization of the three plots, named top, bottom, and target plots.
+    Current design requires that the user call the necessary functions, named after the plot, which will lead to the
+    creation of the plot on the gui and its radar implementation with no additional work for the user. The commands for 
+    each plot are as follows:
+    top plot: self.topplot()
+    bottom plot: self.bottomplot()
+    target plot: self.targetplot()
+    
+    Customizable within the file are the geometries of the frames and the plots.
+    
+  -Rawplotsetup.py
+    This file creates and customizes the larger three plots on the bottom of the gui. It has three functions whose names
+    directly correspond to the plots they create and link to the self object. The creation functions are as follows:
+    Bottom Left Plot: self.makebottomleft(MainWindow)
+    Bottom Center Plot: self.makebottomcenter(MainWindow)
+    Bottom Right Plot: self.makebottomright()
+    
+    Customizable within the file are the geometries of the frames and the plots.
+    
+  -extrasetup.py
+    This file is intended to create and customize the user-interactive sliders on the top right corner of the gui. 
+    The class contains two functions: one for creating the basic upper slider and one for making the more complex, two-barred
+    slider that is located below the first. The two sliders are aptly named slider and slider2.
+    The creation functions are called as follows:
+    self.slider1()
+    self.slider2()
+    
+    Customizable within the file are the geometries of the sliders.
+    
+  -guisetup.py
+    This file is design to create the basic layout upon which the other elements are placed. Its setupUI function creates 
+    the main window used by other files and the GUI itself. It details the style sheet and contains the function setup_standard, which 
+    creates and customizes the permanent aspects of the gui (those that are not intended to be removable). It also contains functions for retranslating 
+    the names of attributes on the gui and for preparing the numeric aspects of the polar plots.
+    
+  -Testrun.py
+    This file is intended to be a testbed for experimentation on the visual aspects of the gui. It contains no functional code
+    for analysis, but can be used for initial testing of a customized gui. The main class, basic, creates the object to which other attributes are added. 
+    Its parameter type can be used to create pre-determined gui layouts. Currently, type 1 is an all-inclusive gui, type 2 lacks 
+    the two external rawplots, and type 3 contains no polar plots. These layouts may be customized at will. Within each type,
+    the functions used to create various aspects of the gui are called. No functions within a type definition are mandatory. Below the main class is a block of code designed to 
+    display the gui. This is where the gui "type" may be defined (type=1, 2, or 3). This file has no function besides being an experimental testbed, but can be used 
+    for simple design experimentation.
+  
