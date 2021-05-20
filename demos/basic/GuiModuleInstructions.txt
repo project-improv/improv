@@ -4,21 +4,24 @@ I: Necessary Files & Functions
   -Polarplotsetup
     This file is designed to configure the polar plots (graphs with radar patterns) on the gui. It has 
     functions for the creation and customization of the three plots, named top, bottom, and target plots.
-    Current design requires that the user call the necessary functions, named after the plot, which will lead to the
-    creation of the plot on the gui and its radar implementation with no additional work for the user. The commands for 
+    Current design requires that the user call the necessary functions, denoted explicitly in a "polarPlotType" list currently in the front end function or wherever the gui is       called. This will lead to the creation of each plot on the gui and its radar implementation with no additional work for the user. The functions for 
     each plot are as follows:
-    top plot: self.topplot()
-    bottom plot: self.bottomplot()
-    target plot: self.targetplot()
+    top plot: topplot(self)--> 0
+    bottom plot: bottomplot(self)--> 1
+    target plot: targetplot(self)--> 2
+    The plots may be called as follows
+    polarPlotType= [0] to create only the top plot, [0,1] to create the top and bottom, etc.
     
     Customizable within the file are the geometries of the frames and the plots.
     
   -Rawplotsetup.py
     This file creates and customizes the larger three plots on the bottom of the gui. It has three functions whose names
     directly correspond to the plots they create and link to the self object. The creation functions are as follows:
-    Bottom Left Plot: self.makebottomleft(MainWindow)
-    Bottom Center Plot: self.makebottomcenter(MainWindow)
-    Bottom Right Plot: self.makebottomright()
+    Bottom Left Plot: makebottomleft(self, MainWindow)--> 0
+    Bottom Center Plot: makebottomcenter(self, MainWindow)--> 1
+    Bottom Right Plot: makebottomright(self)--> 2
+    The plots may be called as follows
+    rawPlotType= [0] to create only the left plot, [0,1] to create the left and center, etc.
     
     Customizable within the file are the geometries of the frames and the plots.
     
