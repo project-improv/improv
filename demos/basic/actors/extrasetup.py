@@ -36,9 +36,7 @@ class extraSetup:
     def slider2(self):
         self.slider2 = QRangeSlider(self.frame_3)
         self.slider2.setGeometry(QtCore.QRect(20, 100, 155, 50))
-        # self.slider2.setGeometry(QtCore.QRect(55, 120, 155, 50))
         self.slider2.setObjectName("slider2") 
-        # self.slider2.rangeChanged.connect(_call(self.slider2Moved))
 
 
 class QRangeSlider(QtWidgets.QWidget):
