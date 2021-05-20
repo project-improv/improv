@@ -7,6 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 from PyQt5 import QtCore, QtGui, QtWidgets
 from pyqtgraph import ImageView, PlotWidget
+import numpy as np
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -263,4 +264,34 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "Population Average"))
         self.label_3.setText(_translate("MainWindow", "Selected Neuron"))
         self.menuRASP_Display.setTitle(_translate("MainWindow", "Nexus Display"))
+
+    def preppolarplots(self):
+
+        # self.checkBox.setChecked(True)
+        # self.draw = True
+
+        # #init line plot
+        # self.flag = True
+
+        # self.c1 = self.grplot.plot(clipToView=True)
+        # self.c2 = self.grplot_2.plot()
+        # grplot = [self.grplot, self.grplot_2]
+        # for plt in grplot:
+        #     plt.getAxis('bottom').setTickSpacing(major=50, minor=50)
+        # #    plt.setLabel('bottom', "Frames")
+        # #    plt.setLabel('left', "Temporal traces")
+        # self.updateLines()
+        # self.activePlot = 'r'
+
+        self.num = 8
+        theta = np.linspace(0, (315/360)*2*np.pi, self.num)
+        theta = np.append(theta,0)
+        self.theta = theta
+        radius = np.zeros(self.num+1)
+        self.thresh_r = radius + 1
+        x = radius * np.cos(theta)
+        y = radius * np.sin(theta)
+
 from pyqtgraph import PlotWidget
+
+    

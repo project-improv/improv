@@ -12,7 +12,7 @@ from PyQt5 import QtGui,QtCore,QtWidgets
 from PyQt5.QtGui import QColor, QPixmap
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
-import guisetup
+# import guisetup
 # import front_end
 # from front_end import QRangeSlider
 # from guisetup import frame_3
@@ -30,13 +30,15 @@ class extraSetup:
         self.slider.setGeometry(QtCore.QRect(30, 70, 131, 22))
         self.slider.setOrientation(QtCore.Qt.Horizontal)
         self.slider.setObjectName("slider")
-        print("running slider")
+        self.slider.setMinimum(0)
+        self.slider.setMaximum(12)
 
     def slider2(self):
         self.slider2 = QRangeSlider(self.frame_3)
         self.slider2.setGeometry(QtCore.QRect(20, 100, 155, 50))
         # self.slider2.setGeometry(QtCore.QRect(55, 120, 155, 50))
         self.slider2.setObjectName("slider2") 
+        # self.slider2.rangeChanged.connect(_call(self.slider2Moved))
 
 
 class QRangeSlider(QtWidgets.QWidget):

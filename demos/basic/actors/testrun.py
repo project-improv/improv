@@ -17,23 +17,43 @@ import polarplotsetup
 import guisetup, guistandard, extrasetup
 
 class Basic(QtGui.QMainWindow, guisetup.Ui_MainWindow, rawplotsetup.rawplot, polarplotsetup.polarplot, extrasetup.extraSetup):
-    def __init__(self, parent=None):
+    def __init__(self, type, parent=None):
+        # ''' Setup GUI
+        
         super(Basic, self).__init__(parent)
         self.setupUi(self)
-        self.slider1()
-        self.slider2()
-        self.makebottomright(self)
-        self.makebottomcenter(self)
-        self.makebottomleft()
-        self.bottomplot()
-        self.topplot()
-        self.targetplot()
-        # self.radarsetup()
+
+        # type 1 = all components included
+        if type == 1:
+            
+            self.slider1()
+            self.slider2()
+            # self.preppolarplots()
+            self.createrawplots(self, [1])
+            self.createpolarplot([0,1,2])
+
+        # type 2 = only center chart
+        if type == 2:
+            self.slider1()
+            self.slider2()
+            # self.createrawplots(self, [1])
+            self.createpolarplot([0])
+
+        # type 3 = no polar plots
+        if type == 3:
+            self.slider1()
+            self.slider2()
+            # self.createrawplots(self, [0,1,2])
+    
+
         self.setup_standard(self)
+
+
+
         
 
 from pyqtgraph import ImageView, PlotWidget
 app = QApplication(sys.argv)
-wind = Basic(None)
+wind = Basic(type=1)
 wind.show()
 app.exec()

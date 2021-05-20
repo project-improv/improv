@@ -14,14 +14,16 @@ from PyQt5.QtWidgets import QMessageBox, QFileDialog
 from . import improv_basic
 from improv.store import Limbo
 from improv.actor import Spike
-
+from actors import rawplotsetup, polarplotsetup, guisetup, guistandard, extrasetup
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 #NOTE: GUI only gives comm signals to Nexus, does not receive any. Visual serves that role
 #TODO: Add ability to receive signals like pause updating ...?
 
-class BasicFrontEnd(QtGui.QMainWindow, improv_basic.Ui_MainWindow):
+class BasicFrontEnd(QtGui.QMainWindow, guisetup.Ui_MainWindow, rawplotsetup.rawplot, polarplotsetup.polarplot, extrasetup.extraSetup):
+
+    # TODO: add type as keyword argument
     def __init__(self, visual, comm, parent=None):
         ''' Setup GUI
             Setup and start Nexus controls
@@ -33,8 +35,43 @@ class BasicFrontEnd(QtGui.QMainWindow, improv_basic.Ui_MainWindow):
 
         pyqtgraph.setConfigOption('background', QColor(100, 100, 100))
         super(BasicFrontEnd, self).__init__(parent)
+
+        # type definition may be removed upon insertion as parameter
+        type = 1
+        self.rawPlotType = [0]
+        self.polarPlotType = [0]
+
+
+
         self.setupUi(self)
-        self.extraSetup()
+
+         # type 1 = all components included
+        # if type == 1:
+            
+        self.slider1()
+        self.slider2()
+        # self.preppolarplots()
+        self.createrawplots(self, self.rawPlotType)
+        self.createpolarplot(self.polarPlotType)
+
+        # type 2 = only center chart
+        if type == 2:
+            self.slider1()
+            self.slider2()
+            # self.createrawplots(self, self.rawPlotType)
+            self.createpolarplot(self.polarPlotType)
+
+        # type 3 = no polar plots
+        if type == 3:
+            self.slider1()
+            self.slider2()
+            # self.createrawplots(self, self.rawPlotType)
+
+        self.setup_standard(self)
+
+
+
+        # self.extraSetup()
         pyqtgraph.setConfigOptions(leftButtonPan=False)
 
         self.customizePlots()
@@ -44,8 +81,8 @@ class BasicFrontEnd(QtGui.QMainWindow, improv_basic.Ui_MainWindow):
         self.pushButton_2.clicked.connect(_call(self._setup))
         self.pushButton.clicked.connect(_call(self._loadParams)) #File Dialog, then tell Nexus to load tweak
         self.checkBox.stateChanged.connect(self.update) #Show live front-end updates
-
-        self.rawplot_2.getImageItem().mouseClickEvent = self.mouseClick #Select a neuron
+        if 1 in self.rawPlotType:
+            self.rawplot_2.getImageItem().mouseClickEvent = self.mouseClick #Select a neuron
         self.slider.valueChanged.connect(_call(self.sliderMoved)) #Threshold for magnitude selection
 
     def update(self):
@@ -75,13 +112,19 @@ class BasicFrontEnd(QtGui.QMainWindow, improv_basic.Ui_MainWindow):
         self.total_times.append([self.visual.frame_num, time.time()-t])
 
     def extraSetup(self):
-        self.slider2 = QRangeSlider(self.frame_3)
-        self.slider2.setGeometry(QtCore.QRect(20, 100, 155, 50))
-        # self.slider2.setGeometry(QtCore.QRect(55, 120, 155, 50))
-        self.slider2.setObjectName("slider2")
+        # self.slider2 = QRangeSlider(self.frame_3)
+        # self.slider2.setGeometry(QtCore.QRect(20, 100, 155, 50))
+        # # self.slider2.setGeometry(QtCore.QRect(55, 120, 155, 50))
+        # self.slider2.setObjectName("slider2")
+
+
+        # LEAVE THIS LINE??
         self.slider2.rangeChanged.connect(_call(self.slider2Moved)) #Threshold for angular selection
 
     def customizePlots(self):
+
+
+        # LEAVE THE UNCOMMENTED LINES
         self.checkBox.setChecked(True)
         self.draw = True
 
@@ -99,48 +142,48 @@ class BasicFrontEnd(QtGui.QMainWindow, improv_basic.Ui_MainWindow):
         self.activePlot = 'r'
 
         #polar plotting
-        self.num = 8
-        theta = np.linspace(0, (315/360)*2*np.pi, self.num)
-        theta = np.append(theta,0)
-        self.theta = theta
-        radius = np.zeros(self.num+1)
-        self.thresh_r = radius + 1
-        x = radius * np.cos(theta)
-        y = radius * np.sin(theta)
+        # self.num = 8
+        # theta = np.linspace(0, (315/360)*2*np.pi, self.num)
+        # theta = np.append(theta,0)
+        # self.theta = theta
+        # radius = np.zeros(self.num+1)
+        # self.thresh_r = radius + 1
+        # x = radius * np.cos(theta)
+        # y = radius * np.sin(theta)
 
         #polar plots
-        polars = [self.grplot_3, self.grplot_4, self.grplot_5]
-        for polar in polars:
-            polar.setAspectLocked(True)
+        # polars = [self.grplot_3, self.grplot_4, self.grplot_5]
+        # for polar in polars:
+        #     polar.setAspectLocked(True)
 
-            # Add polar grid lines
-            polar.addLine(x=0, pen=0.2)
-            polar.addLine(y=0, pen=0.2)
-            for r in range(0, 4, 1):
-                circle = pyqtgraph.QtGui.QGraphicsEllipseItem(-r, -r, r*2, r*2)
-                circle.setPen(pyqtgraph.mkPen(0.1))
-                polar.addItem(circle)
-            polar.hideAxis('bottom')
-            polar.hideAxis('left')
+        #     # Add polar grid lines
+        #     polar.addLine(x=0, pen=0.2)
+        #     polar.addLine(y=0, pen=0.2)
+        #     for r in range(0, 4, 1):
+        #         circle = pyqtgraph.QtGui.QGraphicsEllipseItem(-r, -r, r*2, r*2)
+        #         circle.setPen(pyqtgraph.mkPen(0.1))
+        #         polar.addItem(circle)
+        #     polar.hideAxis('bottom')
+        #     polar.hideAxis('left')
 
-        self.polar1 = polars[0].plot()
-        self.polar2 = polars[1].plot()
-        self.polar1.setData(x, y)
-        self.polar2.setData(x, y)
+        # self.polar1 = polars[0].plot()
+        # self.polar2 = polars[1].plot()
+        # self.polar1.setData(x, y)
+        # self.polar2.setData(x, y)
 
-        for r in range(2, 12, 2):
-                circle = pyqtgraph.QtGui.QGraphicsEllipseItem(-r, -r, r*2, r*2)
-                circle.setPen(pyqtgraph.mkPen(0.1))
-                polars[2].addItem(circle)
-        self.polar3 = polars[2].plot()
+        # for r in range(2, 12, 2):
+        #         circle = pyqtgraph.QtGui.QGraphicsEllipseItem(-r, -r, r*2, r*2)
+        #         circle.setPen(pyqtgraph.mkPen(0.1))
+        #         polars[2].addItem(circle)
+        # self.polar3 = polars[2].plot()
 
         #sliders
-        self.slider.setMinimum(0)
-        self.slider.setMaximum(12)
+        # self.slider.setMinimum(0)
+        # self.slider.setMaximum(12)
 
         #videos
         #self.rawplot.ui.histogram.vb.disableAutoRange()
-        self.rawplot.ui.histogram.vb.setLimits(yMin=-0.1, yMax=200) #0-255 needed, saturated here for easy viewing
+        # self.rawplot.ui.histogram.vb.setLimits(yMin=-0.1, yMax=200) #0-255 needed, saturated here for easy viewing
 
     def _loadParams(self):
         ''' Button event to load parameters from file
@@ -184,8 +227,9 @@ class BasicFrontEnd(QtGui.QMainWindow, improv_basic.Ui_MainWindow):
                     self.rawplot.ui.histogram.vb.setLimits(yMin=50)
             if color is not None:
                 color = np.rot90(color,2)
-                self.rawplot_2.setImage(color)
-                self.rawplot_2.ui.histogram.vb.setLimits(yMin=8, yMax=255)
+                if 1 in self.rawPlotType:
+                    self.rawplot_2.setImage(color)
+                    self.rawplot_2.ui.histogram.vb.setLimits(yMin=8, yMax=255)
             if image is not None:
                 image = np.rot90(image,2)
                 self.rawplot_3.setImage(image)
@@ -272,6 +316,7 @@ class BasicFrontEnd(QtGui.QMainWindow, improv_basic.Ui_MainWindow):
             r[np.nonzero(r)] = val
         self.updateThreshGraph(r)
 
+    # TODO: Separate slider graphics from update call
     def slider2Moved(self):
         r1,r2 = self.slider2.range()
         r = np.full(self.num+1, self.slider.value())
@@ -298,12 +343,15 @@ class BasicFrontEnd(QtGui.QMainWindow, improv_basic.Ui_MainWindow):
         ROIpen1=pyqtgraph.mkPen(width=1, color='r')
         if self.flag:
             self.red_circ = CircleROI(pos = np.array([self.selected[0][0], self.selected[0][1]])-5, size=10, movable=False, pen=ROIpen1)
-            self.rawplot_2.getView().addItem(self.red_circ)
+            if 1 in self.rawPlotType:
+                self.rawplot_2.getView().addItem(self.red_circ)
             self.flag = False
         if np.count_nonzero(self.selected[0]) > 0:
-            self.rawplot_2.getView().removeItem(self.red_circ)
+            if 1 in self.rawPlotType:
+                self.rawplot_2.getView().removeItem(self.red_circ)
             self.red_circ = CircleROI(pos = np.array([self.selected[0][0], self.selected[0][1]])-5, size=10, movable=False, pen=ROIpen1)
-            self.rawplot_2.getView().addItem(self.red_circ)
+            if 1 in self.rawPlotType:
+                self.rawplot_2.getView().addItem(self.red_circ)
 
     def closeEvent(self, event):
         '''Clicked x/close on window
@@ -433,6 +481,7 @@ class QRangeSlider(QtWidgets.QWidget):
 if __name__=="__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
-    fe = BasicFrontEnd(None,None)
+    fe = BasicFrontEnd(None, None)
+    # fe = BasicFrontEnd(2, None, None)
     fe.show()
     app.exec_()
