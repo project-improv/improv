@@ -152,7 +152,7 @@ class FrontEnd(QtGui.QMainWindow, improv_fit.Ui_MainWindow):
         self.polar2.setData(x, y)
 
         #videos
-        #self.rawplot.ui.histogram.vb.disableAutoRange()
+        # self.rawplot.ui.histogram.vb.disableAutoRange()
         self.rawplot.ui.histogram.vb.setLimits(yMin=-0.1, yMax=200) #0-255 needed, saturated here for easy viewing
 
         self.grplot_5.setLabel('bottom', "Frames")
@@ -196,15 +196,16 @@ class FrontEnd(QtGui.QMainWindow, improv_fit.Ui_MainWindow):
         if raw is not None:
             raw = np.rot90(raw,2)
             if np.unique(raw).size > 1:
-                self.rawplot.setImage(raw, autoHistogramRange=False)
-                self.rawplot.ui.histogram.vb.setLimits(yMin=50)
+                self.rawplot.setImage(raw) #, autoHistogramRange=False)
+                self.rawplot.ui.histogram.vb.setLimits(yMin=80, yMax=200)
         if color is not None:
             color = np.rot90(color,2)
             self.rawplot_2.setImage(color)
-            self.rawplot_2.ui.histogram.vb.setLimits(yMin=8, yMax=255)
+            # self.rawplot_2.ui.histogram.vb.setLimits(yMin=8, yMax=255)
 
         if self.visual.showConnectivity and weight is not None:
-            self.rawplot_3.setImage(weight*100)
+            if np.sum(np.abs(weight))>0.1:
+                self.rawplot_3.setImage(weight*100)
             # colordata = (np.array(cmapToColormap(cm.viridis).color) * 255).astype(np.uint8)
             # cmap = ColorMap(pos=np.linspace(0, 1, len(colordata)), color=colordata)
             # self.rawplot_3.setColorMap(cmap)

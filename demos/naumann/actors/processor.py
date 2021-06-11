@@ -357,7 +357,7 @@ class CaimanProcessor(Actor):
             self.A = A
             self.coords = get_contours(A, dims)
             self.counter += 1
-            logger.info('------------ Current number of neurons :{}'.format(np.shape(A)[1]))
+            # logger.info('------------ Current number of neurons :{}'.format(np.shape(A)[1]))
 
 
     def makeImage(self):

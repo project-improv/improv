@@ -8,7 +8,13 @@ actors:
     package: actors.acquire_zmq
     class: ZMQAcquirer
     ip: 10.122.170.21
-    ports: [4701,4702,4703]
+    ports: [5000,5008,4701] #[4701,4702,4703]
+
+  Stimulus:
+    package: actors.stimulus
+    class: VisualStimulus
+    ip: '*'
+    port: 5006 
 
   Processor:
     package: demos.naumann.actors.processor
@@ -30,3 +36,4 @@ connections:
   Processor.q_out: [Analysis.q_in]
   Analysis.q_out: [Visual.q_in]
   Acquirer.stim_queue: [Analysis.input_stim_queue]
+  Analysis.stim_out: [Stimulus.q_in]

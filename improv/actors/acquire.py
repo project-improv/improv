@@ -16,7 +16,7 @@ class FileAcquirer(Actor):
     '''Class to import data from files and output
        frames in a buffer, or discrete.
     '''
-    def __init__(self, *args, filename=None, framerate=30, **kwargs):
+    def __init__(self, *args, filename=None, framerate=30, save=True, **kwargs):
         super().__init__(*args, **kwargs)
         self.frame_num = 0
         self.data = None
@@ -24,6 +24,7 @@ class FileAcquirer(Actor):
         self.flag = False
         self.filename = filename
         self.framerate = 1/framerate 
+        self.save=save
 
     def setup(self):
         '''Get file names from config or user input
@@ -83,7 +84,7 @@ class FileAcquirer(Actor):
             t1= time.time()
             self.timestamp.append([time.time(), self.frame_num])
             try:
-                self.put([[id, str(self.frame_num)]], save=[True])
+                self.put([[id, str(self.frame_num)]], save=[self.save])
                 self.frame_num += 1
                  #also log to disk #TODO: spawn separate process here?  
             except Exception as e:

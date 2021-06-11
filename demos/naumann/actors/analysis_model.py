@@ -36,7 +36,7 @@ class ModelAnalysis(Actor):
         self.currentStim = None
         self.ests = np.zeros((1, self.num_stim, 2)) #number of neurons, number of stim, on and baseline
         self.counter = np.ones((self.num_stim,2))
-        self.window = 500 #TODO: make user input, choose scrolling window for Visual
+        self.window = 150 #TODO: make user input, choose scrolling window for Visual
         self.C = None
         self.S = None
         self.Call = None
@@ -82,7 +82,15 @@ class ModelAnalysis(Actor):
         np.savetxt('output/analysis_proc_S.txt', np.array(self.S))
         np.savetxt('output/analysis_LL.txt', np.array(self.LL))
         
-        np.savetxt('output/used_stims.txt', self.currStimID)
+        stim = []
+        for i in self.allStims.keys():
+            stim.append(self.allStims[i])
+        print('Stims ------------------------------')
+        print(self.allStims)
+        np.savetxt('output/used_stims.txt', np.array(stim))
+    
+
+        # np.savetxt('output/used_stims.txt', self.currStimID)
 
     def runStep(self):
         ''' Take numpy estimates and frame_number
@@ -115,10 +123,11 @@ class ModelAnalysis(Actor):
                 self.updateStim_start(sig)
             except Empty as e:
                 pass #no change in input stimulus
+
             self.stimAvg_start()
 
             # fit to model once we have enough neurons
-            if self.C.shape[0]>=self.p['numNeurons']:
+            if self.C.shape[0]>=self.p['numNeurons'] and self.frame>5:
                 # if self.frame % 5 == 0:
                 self.fit()
             
@@ -179,17 +188,19 @@ class ModelAnalysis(Actor):
 
         self.p["numSamples"] = self.frame
 
-        if self.frame<50:
+        if self.frame<100:
             y_step = self.S[:,:self.frame]
             stim_step = self.currStimID[:, :self.frame]
         else:
-            y_step =  self.S[:,self.frame-50:self.frame]
-            stim_step = self.currStimID[:, self.frame-50:self.frame]
+            y_step =  self.S[:,self.frame-100:self.frame]
+            stim_step = self.currStimID[:, self.frame-100:self.frame]
 
         y_step = np.where(np.isnan(y_step), 0, y_step) #Why are there nans here anyway?? #TODO
 
         # t0 = time.time()
         self.theta -= 1e-5*self.ll_grad(y_step, stim_step)
+        if np.isnan(self.theta).any():
+            print('------------- Nan in theta')
         self.LL.append(self.ll(y_step, stim_step))
         # print(time.time()-t0, self.p['numNeurons'], self.LL[-1])
         self.fit_times.append(time.time()-t)
@@ -225,6 +236,8 @@ class ModelAnalysis(Actor):
         # include l1 or l2 penalty on weights
         # l2 = scipy.linalg.norm(w) #100*np.sqrt(np.sum(np.square(theta['w'])))
         # l1 = np.sum(np.sum(np.abs(w)))/(N*N)
+        if np.isnan(rhat).any():
+            print('------------- Nan in rhat')
 
         ll_val = ((np.sum(rhat) - np.sum(y*np.log(rhat+eps))) )/(y.shape[1]*N**2)  #+ l1
         # if np.isnan(ll_val):
@@ -244,6 +257,8 @@ class ModelAnalysis(Actor):
         data['y'] = y
         data['s'] = s
         rhat = self.runModel(data)  #TODO: rewrite without dicts
+        if np.isnan(rhat).any():
+            print('------------- Nan in rhat')
         # rhat = rhat*dt
 
         # compute gradient
@@ -254,6 +269,8 @@ class ModelAnalysis(Actor):
 
         # graident for baseline
         grad['b'] = np.sum(rateDiff, axis=1)/M
+        if np.isnan(grad['b']).any():
+            print('------------- Nan in grad b')
 
         # gradient for stim
         grad['k'] = rateDiff.dot(data['s'].T)/M
@@ -274,6 +291,8 @@ class ModelAnalysis(Actor):
 
         # flatten grad
         grad_flat = np.concatenate((grad['w'],grad['h'],grad['b'],grad['k']), axis=None).flatten()/N
+        if np.isnan(grad_flat).any():
+            print('------------- Nan in grad_flat')
 
         return grad_flat
 
@@ -299,7 +318,7 @@ class ModelAnalysis(Actor):
         # simulate the model for t samples (time steps)
         for j in np.arange(0,data['y'].shape[1]): 
             expo[:,j] = self.runModelStep(data['y'][:,j-dh:j], data['s'][:,j])
-        
+    
         # computed rates
         rates = f(expo)
     
@@ -401,7 +420,7 @@ class ModelAnalysis(Actor):
             # paradigm for these trials is for each stim: [off, on, off]
             if self.lastOnOff is None:
                 self.lastOnOff = curStim
-            elif self.lastOnOff == 0 and curStim == 1: #was off, now on
+            elif curStim == 1: #self.lastOnOff == 0 and curStim == 1: #was off, now on
                 # select this frame as the starting point of the new trial
                 # and stimulus has started to be shown
                 # All other computations will reference this point
@@ -413,14 +432,16 @@ class ModelAnalysis(Actor):
                 logger.info('Stim {} started at {}'.format(stimID,frame))
             else:
                 self.currStimID[:, frame] = np.zeros(8)
-            self.lastOnOff = curStim
+            # self.lastOnOff = curStim
+            print('Frame: ', frame, 'On off :', self.lastOnOff)
+            print('Current data frame is ', self.frame)
 
     def putAnalysis(self):
         ''' Throw things to DS and put IDs in queue for Visual
         '''
         t = time.time()
         ids = []
-        stim = [self.lastOnOff, self.currStim]
+        # stim = [self.lastOnOff, self.currStim]
         N  = self.p['numNeurons']
         w = self.theta[:N*N].reshape((N,N))
 
@@ -451,12 +472,16 @@ class ModelAnalysis(Actor):
 
         if self.currentStim is not None:
 
+            # print('Computing for ', self.currentStim, ' starting at ', self.stimStart, ' but current  ', self.frame)
+
             if self.stimStart == self.frame:
+                # print(' Starting compute for ', self.currentStim, ' at frame ', self.frame)
                 # account for the baseline prior to stimulus onset
                 self.ests[:,self.currentStim,1] = (self.counter[self.currentStim,1]*self.ests[:,self.currentStim,1] + np.mean(ests[:,self.frame-10:self.frame],1))/(self.counter[self.currentStim,1]+1)
                 self.counter[self.currentStim, 1] += 10
 
             elif self.frame in range(self.stimStart+1, self.frame+26):
+                # print(' Continuing compute for ', self.currentStim, ' at frame ', self.frame)
                 # print(self.currentStim)
                 # print(self.frame)
                 # continue computing the running mean for this trial

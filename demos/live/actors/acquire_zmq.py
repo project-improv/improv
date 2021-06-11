@@ -38,9 +38,11 @@ class ZMQAcquirer(Actor):
         self.socket = context.socket(zmq.SUB)
         for port in self.ports:
             self.socket.connect("tcp://"+str(self.ip)+":"+str(port))
+            print('Connected to '+str(self.ip)+':'+str(port))
         self.socket.setsockopt(zmq.SUBSCRIBE, b'')
 
         self.saveArray = []
+        self.fullStimmsg = []
 
         self.tailF = False
         self.stimF = False
@@ -81,6 +83,8 @@ class ZMQAcquirer(Actor):
         np.savetxt('output/timing/acquire_frame_time.txt', self.total_times)
         np.savetxt('output/timing/acquire_timestamp.txt', self.timestamp)
 
+        np.save('fullstim', self.fullStimmsg)
+
     def runAcquirer(self):
         ''' Main loop. If there're new files, read and put into store.
         '''
@@ -88,17 +92,22 @@ class ZMQAcquirer(Actor):
         #TODO: use poller instead to prevent blocking, include a timeout
         try:
             msg = self.socket.recv(flags=zmq.NOBLOCK)
+            # print('msg:', msg)
             msg_parts = [part.strip() for part in msg.split(b': ', 1)]
             # logger.info(msg_parts[0].split(b' ')[:4])
             tag = msg_parts[0].split(b' ')[0]
             # sendtime = msg_parts[0].split(b' ')[1].decode()
+            # print(tag)
 
-            if tag == b'stimid':
+            if 'stimid' in str(tag): #tag == b'stimid':
+                # print(msg)
                 if not self.stimF:
                     logger.info('Receiving stimulus information')
                     self.stimF = True
-                msg_parts = [part.strip() for part in msg.split(b' ')]
-                # print(msg_parts)
+                self.fullStimmsg.append(msg)
+                msg_parts = [part.strip() for part in msg.split(b" ")]
+                print('------------')
+                print(msg_parts)
                 sendtime = msg_parts[2].decode()
                 angle = int(msg_parts[7].decode()[:-1])
                 vel = float(msg_parts[9].decode()[:-1])
@@ -108,7 +117,7 @@ class ZMQAcquirer(Actor):
                 # output example: stimulus id: b'background_stim'
 
                 #calibration check:
-                angle = 270+angle
+                # angle = 270+angle
                 if angle>=360:
                     angle-=360
 
@@ -139,21 +148,21 @@ class ZMQAcquirer(Actor):
                 # elif msg_parts[1] == b'Right_Forward':
                 #     stim = 10
 
-                if angle == 0:
+                if 45 > angle >=0:
                     stim = 9
-                elif angle == 90:
+                elif 135 > angle >= 90:
                     stim = 3
-                elif angle == 180:
+                elif 225 > angle >= 180:
                     stim = 13
-                elif angle == 270:
+                elif 315 > angle >= 270:
                     stim = 4
-                elif angle == 45:
+                elif 90 > angle >= 45:
                     stim = 10
-                elif angle == 135:
+                elif 180 > angle >= 135:
                     stim = 12
-                elif angle == 225:
+                elif 270 > angle >= 225:
                     stim = 14
-                elif angle == 315:
+                elif 360 > angle >= 315:
                     stim = 16
                 else:
                     logger.error('Stimulus unrecognized')
