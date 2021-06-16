@@ -11,38 +11,12 @@ loadFile = './basic_demo.yaml'
 nexus = Nexus('Nexus')
 nexus.createNexus(file=loadFile)
 
-# #creates output directory for data
-# directory = "output" 
-# parent_dir = os.getcwd()
-# path = os.path.join(parent_dir, directory) 
-# if not os.path.exists(path):
-#     os.mkdir(path)
-#     print("Directory '%s' created" %path)
-# path = os.path.join(path, "timing")
-# if not os.path.exists(path):
-#     os.mkdir(path)
-#     print("Directory '%s' created" %path)
-
-# else:
-       
-    
-       
-       # newparent_directory = os.path.split(parent_directory)[0]# Repeat as needed  
-       #file_path = os.path.join(newparent_directory, 'demodata') 
-       # print("datafile '%s'" %file_path)
-       # if myfile not in os.listdir(file_path):
-           # raise FileNotFoundError
-       # else: 
-            #file_path = os.path.join(file_path, myfile)
 path = os.path.join(os.getcwd(), "data" ) 
 print("path '%s'" %path)
 if not os.path.exists(path):
        os.mkdir(path)
        print("Directory '%s' created" %path)
        print("Place file into data directory for analysis")  
-
-
-
 
 # All modules needed have been imported
 # so we can change the level of logging here
