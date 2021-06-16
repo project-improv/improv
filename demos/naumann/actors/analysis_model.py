@@ -115,6 +115,11 @@ class ModelAnalysis(Actor):
                 pass #no change in input stimulus
             self.stimAvg_start()
 
+            #########
+            # if self.frame % 10 == 0:
+            #     np.savetxt('tc_output/tc_'+str(self.frame)+'.txt', self.estsAvg)
+            ##########
+
             # fit to model once we have enough neurons
             if self.C.shape[0]>=self.p['numNeurons'] and self.frame>(self.p['hist_dim']+1):
                 self.fit()
