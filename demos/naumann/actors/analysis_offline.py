@@ -205,7 +205,8 @@ def updateTheta(theta, m, v, newN):
 if __name__=="__main__":
     # load data
     # import numpy
-    C = np.loadtxt(open('out_snap_100win/ests_S_frame2875.txt', 'rb'), delimiter=' ')
+    # C = np.loadtxt(open('out_snap_100win/ests_S_frame2875.txt', 'rb'), delimiter=' ')
+    C = np.loadtxt(open('output/analysis_proc_S_save.txt', 'rb'), delimiter=' ')
     stim = np.loadtxt(open('out_snap_100win/stims.txt', 'rb'), delimiter=' ')[:,:2875]
     
     # C = np.asarray(C)
@@ -221,16 +222,18 @@ if __name__=="__main__":
         k = np.zeros((N,8))
         b = np.zeros(N)
         theta = np.concatenate((w,h,b,k), axis=None).flatten()
+        window = 50
         p = {'numNeurons': N, 'hist_dim': 4, 'numSamples': 1, 'dt': 0.5, 'stim_dim': 8}
 
         i = 0
         max_iter=500
         step = 0.05
+        ll_list = []
         while i<max_iter:
             # timer = time.time()
-            print(ll(C[:,-200:], stim[:,-200:], theta))
+            ll_list.append(ll(C[:,-window:], stim[:,-window:], theta))
             # print('--------- Time: ', time.time() - timer)
-            theta -= step*ll_grad(C[:,-200:], stim[:,-200:])
+            theta -= step*ll_grad(C[:,-window:], stim[:,-window:])
             i+=1
             step /= 1.001
 
@@ -246,8 +249,12 @@ if __name__=="__main__":
             #     import pdb; pdb.set_trace()
 
         ## save data for online comparison
-        w = theta[:N*N].reshape((N,N))
-        np.savetxt('offline_w_200iter.txt', w)
+        # w = theta[:N*N].reshape((N,N))
+        # np.savetxt('offline_w_200iter.txt', w)
+
+    plt.figure()
+    plt.plot(np.array(ll_list))
+    plt.show()
 
     
     ## OR simulate online analysis
