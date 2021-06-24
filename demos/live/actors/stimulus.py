@@ -100,7 +100,8 @@ class VisualStimulus(Actor):
             #np.random.choice([0, -0.02, -0.04, -0.08, -0.1])/10 #, -0.12, -0.14, -0.16, -0.18, -0.2])
         stat_t = 15
         stim_t = 10
-        freq = np.random.choice(np.arange(2,80))
+        freq = np.random.choice(np.arange(5,80,5))
+        light, dark = self.contrast(np.random.choice(5))
         center_width = 16
         center_x = 0
         center_y = 0  
@@ -111,7 +112,9 @@ class VisualStimulus(Actor):
                 'velocity': vel, #vel],
                 'stationary_time': stat_t, #stat_t],
                 'stim_time': stim_t, #stim_t],
-                'freq': freq, #freq],
+                'frequency': freq, #freq],
+                'lightValue': light,
+                'darkValue': dark,
                 'center_width' : center_width,
                 'center_x': center_x,
                 'center_y': center_y,
@@ -124,3 +127,26 @@ class VisualStimulus(Actor):
         print('Sent random stimulus: ', stim)
 
         self.timer = time.time()
+
+    def contrast(self, n):
+        if n==0:
+            light = 0
+            dark = 30
+        elif n==1:
+            light = 0
+            dark = 120
+        elif n==2:
+            light = 0
+            dark = 250
+        elif n==3:
+            light = 120
+            dark = 250
+        elif n==4:
+            light = 220
+            dark = 250
+        else:
+            print('No pre-selected contrast found; using default (3)')
+            light = 0
+            dark = 250
+
+        return light, dark
