@@ -8,7 +8,6 @@ import ipaddress
 import zmq
 import json
 from pathlib import Path
-from skimage.external.tifffile import imread
 from improv.actor import Actor, Spike, RunManager
 from queue import Empty
 
@@ -96,7 +95,7 @@ class VisualStimulus(Actor):
 
     def random_frame(self):
         angle = np.random.choice(np.arange(0, 350, 10)) #[0, 45, 90, 135, 180, 225, 270, 315])
-        vel = -np.random.choice(np.linspace(0.02, 0.2, num=18)) 
+        vel = -np.around(np.random.choice(np.linspace(0.02, 0.2, num=18)), decimals=2)
             #np.random.choice([0, -0.02, -0.04, -0.08, -0.1])/10 #, -0.12, -0.14, -0.16, -0.18, -0.2])
         stat_t = 15
         stim_t = 10

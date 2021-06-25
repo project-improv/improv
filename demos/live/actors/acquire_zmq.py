@@ -8,7 +8,6 @@ import ipaddress
 import zmq
 import json
 from pathlib import Path
-from skimage.external.tifffile import imread
 from improv.actor import Actor, Spike, RunManager
 from queue import Empty
 
@@ -110,10 +109,13 @@ class ZMQAcquirer(Actor):
                 print(msg_parts)
                 sendtime = msg_parts[2].decode()
                 types = str(msg_parts[5].decode()[:-1])
-                print(types)
+                # print(types)
                 if 's' in str(types):
                     angle = int(msg_parts[7].decode()[:-1])
-                    vel = float(msg_parts[9].decode()[:-1])
+                    vel = np.abs(float(msg_parts[9].decode()[:-1]))
+                    freq = float(msg_parts[15].decode()[:-1])
+                    light = int(msg_parts[17].decode()[:-1])
+                    dark = int(msg_parts[19].decode()[:-1])
                     # print('stim sendtime ', sendtime)
                     # print('stimulus id: {}, {}'.format(angle, vel))
 
@@ -172,14 +174,29 @@ class ZMQAcquirer(Actor):
                         print(msg_parts)
                         print(angle)
 
+                    if dark == 30:
+                        contrast = 0
+                    elif dark == 120:
+                        contrast = 1
+                    elif dark == 240 and light == 0:
+                        contrast = 2
+                    elif light == 120:
+                        contrast = 3
+                    elif light == 210:
+                        contrast = 4
+                    else:
+                        logger.error('Stimulus unrecognized')
+                        print(msg_parts)
+                        print(angle)
+
                     if stimonOff:
                         logger.info('Stimulus: {}, angle: {}, frame {}'.format(stim, angle, self.frame_num))
                     
 
-                    self.links['stim_queue'].put({self.frame_num:[stim, stimonOff]})
+                    self.links['stim_queue'].put({self.frame_num:[stim, stimonOff, angle, vel, freq, contrast]})
                     # for i in np.arange(self.frame_num,self.frame_num+15): # known stimulus duration
                         # self.links['stim_queue'].put({i:[stim, stimonOff]})
-                    self.stimmed.append([self.frame_num, stim, time.time()])
+                    self.stimmed.append([self.frame_num, stim, angle, vel, freq, contrast, time.time()])
                     self.stimsendtimes.append([sendtime])
 
             elif tag == b'frame':

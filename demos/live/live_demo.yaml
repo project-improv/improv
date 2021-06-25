@@ -1,6 +1,6 @@
 actors:
   GUI:
-    package: demos.naumann.actors.visual_model
+    package: actors.visual_viz_stim
     class: DisplayVisual
     visual: Visual
 
@@ -23,12 +23,12 @@ actors:
     config_file: live_caiman_params.txt
 
   Visual:
-    package: demos.naumann.actors.visual_model
-    class: CaimanVisual
+    package: actors.visual_viz_stim
+    class: CaimanVisualStim
   
   Analysis:
-    package: demos.naumann.actors.analysis_model
-    class: ModelAnalysis
+    package: actors.analysis_viz
+    class: VizStimAnalysis
 
 
 connections:
