@@ -109,75 +109,78 @@ class ZMQAcquirer(Actor):
                 print('------------')
                 print(msg_parts)
                 sendtime = msg_parts[2].decode()
-                angle = int(msg_parts[7].decode()[:-1])
-                vel = float(msg_parts[9].decode()[:-1])
-                # print('stim sendtime ', sendtime)
-                # print('stimulus id: {}, {}'.format(angle, vel))
+                types = str(msg_parts[5].decode()[:-1])
+                print(types)
+                if 's' in str(types):
+                    angle = int(msg_parts[7].decode()[:-1])
+                    vel = float(msg_parts[9].decode()[:-1])
+                    # print('stim sendtime ', sendtime)
+                    # print('stimulus id: {}, {}'.format(angle, vel))
 
-                # output example: stimulus id: b'background_stim'
+                    # output example: stimulus id: b'background_stim'
 
-                #calibration check:
-                # angle = 270+angle
-                if angle>=360:
-                    angle-=360
+                    #calibration check:
+                    # angle = 270+angle
+                    if angle>=360:
+                        angle-=360
 
-                stim = 0
-                # stimonOff = 20
-                if np.abs(vel) > 0:
-                    stimonOff = 20
-                else:
-                    stimonOff = 0
+                    stim = 0
+                    # stimonOff = 20
+                    if np.abs(vel) > 0:
+                        stimonOff = 20
+                    else:
+                        stimonOff = 0
 
-                # if msg_parts[1] == b'Left':
-                #     stim = 4
-                # elif msg_parts[1] == b'Right':
-                #     stim = 3
-                # elif msg_parts[1] == b'forward':
-                #     stim = 9
-                # elif msg_parts[1] == b'backward':
-                #     stim = 13
-                # elif msg_parts[1] == b'background_stim':
-                #     stimonOff = 0
-                #     print('Stim off')
-                # elif msg_parts[1] == b'Left_Backward':
-                #     stim = 14
-                # elif msg_parts[1] == b'Right_Backward':
-                #     stim = 12
-                # elif msg_parts[1] == b'Left_Forward':
-                #     stim = 16
-                # elif msg_parts[1] == b'Right_Forward':
-                #     stim = 10
+                    # if msg_parts[1] == b'Left':
+                    #     stim = 4
+                    # elif msg_parts[1] == b'Right':
+                    #     stim = 3
+                    # elif msg_parts[1] == b'forward':
+                    #     stim = 9
+                    # elif msg_parts[1] == b'backward':
+                    #     stim = 13
+                    # elif msg_parts[1] == b'background_stim':
+                    #     stimonOff = 0
+                    #     print('Stim off')
+                    # elif msg_parts[1] == b'Left_Backward':
+                    #     stim = 14
+                    # elif msg_parts[1] == b'Right_Backward':
+                    #     stim = 12
+                    # elif msg_parts[1] == b'Left_Forward':
+                    #     stim = 16
+                    # elif msg_parts[1] == b'Right_Forward':
+                    #     stim = 10
 
-                if 45 > angle >=0:
-                    stim = 9
-                elif 135 > angle >= 90:
-                    stim = 3
-                elif 225 > angle >= 180:
-                    stim = 13
-                elif 315 > angle >= 270:
-                    stim = 4
-                elif 90 > angle >= 45:
-                    stim = 10
-                elif 180 > angle >= 135:
-                    stim = 12
-                elif 270 > angle >= 225:
-                    stim = 14
-                elif 360 > angle >= 315:
-                    stim = 16
-                else:
-                    logger.error('Stimulus unrecognized')
-                    print(msg_parts)
-                    print(angle)
+                    if 45 > angle >=0:
+                        stim = 9
+                    elif 135 > angle >= 90:
+                        stim = 3
+                    elif 225 > angle >= 180:
+                        stim = 13
+                    elif 315 > angle >= 270:
+                        stim = 4
+                    elif 90 > angle >= 45:
+                        stim = 10
+                    elif 180 > angle >= 135:
+                        stim = 12
+                    elif 270 > angle >= 225:
+                        stim = 14
+                    elif 360 > angle >= 315:
+                        stim = 16
+                    else:
+                        logger.error('Stimulus unrecognized')
+                        print(msg_parts)
+                        print(angle)
 
-                if stimonOff:
-                    logger.info('Stimulus: {}, angle: {}, frame {}'.format(stim, angle, self.frame_num))
-                
+                    if stimonOff:
+                        logger.info('Stimulus: {}, angle: {}, frame {}'.format(stim, angle, self.frame_num))
+                    
 
-                self.links['stim_queue'].put({self.frame_num:[stim, stimonOff]})
-                # for i in np.arange(self.frame_num,self.frame_num+15): # known stimulus duration
-                    # self.links['stim_queue'].put({i:[stim, stimonOff]})
-                self.stimmed.append([self.frame_num, stim, time.time()])
-                self.stimsendtimes.append([sendtime])
+                    self.links['stim_queue'].put({self.frame_num:[stim, stimonOff]})
+                    # for i in np.arange(self.frame_num,self.frame_num+15): # known stimulus duration
+                        # self.links['stim_queue'].put({i:[stim, stimonOff]})
+                    self.stimmed.append([self.frame_num, stim, time.time()])
+                    self.stimsendtimes.append([sendtime])
 
             elif tag == b'frame':
                 if not self.frameF:

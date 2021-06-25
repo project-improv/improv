@@ -17,7 +17,7 @@ logger.setLevel(logging.INFO)
 
 class VisualStimulus(Actor):
 
-    def __init__(self, *args, ip=None, port=None, seed=24, **kwargs):
+    def __init__(self, *args, ip=None, port=None, seed=42, **kwargs):
         super().__init__(*args, **kwargs)
         self.ip = ip
         self.port = port
@@ -137,16 +137,16 @@ class VisualStimulus(Actor):
             dark = 120
         elif n==2:
             light = 0
-            dark = 250
+            dark = 240
         elif n==3:
             light = 120
-            dark = 250
+            dark = 240
         elif n==4:
-            light = 220
-            dark = 250
+            light = 210
+            dark = 240
         else:
             print('No pre-selected contrast found; using default (3)')
             light = 0
-            dark = 250
+            dark = 240
 
         return light, dark
