@@ -82,7 +82,7 @@ class ZMQAcquirer(Actor):
         np.savetxt('output/timing/acquire_frame_time.txt', self.total_times)
         np.savetxt('output/timing/acquire_timestamp.txt', self.timestamp)
 
-        np.save('fullstim', self.fullStimmsg)
+        np.save('output/fullstim.npy', self.fullStimmsg)
 
     def runAcquirer(self):
         ''' Main loop. If there're new files, read and put into store.

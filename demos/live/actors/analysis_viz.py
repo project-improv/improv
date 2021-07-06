@@ -107,7 +107,7 @@ class VizStimAnalysis(Actor):
             stim.append(self.allStims[i])
         print('Stims ------------------------------')
         print(self.allStims)
-        np.savetxt('output/used_stims.txt', np.array(stim))
+        np.save('output/used_stims.npy', np.array(stim))
         # np.savetxt('output/used_stims.txt', self.currStimID)
 
     def runStep(self):
@@ -262,10 +262,12 @@ class VizStimAnalysis(Actor):
             # added more neurons, grow the array
             self.ests = np.pad(self.ests, ((0,diff),(0,0),(0,0)), mode='constant')
             # print('------------------Grew:', self.ests.shape)
-            self.y_angle = np.pad(self.y_angle, ((0,diff),(0,0),(0,0)), mode='constant')
-            self.y_vel = np.pad(self.y_vel, ((0,diff),(0,0),(0,0)), mode='constant')
-            self.y_freq = np.pad(self.y_freq, ((0,diff),(0,0),(0,0)), mode='constant')
-            self.y_contrast = np.pad(self.y_contrast, ((0,diff),(0,0),(0,0)), mode='constant')
+            for key in self.ys.keys():
+                self.ys[key] = np.pad(self.ys[key], ((0,diff),(0,0),(0,0)), mode='constant')
+            # self.y_angle = np.pad(self.y_angle, ((0,diff),(0,0),(0,0)), mode='constant')
+            # self.y_vel = np.pad(self.y_vel, ((0,diff),(0,0),(0,0)), mode='constant')
+            # self.y_freq = np.pad(self.y_freq, ((0,diff),(0,0),(0,0)), mode='constant')
+            # self.y_contrast = np.pad(self.y_contrast, ((0,diff),(0,0),(0,0)), mode='constant')
 
         if self.currentStim is not None:
             # print('Computing for ', self.currentStim, ' starting at ', self.stimStart, ' but current  ', self.frame)
@@ -280,7 +282,14 @@ class VizStimAnalysis(Actor):
 
                 for key in self.ys.keys():
                     ind = self.xs[key]
-                    self.ys[key][:,ind,1] = (self.counters[key][ind,1]*self.ys[key][:,ind,1] + mean_val)/(self.counters[key][ind,1]+1)
+                    try:
+                        self.ys[key][:,ind,1] = (self.counters[key][ind,1]*self.ys[key][:,ind,1] + mean_val[:,None])/(self.counters[key][ind,1]+1)
+                    except:
+                        print(self.ys[key][:,ind,1].shape)
+                        print(self.counters[key][ind,1].shape)
+                        print(mean_val.shape)
+                        print(((self.counters[key][ind,1]*self.ys[key][:,ind,1] + mean_val[:,None])/(self.counters[key][ind,1]+1)).shape)
+
                     self.counters[key][ind, 1] += 10
                     
                 # self.y_angle[:,self.xa,1] = (self.counters['angle'][self.xa,1]*self.y_angle[:,self.xa,1] + mean_val)/(self.counter[self.xa,1]+1)
@@ -299,7 +308,13 @@ class VizStimAnalysis(Actor):
 
                 for key in self.ys.keys():
                     ind = self.xs[key]
-                    self.ys[key][:,ind,1] = (self.counters[key][ind,1]*self.ys[key][:,ind,1] + val)/(self.counters[key][ind,1]+1)
+                    try:
+                        self.ys[key][:,ind,1] = (self.counters[key][ind,1]*self.ys[key][:,ind,1] + val[:,None])/(self.counters[key][ind,1]+1)
+                    except:    
+                        print(self.ys[key][:,ind,1].shape)
+                        print(self.counters[key][ind,1].shape)
+                        print(mean_val.shape)
+                        print(((self.counters[key][ind,1]*self.ys[key][:,ind,1] + mean_val)/(self.counters[key][ind,1]+1)).shape)
                     self.counters[key][ind, 1] += 1
 
                 # self.y_angle[:,self.xa,1] = (self.counters['angle'][self.xa,1]*self.y_angle[:,self.xa,1] + val)/(self.counters['angle'][self.xa,1]+1)
@@ -317,7 +332,7 @@ class VizStimAnalysis(Actor):
 
                     for key in self.ys.keys():
                         ind = self.xs[key]
-                        self.ys[key][:,ind,0] = (self.counters[key][ind,0]*self.ys[key][:,ind,0] + val)/(self.counters[key][ind,0]+1)
+                        self.ys[key][:,ind,0] = (self.counters[key][ind,0]*self.ys[key][:,ind,0] + val[:,None])/(self.counters[key][ind,0]+1)
                         self.counters[key][ind, 0] += 1
 
                     # self.y_angle[:,self.xa,0] = (self.counters['angle'][self.xa,0]*self.y_angle[:,self.xa,0] + val)/(self.counters['angle'][self.xa,0]+1)
