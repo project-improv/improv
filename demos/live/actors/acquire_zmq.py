@@ -66,7 +66,7 @@ class ZMQAcquirer(Actor):
         print('-------------------------------------------- HERE')
 
         self.imgs = np.array(self.saveArray)
-        f = h5py.File('output/sample_stream.h5', 'w', libver='latest')
+        f = h5py.File('output/sample_stream.h5', 'w', libver='earliest')
         f.create_dataset("default", data=self.imgs)
         f.close()
 
