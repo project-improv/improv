@@ -2,7 +2,7 @@ from PyQt5 import QtGui,QtCore,QtWidgets
 from PyQt5.QtGui import QColor, QPixmap
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
-from . import improv_viz_stim
+from . import improv_viz_stim2 as improv_viz_stim
 from improv.store import Limbo
 from improv.actor import Spike
 import numpy as np
@@ -53,13 +53,17 @@ class FrontEnd(QtGui.QMainWindow, improv_viz_stim.Ui_MainWindow):
         self.pushButton.clicked.connect(_call(self._loadParams)) #File Dialog, then tell Nexus to load tweak
         self.checkBox.stateChanged.connect(self.update) #Show live front-end updates
         
-        self.rawplot_2.getImageItem().mouseClickEvent = self.mouseClick #Select a neuron
+        # self.rawplot_2.getImageItem().mouseClickEvent = self.mouseClick #Select a neuron
 
         self.xs = {}
-        self.xs['angle'] = np.arange(360)
-        self.xs['vel'] = np.around(np.linspace(0.02, 0.2, num=18), decimals=2)
-        self.xs['freq'] = np.arange(5,80,5)
-        self.xs['contrast'] = np.arange(5)
+        # self.xs['angle'] = np.linspace(0,350,num=15)
+        # self.xs['vel'] = np.array([0.02, 0.06, 0.1]) #np.around(np.linspace(0.02, 0.1, num=4), decimals=2)
+        # self.xs['freq'] = np.array([20, 40, 60]) #np.arange(5,80,5)
+        # self.xs['contrast'] = np.arange(5)
+        self.xs['angle'] = self.visual.stimuli[0]
+        self.xs['vel'] = self.visual.stimuli[1]
+        self.xs['freq'] = self.visual.stimuli[2]
+        self.xs['contrast'] = self.visual.stimuli[3]
 
     def update(self):
         ''' Update visualization while running
@@ -125,11 +129,11 @@ class FrontEnd(QtGui.QMainWindow, improv_viz_stim.Ui_MainWindow):
         self.updateLines()
         self.activePlot = 'r'
 
-        self.pop_lines = {}
-        self.pop_lines['angle'] = self.pop_dir.plot()
-        self.pop_lines['vel'] = self.pop_vel.plot()
-        self.pop_lines['freq'] = self.pop_freq.plot()
-        self.pop_lines['contrast'] = self.pop_con.plot()
+        # self.pop_lines = {}
+        # self.pop_lines['angle'] = self.pop_dir.plot()
+        # self.pop_lines['vel'] = self.pop_vel.plot()
+        # self.pop_lines['freq'] = self.pop_freq.plot()
+        # self.pop_lines['contrast'] = self.pop_con.plot()
 
         self.single_lines = {}
         self.single_lines['angle'] = self.single_dir.plot()
@@ -192,6 +196,9 @@ class FrontEnd(QtGui.QMainWindow, improv_viz_stim.Ui_MainWindow):
             of the activity of the selected neurons.
             TODO: separate updates for each plot?
         '''
+
+        ## Add current stimulus information: orientation change, motion starting, etc. Better timing locked
+
         penW=pyqtgraph.mkPen(width=2, color='w')
         penR=pyqtgraph.mkPen(width=2, color='r')
         penG=pyqtgraph.mkPen(width=3, color='g')
@@ -199,14 +206,25 @@ class FrontEnd(QtGui.QMainWindow, improv_viz_stim.Ui_MainWindow):
         Cx = None
         tune = None
         y_results = None
+        stimText = None
         try:
-            (Cx, C, Cpop, tune, y_results) = self.visual.getCurves()
+            (Cx, C, Cpop, tune, y_results, stimText) = self.visual.getCurves()
         except TypeError:
             pass
         except Exception as e:
             logger.error('Output does not likely exist. Error: {}'.format(e))
 
-        if(C is not None and Cx is not None):
+        if stimText:
+            # print(stimText)
+            texthere = ','.join(map(str,stimText[0][2:]) )
+            # print('sewtting GUI label', texthere)
+            self.label_10.setText(texthere)
+    
+        try:
+            self.label_7.setText('Selected neuron: ', self.visual.selectedNeuron)
+        except: pass
+
+        if (C is not None and Cx is not None):
             self.c1.setData(Cx, Cpop, pen=penW)
 
             for i, plot in enumerate(self.c1_stim):
@@ -216,7 +234,7 @@ class FrontEnd(QtGui.QMainWindow, improv_viz_stim.Ui_MainWindow):
                         # display = np.array(self.visual.allStims[i])
                         d = []
                         for s in self.visual.allStims[i]:
-                            d.extend(np.arange(s,s+15).tolist())
+                            d.extend(np.arange(s,s+10).tolist())
                         # display = np.arange(self.visual.allStims[i], self.visual.allStims[i]+15)
                         display = d
                         display = np.clip(display, np.min(Cx), np.max(Cx))
@@ -231,16 +249,19 @@ class FrontEnd(QtGui.QMainWindow, improv_viz_stim.Ui_MainWindow):
 
             self.c2.setData(Cx, C, pen=penR)
             
-            if(self.flag):
-                self.selected = self.visual.getFirstSelect()
-                if self.selected is not None:
-                    self._updateRedCirc()
+            # if(self.flag or self.visual.flagN):
+            #     self.selected = self.visual.selectedNeuron
+            #     self._updateRedCirc()
+            #     self.visual.flagN = False
+                # self.selected = self.visual.getFirstSelect()
+                # if self.selected is not None:
+                #     self._updateRedCirc()
 
         if y_results is not None:
             for key in y_results.keys():
                 self.single_lines[key].setData(self.xs[key], y_results[key][self.visual.selectedNeuron])
-                pop_val = np.nanmean(y_results[key], axis=0)
-                self.pop_lines[key].setData(self.xs[key], pop_val)
+                # pop_val = np.nanmean(y_results[key], axis=0)
+                # self.pop_lines[key].setData(self.xs[key], pop_val)
         
     def mouseClick(self, event):
         '''Clicked on processed image to select neurons

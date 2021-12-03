@@ -44,7 +44,7 @@ class CaimanVisualStim(Actor):
     ''' Class for displaying data from caiman processor
     '''
 
-    def __init__(self, *args, showConnectivity=True):
+    def __init__(self, *args, showConnectivity=True, stimuli=None, labels=None,  **kwargs):
         super().__init__(*args)
 
         self.com1 = np.zeros(2)
@@ -53,9 +53,14 @@ class CaimanVisualStim(Actor):
         self.frame_num = 0
         self.showConnectivity = showConnectivity
 
+        self.stimuli = np.load(stimuli, allow_pickle=True)
+        self.labels = np.load(labels)
+
         self.stimStatus = dict()
         for i in range(8):
             self.stimStatus[i] = deque()
+
+        self.flagN = False
 
 
     def setup(self):
@@ -96,7 +101,7 @@ class CaimanVisualStim(Actor):
                 raise Empty
             self.frame_num = ids[-1]
             if self.draw:
-                (self.Cx, self.C, self.Cpop, self.tune, self.color, self.coords, self.allStims, self.y_results) = self.client.getList(ids[:-1])
+                (self.Cx, self.C, self.Cpop, self.tune, self.color, self.coords, self.allStims, self.y_results, self.stimText) = self.client.getList(ids[:-1])
                 self.total_times.append([time.time(), time.time()-t])
             self.timestamp.append([time.time(), self.frame_num])
         except Empty as e:
@@ -105,6 +110,19 @@ class CaimanVisualStim(Actor):
             logger.error('Object not found, continuing anyway...')
         except Exception as e:
             logger.error('Visual: Exception in get data: {}'.format(e))
+        try:
+            idsStim = self.links['stim_in'].get(timeout=0.0001)
+            # print('visual got ', idsStim)
+            # self.frame = idsStim[-1]
+            (selectedNeuron, self.confidence) = self.client.getList(idsStim)
+            if selectedNeuron != self.selectedNeuron:
+                self.selectedNeuron = selectedNeuron
+                print('set seleected neuron ', self.selectedNeuron)
+                self.flagN = True
+        except Empty as e:
+            pass
+        except Exception as e:
+            logger.error('Visual: Exception in get stim for visual: {}'.format(e))
 
     def getCurves(self):
         ''' Return the fluorescence traces and calculated tuning curves
@@ -125,15 +143,17 @@ class CaimanVisualStim(Actor):
             self.Cpop = self.Cpop[-len(self.Cx):]
             #self.LL = self.LL[-len(self.Cx):]
         
-        return self.Cx, self.C[self.selectedNeuron,:], self.Cpop, self.tuned, self.y_results #self.LL#[:len(self.Cx)]
+        return self.Cx, self.C[self.selectedNeuron,:], self.Cpop, self.tuned, self.y_results, self.stimText #self.LL#[:len(self.Cx)]
 
     def getFrames(self):
         ''' Return the raw and colored frames for display
         '''
-        if self.raw is not None and self.raw.shape[0] > self.raw.shape[1]:
-            self.raw = np.rot90(self.raw, 1)
-        if self.color is not None and self.color.shape[0] > self.color.shape[1]:
-            self.color = np.rot90(self.color, 1)
+        # if self.raw is not None and self.raw.shape[0] > self.raw.shape[1]:
+        #     self.raw = np.rot90(self.raw, 1)
+        # if self.color is not None and self.color.shape[0] > self.color.shape[1]:
+        #     self.color = np.rot90(self.color, 1)
+        # self.raw = np.flip(self.raw, axis=0)
+        # self.color = np.flip(self.color, axis=0)
 
         return self.raw, self.color
 

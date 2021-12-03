@@ -105,26 +105,35 @@ class ZMQAcquirer(Actor):
                     self.stimF = True
                 self.fullStimmsg.append(msg)
                 msg_parts = [part.strip() for part in msg.split(b" ")]
-                print('------------')
-                print(msg_parts)
+                # print('------------')
+                # print(msg_parts)
+                # print('############')
+                # new_dicts = []
+                # for z in range(10):
+                #     new_dicts.append([j for j in [i.split(b' ') for i in msg.split(b'\n')][z] if j is not b''])
+                # print(new_dicts)
                 sendtime = msg_parts[2].decode()
                 types = str(msg_parts[5].decode()[:-1])
-                # print(types)
-                if 's' in str(types):
-                    angle = int(msg_parts[7].decode()[:-1])
-                    vel = np.abs(float(msg_parts[9].decode()[:-1]))
-                    freq = float(msg_parts[15].decode()[:-1])
-                    light = int(msg_parts[17].decode()[:-1])
-                    dark = int(msg_parts[19].decode()[:-1])
+                category = str(msg_parts[3].decode()[:-1])
+                # sendtime = new_dicts[0][2].decode()
+                # types = 's'
+                # category = new_dicts[0][3].decode()
+                
+                if 's' in str(types) and 'moving' in category:
+                    # print(new_dicts[1][1].decode())
+                    angle = int(float(msg_parts[7].decode()[:-1])) #int(new_dicts[1][1].decode()) #int(msg_parts[7].decode()[:-1])
+                    vel = np.abs(float(msg_parts[9].decode()[:-1])) #np.abs(float(new_dicts[8][1].decode())) #np.abs(float(msg_parts[9].decode()[:-1]))
+                    freq = float(msg_parts[15].decode()[:-1]) #float(new_dicts[9][1].decode()) #float(msg_parts[15].decode()[:-1])
+                    light = 0#int(msg_parts[17].decode()[:-1])
+                    dark = 240#int(msg_parts[19].decode()[:-1])
                     # print('stim sendtime ', sendtime)
                     # print('stimulus id: {}, {}'.format(angle, vel))
-
-                    # output example: stimulus id: b'background_stim'
 
                     #calibration check:
                     # angle = 270+angle
                     if angle>=360:
                         angle-=360
+                    # angle = int(float(angle))
 
                     stim = 0
                     # stimonOff = 20
@@ -153,21 +162,24 @@ class ZMQAcquirer(Actor):
                     # elif msg_parts[1] == b'Right_Forward':
                     #     stim = 10
 
-                    if 45 > angle >=0:
+                    if 23 > angle >=0:
                         stim = 9
-                    elif 135 > angle >= 90:
+                    elif 360 > angle >= 338:
+                        stim = 9
+                    elif 113 > angle >= 68:
                         stim = 3
-                    elif 225 > angle >= 180:
+                    elif 203 > angle >= 158:
                         stim = 13
-                    elif 315 > angle >= 270:
+                    elif 293 > angle >= 248:
                         stim = 4
-                    elif 90 > angle >= 45:
+
+                    elif 68 > angle >= 23:
                         stim = 10
-                    elif 180 > angle >= 135:
+                    elif 158 > angle >= 113:
                         stim = 12
-                    elif 270 > angle >= 225:
+                    elif 248 > angle >= 203:
                         stim = 14
-                    elif 360 > angle >= 315:
+                    elif 338 > angle >= 293:
                         stim = 16
                     else:
                         logger.error('Stimulus unrecognized')
@@ -190,7 +202,7 @@ class ZMQAcquirer(Actor):
                         print(angle)
 
                     if stimonOff:
-                        logger.info('Stimulus: {}, angle: {}, frame {}'.format(stim, angle, self.frame_num))
+                        logger.info('Stimulus: {}, angle: {}, speed: {}, freq: {}, frame {}'.format(stim, angle, vel, freq, self.frame_num))
                     
 
                     self.links['stim_queue'].put({self.frame_num:[stim, stimonOff, angle, vel, freq, contrast]})
@@ -206,12 +218,14 @@ class ZMQAcquirer(Actor):
                 t0 = time.time()
                 sendtime =  msg_parts[0].split(b' ')[2].decode()
                 # print(sendtime)
-                array = np.array(json.loads(msg_parts[1]))  # assuming the following message structure: 'tag: message'
+                array = np.array(json.loads(msg_parts[1]))[:,32:]  # assuming the following message structure: 'tag: message'
+                # print(array.shape)
                 # print('frame ', self.frame_num)
                 # print('{}'.format(msg_parts[0])) # messsage length: {}. Element sum: {}; time to process: {}'.format(msg_parts[0], len(msg),
                                                                                             # array.sum(), time.time() - t0))
                 # output example: b'frame ch0 10:02:01.115 AM 10/11/2019' messsage length: 1049637. Element sum: 48891125; time to process: 0.04192757606506348
                 
+                # array = np.flip(array, axis=0).copy()
                 obj_id = self.client.put(array, 'acq_raw' + str(self.frame_num))
                 self.q_out.put([{str(self.frame_num): obj_id}])
 
@@ -241,10 +255,10 @@ class ZMQAcquirer(Actor):
                 self.tailsendtimes.append([sendtime])
 
             else:
-                if len(msg) < 100:
-                    print(msg)
-                else:
-                    print('msg length: {}'.format(len(msg)))
+                # if len(msg) < 500:
+                print('--------frame: ', self.frame_num, ' ### ', msg)
+                # else:
+                #     print('msg length: {}'.format(len(msg)))
 
         except zmq.Again as e:
             pass #no messages available

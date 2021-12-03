@@ -15,6 +15,7 @@ actors:
     class: VisualStimulus
     ip: '*'
     port: 5006 
+    stimuli: stimuli.npy
 
   Processor:
     package: demos.naumann.actors.processor
@@ -25,10 +26,13 @@ actors:
   Visual:
     package: actors.visual_viz_stim
     class: CaimanVisualStim
+    stimuli: stimuli.npy
+    labels: labels.npy
   
   Analysis:
     package: actors.analysis_viz
     class: VizStimAnalysis
+    stimuli: stimuli.npy
 
 
 connections:
@@ -37,3 +41,4 @@ connections:
   Analysis.q_out: [Visual.q_in]
   Acquirer.stim_queue: [Analysis.input_stim_queue]
   Analysis.stim_out: [Stimulus.q_in]
+  Stimulus.q_out: [Visual.stim_in]
