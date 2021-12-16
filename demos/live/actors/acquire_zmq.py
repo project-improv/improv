@@ -41,6 +41,7 @@ class ZMQAcquirer(Actor):
         self.socket.setsockopt(zmq.SUBSCRIBE, b'')
 
         self.saveArray = []
+        self.save_ind = 0
         self.fullStimmsg = []
 
         self.tailF = False
@@ -121,7 +122,7 @@ class ZMQAcquirer(Actor):
                 
                 if 's' in str(types) and 'moving' in category:
                     # print(new_dicts[1][1].decode())
-                    angle = int(float(msg_parts[7].decode()[:-1])) #int(new_dicts[1][1].decode()) #int(msg_parts[7].decode()[:-1])
+                    angle = (float(msg_parts[7].decode()[:-1])) #int(new_dicts[1][1].decode()) #int(msg_parts[7].decode()[:-1])
                     vel = np.abs(float(msg_parts[9].decode()[:-1])) #np.abs(float(new_dicts[8][1].decode())) #np.abs(float(msg_parts[9].decode()[:-1]))
                     freq = float(msg_parts[15].decode()[:-1]) #float(new_dicts[9][1].decode()) #float(msg_parts[15].decode()[:-1])
                     light = 0#int(msg_parts[17].decode()[:-1])
@@ -232,6 +233,14 @@ class ZMQAcquirer(Actor):
                 self.saveArray.append(array)
                 self.frametimes.append([self.frame_num, time.time()])
                 self.framesendtimes.append([sendtime])
+
+                if len(self.saveArray) >= 1000:
+                    self.imgs = np.array(self.saveArray)
+                    f = h5py.File('output/sample_stream'+str(self.save_ind)+'.h5', 'w', libver='earliest')
+                    f.create_dataset("default", data=self.imgs)
+                    f.close()
+                    self.save_ind += 1
+                    self.saveArray = []
 
                 self.frame_num += 1
                 self.total_times.append(time.time() - t0)
