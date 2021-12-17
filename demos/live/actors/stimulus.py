@@ -29,12 +29,17 @@ class VisualStimulus(Actor):
 
         self.prepared_frame = None
         self.stimuli = np.load(stimuli, allow_pickle=True)
+        np.save('output/generated_stimuli.npy', self.stimuli)
 
         self.initial = True
-        self.angle_set = [0, 45, 90, 135, 180, 225, 270, 315] #[0, 175, 100, 275, 50, 225, 125, 325] ##np.arange(0, 315, 45)
-        random.shuffle(self.angle_set)
+        # self.angle_set = [0, 45, 90, 135, 180, 225, 270, 315] #[0, 175, 100, 275, 50, 225, 125, 325] ##np.arange(0, 315, 45)
+        # random.shuffle(self.angle_set)
         self.which_angle = 0
         self.newN = False
+        # self.vel_set = [0.02, 0.035, 0.05, 0.075, 0.10]
+        # self.freq_set = [15, 30, 45]
+        # random.shuffle(self.vel_set)
+        # random.shuffle(self.freq_set)
 
         # Sanity check
         # ipaddress.ip_address(self.ip)  # Check if IP is valid.
@@ -48,9 +53,20 @@ class VisualStimulus(Actor):
 
         self.stim_choice = []
         self.GP_stimuli = []
+        self.GP_stimuli_init = []
+        self.stim_sets = []
         for i,s in enumerate(self.stimuli):
+            print(i,s)
             self.stim_choice.append(s.shape[0])
+    
+            indices = np.arange(s.shape[0])
+            random.shuffle(indices)        
+
+            self.GP_stimuli_init.append(np.arange(s.shape[0])[indices])
             self.GP_stimuli.append(np.arange(s.shape[0]))
+            # s2 = s.tolist()
+            # random.shuffle(s2)
+            self.stim_sets.append(s[indices].tolist())
         self.stim_choice = np.array(self.stim_choice)
 
         ### Optimizer
@@ -58,7 +74,7 @@ class VisualStimulus(Actor):
         gamma = 1 / maxS 
         print(gamma)
         var = 0.5 #1e-1
-        nu = 0.5 #1e-1
+        nu = 0.2 #0.5 #1e-1
         eta = 1e-2
         d = 3
 
@@ -74,10 +90,17 @@ class VisualStimulus(Actor):
         self.optim = Optimizer(gamma[:d], var, nu, eta, self.x_star)
         init_T = 8
         self.X0 = np.zeros((d, init_T))
-        self.X0[0,:] = np.arange(8) #self.angle_set
-        self.X0[1,:] = 2 #self.stimuli[1][0]
-        self.X0[2,:] = 2 #32
+        # self.X0[0,:] = np.arange(8) #self.angle_set
+        # self.X0[1,:] = 2 #self.stimuli[1][0]
+        # self.X0[2,:] = 2 #32
         # X0 = self.stimuli[:,:init_T]
+        # print('Stim sets', self.stim_sets)
+
+
+        self.X0[0,:] = self.GP_stimuli_init[0][:init_T]
+        self.X0[1,:] = self.GP_stimuli_init[1][:init_T]
+        self.X0[2,:] = self.GP_stimuli_init[2][:init_T]
+        print('Initial X0 will be ', self.X0)
 
         self.X = self.X0.copy()
 
@@ -98,6 +121,8 @@ class VisualStimulus(Actor):
 
         self.stopping_list = []
         self.peak_list = []
+        self.goback_neurons = []
+        self.optim_f_list = []
 
     def setup(self):
         context = zmq.Context()
@@ -122,15 +147,17 @@ class VisualStimulus(Actor):
         self.tailsendtimes = []
         self.tails = []
 
-        with RunManager(self.name, self.runAcquirer, self.setup, self.q_sig, self.q_comm) as rm:
+        with RunManager(self.name, self.runStimulusSelector, self.setup, self.q_sig, self.q_comm) as rm:
             print(rm)
         print('-------------------------------------------- stim')
 
-        # np.save('output/optimized_neurons.npy', np.array(self.optimized_n))
+        np.save('output/optimized_neurons.npy', np.array(self.optimized_n))
         # print(self.stopping_list)
-        # np.save('output/stopping_list.npy', np.array(self.stopping_list))
+        np.save('output/stopping_list.npy', np.array(self.stopping_list))
         # print(self.peak_list)
-        # np.save('output/stopping_list.npy', np.array(self.peak_list))
+        np.save('output/peak_list.npy', np.array(self.peak_list))
+        # print(self.optim_f_list)
+        np.save('output/optim_f_list.npy', np.array(self.optim_f_list))
 
         print('Stimulus complete, avg time per frame: ', np.mean(self.total_times))
         print('Stim got through ', self.frame_num, ' frames')
@@ -179,25 +206,38 @@ class VisualStimulus(Actor):
         elif self.newN:
             # print(self.optimized_n, set(self.optimized_n))
             nonopt = np.array(list(set(np.arange(self.y0.shape[0]))-set(self.optimized_n)))
-            # print('nonopt is ', nonopt, np.argmax(np.mean(self.y0[nonopt,:], axis=1)))
-            self.nID = nonopt[np.argmax(np.mean(self.y0[nonopt,:], axis=1))]
-            print('selecting most responsive neuron: ', self.nID)
-            self.optimized_n.append(self.nID)
-            print(self.y0.shape, self.X.shape, self.X0.shape)
-            if self.y0.shape[1] < self.maxT:
-                self.optim.initialize_GP(self.X[:, -self.y0.shape[1]:].T, self.y0[self.nID, -self.y0.shape[1]:].T)
-            else:
-                self.optim.initialize_GP(self.X[:, -self.maxT:].T, self.y0[self.nID, -self.maxT:].T)
-            # self.optim.initialize_GP(self.X0[:, :3], self.y0[self.nID, :3])
-            self.test_count = 0
-            self.newN = False
-            self.stopping = np.zeros(self.maxT)
+            print('nonopt is ', nonopt)
+            if len(nonopt) >= 1 or len(self.goback_neurons)>=1:
+                if len(nonopt) >= 1:
+                    self.nID = nonopt[np.argmax(np.mean(self.y0[nonopt,:], axis=1))]
+                    print('selecting most responsive neuron: ', self.nID)
+                    self.optimized_n.append(self.nID)
+                elif len(self.goback_neurons)>=1:
+                    self.nID = self.goback_neurons.pop(0)
+                    print('Trying again with neuron', self.nID)
+                    self.optimized_n.append(self.nID)
+                
+                print(self.y0.shape, self.X.shape, self.X0.shape)
+                if self.X.shape[1] < self.y0.shape[1]:
+                    self.optim.initialize_GP(self.X[:, :].T, self.y0[self.nID, -self.X.shape[1]:].T)
+                elif self.y0.shape[1] < self.maxT:
+                    self.optim.initialize_GP(self.X[:, -self.y0.shape[1]:].T, self.y0[self.nID, -self.y0.shape[1]:].T)
+                else:
+                    self.optim.initialize_GP(self.X[:, -self.maxT:].T, self.y0[self.nID, -self.maxT:].T)
+                print('known average sigma, ', np.mean(self.optim.sigma))
+                # self.optim.initialize_GP(self.X0[:, :3], self.y0[self.nID, :3])
+                self.test_count = 0
+                self.newN = False
+                self.stopping = np.zeros(self.maxT)
 
-            ids = []
-            # print('--------------- nID', self.nID)
-            ids.append(self.client.put(self.nID, 'nID'))
-            ids.append(self.client.put(self.conf, 'conf'))
-            self.q_out.put(ids)
+                ids = []
+                # print('--------------- nID', self.nID)
+                ids.append(self.client.put(self.nID, 'nID'))
+                ids.append(self.client.put(self.conf, 'conf'))
+                self.q_out.put(ids)
+            
+            else:
+                self.initial = True
 
         ### update GP, suggest next stim
         else:
@@ -206,11 +246,14 @@ class VisualStimulus(Actor):
                 X = np.zeros(3)
                 # print(self.X[0,-1])
                 # print(self.GP_stimuli[0])
+                # try:
                 X[0] = self.GP_stimuli[0][int(self.X[0,-1])]
                 X[1] = self.GP_stimuli[1][int(self.X[1,-1])]
                 X[2] = self.GP_stimuli[2][int(self.X[2,-1])]
                 print('optim ', self.nID, ', update GP with', X, self.y0[self.nID, -1])
                 self.optim.update_GP(np.squeeze(X), self.y0[self.nID,-1])
+                # except:
+                #     pass
 
                 stopCrit = self.optim.stopping()
                 print('----------- stopCrit: ', stopCrit)
@@ -218,14 +261,22 @@ class VisualStimulus(Actor):
                 self.test_count += 1
 
                 
-                if stopCrit < 0.01 or self.test_count >= self.maxT: #8e-2: #0.37/2.05
+                if stopCrit < 0.01: #0.01 #8e-2: #0.37/2.05
                     peak = self.stim_star[np.argmax(self.optim.f)]
                     print('Satisfied with this neuron, moving to next. Est peak: ', peak)
                     # self.nID += 1
                     self.newN = True
                     self.stopping_list.append(self.stopping)
                     self.peak_list.append(peak)
+                    self.optim_f_list.append(self.optim.f)
                     
+                elif self.test_count >= self.maxT:
+                    self.goback_neurons.append(self.nID)
+                    self.newN = True
+                    self.stopping_list.append(self.stopping)
+                    peak = self.stim_star[np.argmax(self.optim.f)]
+                    self.peak_list.append(peak)
+                    self.optim_f_list.append(self.optim.f)
 
                 else:
                     ind, xt_1 = self.optim.max_acq()
@@ -322,9 +373,9 @@ class VisualStimulus(Actor):
     def create_frame(self, ind):
         xt = self.stim_star[ind]
         print('new frame ', ind, xt)
-        angle = int(xt[0])
+        angle = xt[0]
         vel = -xt[1]
-        freq = int(xt[2])
+        freq = xt[2]
         light, dark = 240, 0
 
         stat_t = 10
@@ -357,15 +408,21 @@ class VisualStimulus(Actor):
         return stim
 
     def initial_frame(self):
-        if self.which_angle%8 == 0:
-            random.shuffle(self.angle_set)
-        angle = self.angle_set[self.which_angle%8]
-        vel = -self.stimuli[1][2]
-        freq = 30
+        # if self.which_angle%8 == 0:
+            # random.shuffle(self.angle_set)
+        angle = self.stim_sets[0][self.which_angle%len(self.stim_sets[0])]
+        vel = -self.stim_sets[1][self.which_angle%len(self.stim_sets[1])] #self.stimuli[1][2]
+        freq = self.stim_sets[2][self.which_angle%len(self.stim_sets[2])] #30
+
+        ## random sampling for initialization
+        initial_length = 20
+        # angle = np.random.choice(self.stimuli[0])
+        # vel = -np.random.choice(self.stimuli[1])
+        # freq = np.random.choice(self.stimuli[2])
         light, dark = 240, 0
 
         self.which_angle += 1
-        if self.which_angle >= (8*2): 
+        if self.which_angle >= initial_length: 
             self.initial = False
             self.newN = True
         
@@ -501,14 +558,14 @@ class Optimizer():
 
         self.t = 0
 
-    def kernel(self, x, x_j):
-        ## x shape: (T, d) (# tests, # dimensions)
-        K = np.zeros((x.shape[0], x_j.shape[0]))
-        for i in range(x.shape[0]):
-            # K[:,i] = self.variance * rbf_kernel(x[:,i], x_j[:,i], gamma = self.gamma[i])
-            for j in range(x_j.shape[0]):
-                K[i,j] = self.variance * np.exp(-self.gamma.dot((x[i,:]-x_j[j,:])**2))
-        return K
+    # def kernel(self, x, x_j):
+    #     ## x shape: (T, d) (# tests, # dimensions)
+    #     K = np.zeros((x.shape[0], x_j.shape[0]))
+    #     for i in range(x.shape[0]):
+    #         # K[:,i] = self.variance * rbf_kernel(x[:,i], x_j[:,i], gamma = self.gamma[i])
+    #         for j in range(x_j.shape[0]):
+    #             K[i,j] = self.variance * np.exp(-self.gamma.dot((x[i,:]-x_j[j,:])**2))
+    #     return K
 
 
     def initialize_GP(self, X, y):
@@ -526,8 +583,8 @@ class Optimizer():
 
         self.test_count = np.zeros(a)
 
-        self.K_t = self.kernel(self.X_t, self.X_t)
-        self.k_star = self.kernel(self.X_t, self.x_star)
+        self.K_t = kernel(self.X_t, self.X_t, self.variance, self.gamma)
+        self.k_star = kernel(self.X_t, self.x_star, self.variance, self.gamma)
 
         self.A = np.linalg.inv(self.K_t + self.eta**2 * np.eye(T))
         self.f = self.k_star.T @ self.A @ self.y
@@ -561,7 +618,7 @@ class Optimizer():
     def iterate_vars(self):
         self.y = np.append(self.y, self.y_t1)
         self.X_t = np.append(self.X_t, self.x_t1, axis=0)
-        self.k_star = np.append(self.k_star, self.kernel(self.x_t1, self.x_star), axis=0)
+        self.k_star = np.append(self.k_star, kernel(self.x_t1, self.x_star, self.variance, self.gamma), axis=0)
 
         ## update for A
         self.A = self.A + self.phi * np.outer(self.u, self.u)
@@ -602,10 +659,27 @@ class Optimizer():
 def kernel(x, x_j, variance, gamma):
     ## x shape: (T, d) (# tests, # dimensions)
     K = np.zeros((x.shape[0], x_j.shape[0]))
+    # print('dimensions internal ', x_j.shape[1])
+    # print('min max ', np.min(x_j[:,0]), np.max(x_j[:,0]))
+    # print('min max ', np.min(x_j[:,1]), np.max(x_j[:,1]))
+    # print('min max ', np.min(x_j[:,2]), np.max(x_j[:,2]))
+
+    # print('dimensions internal ', x.shape[1])
+    # print('min max ', np.min(x[:,0]), np.max(x[:,0]))
+    # print('min max ', np.min(x[:,1]), np.max(x[:,1]))
+    # print('min max ', np.min(x[:,2]), np.max(x[:,2]))
+
     for i in range(x.shape[0]):
         # K[:,i] = self.variance * rbf_kernel(x[:,i], x_j[:,i], gamma = self.gamma[i])
         for j in range(x_j.shape[0]):
-            K[i,j] = variance * np.exp(-gamma.dot((x[i,:]-x_j[j,:])**2))
+            ## first dimension is direction
+            dist = np.abs(x[i,0] - x_j[j,0])
+            # print(dist)
+            if dist > 8:
+                dist = 16 - dist
+            # print(dist)
+            K[i,j] = np.exp(-gamma[0]*((dist)**2))
+            K[i,j] *= variance * np.exp(-gamma[1:].dot((x[i,1:]-x_j[j,1:])**2))
     return K
 
 def update_GP_ext(X_t, x_t1, A, x_star, eta, y, y_t1, k_star, variance, gamma):
