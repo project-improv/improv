@@ -9,7 +9,10 @@ from matplotlib.colors import ListedColormap
 from PyQt5 import QtGui,QtCore,QtWidgets
 from PyQt5.QtGui import QColor, QPixmap
 from PyQt5.QtCore import pyqtSignal, Qt
-from PyQt5.QtWidgets import QMessageBox, QFileDialog
+from PyQt5.QtWidgets import QMessageBox, QFileDialog, QMainWindow
+from Pandas3D import simple_QPanda3D_example
+from QPanda3D.QPanda3DWidget import QPanda3DWidget
+from PyQt5.QtWidgets import QGridLayout
 
 from . import improv_basic
 from improv.store import Limbo
@@ -21,7 +24,7 @@ logger.setLevel(logging.INFO)
 #NOTE: GUI only gives comm signals to Nexus, does not receive any. Visual serves that role
 #TODO: Add ability to receive signals like pause updating ...?
 
-class BasicFrontEnd(QtGui.QMainWindow, improv_basic.Ui_MainWindow):
+class BasicFrontEnd(QMainWindow, improv_basic.Ui_MainWindow):
     def __init__(self, visual, comm, parent=None):
         ''' Setup GUI
             Setup and start Nexus controls
@@ -38,6 +41,7 @@ class BasicFrontEnd(QtGui.QMainWindow, improv_basic.Ui_MainWindow):
         pyqtgraph.setConfigOptions(leftButtonPan=False)
 
         self.customizePlots()
+        self.loadPandas()
 
         self.pushButton_3.clicked.connect(_call(self._runProcess)) #Tell Nexus to start
         self.pushButton_3.clicked.connect(_call(self.update)) #Update front-end graphics
@@ -47,6 +51,15 @@ class BasicFrontEnd(QtGui.QMainWindow, improv_basic.Ui_MainWindow):
 
         self.rawplot_2.getImageItem().mouseClickEvent = self.mouseClick #Select a neuron
         self.slider.valueChanged.connect(_call(self.sliderMoved)) #Threshold for magnitude selection
+
+    def loadPandas(self):
+        world = simple_QPanda3D_example.PandaTest()
+        world.get_size()
+        pandaWidget = QPanda3DWidget(world)
+        layout = QGridLayout()
+        layout.addWidget(self.label_8, 0, 0)
+        layout.addWidget(pandaWidget, 1, 0)
+        self.frame_11.setLayout(layout)
 
     def update(self):
         ''' Update visualization while running
@@ -270,6 +283,7 @@ class BasicFrontEnd(QtGui.QMainWindow, improv_basic.Ui_MainWindow):
         else:
             r = self.thresh_r
             r[np.nonzero(r)] = val
+        print("slider moved")
         self.updateThreshGraph(r)
 
     def slider2Moved(self):
@@ -282,6 +296,7 @@ class BasicFrontEnd(QtGui.QMainWindow, improv_basic.Ui_MainWindow):
         r[0:t1] = 0
         r[t2+1:self.num] = 0
         r[-1] = r[0]
+        print("slider 2 moved")
         self.updateThreshGraph(r)
 
     def updateThreshGraph(self, r):

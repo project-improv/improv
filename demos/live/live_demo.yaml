@@ -7,7 +7,7 @@ actors:
   Acquirer:
     package: actors.acquire_zmq
     class: ZMQAcquirer
-    ip: 10.122.170.21
+    ip: 127.0.0.1 #10.122.170.21
     ports: [5000,5008,4701] #[4701,4702,4703]
 
   Stimulus:

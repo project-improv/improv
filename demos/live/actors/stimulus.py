@@ -28,7 +28,6 @@ class VisualStimulus(Actor):
         np.random.seed(self.seed)
 
         self.prepared_frame = None
-        
         self.stimuli = np.load(stimuli, allow_pickle=True)
 
         self.initial = True

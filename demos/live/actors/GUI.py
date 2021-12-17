@@ -13,6 +13,9 @@ from pyqtgraph import EllipseROI, PolyLineROI, ColorMap, ROI, LineSegmentROI
 from queue import Empty
 from matplotlib import cm
 from matplotlib.colors import ListedColormap
+from Pandas3D import simple_QPanda3D_example
+from QPanda3D.QPanda3DWidget import QPanda3DWidget
+from PyQt5.QtWidgets import QGridLayout
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -20,7 +23,7 @@ logger.setLevel(logging.INFO)
 #NOTE: GUI only gives comm signals to Nexus, does not receive any. Visual serves that role
 #TODO: Add ability to receive signals like pause updating ...?
 
-class FrontEnd(QtGui.QMainWindow, improv_viz_stim.Ui_MainWindow):
+class FrontEnd(QtWidgets.QMainWindow, improv_viz_stim.Ui_MainWindow):
 
     COLOR = {0: ( 240, 122,  5),
              1: (181, 240,  5),
@@ -100,6 +103,14 @@ class FrontEnd(QtGui.QMainWindow, improv_viz_stim.Ui_MainWindow):
         QtCore.QTimer.singleShot(10, self.update)
         
         self.total_times.append([self.visual.frame_num, time.time()-t])
+
+    def loadPandas(self):
+        world = simple_QPanda3D_example.PandaTest()
+        world.get_size()
+        pandaWidget = QPanda3DWidget(world)
+        layout = QGridLayout()
+        layout.addWidget(pandaWidget, 0, 0)
+        self.frame_16.setLayout(layout)
 
     def customizePlots(self):
         self.checkBox.setChecked(True)

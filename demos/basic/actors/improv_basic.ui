@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1118</width>
+    <width>1514</width>
     <height>652</height>
    </rect>
   </property>
@@ -217,9 +217,7 @@ Parameters</string>
      </property>
      <property name="font">
       <font>
-       <family>Helvetica Neue</family>
        <pointsize>14</pointsize>
-       <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
@@ -319,9 +317,7 @@ Parameters</string>
      </property>
      <property name="font">
       <font>
-       <family>Helvetica Neue</family>
        <pointsize>18</pointsize>
-       <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
@@ -340,9 +336,8 @@ Parameters</string>
      </property>
      <property name="font">
       <font>
-       <family>Helvetica Neue</family>
        <pointsize>14</pointsize>
-       <weight>75</weight>
+       <italic>false</italic>
        <bold>true</bold>
       </font>
      </property>
@@ -361,9 +356,7 @@ Parameters</string>
      </property>
      <property name="font">
       <font>
-       <family>Helvetica Neue</family>
        <pointsize>13</pointsize>
-       <weight>50</weight>
        <bold>false</bold>
       </font>
      </property>
@@ -382,9 +375,7 @@ Parameters</string>
      </property>
      <property name="font">
       <font>
-       <family>Helvetica Neue</family>
        <pointsize>13</pointsize>
-       <weight>50</weight>
        <bold>false</bold>
       </font>
      </property>
@@ -430,9 +421,7 @@ Parameters</string>
     </property>
     <property name="font">
      <font>
-      <family>Helvetica Neue</family>
       <pointsize>14</pointsize>
-      <weight>75</weight>
       <bold>true</bold>
      </font>
     </property>
@@ -451,9 +440,7 @@ Parameters</string>
     </property>
     <property name="font">
      <font>
-      <family>Helvetica Neue</family>
       <pointsize>14</pointsize>
-      <weight>75</weight>
       <bold>true</bold>
      </font>
     </property>
@@ -472,9 +459,7 @@ Parameters</string>
     </property>
     <property name="font">
      <font>
-      <family>Helvetica Neue</family>
       <pointsize>14</pointsize>
-      <weight>75</weight>
       <bold>true</bold>
      </font>
     </property>
@@ -493,9 +478,7 @@ Parameters</string>
     </property>
     <property name="font">
      <font>
-      <family>Helvetica Neue</family>
       <pointsize>14</pointsize>
-      <weight>75</weight>
       <bold>true</bold>
      </font>
     </property>
@@ -607,13 +590,51 @@ Parameters</string>
      </property>
     </widget>
    </widget>
+   <widget class="QFrame" name="frame_11">
+    <property name="geometry">
+     <rect>
+      <x>1130</x>
+      <y>18</y>
+      <width>341</width>
+      <height>241</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(170, 185, 200);</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>20</y>
+       <width>171</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>18</pointsize>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Pandas3D</string>
+     </property>
+    </widget>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1118</width>
+     <width>1514</width>
      <height>22</height>
     </rect>
    </property>

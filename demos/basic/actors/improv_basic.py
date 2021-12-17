@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file './improv_basic.ui'
+# Form implementation generated from reading ui file 'improv_basic.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.2
+# Created by: PyQt5 UI code generator 5.12.3
 #
 # WARNING! All changes made in this file will be lost!
+
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -12,7 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1118, 652)
+        MainWindow.resize(1514, 652)
         MainWindow.setStyleSheet("QMainWindow { background-color: \'blue\'; }")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setStyleSheet("#centralwidget { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(50, 50, 50), stop:1 rgba(80, 80, 80, 255)); }\n"
@@ -21,7 +22,6 @@ class Ui_MainWindow(object):
 "#label_3 {color: rgb(225, 230, 240)}\n"
 "#label_4 {color: rgb(225, 230, 240)}\n"
 "#label_5 {color: rgb(225, 230, 240)}\n"
-"#label_6 {color: rgb(225, 230, 240)}\n"
 "#frame {background-color: rgb(150, 160, 175);\n"
 "border-style: outset;\n"
 "border-width: 2px;\n"
@@ -148,10 +148,8 @@ class Ui_MainWindow(object):
         self.checkBox = QtWidgets.QCheckBox(self.frame)
         self.checkBox.setGeometry(QtCore.QRect(20, 190, 111, 41))
         font = QtGui.QFont()
-        font.setFamily("Helvetica Neue")
         font.setPointSize(14)
         font.setBold(True)
-        font.setWeight(75)
         self.checkBox.setFont(font)
         self.checkBox.setObjectName("checkBox")
         self.frame_4 = QtWidgets.QFrame(self.centralwidget)
@@ -182,37 +180,30 @@ class Ui_MainWindow(object):
         self.label = QtWidgets.QLabel(self.frame_3)
         self.label.setGeometry(QtCore.QRect(20, 20, 171, 21))
         font = QtGui.QFont()
-        font.setFamily("Helvetica Neue")
         font.setPointSize(18)
         font.setBold(True)
-        font.setWeight(75)
         self.label.setFont(font)
         self.label.setObjectName("label")
         self.pushButton_4 = QtWidgets.QPushButton(self.frame_3)
         self.pushButton_4.setGeometry(QtCore.QRect(30, 190, 115, 32))
         font = QtGui.QFont()
-        font.setFamily("Helvetica Neue")
         font.setPointSize(14)
         font.setBold(True)
-        font.setWeight(75)
+        font.setItalic(False)
         self.pushButton_4.setFont(font)
         self.pushButton_4.setObjectName("pushButton_4")
         self.label_6 = QtWidgets.QLabel(self.frame_3)
         self.label_6.setGeometry(QtCore.QRect(70, 90, 71, 21))
         font = QtGui.QFont()
-        font.setFamily("Helvetica Neue")
         font.setPointSize(13)
         font.setBold(False)
-        font.setWeight(50)
         self.label_6.setFont(font)
         self.label_6.setObjectName("label_6")
         self.label_7 = QtWidgets.QLabel(self.frame_3)
         self.label_7.setGeometry(QtCore.QRect(70, 140, 71, 21))
         font = QtGui.QFont()
-        font.setFamily("Helvetica Neue")
         font.setPointSize(13)
         font.setBold(False)
-        font.setWeight(50)
         self.label_7.setFont(font)
         self.label_7.setObjectName("label_7")
         self.frame_10 = QtWidgets.QFrame(self.frame_3)
@@ -226,48 +217,31 @@ class Ui_MainWindow(object):
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
         self.label_2.setGeometry(QtCore.QRect(170, 10, 131, 21))
         font = QtGui.QFont()
-        font.setFamily("Helvetica Neue")
         font.setPointSize(14)
         font.setBold(True)
-        font.setWeight(75)
         self.label_2.setFont(font)
         self.label_2.setObjectName("label_2")
         self.label_3 = QtWidgets.QLabel(self.centralwidget)
         self.label_3.setGeometry(QtCore.QRect(170, 134, 131, 21))
         font = QtGui.QFont()
-        font.setFamily("Helvetica Neue")
         font.setPointSize(14)
         font.setBold(True)
-        font.setWeight(75)
         self.label_3.setFont(font)
         self.label_3.setObjectName("label_3")
         self.label_4 = QtWidgets.QLabel(self.centralwidget)
         self.label_4.setGeometry(QtCore.QRect(20, 260, 131, 21))
         font = QtGui.QFont()
-        font.setFamily("Helvetica Neue")
         font.setPointSize(14)
         font.setBold(True)
-        font.setWeight(75)
         self.label_4.setFont(font)
         self.label_4.setObjectName("label_4")
         self.label_5 = QtWidgets.QLabel(self.centralwidget)
         self.label_5.setGeometry(QtCore.QRect(390, 260, 131, 21))
         font = QtGui.QFont()
-        font.setFamily("Helvetica Neue")
         font.setPointSize(14)
         font.setBold(True)
-        font.setWeight(75)
         self.label_5.setFont(font)
         self.label_5.setObjectName("label_5")
-        self.label_6 = QtWidgets.QLabel(self.centralwidget)
-        self.label_6.setGeometry(QtCore.QRect(20, 611, 331, 21))
-        font= QtGui.QFont()
-        font.setFamily("Helvetica Neue")
-        font.setPointSize(14)
-        font.setBold(True)
-        font.setWeight(75)
-        self.label_6.setFont(font)
-        self.label_6.setObjectName("label_6")
         self.frame_6 = QtWidgets.QFrame(self.centralwidget)
         self.frame_6.setGeometry(QtCore.QRect(170, 30, 431, 101))
         self.frame_6.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -300,9 +274,22 @@ class Ui_MainWindow(object):
         self.grplot_4 = PlotWidget(self.frame_9)
         self.grplot_4.setGeometry(QtCore.QRect(6, 6, 93, 89))
         self.grplot_4.setObjectName("grplot_4")
+        self.frame_11 = QtWidgets.QFrame(self.centralwidget)
+        self.frame_11.setGeometry(QtCore.QRect(1130, 18, 341, 241))
+        self.frame_11.setStyleSheet("background-color: rgb(170, 185, 200);")
+        self.frame_11.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_11.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_11.setObjectName("frame_11")
+        self.label_8 = QtWidgets.QLabel(self.frame_11)
+        self.label_8.setGeometry(QtCore.QRect(20, 20, 171, 21))
+        font = QtGui.QFont()
+        font.setPointSize(18)
+        font.setBold(True)
+        self.label_8.setFont(font)
+        self.label_8.setObjectName("label_8")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1118, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1514, 22))
         self.menubar.setObjectName("menubar")
         self.menuRASP_Display = QtWidgets.QMenu(self.menubar)
         self.menuRASP_Display.setObjectName("menuRASP_Display")
@@ -331,10 +318,8 @@ class Ui_MainWindow(object):
         self.label_3.setText(_translate("MainWindow", "Selected Neuron"))
         self.label_4.setText(_translate("MainWindow", "Raw Frame"))
         self.label_5.setText(_translate("MainWindow", "Processed Frame"))
-        self.label_6.setText(_translate("MainWindow", "Number of Neurons: "))
+        self.label_8.setText(_translate("MainWindow", "Pandas3D"))
         self.menuRASP_Display.setTitle(_translate("MainWindow", "Nexus Display"))
-
-
 from pyqtgraph import ImageView, PlotWidget
 
 
