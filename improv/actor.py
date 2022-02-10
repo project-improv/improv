@@ -170,6 +170,10 @@ class Spike():
     def ready():
         return 'ready'
 
+    @staticmethod
+    def started():
+        return 'started'
+
 
 class RunManager():
     '''
@@ -188,7 +192,6 @@ class RunManager():
 
     def __enter__(self):
         self.start = time.time()
-
         while True:
             if self.run:
                 try:
@@ -220,6 +223,9 @@ class RunManager():
                 elif signal == Spike.resume(): #currently treat as same as run
                     logger.warning('Received resume signal, resuming')
                     self.run = True
+                elif signal == Spike.started():
+                    self.q_comm.put([Spike.started()])
+                    logger.warning("Received started signal")
             except Empty as e:
                 pass #no signal from Nexus
         return None #Status...?

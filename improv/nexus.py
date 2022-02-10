@@ -108,7 +108,7 @@ class Nexus():
             For each connection, create 2 Links. Nexus acts as intermediary.
         '''
         #TODO load from file or user input, as in dialogue through FrontEnd?
-
+        print(file)
         self.tweak = Tweak(configFile = file)
         self.tweak.createConfig()
 
@@ -260,11 +260,20 @@ class Nexus():
             p.start()
 
     def setup(self):
+        print("setup nexus")
         for q in self.sig_queues.values():
             try:
                 q.put_nowait(Spike.setup())
             except Full:
                 logger.warning('Signal queue'+q.name+'is full')
+
+    def started(self):
+        for q in self.sig_queues.values():
+            try:
+                q.put_nowait(Spike.started())
+            except Full:
+                logger.warning('Signal queue'+q.name+'is full')
+
 
     def run(self):
         if self.allowStart:
@@ -304,6 +313,7 @@ class Nexus():
     async def pollQueues(self):
         self.listing = [] #TODO: Remove or rewrite
         self.actorStates = dict.fromkeys(self.actors.keys())
+        print(dict.fromkeys(self.actors.keys()))
         if not self.tweak.hasGUI:  # Since Visual is not started, it cannot send a ready signal.
             try:
                 del self.actorStates['Visual']
@@ -369,8 +379,7 @@ class Nexus():
                 self.actorStates[name.split('_')[0]] = sig[0]
                 if all(val==Spike.ready() for val in self.actorStates.values()):
                     self.allowStart = True      #TODO: replace with q_sig to FE/Visual
-                    logger.info('Allowing start')
-
+                    self.started()
                     #TODO: Maybe have flag for auto-start, else require explict command
                     # if not self.tweak.hasGUI:
                     #     self.run()
