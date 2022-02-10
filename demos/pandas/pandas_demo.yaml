@@ -1,0 +1,18 @@
+actors:
+  GUI:
+    package: actors.visual
+    class: PandasVisual
+    visual: Visual
+
+  Acquirer:
+    package: actors.acquire_zmq
+    class: ZMQAcquirer
+    ip: 127.0.0.1
+    ports: 1234
+
+  Visual:
+    package: actors.visual
+    class: PandasCaimanVisual
+
+connections:
+  Acquirer.q_out: [Visual.raw_frame_queue]

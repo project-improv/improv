@@ -18,6 +18,7 @@ class ZMQAcquirer(Actor):
 
     def __init__(self, *args, ip=None, ports=None, **kwargs):
         super().__init__(*args, **kwargs)
+        print("init")
         self.ip = ip
         self.ports = ports
         self.frame_num = 0
@@ -86,6 +87,7 @@ class ZMQAcquirer(Actor):
         np.save('output/fullstim.npy', self.fullStimmsg)
 
     def runAcquirer(self):
+        print("runAcquirer")
         ''' Main loop. If there're new files, read and put into store.
         '''
         t = time.time()

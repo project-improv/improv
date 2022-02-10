@@ -15,7 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from panda3d.core import Texture
 
-from Pandas3D import utils
+from demos.pandas.Pandas3D import utils
 
 class TextureBase:
     """
