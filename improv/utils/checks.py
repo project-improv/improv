@@ -83,7 +83,7 @@ def check_if_connections_acyclic(path_to_yaml):
         else:
             demo = path_to_yaml
 
-        plt.savefig(demo + "_graph.png", format="PNG")
+        plt.savefig("graphs/" + demo + "_graph.png", format="PNG")
         return True
 
     print('Loop(s) found.')
