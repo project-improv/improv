@@ -27,7 +27,7 @@ modules:
     package: acquire.acquire
     class: BehaviorAcquirer
 
-  Watcherr:
+  Watcher:
     package: watch.watch
     class: Watcher
 
