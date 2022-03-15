@@ -205,7 +205,7 @@ class BehaviorAcquirer(Actor):
             self.onoff = random.choice([0,10])
             self.q_out.put({self.n:[self.curr_stim, self.onoff]})
             logger.info('Changed stimulus! {}'.format(self.curr_stim))
-        time.sleep(0.068)
+        time.sleep(1) #0.068)
         self.n += 1
 
 
@@ -219,7 +219,7 @@ class TiffAcquirer(Actor):
 
         if not os.path.exists(filename):
             raise ValueError('TIFF file {} does not exist.'.format(filename))
-        self.imgs = np.array(0)
+        self.imgs = None #np.array(0)
 
         self.n_frame = 0
         self.fps = framerate
@@ -228,6 +228,7 @@ class TiffAcquirer(Actor):
 
     def setup(self):
         self.imgs = imread(self.filename)
+        print(self.imgs.shape)
 
     def run(self):
         with RunManager(self.name, self.run_acquirer, self.setup, self.q_sig, self.q_comm) as rm:
@@ -235,9 +236,8 @@ class TiffAcquirer(Actor):
 
     def run_acquirer(self):
         t0 = time.time()
-
-        id_store = self.client.put(self.imgs[self.n_frame % len(self.imgs), ...], 'acq_raw' + str(self.n_frame))
-        self.q_out.put([{str(self.n_frame): id_store}])
+        id_store = self.client.put(self.imgs[self.n_frame], 'acq_raw' + str(self.n_frame))
+        self.q_out.put([[id_store, str(self.n_frame)]])
         self.n_frame += 1
 
         time.sleep(1 / self.fps)
