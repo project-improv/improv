@@ -1,0 +1,39 @@
+actors:
+  GUI:
+    package: actors.visual
+    class: BasicVisual
+    visual: Visual
+
+  Acquirer:
+    package: improv.actors.acquire
+    class: TiffAcquirer
+    filename: data/Data_200001.tif
+    framerate: 20
+
+  Processor:
+    package: actors.1p_processor
+    class: OnePProcessor
+    init_filename: data/Data_200001.tif
+    config_file: demo_1p_params.txt
+
+  Visual:
+    package: actors.visual
+    class: BasicCaimanVisual
+  
+  Analysis:
+    package: improv.actors.analysis
+    class: MeanAnalysis
+
+  InputStim:
+    package: improv.actors.acquire
+    class: BehaviorAcquirer
+
+
+connections:
+  Acquirer.q_out: [Processor.q_in, Visual.raw_frame_queue]
+  Processor.q_out: [Analysis.q_in]
+  Analysis.q_out: [Visual.q_in]
+  InputStim.q_out: [Analysis.input_stim_queue]
+
+# settings:
+#   use_watcher: [Acquirer, Processor, Visual, Analysis]
