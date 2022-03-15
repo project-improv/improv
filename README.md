@@ -23,7 +23,7 @@ improv's design is based on a steamlined version of the actor model for concurre
 
 
 ## Under active development
-Coming soon: Operating system - specifc instructions for installation. 
+Coming soon: Operating system - specific instructions for installation. 
 
 ### Contact
 To get in touch, feel free to email us at anne.draelos@duke.edu or reach out on Twitter <a href="http://twitter.com/annedraelos" target="_blank">@annedraelos</a>. 
