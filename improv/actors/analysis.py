@@ -196,9 +196,9 @@ class MeanAnalysis(Actor):
         for s,l in self.stimStart.items():
             l = np.array(l)
             if l.size>0:
-                onInd = np.array([np.arange(o+5,o+15) for o in np.nditer(l)]).flatten()
+                onInd = np.array([np.arange(o+5,o+35) for o in np.nditer(l)]).flatten()
                 onInd = onInd[onInd<ests_num]
-                offInd = np.array([np.arange(o-10,o-1) for o in np.nditer(l)]).flatten() #TODO replace
+                offInd = np.array([np.arange(o-20,o-1) for o in np.nditer(l)]).flatten() #TODO replace
                 offInd = offInd[offInd>=0]
                 offInd = offInd[offInd<ests_num]
                 try:
