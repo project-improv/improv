@@ -17,6 +17,7 @@ logger.setLevel(logging.DEBUG)
 
 #TODO: Use Apache Arrow for better memory usage with the Plasma store
 
+
 class StoreInterface():
     '''General interface for a store
     '''
@@ -78,7 +79,9 @@ class Limbo(StoreInterface):
             Updates the client internal
         '''
         try:
-            #self.client = plasma.connect(store_loc)
+            # self.client = plasma.connect(store_loc)
+            # Is plasma.PlasmaClient necessary?
+            # 20 in plasma.connect(store_loc, 20) = 20 retries
             self.client: plasma.PlasmaClient = plasma.connect(store_loc, 20)
             logger.info('Successfully connected to store')
         except Exception as e:
@@ -93,6 +96,13 @@ class Limbo(StoreInterface):
         object_id = None
         try:
             # Need to pickle if object is csc_matrix
+            # Only 
+            # csc needed for CaImAn
+            # Pyarrow for csc/other sparse arrays
+            # All objects must be pickle-able
+            # Write more general try-catch, if anything user wants to put in store returns cannot put - pickle first, then store
+            # What else could we not put in?
+            # List of test objects that cannot be stored
             if isinstance(object, csc_matrix):
                 object_id = self.client.put(pickle.dumps(object, protocol=pickle.HIGHEST_PROTOCOL))
             else:
@@ -110,6 +120,7 @@ class Limbo(StoreInterface):
             logger.error('Could not store object '+object_name+': {} {}'.format(type(e).__name__, e))
         return object_id
 
+    # Before get or getID - check if object is present and sealed (client.contains(obj_id)
     def get(self, object_name):
         ''' Get a single object from the store
             Checks to see if it knows the object first
@@ -149,6 +160,7 @@ class Limbo(StoreInterface):
     def getList(self, ids):
         ''' Get multiple objects from the store
         '''
+        # self._get()
         return self.client.get(ids)
 
     def get_all(self):
@@ -165,6 +177,7 @@ class Limbo(StoreInterface):
     def release(self):
         self.client.disconnect()
 
+    # Necessary? How to fix for functionality? Subscribe to notifications about sealed objects?
     def subscribe(self):
         ''' Subscribe to a section? of the ds for singals
             Throws unknown errors
@@ -175,6 +188,7 @@ class Limbo(StoreInterface):
             logger.error('Unknown error: {}'.format(e))
             raise Exception
 
+    # client.decode_notifications? Get the notification from the buffer? Or we specifically want the next notification from the notification socket? cleint.get_notification_socket first?
     def notify(self):
         try:
             notification_info = self.client.get_next_notification()
@@ -187,6 +201,7 @@ class Limbo(StoreInterface):
 
         return notification_info
 
+    # Necessary? plasma.ObjectID.from_random()
     def random_ObjectID(self, number=1):
         ids = []
         for i in range(number):
@@ -215,8 +230,11 @@ class Limbo(StoreInterface):
             Assumes we know the id for the object_name
             Raises ObjectNotFound if object_id returns no object from the store
         '''
+        # Most errors not shown to user.
+        # Maintain separation between external and internal function calls.
         res = self.getID(self.stored.get(object_name))
         # Can also use contains() to check
+        
         logger.warning('{}'.format(object_name))
         if isinstance(res, ObjectNotAvailable):
             logger.warning('Object {} cannot be found.'.format(object_name))
@@ -225,6 +243,7 @@ class Limbo(StoreInterface):
             return res
 
     #TODO: Likely remove all this functionality for security.
+    # Delete deleteName
     # def deleteName(self, object_name):
     #     ''' Deletes an object from the store based on name
     #         assumes we have id from name
@@ -246,6 +265,7 @@ class Limbo(StoreInterface):
     #     except Exception as e:
     #         logger.error('Couldnt delete: {}'.format(e))
 
+    # Delete below!
     def saveStore(self, fileName='data/store_dump'):
         ''' Save the entire store to disk
             Uses pickle, should extend to mmap, hd5f, ...
@@ -366,6 +386,58 @@ class LMDBStore(StoreInterface):
     def subscribe(self): pass #TODO
 
 
+# Name for class below? Inherit from StoreInterface or Limbo? Limbo...is subclass of StoreInterface.
+class PyarrowUpdateStore(Limbo):
+    ''' Docstring here...
+    '''
+    # Necessary to include __init__ if inheriting? Additional/different attributes?
+
+    def __init__(self):
+        '''
+        '''
+
+    def put(self, object, object_name, save=False):
+    # Necessary to include all input variables if modifying function? Yes, rewriting? Rewrite entire?
+        ''' Put a single object referenced by its string name
+            into the store
+        '''
+        object_id = None
+        try:
+            # Need to pickle if object is csc_matrix
+            if isinstance(object, csc_matrix):
+                object_id = self.client.put(pickle.dumps(object, protocol=pickle.HIGHEST_PROTOCOL))
+            else:
+                object_id = self.client.put(object)
+            self.updateStored(object_name, object_id)
+            if self.use_hdd:
+                self.lmdb_store.put(object, object_name, obj_id=object_id, save=save)
+        except PlasmaObjectExists:
+            logger.error('Object already exists. Meant to call replace?')
+        except ArrowIOError as e:
+            logger.error('Could not store object '+object_name+': {} {}'.format(type(e).__name__, e))
+            logger.info('Refreshing connection and continuing')
+            self.reset()
+        except Exception as e:
+            logger.error('Could not store object '+object_name+': {} {}'.format(type(e).__name__, e))
+        return object_id
+
+    def get(self, object_name):
+        ''' Get a single object from the store
+            Checks to see if it knows the object first
+            Otherwise throw CannotGetObject to request dict update
+            TODO: update for lists of objects
+            TODO: replace with getID
+        '''
+        #print('trying to get ', object_name)
+        if self.stored.get(object_name) is None:
+            logger.error('Never recorded storing this object: '+object_name)
+            # Don't know anything about this object, treat as problematic
+            raise CannotGetObjectError(query = object_name)
+        else:
+            return self._get(object_name)
+
+
+
 def saveObj(obj, name):
     with open('/media/hawkwings/Ext Hard Drive/dump/dump'+str(name)+'.pkl', 'wb') as output:
         pickle.dump(obj, output)
@@ -417,6 +489,7 @@ class Watcher():
     ''' Monitors the store as separate process
         TODO: Facilitate Watcher being used in multiple processes (shared list)
     '''
+    # Related to subscribe - could be private, i.e., _subscribe
     def __init__(self, name, client):
         self.name = name
         self.client = client
