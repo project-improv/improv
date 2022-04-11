@@ -5,7 +5,7 @@ import timeit
 import sys
 
 def f1():
-    client = plasma.connect("/tmp/store","",0)
+    client = plasma.connect("/tmp/store")
     ids = []
 
     for i in range(100):
@@ -20,7 +20,7 @@ def f1():
         client.seal(objId)
 
 def f2():
-    client = plasma.connect("/tmp/store","",0)
+    client = plasma.connect("/tmp/store")
     ids = []
 
     for i in range(100):
@@ -35,7 +35,7 @@ def f2():
         client.seal(objId)
 
 def f3():
-    client = plasma.connect("/tmp/store","",0)
+    client = plasma.connect("/tmp/store")
     ids = []
 
     for i in range(100):
@@ -50,7 +50,7 @@ def f3():
         client.seal(objId)
 
 def f4():
-    client = plasma.connect("/tmp/store","",0)
+    client = plasma.connect("/tmp/store")
     ids = []
 
     for i in range(100):
@@ -65,7 +65,7 @@ def f4():
         client.seal(objId)
 
 def f5():
-    client = plasma.connect("/tmp/store","",0)
+    client = plasma.connect("/tmp/store")
     ids = []
 
     for i in range(100):
