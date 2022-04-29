@@ -10,6 +10,10 @@ actors:
     ip: 127.0.0.1
     ports: 1234
 
+  Sender:
+    package: actors.send_zmq
+    class: ZMQSender
+
   Visual:
     package: actors.visual
     class: PandasCaimanVisual
