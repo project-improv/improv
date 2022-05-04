@@ -45,7 +45,7 @@ class ActorDependentTestCase(TestCase):
         self.isSetUp= True
 
     def runMethod(self):
-        self.runNum+=1
+        self.runNum += 1
 
     def process_setup(self):
         pass

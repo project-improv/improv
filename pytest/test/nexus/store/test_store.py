@@ -1,5 +1,4 @@
-from unittest import TestCase
-from test.test_utils import StoreDependentTestCase
+import pytest
 from src.nexus.store import Limbo
 from multiprocessing import Process
 from pyarrow import PlasmaObjectExists
@@ -12,57 +11,70 @@ from nexus.store import CannotGetObjectError
 from nexus.store import CannotConnectToStoreError
 import pickle
 
+# Separate each class as individual file - individual tests???
 
-class Limbo_Connect(StoreDependentTestCase):
+class LimboConnect(self):
 
-    def setUp(self):
-        super(Limbo_Connect, self).setUp()
+    def set_up(self):
+        # Necessary at all if setup in conftest.py in store folder?
+        # super... necessary?
+        super(LimboConnect, self).set_up()
         self.limbo = Limbo()
 
-    def test_Connect(self):
+    def test_connect(self):
         store_loc='/tmp/store'
-        self.limbo.connectStore(store_loc)
-        self.assertIsInstance(self.limbo.client, plasma.PlasmaClient)
+        self.limbo.connect_store(store_loc)
+        assert isinstance(self.limbo.client, plasma.PlasmaClient)
 
-    def test_failToConnect(self):
+    def test_fail_to_connect(self):
         store_loc= 'asdf'
 
         # Handle exception thrown
         with self.assertRaises(Exception) as cm:
-            self.limbo.connectStore(store_loc)
+            self.limbo.connnect_store(store_loc)
 
         # Check that the exception thrown is a CannotConnectToStoreError
-        self.assertEqual(cm.exception.name, 'CannotConnectToStoreError')
+        assert cm.exception.name == 'CannotConnectToStoreError'
 
-    def tearDown(self):
-        super(Limbo_Connect, self).tearDown()
+    def tear_down(self):
+        # Same as setup - necessary if teardown in conftest.py in store folder?
+        super(LimboConnect, self).tear_down()
 
-class Limbo_Get(StoreDependentTestCase):
+class LimboGet(self):
 
-    def setUp(self):
-        super(Limbo_Get, self).setUp()
+    def set_up(self):
+        # Necessary at all if setup in conftest.py in store folder?
+        # super... necessary?
+        super(LimboConnect, self).set_up()
         self.limbo = Limbo()
 
     def test_init_empty(self):
-        self.assertFalse(self.limbo.get_all())
+        assert self.limbo.get_all() == False
 
-    def tearDown(self):
-        super(Limbo_Get, self).tearDown()
+    def tear_down(self):
+        # Same as setup - necessary if teardown in conftest.py in store folder?
+        super(LimboConnect, self).tear_down()
 
-class Limbo_GetID(StoreDependentTestCase):
+class LimboGetID(self):
     #Check both hdd_only=False/True
     #Check isInstance type, isInstance bytes, else
 
-    def setUp(self):
-        super(Limbo_GetID, self).setUp()
-        self.limbo=Limbo()
+    def set_up(self):
+        # Necessary at all if setup in conftest.py in store folder?
+        # super... necessary?
+        super(LimboConnect, self).set_up()
+        self.limbo = Limbo()
 
-    def test_isMatrix(self): #also tests put matrix
-        mat= csc_matrix((3, 4), dtype=np.int8)
-        x= self.limbo.put(mat, 'matrix' ) #returns object_id
-        self.assertIsInstance(self.limbo.getID(x), csc_matrix)
+    def test_is_picklable(self):
+        # Test if obj to put is picklable - if not raise error, handle/suggest how to fix
 
-    def test_notPut(self):
+    def test_is_csc_matrix_and_put(self):
+        mat = csc_matrix((3, 4), dtype=np.int8)
+        x = self.limbo.put(mat, 'matrix' ) # Returns object_id
+        # pytest for assertIsInstance?
+        assert isinstance(self.limbo.getID(x), csc_matrix)
+
+    def test_not_put(self):
         obj = self.limbo.getID(self.limbo.random_ObjectID(1))
         self.assertRaises(ObjectNotFoundError)
 
@@ -70,10 +82,11 @@ class Limbo_GetID(StoreDependentTestCase):
         self.lmdb_store.put(1, 'one')
         assertEqual(self.lmdb_store.getID('one', hdd_only=True), 1)
 
-    def tearDown(self):
-        super(Limbo_GetID, self).tearDown()
+    def tear_down(self):
+        # Same as setup - necessary if teardown in conftest.py in store folder?
+        super(LimboConnect, self).tear_down()
 
-class Limbo_getListandAll(StoreDependentTestCase):
+class LimboGetListandAll(StoreDependentTestCase):
     def setUp(self):
         super(Limbo_getListandAll, self).setUp()
         self.limbo=Limbo()

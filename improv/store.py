@@ -38,16 +38,12 @@ class StoreInterface():
 
 
 class Limbo(StoreInterface):
-    ''' Basic interface for our specific data store
-        implemented with apache arrow plasma
-        Objects are stored with object_ids
-        References to objects are contained in a dict where key is
-          shortname, value is object_id
+    ''' Basic interface for our specific data store implemented with apache arrow plasma
+    Objects are stored with object_ids
+    References to objects are contained in a dict where key is shortname, value is object_id
     '''
 
-    def __init__(self, name='default', store_loc='/tmp/store',
-                 hdd_path='output/', use_hdd=False, hdd_maxstore=1e12,
-                 flush_immediately=False, commit_freq=20):
+    def __init__(self, name='default', store_loc='/tmp/store', hdd_path='output/', use_hdd=False, hdd_maxstore=1e12, flush_immediately=False, commit_freq=20):
         # TODO TODO TODO: Refactor to use local hdd settings instead of put and get
         ''' Constructor for Limbo
             store_loc: Apache Arrow Plasma client location, default is /tmp/store
@@ -69,20 +65,19 @@ class Limbo(StoreInterface):
         self.flush_immediately = flush_immediately
 
         if use_hdd:
-            self.lmdb_store = LMDBStore(max_size=hdd_maxstore, path=hdd_path, flush_immediately=flush_immediately,
-                                        commit_freq=commit_freq, from_limbo=True)
+            self.lmdb_store = LMDBStore(max_size=hdd_maxstore, path=hdd_path, flush_immediately=flush_immediately, commit_freq=commit_freq, from_limbo=True)
 
-    def connectStore(self, store_loc):
+    def connect_store(self, store_loc):
         ''' Connect to the store at store_loc
             Raises exception if can't connect
             Returns the plasmaclient if successful
             Updates the client internal
         '''
         try:
-            # self.client = plasma.connect(store_loc)
+            self.client = plasma.connect(store_loc, 20)
             # Is plasma.PlasmaClient necessary?
             # 20 in plasma.connect(store_loc, 20) = 20 retries
-            self.client: plasma.PlasmaClient = plasma.connect(store_loc, 20)
+            # self.client: plasma.PlasmaClient = plasma.connect(store_loc, 20)
             logger.info('Successfully connected to store')
         except Exception as e:
             logger.exception('Cannot connect to store: {0}'.format(e))
@@ -103,6 +98,13 @@ class Limbo(StoreInterface):
             # Write more general try-catch, if anything user wants to put in store returns cannot put - pickle first, then store
             # What else could we not put in?
             # List of test objects that cannot be stored
+            # https://stackoverflow.com/questions/17872056/how-to-check-if-an-object-is-pickleable#:~:text=In%20python%20you%20can%20check,(x%2C%20Number).%22
+            # Same try or new try inside first try?
+            try:
+                pickle.dumps(object)
+            except pickle.PicklingError:
+                return False
+            return True
             if isinstance(object, csc_matrix):
                 object_id = self.client.put(pickle.dumps(object, protocol=pickle.HIGHEST_PROTOCOL))
             else:
@@ -120,7 +122,7 @@ class Limbo(StoreInterface):
             logger.error('Could not store object '+object_name+': {} {}'.format(type(e).__name__, e))
         return object_id
 
-    # Before get or getID - check if object is present and sealed (client.contains(obj_id)
+    # Before get or getID - check if object is present and sealed (client.contains(obj_id))
     def get(self, object_name):
         ''' Get a single object from the store
             Checks to see if it knows the object first
