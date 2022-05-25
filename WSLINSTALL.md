@@ -11,6 +11,8 @@ After completing the following WSL installation, the WSL shell can be activated 
     ```
     Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
     ```
+    -Be sure to install WSL 1 instead of WSL 2 due to unresolved network connectivity issues. In order to downgrade from WSL 2 to WSL 1, execute `wsl --set-version <distro-name>`
+
 2. Restart system
 3. Install Ubuntu 18.04 (or other distro) from [Windows Store](https://www.microsoft.com/en-us/p/ubuntu-1804-lts/9n9tngvndl3q?activetab=pivot%3Aoverviewtab)
 4. Initialize distro 
