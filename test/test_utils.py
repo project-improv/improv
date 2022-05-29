@@ -1,7 +1,7 @@
 from unittest import TestCase
 import subprocess
 import asyncio
-from nexus.actor import RunManager, AsyncRunManager
+from improv.actor import RunManager, AsyncRunManager
 from multiprocessing import Process
 
 class StoreDependentTestCase(TestCase):
