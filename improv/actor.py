@@ -233,14 +233,17 @@ class RunManager():
         return None
 
 
-class AsyncRunManager():
-    ''' Asynchronous run manager. Communicates with nexus core using q_sig and q_comm.
-        To be used with [async with].
-        Afterwards, the run manager listens for signals without blocking.
-        q_sig, q_comm are AsyncQueues
-    '''
+class AsyncRunManager:
+    """
+    Asynchronous run manager. Communicates with nexus core using q_sig and q_comm.
 
-    def __init__(self, name, run_method, setup, q_sig, q_comm):
+    To be used with [async with]
+    
+    Afterwards, the run manager listens for signals without blocking.
+
+    """
+    def __init__(self, name, run_method: Callable[[], Awaitable[None]], setup,
+                 q_sig, q_comm):  # q_sig, q_comm are AsyncQueue.
         self.run = False
         self.config = False
         self.run_method = run_method
