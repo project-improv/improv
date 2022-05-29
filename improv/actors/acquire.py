@@ -42,11 +42,6 @@ class FileAcquirer(Actor):
 
         else: raise FileNotFoundError
 
-        #if self.saving:
-        #    save_file = self.filename.split('.')[0]+'_backup'+'.h5'
-        #    self.f = h5py.File(save_file, 'w', libver='latest')
-        #    self.dset = self.f.create_dataset("default", (len(self.data),)) #TODO: need to set maxsize to none?
-
     def run(self):
         ''' Run indefinitely. Calls runAcquirer after checking for signals
         '''
@@ -161,7 +156,6 @@ class StimAcquirer(Actor):
         time.sleep(0.5)   # simulate a particular stimulus rate
         self.n+=1
 
-
 class BehaviorAcquirer(Actor):
     ''' Actor that acquires information of behavioral stimulus
         during the experiment
@@ -208,6 +202,40 @@ class BehaviorAcquirer(Actor):
         time.sleep(1) #0.068)
         self.n += 1
 
+class FileStim(Actor):
+    ''' Actor that acquires information of behavioral stimulus
+        during the experiment from a file
+    '''
+
+    def __init__(self, *args, File= None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.file= File
+
+    def setup(self):
+        ''' Pre-define set of input stimuli
+        '''
+        self.n = 0 #our fake frame number here
+        #TODO: Consider global frame_number in store...or signal from Nexus
+
+        self.data= np.loadtxt(self.file)
+
+    def run(self):
+        ''' Run continuously, waiting for input
+        '''
+        with RunManager(self.name, self.getInput, self.setup, self.q_sig, self.q_comm) as rm:
+            logger.info(rm)
+
+    def getInput(self):
+        ''' Check for input from behavioral control
+        '''
+        # Faking it for now.
+        if self.n % 50 == 0 and self.n< self.data.shape[1]*50:
+            self.curr_stim = self.data[0][int(self.n/50)]
+            self.onoff = self.data[1][int(self.n/50)]
+            self.q_out.put({self.n:[self.curr_stim, self.onoff]})
+            logger.info('Changed stimulus! {}'.format(self.curr_stim))
+        time.sleep(0.068)
+        self.n += 1
 
 class TiffAcquirer(Actor):
     ''' Loops through a TIF file.

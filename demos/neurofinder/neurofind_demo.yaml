@@ -1,0 +1,40 @@
+settings:
+  use_watcher: [Acquirer, Processor, Visual, Analysis]
+
+actors:
+  GUI:
+    package: demos.basic.actors.visual
+    class: BasicVisual
+    visual: Visual
+
+  Acquirer:
+    package: actors.acquire_folder
+    class: FolderAcquirer
+    folder: data/NF_tr_1
+    framerate: 7
+
+  Processor:
+    package: actors.processor
+    class: BasicProcessor
+    init_filename: data/first50_tr1.h5
+    config_file: neurofind_caiman_params.txt
+
+  Visual:
+    package: demos.basic.actors.visual
+    class: BasicCaimanVisual
+  
+  Analysis:
+    package: improv.actors.analysis
+    class: MeanAnalysis
+
+  InputStim:
+    package: improv.actors.acquire
+    class: FileStim
+    File: data/Stim_neurofind.txt
+
+
+connections:
+  Acquirer.q_out: [Processor.q_in, Visual.raw_frame_queue]
+  Processor.q_out: [Analysis.q_in]
+  Analysis.q_out: [Visual.q_in]
+  InputStim.q_out: [Analysis.input_stim_queue]

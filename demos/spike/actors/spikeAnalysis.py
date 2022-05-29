@@ -2,7 +2,6 @@ import time
 import cv2
 import numpy as np
 from queue import Empty
-import os
 
 from improv.actor import Actor, Spike, RunManager
 from improv.store import ObjectNotFoundError
@@ -10,7 +9,7 @@ from improv.store import ObjectNotFoundError
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-class MeanAnalysis(Actor):
+class SpikeAnalysis(Actor):
     #TODO: Add additional error handling
     def __init__(self, *args):
         super().__init__(*args)
@@ -56,20 +55,12 @@ class MeanAnalysis(Actor):
         print('Analysis broke, avg time per stim avg: ', np.mean(self.stimtime))
         print('Analysis got through ', self.frame, ' frames')
 
-        if not os._exists('output'):
-            try:
-                os.makedirs('output')
-            except:
-                pass
-        if not os._exists('output/timing'):
-            try:
-                os.makedirs('output/timing')
-            except:
-                pass
         np.savetxt('output/timing/analysis_frame_time.txt', np.array(self.total_times))
         np.savetxt('output/timing/analysisput_frame_time.txt', np.array(self.puttime))
         np.savetxt('output/timing/analysiscolor_frame_time.txt', np.array(self.colortime))
         np.savetxt('output/timing/analysis_timestamp.txt', np.array(self.timestamp))
+
+        np.savetxt('output/final/analysis_tuning_curves.txt', np.array(self.polarAvg))
 
     def runAvg(self):
         ''' Take numpy estimates and frame_number
@@ -84,17 +75,9 @@ class MeanAnalysis(Actor):
             pass #no change in input stimulus
         try:
             ids = self.q_in.get(timeout=0.0001)
-            ids = [id[0] for id in ids]
-            if ids is not None and ids[0]==1:
-                print('analysis: missing frame')
-                self.total_times.append(time.time()-t)
-                self.q_out.put([1])
-                raise Empty
-            # t = time.time()
-            self.frame = ids[-1]
-            (self.coordDict, self.image, self.S) = self.client.getList(ids[:-1])
+            id = ids[0][0]
+            self.S = self.client.getID(id)
             self.C = self.S
-            self.coords = [o['coordinates'] for o in self.coordDict]
             
             # Compute tuning curves based on input stimulus
             # Just do overall average activity for now
@@ -106,7 +89,11 @@ class MeanAnalysis(Actor):
             # Compute coloring of neurons for processed frame
             # Also rotate and stack as needed for plotting
             # TODO: move to viz, but we don't need to compute this 30 times/sec
-            self.color = self.plotColorFrame()
+            N= self.C.shape[0]
+            self.color = [[0,0,0,0]]*N
+            for i in range(N):
+                r, g, b, ga = self._tuningColor(i, None)
+                self.color[i]= [r, g, b, ga]
 
             if self.frame >= self.window:
                 window = self.window
@@ -180,10 +167,11 @@ class MeanAnalysis(Actor):
         ids.append([self.client.put(self.Cpop, 'Cpop'+str(self.frame)), 'Cpop'+str(self.frame)])
         ids.append([self.client.put(self.tune, 'tune'+str(self.frame)), 'tune'+str(self.frame)])
         ids.append([self.client.put(self.color, 'color'+str(self.frame)), 'color'+str(self.frame)])
-        ids.append([self.client.put(self.coordDict, 'analys_coords'+str(self.frame)), 'analys_coords'+str(self.frame)])
         ids.append([self.frame, str(self.frame)])
 
-        self.put(ids, save= [False, False, False, False, False, True, False])
+        self.put(ids, save= [False, True, False, False, True, False])
+
+        self.frame+=1
 
         self.puttime.append(time.time()-t)
 
@@ -196,9 +184,9 @@ class MeanAnalysis(Actor):
         for s,l in self.stimStart.items():
             l = np.array(l)
             if l.size>0:
-                onInd = np.array([np.arange(o+5,o+35) for o in np.nditer(l)]).flatten()
+                onInd = np.array([np.arange(o+5,o+15) for o in np.nditer(l)]).flatten()
                 onInd = onInd[onInd<ests_num]
-                offInd = np.array([np.arange(o-20,o-1) for o in np.nditer(l)]).flatten() #TODO replace
+                offInd = np.array([np.arange(o-10,o-1) for o in np.nditer(l)]).flatten() #TODO replace
                 offInd = offInd[offInd>=0]
                 offInd = offInd[offInd<ests_num]
                 try:
