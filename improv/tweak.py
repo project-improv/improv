@@ -21,11 +21,11 @@ class Tweak():
         else:
             # Reading config from other yaml file
             self.configFile = cwd+'/'+configFile
-        
+
         self.actors = {}
         self.connections = {}
         self.hasGUI = False
-        
+
     def createConfig(self):
         ''' Read yaml config file and create config for Nexus
             TODO: check for config file compliance, error handle it
@@ -47,7 +47,7 @@ class Tweak():
 
             packagename = actor.pop('package')
             classname = actor.pop('class')
-            
+
             try:
                 __import__(packagename, fromlist=[classname])
 
@@ -72,17 +72,17 @@ class Tweak():
             if "GUI" in name:
                 self.hasGUI = True
                 self.gui = tweakModule
-            
+
             else:
                 self.actors.update({name:tweakModule})
-                
+
         for name,conn in cfg['connections'].items():
             #TODO check for correctness  TODO: make more generic (not just q_out)
             if name in self.connections.keys():
                 raise RepeatedConnectionsError(name)
 
             self.connections.update({name:conn}) #conn should be a list
-        
+
 
     def addParams(self, type, param):
         ''' Function to add paramter param of type type
@@ -133,6 +133,6 @@ if __name__ == '__main__':
     tweak.createConfig()
     for actor in tweak.actors:
         print(actor)
-    
+
     for connection in tweak.connections:
         print(connection)

@@ -1,0 +1,16 @@
+actors:
+  Acquirer:
+    package: improv.actors.acquire
+    class: FileAcquirer
+    filename: data/dog_clip.avi
+    framerate: 30
+
+  Processor:
+    package: actors.processor
+    class: DLCProcessor
+    video_path: data/dog_clip.avi
+    model_path: models/DLC_Dog_resnet_50_iteration-0_shuffle-0
+
+
+connections:
+  Acquirer.q_out: [Processor.q_in]

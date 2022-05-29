@@ -1,7 +1,11 @@
+import multiprocessing
+# multiprocessing.set_start_method("spawn", force=True)
+
 import sys
 import os
 import time
 import subprocess
+
 from multiprocessing import Process, Queue, Manager, cpu_count, set_start_method
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import numpy as np
@@ -75,6 +79,7 @@ class Nexus():
         self.allowStart = False
 
     def startNexus(self):
+
         ''' Puts all actors in separate processes and begins polling
             to listen to comm queues
         '''
@@ -287,7 +292,9 @@ class Nexus():
         self.t = time.time()
 
         for p in self.processes:
+            logger.info(p)
             p.start()
+
 
     def setup(self):
         for q in self.sig_queues.values():
@@ -319,7 +326,7 @@ class Nexus():
 
         self.processes.append(self.p_GUI)
         #self.processes.append(self.p_watch)
-        
+
         for p in self.processes:
             # if p.is_alive():
             #     p.terminate()
