@@ -4,35 +4,36 @@ import io
 import filecmp
 
 import logging; logger = logging.getLogger(__name__)
-from src.nexus.tweak import Tweak 
-from src.nexus.tweak import TweakModule
+from improv.tweak import Tweak, TweakModule
 from unittest import TestCase
 from test.test_utils import StoreDependentTestCase
-from src.nexus.tweak import RepeatedActorError, RepeatedConnectionsError
-import visual.visual
-import acquire.acquire
-import process.process
-import analysis.analysis
+#from test.visual import visual
+import improv.actors.acquire
+import improv.actors.process
+import improv.actors.analysis
 from inspect import signature
 
 class createConfBasic(StoreDependentTestCase):
 
     def setUp(self):
         super(createConfBasic, self).setUp()
-        self.tweak = Tweak()
+        self.tweak = Tweak(configFile= 'test/configs/good_config.yaml')
 
     def test_actor(self):
         self.tweak.createConfig()
-        self.assertEqual(self.tweak.actors['Processor'].packagename, 'process.process')
+        self.assertEqual(self.tweak.actors['Processor'].packagename, 'improv.actors.process')
 
+    '''
+    Commented out since we our moving visual testing to its own test directory as /test/visual
     def test_GUI(self):
         self.tweak.createConfig()
         self.assertEqual(self.tweak.gui.packagename, 'visual.visual')
         self.assertEqual(self.tweak.gui.classname, 'DisplayVisual')
-
+    '''
     def test_connections(self):
         self.tweak.createConfig()
-        self.assertEqual(self.tweak.connections['Acquirer.q_out'], ['Processor.q_in', 'Visual.raw_frame_queue'])
+        self.assertEqual(self.tweak.connections['Acquirer.q_out'], ['Processor.q_in'])
+        self.assertEqual(self.tweak.connections['Processor.q_out'], ['Analysis.q_in'])
 
     def tearDown(self):
         super(createConfBasic, self).tearDown()
