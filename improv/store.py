@@ -1,21 +1,14 @@
 import datetime
-<<<<<<< HEAD:improv/store.py
 import os
 import pickle
 import time
 import numpy as np
 import pyarrow as arrow
 import pyarrow.plasma as plasma
-from pyarrow.plasma import PlasmaObjectExists
-from pyarrow.lib import ArrowIOError
 from pyarrow.plasma import ObjectNotAvailable
 from scipy.sparse import csc_matrix
 from improv.actor import Spike
-from queue import Empty
-=======
-import pickle
 import signal
-import time
 
 from dataclasses import dataclass, make_dataclass
 from queue import Empty, Queue
@@ -25,15 +18,9 @@ from threading import Thread
 from typing import List, Union
 
 import lmdb
-import numpy as np
-import pyarrow.plasma as plasma
-from pyarrow import PlasmaObjectExists, SerializationCallbackError
+from pyarrow import SerializationCallbackError
 from pyarrow.lib import ArrowIOError
-from pyarrow.plasma import ObjectNotAvailable, ObjectID
-from scipy.sparse import csc_matrix
-
-from nexus.actor import Spike
->>>>>>> lmdb:src/nexus/store.py
+from pyarrow.plasma import PlasmaObjectExists, ObjectNotAvailable, ObjectID
 
 import logging; logger=logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
