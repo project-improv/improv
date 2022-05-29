@@ -15,7 +15,7 @@ from queue import Empty
 import logging; logger=logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-#TODO: Use Apache Arrow for better memory usage with the Plasma store
+# TODO: Use Apache Arrow for better memory usage with the Plasma store
 
 
 class StoreInterface():
@@ -244,7 +244,7 @@ class Limbo(StoreInterface):
         else:
             return res
 
-    #TODO: Likely remove all this functionality for security.
+    # TODO: Likely remove all this functionality for security.
     # Delete deleteName
     # def deleteName(self, object_name):
     #     ''' Deletes an object from the store based on name
@@ -383,9 +383,9 @@ class LMDBStore(StoreInterface):
         self.lmdb_env.close()
         print('Flushed!')
 
-    def replace(self): pass #TODO
+    def replace(self): pass # TODO
 
-    def subscribe(self): pass #TODO
+    def subscribe(self): pass # TODO
 
 
 # Name for class below? Inherit from StoreInterface or Limbo? Limbo...is subclass of StoreInterface.

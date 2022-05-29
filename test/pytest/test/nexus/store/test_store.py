@@ -12,6 +12,7 @@ from nexus.store import CannotConnectToStoreError
 import pickle
 
 # Separate each class as individual file - individual tests???
+# TODO: remove set_up and tear_down - test if behavior is the same w/fixtures
 
 class LimboConnect(self):
 
@@ -22,12 +23,22 @@ class LimboConnect(self):
         self.limbo = Limbo()
 
     def test_connect(self):
-        store_loc='/tmp/store'
+        store_loc = '/tmp/store'
         self.limbo.connect_store(store_loc)
         assert isinstance(self.limbo.client, plasma.PlasmaClient)
 
-    def test_fail_to_connect(self):
-        store_loc= 'asdf'
+    def test_connect_store_loc_incorrect_path(self):
+        store_loc = 'asdf'
+
+        # Handle exception thrown
+        with self.assertRaises(Exception) as cm:
+            self.limbo.connnect_store(store_loc)
+
+        # Check that the exception thrown is a CannotConnectToStoreError
+        assert cm.exception.name == 'CannotConnectToStoreError'
+
+    def test_connect_store_loc_none(self):
+        store_loc = None
 
         # Handle exception thrown
         with self.assertRaises(Exception) as cm:
@@ -75,12 +86,16 @@ class LimboGetID(self):
         assert isinstance(self.limbo.getID(x), csc_matrix)
 
     def test_not_put(self):
+        pytest.raises(ObjectNotFoundError, self.limbo.getID, self.limbo.random_ObjectID(1))
+
         obj = self.limbo.getID(self.limbo.random_ObjectID(1))
+
         self.assertRaises(ObjectNotFoundError)
 
-    def UseHDD(self):
+    def test_use_hdd(self):
         self.lmdb_store.put(1, 'one')
-        assertEqual(self.lmdb_store.getID('one', hdd_only=True), 1)
+        
+        assert self.lmdb_store.getID('one', hdd_only=True) == 1
 
     def tear_down(self):
         # Same as setup - necessary if teardown in conftest.py in store folder?
