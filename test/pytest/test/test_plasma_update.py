@@ -33,11 +33,11 @@ def store():
 def test_connectStore(store):
     store = Limbo.connectStore()
     # What would self.client be? How to assert truth?
-    assert store == 
+    # TODO: assert store == 
 
 # ???
 @pytest.mark.parameterize("object")
 def test_put_get(store):
-    obj_put = Limbo.put(object)
+    obj_put = Limbo.put(obj)
     obj_get = Limbo.get(obj_put)
-    
+    assert obj_put == obj_test

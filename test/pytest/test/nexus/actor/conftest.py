@@ -49,7 +49,7 @@ def create_process(self, q_sig, q_comm):
         print(rm)
 
 async def createAsyncProcess(self, q_sig, q_comm):
-    print('Creating asyn process.')
+    print('Creating async process.')
     async with AsyncRunManager('test', self.process_run, self.process_setup, q_sig, q_comm) as rm:
         print(rm)
 
