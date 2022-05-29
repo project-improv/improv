@@ -1,9 +1,8 @@
-
 from unittest import TestCase
 from test.test_utils import StoreDependentTestCase, ActorDependentTestCase
-from src.nexus.actor import Actor, RunManager, AsyncRunManager, Spike
-from src.nexus.store import Limbo
-from src.nexus.nexus import AsyncQueue, Link
+from improv.actor import Actor, RunManager, AsyncRunManager, Spike
+from improv.store import Limbo
+from improv.nexus import AsyncQueue, Link
 from multiprocessing import Process
 import numpy as np
 from pyarrow.lib import ArrowIOError
@@ -14,7 +13,7 @@ from queue import Empty
 import time
 from typing import Awaitable, Callable
 import traceback
-from nexus.store import ObjectNotFoundError
+from improv.store import ObjectNotFoundError
 import pickle
 from queue import Queue
 import logging
@@ -136,7 +135,7 @@ class RunManager_process(ActorDependentTestCase):
 
 #    def tearDown(self):
 #        super(testAsync, self).tearDown()
-        
+
 '''
 Place different actors in separate processes and ensure that run manager is receiving
 signals in the expected order.
@@ -162,7 +161,7 @@ class AsyncRunManager_Process(ActorDependentTestCase):
             logging.getLogger().warning('Received quit signal, aborting')
         self.assertEqual(cm.output, ['WARNING:root:Received pause signal, pending...',
         'WARNING:root:Received resume signal, resuming', 'WARNING:root:Received quit signal, aborting'])
-    
+
 
     def tearDown(self):
         super(AsyncRunManager_Process, self).tearDown()

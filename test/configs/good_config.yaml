@@ -2,14 +2,14 @@ actors:
   Acquirer:
     package: improv.actors.acquire
     class: FileAcquirer
-    fiasdfe: data/Tolias_mesoscope_2.hdf5
-    fraefawe: 30
+    filename: data/Tolias_mesoscope_2.hdf5
+    framerate: 30
 
   Processor:
     package: improv.actors.process
     class: CaimanProcessor
     init_filename: data/tbif_ex_crop.h5
-    config_file: eva_caiman_params.txt
+    config_file: caiman_params.txt
 
   Analysis:
     package: improv.actors.analysis
