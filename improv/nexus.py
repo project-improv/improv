@@ -46,13 +46,19 @@ class Nexus():
 
     def __str__(self):
         return self.name
-
-    def createNexus(self, file=None):
+    
+    def createNexus(self, file=None, use_hdd=False):
         self._startStore(40000000000) #default size should be system-dependent; this is 40 GB
 
         #connect to store and subscribe to notifications
         self.limbo = store.Limbo()
         self.limbo.subscribe()
+
+        # LMDB storage
+        self.use_hdd = use_hdd
+        if self.use_hdd:
+            self.lmdb_name = f'lmdb_{datetime.now().strftime("%Y%m%d_%H%M%S")}'
+            self.limbo_dict = dict()
 
         self.comm_queues = {}
         self.sig_queues = {}
@@ -192,11 +198,16 @@ class Nexus():
         instance = clss(actor.name, **actor.options)
 
         # Add link to Limbo store
-        instance.setStore(store.Limbo(actor.name))
+        limbo = self.createLimbo(actor.name)
+        instance.setStore(limbo)
 
         # Add signal and communication links
-        q_comm = Link(actor.name+'_comm', actor.name, self.name)
-        q_sig = Link(actor.name+'_sig', self.name, actor.name)
+        limbo_arg = [None, None]
+        if self.use_hdd:
+            limbo_arg = [limbo, self.createLimbo('default')]
+
+        q_comm = Link(actor.name+'_comm', actor.name, self.name, limbo_arg[0])
+        q_sig = Link(actor.name+'_sig', self.name, actor.name, limbo_arg[1])
         self.comm_queues.update({q_comm.name:q_comm})
         self.sig_queues.update({q_sig.name:q_sig})
         instance.setCommLinks(q_comm, q_sig)
@@ -210,16 +221,17 @@ class Nexus():
         '''
         for source,drain in self.tweak.connections.items():
             name = source.split('.')[0]
+            limbo = self.createLimbo(name) if self.use_hdd else None
             #current assumption is connection goes from q_out to something(s) else
-            if len(drain) > 1: #we need multiasyncqueue
-                link, endLinks = MultiLink(name+'_multi', source, drain)
+            if len(drain) > 1: #we need multiasyncqueue 
+                link, endLinks = MultiLink(name+'_multi', source, drain, limbo)
                 self.data_queues.update({source:link})
                 for i,e in enumerate(endLinks):
                     self.data_queues.update({drain[i]:e})
             else: #single input, single output
                 d = drain[0]
                 d_name = d.split('.') #TODO: check if .anything, if not assume q_in
-                link = Link(name+'_'+d_name[0], source, d)
+                link = Link(name+'_'+d_name[0], source, d, limbo)
                 self.data_queues.update({source:link})
                 self.data_queues.update({d:link})
 
@@ -243,6 +255,15 @@ class Nexus():
         else:
             self.actors[classname].addLink(linktype, link)
 
+    def createLimbo(self, name):
+        """ Creates Limbo w/ or w/out LMDB functionality based on {self.use_hdd}. """
+        if not self.use_hdd:
+            return store.Limbo(name)
+        else:
+            if name not in self.limbo_dict:
+                self.limbo_dict[name] = store.Limbo(name, use_hdd=True, lmdb_name=self.lmdb_name)
+            return self.limbo_dict[name]
+
     def runActor(self, actor):
         '''Run the actor continually; used for separate processes
             #TODO: hook into monitoring here?
@@ -250,8 +271,9 @@ class Nexus():
         actor.run()
 
     def startWatcher(self):
-        self.watcher = store.Watcher('watcher', store.Limbo('watcher'))
-        q_sig = Link('watcher_sig', self.name, 'watcher')
+        self.watcher = store.Watcher('watcher', self.createLimbo('watcher'))
+        limbo = self.createLimbo('watcher') if self.use_hdd else None
+        q_sig = Link('watcher_sig', self.name, 'watcher', limbo)
         self.watcher.setLinks(q_sig)
         self.sig_queues.update({q_sig.name:q_sig})
 
@@ -436,7 +458,7 @@ class Nexus():
         logging.info('Shutdown complete.')
 
 
-def Link(name, start, end):
+def Link(name, start, end, limbo):
     ''' Abstract constructor for a queue that Nexus uses for
     inter-process/actor signaling and information passing
 
@@ -446,11 +468,11 @@ def Link(name, start, end):
     '''
 
     m = Manager()
-    q = AsyncQueue(m.Queue(maxsize=0), name, start, end)
+    q = AsyncQueue(m.Queue(maxsize=0), name, start, end, limbo)
     return q
 
 class AsyncQueue(object):
-    def __init__(self,q, name, start, end):
+    def __init__(self,q, name, start, end, limbo: store.Limbo):
         self.queue = q
         self.real_executor = None
         self.cancelled_join = False
@@ -462,6 +484,8 @@ class AsyncQueue(object):
         self.end = end
         self.status = 'pending'
         self.result = None
+        self.limbo = limbo
+        self.num = 0
 
     def getStart(self):
         return self.start
@@ -481,7 +505,7 @@ class AsyncQueue(object):
         return self_dict
 
     def __getattr__(self, name):
-        if name in ['qsize', 'empty', 'full', 'put', 'put_nowait',
+        if name in ['qsize', 'empty', 'full',
                     'get', 'get_nowait', 'close']:
             return getattr(self.queue, name)
         else:
@@ -492,8 +516,17 @@ class AsyncQueue(object):
         #return str(self.__class__) + ": " + str(self.__dict__)
         return 'Link '+self.name #+' From: '+self.start+' To: '+self.end
 
+    def put(self, item):
+        self.log_to_limbo(item)
+        self.queue.put(item)
+
+    def put_nowait(self, item):
+        self.log_to_limbo(item)
+        self.queue.put_nowait(item)
+
     async def put_async(self, item):
         loop = asyncio.get_event_loop()
+        self.log_to_limbo(item)
         res = await loop.run_in_executor(self._executor, self.put, item)
         return res
 
@@ -517,8 +550,13 @@ class AsyncQueue(object):
         if self._real_executor and not self._cancelled_join:
             self._real_executor.shutdown()
 
+    def log_to_limbo(self, item):
+        if self.limbo is not None:
+            self.limbo.put(item, f'q__{self.start}__{self.num}')
+            self.num += 1
 
-def MultiLink(name, start, end):
+
+def MultiLink(name, start, end, limbo):
     ''' End is a list
 
         Return a MultiAsyncQueue as q (for producer) and list of AsyncQueues as q_out (for consumers)
@@ -527,7 +565,7 @@ def MultiLink(name, start, end):
 
     q_out = []
     for endpoint in end:
-        q = AsyncQueue(m.Queue(maxsize=0), name, start, endpoint)
+        q = AsyncQueue(m.Queue(maxsize=0), name, start, endpoint, limbo=limbo)
         q_out.append(q)
 
     q = MultiAsyncQueue(m.Queue(maxsize=0), q_out, name, start, end)
