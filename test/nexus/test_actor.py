@@ -22,11 +22,12 @@ import contextlib
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+
 #TODO: write actor unittests
 #NOTE: Unittests are getting resourcewarning
 #setStore
+#NOTE: src.nexus.* should be improv.*
 class Actor_setStore(ActorDependentTestCase):
-
     def setUp(self):
         super(Actor_setStore, self).setUp()
         self.actor = Actor('test')
