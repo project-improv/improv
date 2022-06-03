@@ -23,21 +23,21 @@ class FileAcquirer(Actor):
         self.done = False
         self.flag = False
         self.filename = filename
-        self.framerate = 1/framerate 
+        self.framerate = 1/framerate
 
     def setup(self):
         '''Get file names from config or user input
             Also get specified framerate, or default is 10 Hz
            Open file stream
            #TODO: implement more than h5 files
-        '''        
+        '''
         print('Looking for ', self.filename)
         if os.path.exists(self.filename):
             n, ext = os.path.splitext(self.filename)[:2]
             if ext == '.h5' or ext == '.hdf5':
                 with h5py.File(self.filename, 'r') as file:
                     keys = list(file.keys())
-                    self.data = file[keys[0]].value 
+                    self.data = file[keys[0]][()]
                     print('Data length is ', len(self.data))
 
         else: raise FileNotFoundError
@@ -49,8 +49,8 @@ class FileAcquirer(Actor):
         self.timestamp = []
 
         with RunManager(self.name, self.runAcquirer, self.setup, self.q_sig, self.q_comm) as rm:
-            print(rm)            
-            
+            print(rm)
+
         print('Done running Acquire, avg time per frame: ', np.mean(self.total_times))
         print('Acquire got through ', self.frame_num, ' frames')
         if not os._exists('output'):
@@ -73,7 +73,7 @@ class FileAcquirer(Actor):
         t = time.time()
 
         if self.done:
-            pass 
+            pass
         elif(self.frame_num < len(self.data)):
             frame = self.getFrame(self.frame_num)
             ## simulate frame-dropping
@@ -86,7 +86,7 @@ class FileAcquirer(Actor):
             try:
                 self.put([[id, str(self.frame_num)]], save=[True])
                 self.frame_num += 1
-                 #also log to disk #TODO: spawn separate process here?  
+                 #also log to disk #TODO: spawn separate process here?
             except Exception as e:
                 logger.error('Acquirer general exception: {}'.format(e))
 
@@ -100,7 +100,7 @@ class FileAcquirer(Actor):
             self.done = True # stay awake in case we get e.g. a shutdown signal
             #if self.saving:
             #    self.f.close()
-    
+
     def getFrame(self, num):
         ''' Here just return frame from loaded data
         '''
@@ -115,7 +115,7 @@ class FileAcquirer(Actor):
 class StimAcquirer(Actor):
     ''' Class to load visual stimuli data from file
         and stream into the pipeline
-    ''' 
+    '''
     def __init__(self, *args, param_file=None, filename=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.param_file = param_file
@@ -134,12 +134,12 @@ class StimAcquirer(Actor):
                 for _, frame in enumerate(f):
                     stiminfo = frame[0:2]
                     self.stim.append(stiminfo)
-            else: 
+            else:
                 logger.error('Cannot load file, possible bad extension')
                 raise Exception
 
         else: raise FileNotFoundError
-        
+
     def run(self):
         ''' Run continuously, waiting for input
         '''
