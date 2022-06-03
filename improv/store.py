@@ -1,11 +1,7 @@
-import datetime
-import os
 import pickle
 import time
 import numpy as np
-import pyarrow as arrow
 import pyarrow.plasma as plasma
-from pyarrow.plasma import ObjectNotAvailable
 from scipy.sparse import csc_matrix
 from improv.actor import Spike
 import signal
@@ -77,7 +73,7 @@ class Limbo(StoreInterface):
 
         self.name = name
         self.store_loc = store_loc
-        self.client = self.connectStore(store_loc)
+        self.client = self.connect_store(store_loc)
         self.stored = {}
 
         # Offline db
@@ -106,7 +102,7 @@ class Limbo(StoreInterface):
             raise CannotConnectToStoreError(store_loc)
         return self.client
 
-    def put(self, obj, object_name, flush_this_immediately=False):
+    def put(self, object, object_name, flush_this_immediately=False):
         """
         Put a single object referenced by its string name
         into the store
@@ -120,50 +116,74 @@ class Limbo(StoreInterface):
         :return: Plasma object ID
         :rtype: class 'plasma.ObjectID'
         """
+        
         object_id = None
-
         try:
             # Need to pickle if object is csc_matrix
-            # Only 
-            # csc needed for CaImAn
-            # Pyarrow for csc/other sparse arrays
-            # All objects must be pickle-able
-            # Write more general try-catch, if anything user wants to put in store returns cannot put - pickle first, then store
-            # What else could we not put in?
-            # List of test objects that cannot be stored
-            # https://stackoverflow.com/questions/17872056/how-to-check-if-an-object-is-pickleable#:~:text=In%20python%20you%20can%20check,(x%2C%20Number).%22
-            # Same try or new try inside first try?
-            try:
-                pickle.dumps(object)
-            except pickle.PicklingError:
-                return False
-            return True
             if isinstance(object, csc_matrix):
                 object_id = self.client.put(pickle.dumps(object, protocol=pickle.HIGHEST_PROTOCOL))
             else:
                 object_id = self.client.put(object)
+            
             self.updateStored(object_name, object_id)
 
-        except SerializationCallbackError:
-            if isinstance(obj, csc_matrix):  # Ignore rest
-                object_id = self.client.put(pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL))
-
+            if self.use_hdd:
+                self.lmdb_store.put(object, object_name, obj_id=object_id)
         except PlasmaObjectExists:
             logger.error('Object already exists. Meant to call replace?')
-            # raise PlasmaObjectExists
-
         except ArrowIOError as e:
-            logger.error('Could not store object ' + object_name + ': {} {}'.format(type(e).__name__, e))
+            logger.error('Could not store object '+object_name+': {} {}'.format(type(e).__name__, e))
             logger.info('Refreshing connection and continuing')
             self.reset()
-
         except Exception as e:
-            logger.error('Could not store object ' + object_name + ': {} {}'.format(type(e).__name__, e))
-
-        if self.use_hdd:
-            self.lmdb_store.put(obj, object_name, obj_id=object_id, flush_this_immediately=flush_this_immediately)
-
+            logger.error('Could not store object '+object_name+': {} {}'.format(type(e).__name__, e))
+        
         return object_id
+        
+        
+        
+        # object_id = None
+
+        # try:
+        #     # Need to pickle if object is csc_matrix
+        #     # csc needed for CaImAn
+        #     # Pyarrow for csc/other sparse arrays
+        #     # All non-arrow objects must be pickle-able
+        #     # Write more general try-catch, if anything user wants to put in store returns cannot put - pickle first, then store
+        #     # What else could we not put in?
+        #     # List of test objects that cannot be stored
+        #     # https://stackoverflow.com/questions/17872056/how-to-check-if-an-object-is-pickleable#:~:text=In%20python%20you%20can%20check,(x%2C%20Number).%22
+        #     try:
+        #         pickle.dumps(object)
+        #     except pickle.PicklingError:
+        #         return False
+        #     return True
+        #     if isinstance(object, csc_matrix):
+        #         object_id = self.client.put(pickle.dumps(object, protocol=pickle.HIGHEST_PROTOCOL))
+        #     else:
+        #         object_id = self.client.put(object)
+        #     self.updateStored(object_name, object_id)
+
+        # except SerializationCallbackError:
+        #     if isinstance(obj, csc_matrix):  # Ignore rest
+        #         object_id = self.client.put(pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL))
+
+        # except PlasmaObjectExists:
+        #     logger.error('Object already exists. Meant to call replace?')
+        #     # raise PlasmaObjectExists
+
+        # except ArrowIOError as e:
+        #     logger.error('Could not store object ' + object_name + ': {} {}'.format(type(e).__name__, e))
+        #     logger.info('Refreshing connection and continuing')
+        #     self.reset()
+
+        # except Exception as e:
+        #     logger.error('Could not store object ' + object_name + ': {} {}'.format(type(e).__name__, e))
+
+        # if self.use_hdd:
+        #     self.lmdb_store.put(obj, object_name, obj_id=object_id, flush_this_immediately=flush_this_immediately)
+
+        # return object_id
 
     # Before get or getID - check if object is present and sealed (client.contains(obj_id))
     def get(self, object_name):
