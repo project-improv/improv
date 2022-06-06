@@ -21,7 +21,7 @@ logger.setLevel(logging.INFO)
 #NOTE: GUI only gives comm signals to Nexus, does not receive any. Visual serves that role
 #TODO: Add ability to receive signals like pause updating ...?
 
-class BasicFrontEnd(QtGui.QMainWindow, improv_basic.Ui_MainWindow):
+class BasicFrontEnd(QtWidgets.QMainWindow, improv_basic.Ui_MainWindow):
     def __init__(self, visual, comm, parent=None):
         ''' Setup GUI
             Setup and start Nexus controls
