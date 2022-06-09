@@ -3,7 +3,6 @@ import yaml
 import io
 from inspect import signature
 from importlib import import_module
-
 import logging; logger = logging.getLogger(__name__)
 
 #TODO: Write a save function for Tweak objects output as YAML configFile but using TweakModule objects
@@ -39,7 +38,7 @@ class Tweak():
             self.settings = {}
             self.settings['use_watcher'] = None
 
-        for name,actor in cfg['actors'].items(): 
+        for name,actor in cfg['actors'].items():
             # put import/name info in TweakModule object TODO: make ordered?
 
             if name in self.actors.keys():
@@ -58,6 +57,7 @@ class Tweak():
                 logger.error('Error: Classname not valid within package')
 
             mod = import_module(packagename)
+
             clss = getattr(mod, classname)
             sig= signature(clss)
             tweakModule = TweakModule(name, packagename, classname, options=actor)
