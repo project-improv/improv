@@ -24,6 +24,7 @@ from queue import Empty, Full
 import logging
 from datetime import datetime
 from improv.watcher import BasicWatcher
+from improv.link import Link, MultiLink
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
