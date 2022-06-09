@@ -11,16 +11,15 @@ logging.basicConfig(level=logging.DEBUG,
                               logging.StreamHandler()])
 
 def Link(name, start, end, limbo):
-    """ Abstract constructor for a queue that Nexus uses for
+    """ Function to construct a queue that Nexus uses for
     inter-process (actor) signaling and information passing.
 
     A Link has an internal queue that can be synchronous (put, get)
     as inherited from multiprocessing.Manager.Queue
     or asynchronous (put_async, get_async) using async executors.
-
-    Attributes:
-        m: Manager from multiprocessing
-        q: Queue from the Manager m
+    
+    Args:
+        See AsyncQueue constructor
 
     Returns:
         AsyncQueue: queue for communicating between actors and with Nexus
@@ -31,20 +30,20 @@ def Link(name, start, end, limbo):
     return q
 
 class AsyncQueue(object):
-    """ Multi-output and asynchronous queue class.
+    """ Single-output and asynchronous queue class.
 
-        Attributes:
-            queue: 
-            real_executor: 
-            cancelled_join: boolean
-            name:
-            start:
-            end:
-            status:
-            result:
-            limbo:
-            num:
-            dict:
+    Attributes:
+        queue: 
+        real_executor: 
+        cancelled_join: boolean
+        name:
+        start:
+        end:
+        status:
+        result:
+        limbo:
+        num:
+        dict:
     """
 
     def __init__(self, q, name, start, end, limbo):
@@ -91,6 +90,19 @@ class AsyncQueue(object):
         return self_dict
 
     def __getattr__(self, name):
+        """_summary_
+
+        Args:
+            name (_type_): _description_
+
+        Raises:
+            AttributeError: Restricts the available attributes to a specific list. This error is raised
+            if a different attribute of the queue is requested.
+            #TODO: Don't raise this?
+
+        Returns:
+            _type_: _description_
+        """
         if name in ['qsize', 'empty', 'full',
                     'get', 'get_nowait', 'close']:
             return getattr(self.queue, name)
@@ -99,24 +111,55 @@ class AsyncQueue(object):
                                     (self.__class__.__name__, name))
 
     def __repr__(self):
-        #return str(self.__class__) + ": " + str(self.__dict__)
-        return 'Link '+self.name #+' From: '+self.start+' To: '+self.end
+        return 'Link '+self.name
 
     def put(self, item):
+        """ Function wrapper for put
+
+        Args:
+            item (object): Any item that can be sent through a queue
+        """
         self.log_to_limbo(item)
         self.queue.put(item)
 
     def put_nowait(self, item):
+        """ Function wrapper for put without waiting
+
+        Args:
+            item (object): Any item that can be sent through a queue
+        """
         self.log_to_limbo(item)
         self.queue.put_nowait(item)
 
     async def put_async(self, item):
+        """ Coroutine for an asynchronous put
+
+        It adds the put request to the event loop and awaits.
+
+        Args:
+            item (object): Any item that can be sent through a queue
+
+        Returns:
+            Awaitable or result of the put
+        """
         loop = asyncio.get_event_loop()
-        self.log_to_limbo(item)
+        self.log_to_limbo(item) #FIXME: This is blocking
         res = await loop.run_in_executor(self._executor, self.put, item)
         return res
 
     async def get_async(self):
+        """ Coroutine for an asynchronous get
+
+        It adds the get request to the event loop and awaits, setting the status to pending. 
+        Once the get has returned, it returns the result of the get and sets its status as done.
+
+        Returns:
+            Awaitable or result of the get
+        
+        Exceptions:
+            Explicitly passes any exceptions to not hinder execution.
+            Errors are logged with the get_async tag.
+        """
         loop = asyncio.get_event_loop()
         self.status = 'pending'
         try:
@@ -143,10 +186,16 @@ class AsyncQueue(object):
 
 
 def MultiLink(name, start, end, limbo):
-    ''' End is a list
+    """ Function to generate links for the multi-output queue case.
 
-        Return a MultiAsyncQueue as q (for producer) and list of AsyncQueues as q_out (for consumers)
-    '''
+    Args:
+        See constructor for AsyncQueue or MultiAsyncQueue
+
+    Returns:
+        MultiAsyncQueue: Producer end of the queue
+        List: AsyncQueues for consumers
+    """
+    
     m = Manager()
 
     q_out = []
@@ -159,12 +208,16 @@ def MultiLink(name, start, end, limbo):
     return q, q_out
 
 class MultiAsyncQueue(AsyncQueue):
-    ''' Extension of AsyncQueue created by Link to have multiple endpoints.
-        A single producer queue's 'put' is copied to multiple consumer's queues
-        q_in is the producer queue, q_out are the consumer queues
+    """ Extension of AsyncQueue to have multiple endpoints.
 
-        #TODO: test the async nature of this group of queues
-    '''
+    Inherits from AsyncQueue. 
+    A single producer queue's 'put' is copied to multiple consumer's queues
+    q_in is the producer queue, q_out are the consumer queues.
+    
+    #TODO: test the async nature of this group of queues
+    """
+
+    
     def __init__(self, q_in, q_out, name, start, end):
         self.queue = q_in
         self.output = q_out
@@ -174,17 +227,16 @@ class MultiAsyncQueue(AsyncQueue):
 
         self.name = name
         self.start = start
-        self.end = end[0] #somewhat arbitrary endpoint naming
+        self.end = end[0]
         self.status = 'pending'
         self.result = None
 
     def __repr__(self):
-        #return str(self.__class__) + ": " + str(self.__dict__)
-        return 'MultiLink '+self.name
+        return 'MultiLink ' + self.name
 
     def __getattr__(self, name):
         # Remove put and put_nowait and define behavior specifically
-        #TODO: remove get capability
+        #TODO: remove get capability?
         if name in ['qsize', 'empty', 'full',
                     'get', 'get_nowait', 'close']:
             return getattr(self.queue, name)
