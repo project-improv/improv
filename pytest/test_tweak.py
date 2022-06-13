@@ -76,28 +76,47 @@ def test_createConfig_settings(set_configdir):
     twk.createConfig()
     assert twk.settings == {'use_watcher' : None}
 
-@pytest.mark.skip(reason = "this test is unfinished")
 def test_createConfig_clean(set_configdir):
     """ Given a good config file, tests if createConfig runs without error.
     """
-    twk = tweak("good_config.yml")
+    twk = tweak("good_config.yaml")
     try:
         twk.createConfig()
     except Exception as exc:
         assert False, f"'createConfig() raised an exception {exc}'"
-@pytest.mark.skip(reason = "this test is unfinished")
-def test_createConfig_actorsDict():
-    """ Checks if tweak has read in the right actors.
+
+def test_createConfig_ModuleNotFound(set_configdir):
+    """ Tests if ModuleNotFoundError is raised.
+    """
+    twk = tweak("bad_package.yaml")
+    with pytest.raises(ModuleNotFoundError):
+        twk.createConfig()
+
+@pytest.mark.xfail(reason = "this error hasn't been induced")
+def test_createConfig_ImportError(set_configdir):
+    """ Tests if ImportError is raised.
 
     TODO:
-        Check if cfg['actors'] has the right key, val pairs.
+        Induce this error from __import__
     """
+
+    twk = tweak("bad_class.yaml")
+    with pytest.raises(ImportError):
+        twk.createConfig()
+
+def test_createConfig_AttributeError(set_configdir):
+    """ Tests if AttributeError is raised.
+    """
+
+    twk = tweak("bad_class.yaml")
+    with pytest.raises(AttributeError):
+        twk.createConfig()
 
 #@pytest.mark.skip(reason = "this test is unfinished")
 def test_saveConfig_clean():
     """ Given a good config file, tests if saveConfig runs without error.
     """
-    
+
     twk = tweak("good_config.yaml")
     x = twk.saveConfig()
     y = ['Acquirer', 'Processor', 'Analysis']
