@@ -8,7 +8,6 @@ actors:
 
 
 connections:
-  Acquirer.q_out: [Processor.q_in, Visual.raw_frame_queue]
+  Acquirer.q_out: [Processor.q_in]
   Processor.q_out: [Analysis.q_in]
-  Analysis.q_out: [Visual.q_in]
   InputStim.q_out: [Analysis.input_stim_queue]
