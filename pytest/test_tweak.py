@@ -97,6 +97,17 @@ def test_createConfig_actorsDict():
             Check if cfg['actors'] has the right key, val pairs.
     """
 
+#@pytest.mark.skip(reason = "this test is unfinished")
+def test_saveConfig_clean():
+    """ Given a good config file, tests if saveConfig runs without error.
+    """
+    
+    twk = tweak("good_config.yaml")
+    x = twk.saveConfig()
+    y = ['Acquirer', 'Processor', 'Analysis']
+    assert x.keys() == y
+
 @pytest.mark.skip(reason = "this test is unfinished")
-def test_saveConfig():
-    assert True
+def test_saveConfig_noActor():
+    """ Checks if there is an error while saving.
+    """
