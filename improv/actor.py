@@ -31,11 +31,21 @@ class Actor():
         self.q_out = None
 
     def __repr__(self):
+        """ Internal representation of the Actor mostly for printing purposes.
+
+        Returns:
+            [str]: _description_
+        """
         ''' Return this instance name and links dict
         '''
         return self.name+': '+str(self.links.keys())
 
     def setStore(self, client):
+        """ Sets the client interface to the store
+
+        Args:
+            client (improv.nexus.Link): _description_
+        """
         ''' Set client interface to the store
         '''
         self.client = client
