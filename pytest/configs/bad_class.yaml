@@ -2,7 +2,7 @@ actors:
 
   Acquirer:
     package: improv.actors.acquire
-    class: FileAcquirer
+    class: BadAcquirer
     filename: data/Tolias_mesoscope_2.hdf5
     framerate: 30
 
