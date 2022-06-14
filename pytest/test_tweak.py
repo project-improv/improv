@@ -27,8 +27,7 @@ def set_configdir():
         [(None, os.getcwd() + "/basic_demo.yaml"),
         ("good_config.yaml", os.getcwd() + "/good_config.yaml")])
 def test_init(test_input, expected):
-    """ Tests the initialization by checking if the config files match what is
-    passed in to the constructor.
+    """ Checks if config files match what is passed to the constructor.
 
     Asserts:
             Whether tweak has the correct config file.
@@ -41,11 +40,11 @@ def test_init(test_input, expected):
     assert twk.configFile == expected
 
 def test_init_attributes():
-    """ Checks if tweak has the correct default attributes on initialization.
+    """ Tests if tweak has correct default attributes on initialization.
 
-    Checks if actors, connection, and hasGUI are all empty or nonexistent.
-    Detects errors by maintaining a list of errors, and then adding to it
-    every time an unexpected behavior is encountered.
+    Checks if actors, connection, and hasGUI are all empty or
+    nonexistent. Detects errors by maintaining a list of errors, and
+    then adding to it every time an unexpected behavior is encountered.
 
     Asserts:
         If the default attributes are empty or nonexistent.
@@ -81,7 +80,7 @@ def test_createConfig_settings(set_configdir):
     assert twk.settings == {'use_watcher': None}
 
 def test_createConfig_clean(set_configdir):
-    """ Given a good config file, tests if createConfig runs without error.
+    """ Tests if createConfig runs without error given a good config.
 
     Asserts:
         If createConfig does not raise any errors.
@@ -101,14 +100,14 @@ def test_createConfig_noActor(set_configdir):
         twk.createConfig()
 
 def test_createConfig_ModuleNotFound(set_configdir):
-    """ Tests if ModuleNotFoundError is raised when the package can't be found.
+    """ Tests if an error is raised when the package can't be found.
     """
     twk = tweak("bad_package.yaml")
     with pytest.raises(ModuleNotFoundError):
         twk.createConfig()
 
 def test_createConfig_ImportError(set_configdir):
-    """ Tests if AttributeError is raised when the class name is invalid.
+    """ Tests if an error is raised when the class name is invalid.
     """
 
     twk = tweak("bad_class.yaml")
@@ -149,7 +148,7 @@ def test_cylicity_cyclic_graph():
 
 #@pytest.mark.skip(reason = "this test is unfinished")
 def test_saveConfig_clean():
-    """ Given a good config file, tests if saveConfig runs without error.
+    """ Tests if saveConfig runs without error given a good config.
     """
 
     twk = tweak("good_config.yaml")
