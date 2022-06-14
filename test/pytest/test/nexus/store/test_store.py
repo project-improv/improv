@@ -47,7 +47,8 @@ class LimboConnect(self):
         assert cm.exception.name == 'CannotConnectToStoreError'
 
 class LimboGet(self):
-
+    # TODO: @pytest.parameterize...limbo.get and limbo.getID for diff datatypes, pickleable and not, etc.
+    # Check raises...CannotGetObjectError (object never stored)
     def test_init_empty(self):
         assert self.limbo.get_all() == False
 
