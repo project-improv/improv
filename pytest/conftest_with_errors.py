@@ -1,10 +1,10 @@
 import pytest
 import subprocess
 import asyncio
-from nexus.actor import RunManager, AsyncRunManager
+from improv.actor import RunManager, AsyncRunManager
 from multiprocessing import Process
 
-@pytest.fixture(scope="module")
+#@pytest.fixture(scope="module")
 # scope=function, class, module, package or session?
 # function: the default scope, the fixture is destroyed at the end of the test.
 #
