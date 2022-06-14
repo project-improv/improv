@@ -92,7 +92,6 @@ def test_createConfig_ModuleNotFound(set_configdir):
     with pytest.raises(ModuleNotFoundError):
         twk.createConfig()
 
-@pytest.mark.xfail(reason = "this error hasn't been induced")
 def test_createConfig_ImportError(set_configdir):
     """ Tests if ImportError is raised.
 
@@ -101,7 +100,7 @@ def test_createConfig_ImportError(set_configdir):
     """
 
     twk = tweak("bad_class.yaml")
-    with pytest.raises(ImportError):
+    with pytest.raises(AttributeError):
         twk.createConfig()
 
 def test_createConfig_AttributeError(set_configdir):
