@@ -98,9 +98,9 @@ class Limbo_ReleaseReset(StoreDependentTestCase):
 
 class Limbo_Put(StoreDependentTestCase):
 
-    def test_putOne(self):
+    def test_put_one(self):
         id = self.limbo.put(1, 'one')
-        self.assertEqual(1, self.limbo.get('one'))
+        assert 1 == self.limbo.get('one')
 
     def test_put_twice(self):
         id = self.limbo.put(2, 'two')
