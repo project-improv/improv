@@ -101,13 +101,26 @@ class Tweak():
         cfg = self.actors
         yaml.safe_dump(cfg)
 
+        fileName = 'data/cfg_dump'
+        with open(fileName, 'w') as file:
+            documents = yaml.safe_dump(cfg, file)
+
 class TweakModule():
     def __init__(self, name, packagename, classname, options=None):
         self.name = name
         self.packagename = packagename
         self.classname = classname
         self.options = options
-
+    
+    # TODO finish representation function
+    #def to_yaml(cls, dumper, data)
+    #    for value in data._name.values():
+    #        for z in value:
+    #            [].extend([
+    #               {"class": z._classname},
+    #                {options??}
+    #            ])
+    #    return dumper.represent_mapping({"actors": [], data._name})
 
 class RepeatedActorError(Exception):
     def __init__(self, repeat):
