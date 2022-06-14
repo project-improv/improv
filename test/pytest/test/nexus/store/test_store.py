@@ -11,8 +11,12 @@ from improv.store import CannotGetObjectError
 from improv.store import CannotConnectToStoreError
 import pickle
 
+# TODO: add docstrings!!!
+# TODO: clean up syntax - consistent capitalization, function names, etc.
+# TODO: decide to keep classes
+# TODO: increase coverage!!! SEE store.py
+
 # Separate each class as individual file - individual tests???
-# TODO: remove set_up and tear_down - test if behavior is the same w/fixtures
 
 @pytest.fixture(scope="function")
 # TODO: change name...
@@ -116,21 +120,18 @@ class Limbo_PutGet(StoreDependentTestCase):
         assert id == self.limbo.stored['one']
 
     def test_get_nonexistent(self):
-
         # Handle exception thrown
         with self.assertRaises(Exception) as cm:
             self.limbo.get('three')
-
         # Check that the exception thrown is a CannotGetObjectError
         assert cm.exception.name == 'CannotGetObjectError'
 
 """class Limbo_Notify(StoreDependentTestCase):
 
-    # Add test body here
     def test_notify(self):
         # TODO: not unit testable?
 
-
+### This is NOT USED anymore???
 class Limbo_UpdateStored(StoreDependentTestCase):
 
     # Accessing self.limbo.stored directly to test getStored separately
