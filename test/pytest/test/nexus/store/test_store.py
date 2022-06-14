@@ -1,14 +1,14 @@
 import pytest
-from src.nexus.store import Limbo
+from improv.store import Limbo
 from multiprocessing import Process
 from pyarrow import PlasmaObjectExists
 from scipy.sparse import csc_matrix
 import numpy as np
 import pyarrow.plasma as plasma
 from pyarrow.lib import ArrowIOError
-from nexus.store import ObjectNotFoundError
-from nexus.store import CannotGetObjectError
-from nexus.store import CannotConnectToStoreError
+from improv.store import ObjectNotFoundError
+from improv.store import CannotGetObjectError
+from improv.store import CannotConnectToStoreError
 import pickle
 
 # Separate each class as individual file - individual tests???
