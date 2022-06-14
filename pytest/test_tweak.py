@@ -4,7 +4,7 @@ import yaml
 from inspect import signature
 from importlib import import_module
 
-from improv.tweak import RepeatedActorError, RepeatedConnectionsError
+from improv.tweak import RepeatedActorError
 from improv.tweak import Tweak as tweak
 
 import logging; logger = logging.getLogger(__name__)
@@ -14,7 +14,8 @@ import logging; logger = logging.getLogger(__name__)
 pytest.config_dir = os.getcwd() + "/./configs"
 
 @pytest.fixture
-def set_configdir():
+
+def set_cwd():
     """ Sets the current working directory to the configs file.
     """
 
@@ -25,14 +26,15 @@ def set_configdir():
         "test_input, expected",
         [(None, os.getcwd() + "/basic_demo.yaml"),
         ("good_config.yaml", os.getcwd() + "/good_config.yaml")])
+
 def test_init(test_input, expected):
     """ Tests the initialization by checking if the config files match what is
     passed in to the constructor.
 
-    Asserts:
+        Asserts:
             Whether tweak has the correct config file.
 
-    TODO:
+        TODO:
             Figure out what parts of __init__ should be tested.
     """
 
@@ -68,7 +70,7 @@ def test_init_attributes():
     assert not errors, "The following errors occurred:\n{}".format(
                                                             "\n".join(errors))
 
-def test_createConfig_settings(set_configdir):
+def test_createConfig_settings(set_cwd):
     """ Check if the default way tweak creates settings is correct.
     """
 
@@ -76,50 +78,43 @@ def test_createConfig_settings(set_configdir):
     twk.createConfig()
     assert twk.settings == {'use_watcher' : None}
 
-def test_createConfig_clean(set_configdir):
+@pytest.mark.skip(reason = "this case is automatically handled by\
+                            yaml.safe_load")
+
+def test_createConfig_RepeatedActorError():
+    """ Checks if there is an error with a duplicate actor in the config.
+    """
+
+    twk = tweak("repeated_actors.yaml")
+    with pytest.raises(RepeatedActorError):
+        twk.createConfig()
+
+@pytest.mark.skip(reason = "this test is unfinished")
+def test_createConfig_repeatedConnectionsError():
+    assert True
+
+@pytest.mark.skip(reason = "this test is unfinished")
+def test_createConfig_clean():
     """ Given a good config file, tests if createConfig runs without error.
     """
-    twk = tweak("good_config.yaml")
-    try:
-        twk.createConfig()
-    except Exception as exc:
-        assert False, f"'createConfig() raised an exception {exc}'"
 
-def test_createConfig_ModuleNotFound(set_configdir):
-    """ Tests if ModuleNotFoundError is raised.
-    """
-    twk = tweak("bad_package.yaml")
-    with pytest.raises(ModuleNotFoundError):
-        twk.createConfig()
+@pytest.mark.skip(reason = "this test is unfinished")
+def test_createConfig_actorsDict():
+    """ Checks if tweak has read in the right actors.
 
-def test_createConfig_ImportError(set_configdir):
-    """ Tests if ImportError is raised.
-
-    TODO:
-        Induce this error from __import__
+        TODO:
+            Check if cfg['actors'] has the right key, val pairs.
     """
 
-    twk = tweak("bad_class.yaml")
-    with pytest.raises(AttributeError):
-        twk.createConfig()
-
-def test_createConfig_AttributeError(set_configdir):
-    """ Tests if AttributeError is raised.
-    """
-
-    twk = tweak("bad_class.yaml")
-    with pytest.raises(AttributeError):
-        twk.createConfig()
-
-#@pytest.mark.skip(reason = "this test is unfinished")
+@pytest.mark.skip(reason = "this test is unfinished")
 def test_saveConfig_clean():
     """ Given a good config file, tests if saveConfig runs without error.
     """
-
+    
     twk = tweak("good_config.yaml")
-    x = twk.saveConfig()
-    y = ['Acquirer', 'Processor', 'Analysis']
-    assert x.keys() == y
+    twk.createConfig()
+    twk.saveConfig()
+    
 
 @pytest.mark.skip(reason = "this test is unfinished")
 def test_saveConfig_noActor():
