@@ -73,7 +73,6 @@ class LimboGetID(self):
 
     def test_use_hdd(self):
         self.lmdb_store.put(1, 'one')
-        
         assert self.lmdb_store.getID('one', hdd_only=True) == 1
 
 class LimboGetListandAll(StoreDependentTestCase):
