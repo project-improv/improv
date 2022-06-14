@@ -116,6 +116,16 @@ def test_createConfig_AttributeError(set_configdir):
     with pytest.raises(AttributeError):
         twk.createConfig()
 
+def test_createConfig_blank_file(set_configdir):
+    twk = tweak("blank_file.yaml")
+    with pytest.raises(TypeError):
+        twk.createConfig()
+
+def test_createConfig_nonsense_file(set_configdir):
+    twk = tweak("nonsense.yaml")
+    with pytest.raises(TypeError):
+        twk.createConfig()
+
 #@pytest.mark.skip(reason = "this test is unfinished")
 def test_saveConfig_clean():
     """ Given a good config file, tests if saveConfig runs without error.
