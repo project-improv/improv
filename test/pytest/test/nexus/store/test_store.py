@@ -89,7 +89,7 @@ class Limbo_ReleaseReset(StoreDependentTestCase):
     def test_release(self):
         self.limbo.release()
         self.limbo.put(1, 'one')
-        self.assertRaises(ArrowIOError)
+        pytest.raises(ArrowIOError)
 
     def test_reset(self):
         self.limbo.reset()
