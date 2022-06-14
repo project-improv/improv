@@ -4,7 +4,7 @@ import yaml
 from inspect import signature
 from importlib import import_module
 
-from improv.tweak import RepeatedActorError, RepeatedConnectionsError
+from improv.tweak import RepeatedActorError
 from improv.tweak import Tweak as tweak
 from improv.utils import checks
 
@@ -15,7 +15,8 @@ import logging; logger = logging.getLogger(__name__)
 pytest.config_dir = os.getcwd() + "/./configs"
 
 @pytest.fixture
-def set_configdir():
+
+def set_cwd():
     """ Sets the current working directory to the configs file.
     """
 
@@ -26,13 +27,14 @@ def set_configdir():
         "test_input, expected",
         [(None, os.getcwd() + "/basic_demo.yaml"),
         ("good_config.yaml", os.getcwd() + "/good_config.yaml")])
+
 def test_init(test_input, expected):
     """ Checks if config files match what is passed to the constructor.
 
-    Asserts:
+        Asserts:
             Whether tweak has the correct config file.
 
-    TODO:
+        TODO:
             Figure out what parts of __init__ should be tested.
     """
 
@@ -68,7 +70,7 @@ def test_init_attributes():
     assert not errors, "The following errors occurred:\n{}".format(
                                                             "\n".join(errors))
 
-def test_createConfig_settings(set_configdir):
+def test_createConfig_settings(set_cwd):
     """ Check if the default way tweak creates settings is correct.
 
     Asserts:
@@ -102,20 +104,21 @@ def test_createConfig_noActor(set_configdir):
 def test_createConfig_ModuleNotFound(set_configdir):
     """ Tests if an error is raised when the package can't be found.
     """
-    twk = tweak("bad_package.yaml")
-    with pytest.raises(ModuleNotFoundError):
+
+    twk = tweak("repeated_actors.yaml")
+    with pytest.raises(RepeatedActorError):
         twk.createConfig()
 
 def test_createConfig_ImportError(set_configdir):
     """ Tests if an error is raised when the class name is invalid.
     """
 
-    twk = tweak("bad_class.yaml")
-    with pytest.raises(AttributeError):
-        twk.createConfig()
+@pytest.mark.skip(reason = "this test is unfinished")
+def test_createConfig_actorsDict():
+    """ Checks if tweak has read in the right actors.
 
-def test_createConfig_AttributeError(set_configdir):
-    """ Tests if AttributeError is raised.
+        TODO:
+            Check if cfg['actors'] has the right key, val pairs.
     """
 
     twk = tweak("bad_class.yaml")
@@ -150,13 +153,15 @@ def test_cylicity_cyclic_graph():
 def test_saveConfig_clean():
     """ Tests if saveConfig runs without error given a good config.
     """
-
+    
     twk = tweak("good_config.yaml")
-    x = twk.saveConfig()
-    y = ['Acquirer', 'Processor', 'Analysis']
-    assert x.keys() == y
+    twk.createConfig()
+    twk.saveConfig()
+    
 
 @pytest.mark.skip(reason = "this test is unfinished")
 def test_saveConfig_noActor():
     """ Checks if there is an error while saving.
     """
+
+    #comment
