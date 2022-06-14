@@ -77,12 +77,12 @@ class LimboGetID(self):
 
 class LimboGetListandAll(StoreDependentTestCase):
 
-    def getListandAll(self):
+    def test_get_list_and_all(self):
         id = self.limbo.put(1, 'one')
         id2 = self.limbo.put(2, 'two')
         id3 = self.limbo.put(3, 'three')
-        self.assertEqual([1, 2], self.limbo.getList(['one', 'two']))
-        self.assertEqual([1, 2, 3], self.limbo.get_all())
+        assert [1, 2], self.limbo.getList(['one', 'two'])
+        assert [1, 2, 3], self.limbo.get_all()
 
 class Limbo_ReleaseReset(StoreDependentTestCase):
 
