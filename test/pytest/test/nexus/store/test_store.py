@@ -112,8 +112,8 @@ class Limbo_PutGet(StoreDependentTestCase):
     def test_getOne(self):
         id = self.limbo.put(1, 'one')
         id2 = self.limbo.put(2, 'two')
-        self.assertEqual(1, self.limbo.get('one'))
-        self.assertEqual(id, self.limbo.stored['one'])
+        assert 1 == self.limbo.get('one')
+        assert id == self.limbo.stored['one']
 
     def test_get_nonexistent(self):
 
@@ -122,7 +122,7 @@ class Limbo_PutGet(StoreDependentTestCase):
             self.limbo.get('three')
 
         # Check that the exception thrown is a CannotGetObjectError
-        self.assertEqual(cm.exception.name, 'CannotGetObjectError')
+        assert cm.exception.name == 'CannotGetObjectError'
 
 """class Limbo_Notify(StoreDependentTestCase):
 
@@ -137,37 +137,37 @@ class Limbo_UpdateStored(StoreDependentTestCase):
     def test_updateGet(self):
         self.limbo.put(1, 'one')
         self.limbo.updateStored('one', 3)
-        self.assertEqual(3,self.limbo.stored['one'])
+        assert 3 == self.limbo.stored['one']
 
 class Limbo_GetStored(StoreDependentTestCase):
 
     def test_getStoredEmpty(self):
-        self.assertFalse(self.limbo.getStored())
+        assert self.limbo.getStored() == False
 
     def test_putGetStored(self):
         self.limbo.put(1, 'one')
-        self.assertEqual(1, self.limbo.getID(self.limbo.getStored()['one'])) # returns ID
+        assert 1 == self.limbo.getID(self.limbo.getStored()['one'])
 
 class Limbo_internalPutGet(StoreDependentTestCase):
 
     def test_put(self):
         id = self.limbo.random_ObjectID(1)
         self.limbo._put(1, id[0])
-        self.assertEqual(1, self.limbo.client.get(id[0]))
+        assert 1 == self.limbo.client.get(id[0])
 
     def test_get(self):
         id= self.limbo.put(1, 'one')
         self.limbo.updateStored('one', id)
-        self.assertEqual(self.limbo._get('one'), 1)
+        assert self.limbo._get('one') == 1
 
     def test__getNonexistent(self):
 
         # Handle exception thrown
-        with self.assertRaises(Exception) as cm:
+        with pytest.raises(Exception) as cm:
         # Check that the exception thrown is a ObjectNotFoundError
             self.limbo._get('three')
-            self.assertEqual(cm.exception.name, 'ObjectNotFoundError')
-            self.assertEqual(cm.exception.message, 'Cannnot find object with ID/name "three"')
+            assert cm.exception.name == 'ObjectNotFoundError'
+            assert cm.exception.message == 'Cannnot find object with ID/name "three"'
 
 class Limbo_saveTweak(StoreDependentTestCase):
 
@@ -178,7 +178,7 @@ class Limbo_saveTweak(StoreDependentTestCase):
         tweak_ids=[id, id2]
         self.limbo.saveTweak(tweak_ids)
         with open(fileName, 'rb') as output:
-            self.assertEqual(pickle.load(output), [1, 2])
+            assert pickle.load(output) == [1, 2]
 
 # Test out CSC matrix format after updating to arrow 0.14.0
 class Limbo_sparseMatrix(StoreDependentTestCase):
@@ -186,4 +186,4 @@ class Limbo_sparseMatrix(StoreDependentTestCase):
     def test_csc(self):
         csc = csc_matrix((3, 4), dtype=np.int8)
         self.limbo.put(csc, "csc")
-        self.assertTrue(np.allclose(self.limbo.get("csc").toarray(), csc.toarray()))
+        assert np.allclose(self.limbo.get("csc").toarray(), csc.toarray()) == True
