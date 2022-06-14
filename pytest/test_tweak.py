@@ -82,13 +82,6 @@ def test_createConfig_settings(set_cwd):
     twk.createConfig()
     assert twk.settings == {'use_watcher': None}
 
-<<<<<<< HEAD
-@pytest.mark.skip(reason = "this case is automatically handled by\
-                            yaml.safe_load")
-
-def test_createConfig_RepeatedActorError():
-    """ Checks if there is an error with a duplicate actor in the config.
-=======
 def test_createConfig_clean(set_configdir):
     """ Given a good config file, tests if createConfig runs without error.
 
@@ -111,25 +104,14 @@ def test_createConfig_noActor(set_configdir):
 
 def test_createConfig_ModuleNotFound(set_configdir):
     """ Tests if ModuleNotFoundError is raised when the package can't be found.
->>>>>>> aa779698eef97e6a8708d258ea9e7893b2101a2e
     """
 
     twk = tweak("repeated_actors.yaml")
     with pytest.raises(RepeatedActorError):
         twk.createConfig()
 
-<<<<<<< HEAD
-@pytest.mark.skip(reason = "this test is unfinished")
-def test_createConfig_repeatedConnectionsError():
-    assert True
-
-@pytest.mark.skip(reason = "this test is unfinished")
-def test_createConfig_clean():
-    """ Given a good config file, tests if createConfig runs without error.
-=======
 def test_createConfig_ImportError(set_configdir):
     """ Tests if AttributeError is raised when the class name is invalid.
->>>>>>> aa779698eef97e6a8708d258ea9e7893b2101a2e
     """
 
 @pytest.mark.skip(reason = "this test is unfinished")
@@ -140,9 +122,6 @@ def test_createConfig_actorsDict():
             Check if cfg['actors'] has the right key, val pairs.
     """
 
-<<<<<<< HEAD
-@pytest.mark.skip(reason = "this test is unfinished")
-=======
     twk = tweak("bad_class.yaml")
     with pytest.raises(AttributeError):
         twk.createConfig()
@@ -172,7 +151,6 @@ def test_cylicity_cyclic_graph():
     assert not checks.check_if_connections_acyclic(path)
 
 #@pytest.mark.skip(reason = "this test is unfinished")
->>>>>>> aa779698eef97e6a8708d258ea9e7893b2101a2e
 def test_saveConfig_clean():
     """ Given a good config file, tests if saveConfig runs without error.
     """
@@ -186,3 +164,5 @@ def test_saveConfig_clean():
 def test_saveConfig_noActor():
     """ Checks if there is an error while saving.
     """
+
+    #comment
