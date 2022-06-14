@@ -53,7 +53,7 @@ class Tweak():
             except ModuleNotFoundError:
                 logger.error('Error: Packagename not valid')
 
-            except ImportError:
+            except AttributeError:
                 logger.error('Error: Classname not valid within package')
 
             mod = import_module(packagename)
