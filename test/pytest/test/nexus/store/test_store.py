@@ -105,7 +105,7 @@ class Limbo_Put(StoreDependentTestCase):
     def test_put_twice(self):
         id = self.limbo.put(2, 'two')
         id2 = self.limbo.put(2, 'two')
-        self.assertRaises(PlasmaObjectExists)
+        pytest.raises(PlasmaObjectExists)
 
 class Limbo_PutGet(StoreDependentTestCase):
 
