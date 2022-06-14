@@ -53,8 +53,11 @@ class LimboGet(self):
         assert self.limbo.get_all() == False
 
 class LimboGetID(self):
-    #Check both hdd_only=False/True
-    #Check isInstance type, isInstance bytes, else
+    # TODO:
+    # Check both hdd_only=False/True
+    # Check isInstance type, isInstance bytes, else
+    # Check in disk - pytest.raises(ObjectNotFoundError)
+    # Decide to test_getList and test_get_all
 
     def test_is_picklable(self):
         # Test if obj to put is picklable - if not raise error, handle/suggest how to fix
