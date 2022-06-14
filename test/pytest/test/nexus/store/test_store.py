@@ -37,13 +37,12 @@ class LimboConnect(self):
         # Check that the exception thrown is a CannotConnectToStoreError
         assert cm.exception.name == 'CannotConnectToStoreError'
 
-    def test_connect_store_loc_none(self):
+    def test_connect_none_path(self):
+        # BUT default should be store_loc = '/tmp/store' if not entered?
         store_loc = None
-
         # Handle exception thrown
-        with self.assertRaises(Exception) as cm:
+        with pytest.raises(Exception) as cm:
             self.limbo.connnect_store(store_loc)
-
         # Check that the exception thrown is a CannotConnectToStoreError
         assert cm.exception.name == 'CannotConnectToStoreError'
 
