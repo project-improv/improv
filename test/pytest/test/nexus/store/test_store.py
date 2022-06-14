@@ -64,8 +64,7 @@ class LimboGetID(self):
 
     def test_is_csc_matrix_and_put(self):
         mat = csc_matrix((3, 4), dtype=np.int8)
-        x = self.limbo.put(mat, 'matrix' ) # Returns object_id
-        # pytest for assertIsInstance?
+        x = self.limbo.put(mat, 'matrix' )
         assert isinstance(self.limbo.getID(x), csc_matrix)
 
     def test_not_put(self):
