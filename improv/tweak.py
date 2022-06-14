@@ -32,11 +32,19 @@ class Tweak():
         with open(self.configFile, 'r') as ymlfile:
             cfg = yaml.safe_load(ymlfile)
 
-        if 'settings' in cfg:
-            self.settings = cfg['settings']
-        else:
-            self.settings = {}
-            self.settings['use_watcher'] = None
+        try:
+            if 'settings' in cfg:
+                self.settings = cfg['settings']
+            else:
+                self.settings = {}
+                self.settings['use_watcher'] = None
+        except TypeError:
+            logger.error('Error: The config file is empty')
+
+        try:
+            actor_items = cfg['actors'].items()[0]
+        except TypeError:
+            logger.error('error: The config file is formatted incorrectly')
 
         for name,actor in cfg['actors'].items():
             # put import/name info in TweakModule object TODO: make ordered?
@@ -53,7 +61,7 @@ class Tweak():
             except ModuleNotFoundError:
                 logger.error('Error: Packagename not valid')
 
-            except ImportError:
+            except AttributeError:
                 logger.error('Error: Classname not valid within package')
 
             mod = import_module(packagename)

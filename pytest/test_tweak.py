@@ -6,6 +6,7 @@ from importlib import import_module
 
 from improv.tweak import RepeatedActorError
 from improv.tweak import Tweak as tweak
+from improv.utils import checks
 
 import logging; logger = logging.getLogger(__name__)
 
@@ -72,23 +73,52 @@ def test_init_attributes():
 
 def test_createConfig_settings(set_cwd):
     """ Check if the default way tweak creates settings is correct.
+
+    Asserts:
+        If the default setting is the dictionary {'use_watcher': None'}
     """
 
     twk = tweak("good_config.yaml")
     twk.createConfig()
-    assert twk.settings == {'use_watcher' : None}
+    assert twk.settings == {'use_watcher': None}
 
+<<<<<<< HEAD
 @pytest.mark.skip(reason = "this case is automatically handled by\
                             yaml.safe_load")
 
 def test_createConfig_RepeatedActorError():
     """ Checks if there is an error with a duplicate actor in the config.
+=======
+def test_createConfig_clean(set_configdir):
+    """ Given a good config file, tests if createConfig runs without error.
+
+    Asserts:
+        If createConfig does not raise any errors.
+    """
+    twk = tweak("good_config.yaml")
+    try:
+        twk.createConfig()
+    except Exception as exc:
+        assert False, f"'createConfig() raised an exception {exc}'"
+
+def test_createConfig_noActor(set_configdir):
+    """ Tests if AttributeError is raised when there are no actors.
+    """
+
+    twk = tweak("no_actor.yaml")
+    with pytest.raises(AttributeError):
+        twk.createConfig()
+
+def test_createConfig_ModuleNotFound(set_configdir):
+    """ Tests if ModuleNotFoundError is raised when the package can't be found.
+>>>>>>> aa779698eef97e6a8708d258ea9e7893b2101a2e
     """
 
     twk = tweak("repeated_actors.yaml")
     with pytest.raises(RepeatedActorError):
         twk.createConfig()
 
+<<<<<<< HEAD
 @pytest.mark.skip(reason = "this test is unfinished")
 def test_createConfig_repeatedConnectionsError():
     assert True
@@ -96,6 +126,10 @@ def test_createConfig_repeatedConnectionsError():
 @pytest.mark.skip(reason = "this test is unfinished")
 def test_createConfig_clean():
     """ Given a good config file, tests if createConfig runs without error.
+=======
+def test_createConfig_ImportError(set_configdir):
+    """ Tests if AttributeError is raised when the class name is invalid.
+>>>>>>> aa779698eef97e6a8708d258ea9e7893b2101a2e
     """
 
 @pytest.mark.skip(reason = "this test is unfinished")
@@ -106,7 +140,39 @@ def test_createConfig_actorsDict():
             Check if cfg['actors'] has the right key, val pairs.
     """
 
+<<<<<<< HEAD
 @pytest.mark.skip(reason = "this test is unfinished")
+=======
+    twk = tweak("bad_class.yaml")
+    with pytest.raises(AttributeError):
+        twk.createConfig()
+
+def test_createConfig_blank_file(set_configdir):
+    """ Tests if a blank config file raises an error.
+    """
+
+    twk = tweak("blank_file.yaml")
+    with pytest.raises(TypeError):
+        twk.createConfig()
+
+def test_createConfig_nonsense_file(set_configdir):
+    """ Tests if an improperly formatted config raises an error.
+    """
+
+    twk = tweak("nonsense.yaml")
+    with pytest.raises(TypeError):
+        twk.createConfig()
+
+def test_cyclicity_acyclic_graph(set_configdir):
+    path = os.getcwd() + "/good_config.yaml"
+    assert checks.check_if_connections_acyclic(path)
+
+def test_cylicity_cyclic_graph():
+    path = os.getcwd() + "/cyclic_config.yaml"
+    assert not checks.check_if_connections_acyclic(path)
+
+#@pytest.mark.skip(reason = "this test is unfinished")
+>>>>>>> aa779698eef97e6a8708d258ea9e7893b2101a2e
 def test_saveConfig_clean():
     """ Given a good config file, tests if saveConfig runs without error.
     """
