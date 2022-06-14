@@ -85,18 +85,23 @@ def test_createConfig_clean(set_configdir):
     except Exception as exc:
         assert False, f"'createConfig() raised an exception {exc}'"
 
+def test_createConfig_noActor(set_configdir):
+    """ Tests if AttributeError is raised when there are no actors.
+    """
+
+    twk = tweak("no_actor.yaml")
+    with pytest.raises(AttributeError):
+        twk.createConfig()
+
 def test_createConfig_ModuleNotFound(set_configdir):
-    """ Tests if ModuleNotFoundError is raised.
+    """ Tests if ModuleNotFoundError is raised when the package can't be found.
     """
     twk = tweak("bad_package.yaml")
     with pytest.raises(ModuleNotFoundError):
         twk.createConfig()
 
 def test_createConfig_ImportError(set_configdir):
-    """ Tests if ImportError is raised.
-
-    TODO:
-        Induce this error from __import__
+    """ Tests if AttributeError is raised when the class name is invalid.
     """
 
     twk = tweak("bad_class.yaml")
