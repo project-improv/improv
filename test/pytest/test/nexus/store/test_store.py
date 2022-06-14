@@ -28,13 +28,12 @@ class LimboConnect(self):
         self.limbo.connect_store(store_loc)
         assert isinstance(self.limbo.client, plasma.PlasmaClient)
 
-    def test_connect_store_loc_incorrect_path(self):
+    def test_connect_incorrect_path(self):
+        # TODO: shorter name???
         store_loc = 'asdf'
-
         # Handle exception thrown
-        with self.assertRaises(Exception) as cm:
+        with pytest.raises(Exception) as cm:
             self.limbo.connnect_store(store_loc)
-
         # Check that the exception thrown is a CannotConnectToStoreError
         assert cm.exception.name == 'CannotConnectToStoreError'
 
