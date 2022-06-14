@@ -68,11 +68,8 @@ class LimboGetID(self):
         assert isinstance(self.limbo.getID(x), csc_matrix)
 
     def test_not_put(self):
-        pytest.raises(ObjectNotFoundError, self.limbo.getID, self.limbo.random_ObjectID(1))
-
         obj = self.limbo.getID(self.limbo.random_ObjectID(1))
-
-        self.assertRaises(ObjectNotFoundError)
+        pytest.raises(ObjectNotFoundError)
 
     def test_use_hdd(self):
         self.lmdb_store.put(1, 'one')
