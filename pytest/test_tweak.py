@@ -6,6 +6,7 @@ from importlib import import_module
 
 from improv.tweak import RepeatedActorError, RepeatedConnectionsError
 from improv.tweak import Tweak as tweak
+from improv.utils import checks
 
 import logging; logger = logging.getLogger(__name__)
 
@@ -70,14 +71,20 @@ def test_init_attributes():
 
 def test_createConfig_settings(set_configdir):
     """ Check if the default way tweak creates settings is correct.
+
+    Asserts:
+        If the default setting is the dictionary {'use_watcher': None'}
     """
 
     twk = tweak("good_config.yaml")
     twk.createConfig()
-    assert twk.settings == {'use_watcher' : None}
+    assert twk.settings == {'use_watcher': None}
 
 def test_createConfig_clean(set_configdir):
     """ Given a good config file, tests if createConfig runs without error.
+
+    Asserts:
+        If createConfig does not raise any errors.
     """
     twk = tweak("good_config.yaml")
     try:
@@ -117,14 +124,28 @@ def test_createConfig_AttributeError(set_configdir):
         twk.createConfig()
 
 def test_createConfig_blank_file(set_configdir):
+    """ Tests if a blank config file raises an error.
+    """
+
     twk = tweak("blank_file.yaml")
     with pytest.raises(TypeError):
         twk.createConfig()
 
 def test_createConfig_nonsense_file(set_configdir):
+    """ Tests if an improperly formatted config raises an error.
+    """
+
     twk = tweak("nonsense.yaml")
     with pytest.raises(TypeError):
         twk.createConfig()
+
+def test_cyclicity_acyclic_graph(set_configdir):
+    path = os.getcwd() + "/good_config.yaml"
+    assert checks.check_if_connections_acyclic(path)
+
+def test_cylicity_cyclic_graph():
+    path = os.getcwd() + "/cyclic_config.yaml"
+    assert not checks.check_if_connections_acyclic(path)
 
 #@pytest.mark.skip(reason = "this test is unfinished")
 def test_saveConfig_clean():
