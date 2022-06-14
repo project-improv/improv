@@ -14,6 +14,13 @@ import pickle
 # Separate each class as individual file - individual tests???
 # TODO: remove set_up and tear_down - test if behavior is the same w/fixtures
 
+@pytest.fixture(scope="function")
+# TODO: change name...
+# def run_before_after?
+def limbo():
+    # self.limbo = Limbo()
+    return Limbo()
+
 class LimboConnect(self):
 
     def set_up(self):
