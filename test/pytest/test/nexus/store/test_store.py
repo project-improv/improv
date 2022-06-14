@@ -81,8 +81,8 @@ class LimboGetListandAll(StoreDependentTestCase):
         id = self.limbo.put(1, 'one')
         id2 = self.limbo.put(2, 'two')
         id3 = self.limbo.put(3, 'three')
-        assert [1, 2], self.limbo.getList(['one', 'two'])
-        assert [1, 2, 3], self.limbo.get_all()
+        assert [1, 2] == self.limbo.getList(['one', 'two'])
+        assert [1, 2, 3] == self.limbo.get_all()
 
 class Limbo_ReleaseReset(StoreDependentTestCase):
 
@@ -94,7 +94,7 @@ class Limbo_ReleaseReset(StoreDependentTestCase):
     def test_reset(self):
         self.limbo.reset()
         self.limbo.put(1, 'one')
-        self.assertEqual(self.limbo.get('one'), 1)
+        assert self.limbo.get('one') == 1
 
 class Limbo_Put(StoreDependentTestCase):
 
