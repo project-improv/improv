@@ -23,12 +23,6 @@ def limbo():
 
 class LimboConnect(self):
 
-    def set_up(self):
-        # Necessary at all if setup in conftest.py in store folder?
-        # super... necessary?
-        super(LimboConnect, self).set_up()
-        self.limbo = Limbo()
-
     def test_connect(self):
         store_loc = '/tmp/store'
         self.limbo.connect_store(store_loc)
@@ -54,34 +48,14 @@ class LimboConnect(self):
         # Check that the exception thrown is a CannotConnectToStoreError
         assert cm.exception.name == 'CannotConnectToStoreError'
 
-    def tear_down(self):
-        # Same as setup - necessary if teardown in conftest.py in store folder?
-        super(LimboConnect, self).tear_down()
-
 class LimboGet(self):
-
-    def set_up(self):
-        # Necessary at all if setup in conftest.py in store folder?
-        # super... necessary?
-        super(LimboConnect, self).set_up()
-        self.limbo = Limbo()
 
     def test_init_empty(self):
         assert self.limbo.get_all() == False
 
-    def tear_down(self):
-        # Same as setup - necessary if teardown in conftest.py in store folder?
-        super(LimboConnect, self).tear_down()
-
 class LimboGetID(self):
     #Check both hdd_only=False/True
     #Check isInstance type, isInstance bytes, else
-
-    def set_up(self):
-        # Necessary at all if setup in conftest.py in store folder?
-        # super... necessary?
-        super(LimboConnect, self).set_up()
-        self.limbo = Limbo()
 
     def test_is_picklable(self):
         # Test if obj to put is picklable - if not raise error, handle/suggest how to fix
@@ -104,14 +78,7 @@ class LimboGetID(self):
         
         assert self.lmdb_store.getID('one', hdd_only=True) == 1
 
-    def tear_down(self):
-        # Same as setup - necessary if teardown in conftest.py in store folder?
-        super(LimboConnect, self).tear_down()
-
 class LimboGetListandAll(StoreDependentTestCase):
-    def setUp(self):
-        super(Limbo_getListandAll, self).setUp()
-        self.limbo=Limbo()
 
     def getListandAll(self):
         id = self.limbo.put(1, 'one')
@@ -120,14 +87,7 @@ class LimboGetListandAll(StoreDependentTestCase):
         self.assertEqual([1, 2], self.limbo.getList(['one', 'two']))
         self.assertEqual([1, 2, 3], self.limbo.get_all())
 
-    def tearDown(self):
-        super(Limbo_getListandAll, self).tearDown()
-
 class Limbo_ReleaseReset(StoreDependentTestCase):
-
-    def setUp(self):
-        super(Limbo_ReleaseReset, self).setUp()
-        self.limbo=Limbo()
 
     def test_release(self):
         self.limbo.release()
@@ -139,14 +99,7 @@ class Limbo_ReleaseReset(StoreDependentTestCase):
         self.limbo.put(1, 'one')
         self.assertEqual(self.limbo.get('one'), 1)
 
-    def tearDown(self):
-        super(Limbo_ReleaseReset, self).tearDown()
-
 class Limbo_Put(StoreDependentTestCase):
-
-    def setUp(self):
-        super(Limbo_Put, self).setUp()
-        self.limbo = Limbo()
 
     def test_putOne(self):
         id = self.limbo.put(1, 'one')
@@ -157,15 +110,7 @@ class Limbo_Put(StoreDependentTestCase):
         id2 = self.limbo.put(2, 'two')
         self.assertRaises(PlasmaObjectExists)
 
-    def tearDown(self):
-        super(Limbo_Put, self).tearDown()
-
-
 class Limbo_PutGet(StoreDependentTestCase):
-
-    def setUp(self):
-        super(Limbo_PutGet, self).setUp()
-        self.limbo = Limbo()
 
     def test_getOne(self):
         id = self.limbo.put(1, 'one')
@@ -182,29 +127,14 @@ class Limbo_PutGet(StoreDependentTestCase):
         # Check that the exception thrown is a CannotGetObjectError
         self.assertEqual(cm.exception.name, 'CannotGetObjectError')
 
-    def tearDown(self):
-        super(Limbo_PutGet, self).tearDown()
-
-
 """class Limbo_Notify(StoreDependentTestCase):
-    def setUp(self):
-        super(Limbo_Notify, self).setUp()
-        self.limbo = Limbo()
 
     # Add test body here
     def test_notify(self):
         # TODO: not unit testable?
 
 
-    def tearDown(self):
-        super(Limbo_Notify, self).tearDown()"""
-
-
-
 class Limbo_UpdateStored(StoreDependentTestCase):
-    def setUp(self):
-        super(Limbo_UpdateStored, self).setUp()
-        self.limbo = Limbo()
 
     # Accessing self.limbo.stored directly to test getStored separately
     def test_updateGet(self):
@@ -212,13 +142,7 @@ class Limbo_UpdateStored(StoreDependentTestCase):
         self.limbo.updateStored('one', 3)
         self.assertEqual(3,self.limbo.stored['one'])
 
-    def tearDown(self):
-        super(Limbo_UpdateStored, self).tearDown()
-
 class Limbo_GetStored(StoreDependentTestCase):
-    def setUp(self):
-        super(Limbo_GetStored, self).setUp()
-        self.limbo = Limbo()
 
     def test_getStoredEmpty(self):
         self.assertFalse(self.limbo.getStored())
@@ -227,15 +151,7 @@ class Limbo_GetStored(StoreDependentTestCase):
         self.limbo.put(1, 'one')
         self.assertEqual(1, self.limbo.getID(self.limbo.getStored()['one'])) # returns ID
 
-    def tearDown(self):
-        super(Limbo_GetStored, self).tearDown()
-
-
 class Limbo_internalPutGet(StoreDependentTestCase):
-
-    def setUp(self):
-        super(Limbo_internalPutGet, self).setUp()
-        self.limbo = Limbo()
 
     def test_put(self):
         id = self.limbo.random_ObjectID(1)
@@ -256,15 +172,7 @@ class Limbo_internalPutGet(StoreDependentTestCase):
             self.assertEqual(cm.exception.name, 'ObjectNotFoundError')
             self.assertEqual(cm.exception.message, 'Cannnot find object with ID/name "three"')
 
-
-    def tearDown(self):
-        super(Limbo_internalPutGet, self).tearDown()
-
 class Limbo_saveTweak(StoreDependentTestCase):
-
-    def setUp(self):
-        super(Limbo_saveTweak, self).setUp()
-        self.limbo = Limbo()
 
     def test_tweak(self):
         fileName= 'data/tweak_dump'
@@ -275,21 +183,10 @@ class Limbo_saveTweak(StoreDependentTestCase):
         with open(fileName, 'rb') as output:
             self.assertEqual(pickle.load(output), [1, 2])
 
-    def tearDown(self):
-        super(Limbo_saveTweak, self).tearDown()
-
-
 # Test out CSC matrix format after updating to arrow 0.14.0
 class Limbo_sparseMatrix(StoreDependentTestCase):
-
-    def setUp(self):
-        super(Limbo_sparseMatrix, self).setUp()
-        self.limbo = Limbo()
 
     def test_csc(self):
         csc = csc_matrix((3, 4), dtype=np.int8)
         self.limbo.put(csc, "csc")
         self.assertTrue(np.allclose(self.limbo.get("csc").toarray(), csc.toarray()))
-
-    def tearDown(self):
-        super(Limbo_sparseMatrix, self).tearDown()
