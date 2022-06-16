@@ -149,7 +149,7 @@ def test_cyclic_graph():
     path = os.getcwd() + "/cyclic_config.yaml"
     assert not checks.check_if_connections_acyclic(path)
 
-@pytest.mark.skip(reason = "this test is unfinished")
+#@pytest.mark.skip(reason = "this test is unfinished")
 def test_saveConfig_clean():
     """ Tests if saveConfig runs without error given a good config.
     """
@@ -157,7 +157,9 @@ def test_saveConfig_clean():
     twk = tweak("configs/good_config.yaml")
     twk.createConfig()
     twk.saveConfig()
-    yaml.safe_load(self.configFile)
+    twk2 = tweak("configs/good_config_save.yaml")
+    twk2.createConfig()
+    #yaml.safe_load(self.configFile)
     #assert twk.saveConfig() == x
     #import filecmp
     #filecmp.cmp(x, y)
