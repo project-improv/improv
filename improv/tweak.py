@@ -101,11 +101,13 @@ class Tweak():
         #remake cfg TODO
         cfg = self.actors
         
-        self.configFile 
         saveFile = self.configFile.split('.')[0]
         pathName = saveFile + '_save.yaml'
-        with open(pathName, 'w') as file:
-            documents = yaml.dump(cfg, file)
+
+        for a in self.actors.values():
+            a.saveConfig(pathName) 
+        # TODO iterate through strings in twkmodule
+       
 
 class TweakModule():
     def __init__(self, name, packagename, classname, options=None):
@@ -113,6 +115,16 @@ class TweakModule():
         self.packagename = packagename
         self.classname = classname
         self.options = options
+
+    def saveConfigModules(self, pathName):
+
+        cfg = {'package':self.packagename,
+                'class':self.classname,
+                } # TODO finish building dictionary of tweakModule strings
+        # TODO run through options in for loop
+
+        with open(pathName, 'w') as file: # TODO append to file instead of write
+            documents = yaml.dump(cfg, file)
 
 class RepeatedActorError(Exception):
     def __init__(self, repeat):
