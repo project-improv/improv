@@ -5,7 +5,7 @@ from improv.store import Limbo as limbo
 
 #set global_variables
 
-pytest.sample_links = {'1': "one", '2': "two", '3': "three"}
+pytest.example_links = {'1': "one", '2': "two", '3': "three"}
 
 @pytest.fixture
 def setup_store():
@@ -28,13 +28,13 @@ def init_actor():
     act = None
 
 @pytest.fixture
-def sample_links():
+def example_links():
     """ Fixture to provide a commonly used test input.
     """
 
-    pytest.sample_links = {'1': "one", '2': "two", '3': "three"}
-    yield pytest.sample_links
-    pytest.sample_links = {'1': "one", '2': "two", '3': "three"}
+    pytest.example_links = {'1': "one", '2': "two", '3': "three"}
+    yield pytest.example_links
+    pytest.example_links = {'1': "one", '2': "two", '3': "three"}
 
 @pytest.mark.parametrize("attribute, expected", [
     ("q_watchout", None),
@@ -66,12 +66,12 @@ def test_setStore(setup_store):
     """
 
     act = actor("Acquirer")
-    lmb = limbo()
+    lmb = limbo(store_loc="/tmp/store")
     act.setStore(lmb.client)
     assert act.client is lmb.client
 
 @pytest.mark.parametrize("links, expected", [
-    (pytest.sample_links, pytest.sample_links),
+    (pytest.example_links, pytest.example_links),
     ({}, {}),
     (None, None)
 ])
@@ -84,9 +84,9 @@ def test_setLinks(links, expected):
     assert act.links == expected
 
 @pytest.mark.parametrize("links, qc, qs, expected", [
-    (pytest.sample_links, "comm", "sig", {
+    (pytest.example_links, "comm", "sig", {
     '1': "one", '2': "two", '3': "three", "q_comm": "comm", "q_sig": "sig"}),
-    (pytest.sample_links, None, None, {'1': "one", '2': "two", '3': "three",
+    (pytest.example_links, None, None, {'1': "one", '2': "two", '3': "three",
     "q_comm": None, "q_sig": None})
 ])
 def test_setCommLinks(links, qc, qs, expected):
@@ -98,7 +98,7 @@ def test_setCommLinks(links, qc, qs, expected):
     act.setCommLinks(qc, qs)
     assert act.links == expected
 
-def test_setLinkIn(init_actor, sample_links):
+def test_setLinkIn(init_actor, example_links):
     """ Tests if we can set the input queue.
 
     TODO:
@@ -106,12 +106,12 @@ def test_setLinkIn(init_actor, sample_links):
     """
 
     act = init_actor
-    act.setLinks(sample_links)
+    act.setLinks(example_links)
     act.setLinkIn("input_q")
-    assert pytest.sample_links == {
+    assert pytest.example_links == {
         '1': "one", '2': "two", '3': "three", "q_in": "input_q"}
 
-def test_setLinkOut(init_actor, sample_links):
+def test_setLinkOut(init_actor, example_links):
     """ Tests if we can set the output queue.
 
     TODO:
@@ -119,14 +119,13 @@ def test_setLinkOut(init_actor, sample_links):
     """
 
     act = init_actor
-    links = sample_links
+    links = example_links
     act.setLinks(links)
     act.setLinkOut("output_q")
     assert act.links == {
         '1': "one", '2': "two", '3': "three", "q_out": "output_q"}
 
-@pytest.mark.skip(reason="this test is unfinished")
-def test_setLinkWatch(init_actor, sample_links):
+def test_setLinkWatch(init_actor, example_links):
     """ Tests if we can set the watch queue.
 
     TODO:
@@ -134,7 +133,8 @@ def test_setLinkWatch(init_actor, sample_links):
     """
 
     act = init_actor
-    link = sample_links
+    link = example_links
+    act.setLinks(link)
     act.setLinkWatch("watch_q")
     assert act.links == {
         '1': "one", '2': "two", '3': "three", "q_watchout": "watch_q"
@@ -174,11 +174,20 @@ def test_addLink(setup_store):
     err_out = "\n".join(err_messages)
     assert all(passes), f"The following errors occurred: {err_out}"
 
-@pytest.mark.skip(reason="this test is unfinished")
-def test_getLinks():
-    assert True
+def test_getLinks(init_actor, example_links):
+    """ Tests if we can access the dictionary of links.
 
-@pytest.mark.skip(reason="this test is unfinished")
+    TODO:
+        Add more parametrized test cases.
+    """
+
+    act = init_actor
+    links = example_links
+    act.setLinks(links)
+
+    assert act.getLinks() == {'1': "one", '2': "two", '3': "three"}
+
+@pytest.mark.skip(reason="actor.setup() is unimplemented in improv")
 def test_setup():
     assert True
 
@@ -194,4 +203,13 @@ def test_run():
 def test_changePriority():
     assert True
 
+@pytest.mark.skip(reason="this test is unfinished")
+def test_actor_connection():
+    """ Test if the links between actors are established correctly.
 
+    TODO:
+        Instantiate two actors
+        Set links between them
+        Check if their links correspond to each other
+    """
+    assert True
