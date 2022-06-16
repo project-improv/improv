@@ -16,7 +16,7 @@ from typing import List, Union
 import lmdb
 from pyarrow import SerializationCallbackError
 from pyarrow.lib import ArrowIOError
-from pyarrow.plasma import PlasmaObjectExists, ObjectNotAvailable, ObjectID
+from pyarrow._plasma import PlasmaObjectExists, ObjectNotAvailable, ObjectID
 
 import logging; logger=logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -49,7 +49,7 @@ class Limbo(StoreInterface):
     References to objects are contained in a dict where key is shortname, value is object_id
     '''
 
-    def __init__(self, name='default', store_loc='/tmp/store',
+    def __init__(self, name='default', store_loc='/dev/shm',
                  use_lmdb=False, lmdb_path='../outputs/', lmdb_name=None, hdd_maxstore=1e12,
                  flush_immediately=False, commit_freq=1):
 
