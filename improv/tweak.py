@@ -99,11 +99,12 @@ class Tweak():
     def saveConfig(self):
         #remake cfg TODO
         cfg = self.actors
-        yaml.safe_dump(cfg)
-
-        fileName = 'data/cfg_dump'
-        with open(fileName, 'w') as file:
-            documents = yaml.safe_dump(cfg, file)
+        
+        self.configFile 
+        saveFile = self.configFile.split('.')[0]
+        pathName = saveFile + '_save.yaml'
+        with open(pathName, 'w') as file:
+            documents = yaml.dump(cfg, file)
 
 class TweakModule():
     def __init__(self, name, packagename, classname, options=None):
@@ -111,16 +112,6 @@ class TweakModule():
         self.packagename = packagename
         self.classname = classname
         self.options = options
-    
-    # TODO finish representation function
-    #def to_yaml(cls, dumper, data)
-    #    for value in data._name.values():
-    #        for z in value:
-    #            [].extend([
-    #               {"class": z._classname},
-    #                {options??}
-    #            ])
-    #    return dumper.represent_mapping({"actors": [], data._name})
 
 class RepeatedActorError(Exception):
     def __init__(self, repeat):
