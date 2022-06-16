@@ -141,11 +141,11 @@ def test_createConfig_nonsense_file(set_configdir):
     with pytest.raises(TypeError):
         twk.createConfig()
 
-def test_cyclicity_acyclic_graph(set_configdir):
+def test_acyclic_graph(set_configdir):
     path = os.getcwd() + "/good_config.yaml"
     assert checks.check_if_connections_acyclic(path)
 
-def test_cylicity_cyclic_graph():
+def test_cyclic_graph():
     path = os.getcwd() + "/cyclic_config.yaml"
     assert not checks.check_if_connections_acyclic(path)
 
