@@ -44,12 +44,13 @@ class Tweak():
         try:
             actor_items = cfg['actors'].items()[0]
         except TypeError:
-            logger.error('error: The config file is formatted incorrectly')
+            logger.error('Error: The config file is formatted incorrectly')
 
         for name,actor in cfg['actors'].items():
             # put import/name info in TweakModule object TODO: make ordered?
 
             if name in self.actors.keys():
+                # Should be actor.keys() - self.actors.keys() is empty until update?
                 raise RepeatedActorError(name)
 
             packagename = actor.pop('package')
