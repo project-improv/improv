@@ -154,14 +154,18 @@ def test_saveConfig_clean():
     """ Tests if saveConfig runs without error given a good config.
     """
 
-    twk = tweak("good_config.yaml")
+    twk = tweak("configs/good_config.yaml")
     twk.createConfig()
     twk.saveConfig()
+    twk2 = tweak("configs/good_config_save.yaml")
+    twk2.createConfig()
+    #yaml.safe_load(self.configFile)
+    #assert twk.saveConfig() == x
+    #import filecmp
+    #filecmp.cmp(x, y)
 
 
 @pytest.mark.skip(reason = "this test is unfinished")
 def test_saveConfig_noActor():
     """ Checks if there is an error while saving.
     """
-
-    #comment
