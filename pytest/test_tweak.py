@@ -149,7 +149,7 @@ def test_cyclic_graph():
     path = os.getcwd() + "/cyclic_config.yaml"
     assert not checks.check_if_connections_acyclic(path)
 
-#@pytest.mark.skip(reason = "this test is unfinished")
+@pytest.mark.skip(reason = "this test is unfinished")
 def test_saveConfig_clean():
     """ Tests if saveConfig runs without error given a good config.
     """
