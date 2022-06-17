@@ -50,7 +50,11 @@ class Tweak():
             # put import/name info in TweakModule object TODO: make ordered?
 
             if name in self.actors.keys():
+<<<<<<< HEAD
                 # Should be actor.keys() - self.actors.keys() is empty until update?
+=======
+                logger.error('Duplicated actor names detected')
+>>>>>>> docs
                 raise RepeatedActorError(name)
 
             packagename = actor.pop('package')
