@@ -8,10 +8,10 @@ from improv.store import Limbo as limbo
 
 #set global_variables
 
-pytest.example_string_links = {'1': "one", '2': "two", '3': "three"}
-
+pytest.example_string_links =  {}
+pytest.example_links = {}
 @pytest.fixture
-def setup_store():
+def setup_store(scope="module"):
     """ Fixture to set up the store subprocess.
     """
 
@@ -38,6 +38,32 @@ def example_string_links():
     pytest.example_string_links = {'1': "one", '2': "two", '3': "three"}
     yield pytest.example_string_links
     pytest.example_string_links = {'1': "one", '2': "two", '3': "three"}
+
+@pytest.fixture
+def example_links(setup_store):
+    """ Fixture to provide link objects as test input and setup store.
+    """
+    setup_store
+    lmb = limbo(store_loc="/tmp/store")
+    act1 = actor("a1")
+    act2 = actor("a2")
+    act3 = actor("a3")
+    act4 = actor("a4")
+
+    lnk1 = Link("L1", "a1", "a2", lmb)
+    lnk2 = Link("L2", "a3", "a4", lmb)
+
+    link_dict = {"L1": lnk1, "L2": lnk2}
+    pytest.example_links = link_dict
+    yield pytest.example_links
+    pytest.example_links = link_dict
+
+def test_setup_glab_vars(example_links):
+    """ This is not an actual test, this is just to setup example links.
+    """
+    s = example_string_links
+    l = example_links
+    assert True
 
 @pytest.mark.parametrize("attribute, expected", [
     ("q_watchout", None),
@@ -76,6 +102,7 @@ def test_setStore(setup_store):
 @pytest.mark.parametrize("links, expected", [
     (pytest.example_string_links, pytest.example_string_links),
     ({}, {}),
+    (example_links, example_links),
     (None, None)
 ])
 def test_setLinks(links, expected):
@@ -86,22 +113,30 @@ def test_setLinks(links, expected):
     act.setLinks(links)
     assert act.links == expected
 
+@pytest.mark.skip(reason="Test has bugs")
 @pytest.mark.parametrize("links, qc, qs, expected", [
     (pytest.example_string_links, "comm", "sig", {
     '1': "one", '2': "two", '3': "three", "q_comm": "comm", "q_sig": "sig"}),
     (pytest.example_string_links, None, None, {'1': "one", '2': "two", '3': "three",
     "q_comm": None, "q_sig": None})
 ])
-def test_setCommLinks(links, qc, qs, expected):
+def test_setCommLinks(links, qc, qs, expected, example_string_links, example_links, init_actor):
     """ Tests if commLinks can be added to the actor's links.
     """
-
-    act = actor("Test")
+    assert links == {"1": "two"}
+    assert pytest.example_string_links == {"1": "two"}
+    act = init_actor
     act.setLinks(links)
     act.setCommLinks(qc, qs)
     assert act.links == expected
 
-def test_setLinkIn(init_actor, example_string_links):
+@pytest.mark.parametrize("links, expected", [
+    (pytest.example_string_links, pytest.example_string_links),
+    (pytest.example_links, pytest.example_links),
+    ({}, {}),
+    (None, TypeError)
+])
+def test_setLinkIn(init_actor, example_string_links, example_links, links, expected):
     """ Tests if we can set the input queue.
 
     TODO:
@@ -109,12 +144,22 @@ def test_setLinkIn(init_actor, example_string_links):
     """
 
     act = init_actor
-    act.setLinks(example_string_links)
-    act.setLinkIn("input_q")
-    assert pytest.example_string_links == {
-        '1': "one", '2': "two", '3': "three", "q_in": "input_q"}
+    act.setLinks(links)
+    if (links != None):
+        act.setLinkIn("input_q")
+        expected.update({"q_in": "input_q"})
+        assert act.links == expected
+    else:
+        with pytest.raises(AttributeError):
+            act.setLinkIn("input_queue")
 
-def test_setLinkOut(init_actor, example_string_links):
+@pytest.mark.parametrize("links, expected", [
+    (pytest.example_string_links, pytest.example_string_links),
+    (pytest.example_links, pytest.example_links),
+    ({}, {}),
+    (None, TypeError)
+])
+def test_setLinkOut(init_actor, example_string_links, example_links, links, expected):
     """ Tests if we can set the output queue.
 
     TODO:
@@ -122,13 +167,22 @@ def test_setLinkOut(init_actor, example_string_links):
     """
 
     act = init_actor
-    links = example_string_links
     act.setLinks(links)
-    act.setLinkOut("output_q")
-    assert act.links == {
-        '1': "one", '2': "two", '3': "three", "q_out": "output_q"}
+    if (links != None):
+        act.setLinkOut("output_q")
+        expected.update({"q_out": "output_q"})
+        assert act.links == expected
+    else:
+        with pytest.raises(AttributeError):
+            act.setLinkIn("output_queue")
 
-def test_setLinkWatch(init_actor, example_string_links):
+@pytest.mark.parametrize("links, expected", [
+    (pytest.example_string_links, pytest.example_string_links),
+    (pytest.example_links, pytest.example_links),
+    ({}, {}),
+    (None, TypeError)
+])
+def test_setLinkWatch(init_actor, example_string_links, example_links, links, expected):
     """ Tests if we can set the watch queue.
 
     TODO:
@@ -136,12 +190,14 @@ def test_setLinkWatch(init_actor, example_string_links):
     """
 
     act = init_actor
-    link = example_string_links
-    act.setLinks(link)
-    act.setLinkWatch("watch_q")
-    assert act.links == {
-        '1': "one", '2': "two", '3': "three", "q_watchout": "watch_q"
-    }
+    act.setLinks(links)
+    if (links != None):
+        act.setLinkWatch("watch_q")
+        expected.update({"q_watchout": "watch_q"})
+        assert act.links == expected
+    else:
+        with pytest.raises(AttributeError):
+            act.setLinkIn("input_queue")
 
 def test_addLink(setup_store):
     """ Tests if a link can be added to the dictionary of links.
