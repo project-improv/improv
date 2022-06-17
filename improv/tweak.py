@@ -120,8 +120,17 @@ class TweakModule():
 
         cfg = {'package':self.packagename,
                 'class':self.classname,
-                } # TODO finish building dictionary of tweakModule strings
+                'name':self.name,
+                'options':self.options} 
+        # TODO finish building dictionary of tweakModule strings
         # TODO run through options in for loop
+
+        #for key, value in self.options:
+        #    [].extend([
+        #        {key:value}
+        #    ])
+
+        cfg.update(self.options) # TODO append to combine the 2 dictionaries
 
         with open(pathName, 'w') as file: # TODO append to file instead of write
             documents = yaml.dump(cfg, file)
