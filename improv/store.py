@@ -49,7 +49,7 @@ class Limbo(StoreInterface):
     References to objects are contained in a dict where key is shortname, value is object_id
     '''
 
-    def __init__(self, name='default', store_loc='/dev/shm',
+    def __init__(self, name='default', store_loc='/tmp/store',
                  use_lmdb=False, lmdb_path='../outputs/', lmdb_name=None, hdd_maxstore=1e12,
                  flush_immediately=False, commit_freq=1):
 
@@ -242,7 +242,7 @@ class Limbo(StoreInterface):
     def reset(self):
         ''' Reset client connection
         '''
-        self.client = self.connectStore(self.store_loc)
+        self.client = self.connect_store(self.store_loc)
         logger.debug('Reset local connection to store')
 
     def release(self):
@@ -380,6 +380,7 @@ class LMDBStore(StoreInterface):
         """
 
         # Check if LMDB folder exists.
+        # LMDB path?
         path = Path(path)
         if load:
             if name is not None:
