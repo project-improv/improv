@@ -10,16 +10,18 @@ from improv.store import Limbo as limbo
 
 pytest.example_string_links =  {}
 pytest.example_links = {}
+
 @pytest.fixture
 def setup_store(scope="module"):
     """ Fixture to set up the store subprocess.
     """
 
     p = subprocess.Popen(
-        ['plasma_store', '-s', '/tmp/store', '-m', str(10000000)],\
+        ["plasma_store", "-s", "/tmp/store", "-m", str(10000000)],\
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     yield p
     p.kill()
+
 
 @pytest.fixture
 def init_actor():
@@ -30,14 +32,16 @@ def init_actor():
     yield act
     act = None
 
+
 @pytest.fixture
 def example_string_links():
     """ Fixture to provide a commonly used test input.
     """
 
-    pytest.example_string_links = {'1': "one", '2': "two", '3': "three"}
+    pytest.example_string_links = {"1": "one", "2": "two", "3": "three"}
     yield pytest.example_string_links
-    pytest.example_string_links = {'1': "one", '2': "two", '3': "three"}
+    pytest.example_string_links = {"1": "one", "2": "two", "3": "three"}
+
 
 @pytest.fixture
 def example_links(setup_store):
@@ -45,25 +49,15 @@ def example_links(setup_store):
     """
     setup_store
     lmb = limbo(store_loc="/tmp/store")
-    act1 = actor("a1")
-    act2 = actor("a2")
-    act3 = actor("a3")
-    act4 = actor("a4")
 
-    lnk1 = Link("L1", "a1", "a2", lmb)
-    lnk2 = Link("L2", "a3", "a4", lmb)
+    acts = [actor("act" + str(i)) for i in range(1, 5)] #range must be even
 
-    link_dict = {"L1": lnk1, "L2": lnk2}
+    links = [Link("L" + str(i + 1), acts[i], acts[i + 1], lmb) for i in range(len(acts) // 2)]
+    link_dict = {links[i].name: links[i] for i, l in enumerate(links)}
     pytest.example_links = link_dict
     yield pytest.example_links
     pytest.example_links = link_dict
 
-def test_setup_glab_vars(example_links):
-    """ This is not an actual test, this is just to setup example links.
-    """
-    s = example_string_links
-    l = example_links
-    assert True
 
 @pytest.mark.parametrize("attribute, expected", [
     ("q_watchout", None),
@@ -82,6 +76,7 @@ def test_default_init(attribute, expected, init_actor):
 
     assert atr == expected
 
+
 def test_repr_default_initialization(init_actor):
     """ Test if the actor representation has the right dict keys.
     """
@@ -89,6 +84,16 @@ def test_repr_default_initialization(init_actor):
     act = init_actor
     rep = act.__repr__()
     assert rep == "Test: dict_keys([])"
+
+
+def test_repr(example_string_links):
+    """ Test if the actor representation has the right, nonempty, dict.
+    """
+
+    act = actor("Test")
+    act.setLinks(example_string_links)
+    assert act.__repr__() == "Test: dict_keys([\'1\', \'2\', \'3\'])"
+
 
 def test_setStore(setup_store):
     """ Tests if the store is started and linked with the actor.
@@ -99,36 +104,42 @@ def test_setStore(setup_store):
     act.setStore(lmb.client)
     assert act.client is lmb.client
 
-@pytest.mark.parametrize("links, expected", [
-    (pytest.example_string_links, pytest.example_string_links),
-    ({}, {}),
-    (example_links, example_links),
-    (None, None)
+
+@pytest.mark.parametrize("links", [
+    (pytest.example_string_links),
+    ({}), 
+    (pytest.example_links),
+    (None)
 ])
-def test_setLinks(links, expected):
+def test_setLinks(links):
     """ Tests if the actors links can be set to certain values.
     """
 
     act = actor("test")
     act.setLinks(links)
-    assert act.links == expected
+    assert act.links == links 
 
-@pytest.mark.skip(reason="Test has bugs")
-@pytest.mark.parametrize("links, qc, qs, expected", [
-    (pytest.example_string_links, "comm", "sig", {
-    '1': "one", '2': "two", '3': "three", "q_comm": "comm", "q_sig": "sig"}),
-    (pytest.example_string_links, None, None, {'1': "one", '2': "two", '3': "three",
-    "q_comm": None, "q_sig": None})
+
+@pytest.mark.parametrize("qc, qs", [
+    ("comm", "sig"),
+    (None, None),
+    ("", ""),
+    ("LINK", "LINK") #these are placeholder names (store is not setup)
 ])
-def test_setCommLinks(links, qc, qs, expected, example_string_links, example_links, init_actor):
-    """ Tests if commLinks can be added to the actor's links.
+def test_setCommLinks(example_links, qc, qs, init_actor, setup_store):
+    """ Tests if commLinks can be added to the actor"s links.
     """
-    assert links == {"1": "two"}
-    assert pytest.example_string_links == {"1": "two"}
+
+    if (qc == "LINK" and qs == "LINK"):
+        qc = Link("L1", actor("1"), actor("2"), limbo(store_loc = "/tmp/store"))
+        qs = Link("L2", actor("3"), actor("4"), limbo(store_loc = "/tmp/store"))
     act = init_actor
-    act.setLinks(links)
+    act.setLinks(example_links)
     act.setCommLinks(qc, qs)
-    assert act.links == expected
+    
+    example_links.update({"q_comm": qc, "q_sig": qs}) 
+    assert act.links == example_links
+
 
 @pytest.mark.parametrize("links, expected", [
     (pytest.example_string_links, pytest.example_string_links),
@@ -138,9 +149,6 @@ def test_setCommLinks(links, qc, qs, expected, example_string_links, example_lin
 ])
 def test_setLinkIn(init_actor, example_string_links, example_links, links, expected):
     """ Tests if we can set the input queue.
-
-    TODO:
-        Add more parametrized test cases.
     """
 
     act = init_actor
@@ -153,6 +161,7 @@ def test_setLinkIn(init_actor, example_string_links, example_links, links, expec
         with pytest.raises(AttributeError):
             act.setLinkIn("input_queue")
 
+
 @pytest.mark.parametrize("links, expected", [
     (pytest.example_string_links, pytest.example_string_links),
     (pytest.example_links, pytest.example_links),
@@ -161,9 +170,6 @@ def test_setLinkIn(init_actor, example_string_links, example_links, links, expec
 ])
 def test_setLinkOut(init_actor, example_string_links, example_links, links, expected):
     """ Tests if we can set the output queue.
-
-    TODO:
-        Add more parametrized test cases.
     """
 
     act = init_actor
@@ -176,6 +182,7 @@ def test_setLinkOut(init_actor, example_string_links, example_links, links, expe
         with pytest.raises(AttributeError):
             act.setLinkIn("output_queue")
 
+
 @pytest.mark.parametrize("links, expected", [
     (pytest.example_string_links, pytest.example_string_links),
     (pytest.example_links, pytest.example_links),
@@ -184,9 +191,6 @@ def test_setLinkOut(init_actor, example_string_links, example_links, links, expe
 ])
 def test_setLinkWatch(init_actor, example_string_links, example_links, links, expected):
     """ Tests if we can set the watch queue.
-
-    TODO:
-        Add more parametrized test cases.
     """
 
     act = init_actor
@@ -199,29 +203,30 @@ def test_setLinkWatch(init_actor, example_string_links, example_links, links, ex
         with pytest.raises(AttributeError):
             act.setLinkIn("input_queue")
 
+
 def test_addLink(setup_store):
     """ Tests if a link can be added to the dictionary of links.
     """
 
     act = actor("test")
-    links = {'1': "one", '2': "two"}
+    links = {"1": "one", "2": "two"}
     act.setLinks(links)
-    newName = '3'
+    newName = "3"
     newLink = "three"
     act.addLink(newName, newLink)
-    links.update({'3': "three"})
+    links.update({"3": "three"})
 
     #trying to check for two separate conditions while being able to
     #distinguish between them should an error be raised
     passes = []
     err_messages = []
 
-    if (act.getLinks()['3'], "three"):
+    if (act.getLinks()["3"], "three"):
         passes.append(True)
     else:
         passes.append(False)
         err_messages.append("Error:\
-            actor.getLinks()['3']) is not equal to \"three\"")
+            actor.getLinks()['3'] is not equal to \"three\"")
 
     if (act.getLinks() == links):
         passes.append(True)
@@ -232,6 +237,7 @@ def test_addLink(setup_store):
 
     err_out = "\n".join(err_messages)
     assert all(passes), f"The following errors occurred: {err_out}"
+
 
 def test_getLinks(init_actor, example_string_links):
     """ Tests if we can access the dictionary of links.
@@ -244,14 +250,19 @@ def test_getLinks(init_actor, example_string_links):
     links = example_string_links
     act.setLinks(links)
 
-    assert act.getLinks() == {'1': "one", '2': "two", '3': "three"}
+    assert act.getLinks() == {"1": "one", "2": "two", "3": "three"}
+
 
 def test_setup_unimplemented(init_actor, example_string_links):
+    """ Checks if actor.setup raises an error.
+    """ 
+
     with pytest.raises(NotImplementedError):
         act = init_actor
         act.setup()
 
-@pytest.mark.skip(reason="this is something we'll do later because\
+
+@pytest.mark.skip(reason="this is something we\'ll do later because\
                     we will subclass actor w/ watcher later")
 def test_put(init_actor):
     """ Tests if data keys can be put to output links.
@@ -264,13 +275,18 @@ def test_put(init_actor):
     act.put()
     assert True
 
+
 def test_run(init_actor):
+    """ Tests if actor.run raises an error.
+    """ 
+
     with pytest.raises(NotImplementedError):
         act = init_actor
         act.run()
 
+
 def test_changePriority(init_actor):
-    """Tests if we are able to change the priority of an actor.
+    """ Tests if we are able to change the priority of an actor.
     """
 
     act = init_actor
@@ -279,13 +295,14 @@ def test_changePriority(init_actor):
 
     assert psutil.Process(os.getpid()).nice() == 19
 
+
 def test_actor_connection(setup_store):
     """ Test if the links between actors are established correctly.
 
-    TODO:
-        Instantiate two actors
-        Set links between them
-        Check if a message can be sent between links
+    This test instantiates two actors with different names, then instantiates
+    a Link object linking the two actors. A string is put to the input queue of 
+    one actor. Then, in the other actor, it is removed from the queue, and 
+    checked to verify it matches the original message.
     """
 
     act1 = actor("a1")
@@ -295,7 +312,6 @@ def test_actor_connection(setup_store):
     link = Link("L12", act1, act2, lmb)
     act1.setLinkIn(link)
     act2.setLinkOut(link)
-
 
     msg = "message"
 
