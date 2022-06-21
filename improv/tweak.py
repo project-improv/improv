@@ -50,11 +50,7 @@ class Tweak():
             # put import/name info in TweakModule object TODO: make ordered?
 
             if name in self.actors.keys():
-<<<<<<< HEAD
                 # Should be actor.keys() - self.actors.keys() is empty until update?
-=======
-                logger.error('Duplicated actor names detected')
->>>>>>> docs
                 raise RepeatedActorError(name)
 
             packagename = actor.pop('package')
@@ -104,14 +100,14 @@ class Tweak():
     def saveConfig(self):
         #remake cfg TODO
         cfg = self.actors
-        
+
         saveFile = self.configFile.split('.')[0]
         pathName = saveFile + '_save.yaml'
 
         for a in self.actors.values():
-            a.saveConfig(pathName) 
+            a.saveConfig(pathName)
         # TODO iterate through strings in twkmodule
-       
+
 
 class TweakModule():
     def __init__(self, name, packagename, classname, options=None):
@@ -125,7 +121,7 @@ class TweakModule():
         cfg = {'package':self.packagename,
                 'class':self.classname,
                 'name':self.name,
-                'options':self.options} 
+                'options':self.options}
         # TODO finish building dictionary of tweakModule strings
         # TODO run through options in for loop
 
