@@ -149,23 +149,18 @@ def test_cyclic_graph():
     path = os.getcwd() + "/cyclic_config.yaml"
     assert not checks.check_if_connections_acyclic(path)
 
-@pytest.mark.skip(reason = "this test is unfinished")
-def test_saveConfig_clean():
-    """ Tests if saveConfig runs without error given a good config.
+def test_saveActors_clean():
+    """ Compares internal actor representation to what was saved in the file.
     """
 
-    twk = tweak("configs/good_config.yaml")
+    twk = tweak("good_config.yaml")
     twk.createConfig()
-    twk.saveConfig()
-    twk2 = tweak("configs/good_config_save.yaml")
-    twk2.createConfig()
-    #yaml.safe_load(self.configFile)
-    #assert twk.saveConfig() == x
-    #import filecmp
-    #filecmp.cmp(x, y)
+    twk.saveActors()
+    
+    with open("good_config_actors.yaml") as savedConfig:
+        data = yaml.safe_load(savedConfig)
+    savedKeys = len(data.keys())
+    
+    originalKeys = len(twk.actors.keys())
 
-
-@pytest.mark.skip(reason = "this test is unfinished")
-def test_saveConfig_noActor():
-    """ Checks if there is an error while saving.
-    """
+    assert savedKeys == originalKeys
