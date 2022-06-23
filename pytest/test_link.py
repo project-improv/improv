@@ -3,7 +3,6 @@ import subprocess
 import queue
 import asyncio
 import signal
-import logging
 import concurrent.futures
 
 from async_timeout import timeout
@@ -13,37 +12,17 @@ from improv.link import AsyncQueue
 from improv.store import Limbo
 from improv.actor import Actor
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(name)s %(message)s',
-                    handlers=[logging.FileHandler("global.log"),
-                              logging.StreamHandler()])
-
-def with_timeout(t):
-    def wrapper(corofunc):
-        async def run(*args, **kwargs):
-            with timeout(t):
-                return await corofunc(*args, **kwargs)
-        return run       
-    return wrapper
-
-
-class Timeout:
-    def __init__(self, seconds=1, error_message='Timeout'):
-        self.seconds = seconds
-        self.error_message = error_message
-    def handle_timeout(self, signum, frame):
-        raise TimeoutError(self.error_message)
-    def __enter__(self):
-        signal.signal(signal.SIGALRM, self.handle_timeout)
-        signal.alarm(self.seconds)
-    def __exit__(self, type, value, traceback):
-        signal.alarm(0)
 
 @pytest.fixture
 def setup_store():
     """ Fixture to set up the store subprocess with 10 mb.
+
+    This fixture runs a subprocess that instantiates the store with a 
+    memory of 10 megabytes. It specifies that "/tmp/store/" is the 
+    location of the store socket.
+
+    Yields:
+        Limbo: An instance of the store.
 
     TODO:
         Figure out the scope.
@@ -59,6 +38,9 @@ def setup_store():
 
 def init_actors(n: "int"=1) -> "list":
     """ Function to return n unique actors.
+
+    Returns:
+        list: A list of n actors, each being named after its index.
     """
 
     actors_out = []
@@ -73,6 +55,9 @@ def init_actors(n: "int"=1) -> "list":
 
 @pytest.fixture
 def example_link(setup_store):
+    """ Fixture to provide a commonly used Link object.
+    """
+
     act = init_actors(2)
     lnk = Link("Example", act[0], act[1], setup_store)
     yield lnk
@@ -121,7 +106,7 @@ def test_Link_init_limbo(setup_store, example_link):
     ([Actor("test " + str(i)) for i in range(3)])
 ])
 def test_qsize_empty(example_link, input):
-    """ Checks that the queue has the number of elements in "input".
+    """ Tests that the queue has the number of elements in "input".
     """
 
     lnk = example_link
@@ -131,12 +116,18 @@ def test_qsize_empty(example_link, input):
 
 
 def test_getStart(example_link):
+    """ Tests if getStart returns the starting actor.
+    """
+
     lnk = example_link
 
     assert str(lnk.getStart()) == str(Actor("test 1"))
 
 
 def test_getEnd(example_link):
+    """ Tests if getEnd returns the ending actor.
+    """
+
     lnk = example_link
 
     assert str(lnk.getEnd()) == str(Actor("test 2"))
@@ -269,6 +260,12 @@ async def test_get_async_empty(example_link):
 
 @pytest.mark.skip(reason="unfinished")
 def test_cancel_join_thread(example_link):
+    """ Tests cancel_join_thread. This test is unfinished
+
+    TODO:
+        Identify where and when cancel_join_thread is being called.
+    """
+
     lnk = example_link
     lnk.cancel_join_thread()
 
@@ -278,6 +275,11 @@ def test_cancel_join_thread(example_link):
 @pytest.mark.skip(reason="unfinished")
 @pytest.mark.asyncio
 async def test_join_thread(example_link):
+    """ Tests join_thread. This test is unfinished
+
+    TODO:
+        Identify where and when join_thread is being called.
+    """
     lnk = example_link
     await lnk.put_async("message")
     msg = await lnk.get_async()
@@ -286,6 +288,9 @@ async def test_join_thread(example_link):
 
 
 def test_log_to_limbo_success(example_link):
+    """ Tests if log_to_limbo writes the specified message to limbo.
+    """
+
     lnk = example_link
     msg = "message"
     lnk.log_to_limbo(msg)
