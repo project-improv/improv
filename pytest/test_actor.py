@@ -13,7 +13,7 @@ pytest.example_links = {}
 
 @pytest.fixture
 def setup_store(scope="module"):
-    """ Fixture to set up the store subprocess.
+    """ Fixture to set up the store subprocess with 10 mb.
     """
 
     p = subprocess.Popen(
