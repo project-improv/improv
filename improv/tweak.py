@@ -50,11 +50,7 @@ class Tweak():
             # put import/name info in TweakModule object TODO: make ordered?
 
             if name in self.actors.keys():
-<<<<<<< HEAD
                 # Should be actor.keys() - self.actors.keys() is empty until update?
-=======
-                logger.error('Duplicated actor names detected')
->>>>>>> docs
                 raise RepeatedActorError(name)
 
             packagename = actor.pop('package')
@@ -101,17 +97,20 @@ class Tweak():
         ''' Function to add paramter param of type type
         '''
 
-    def saveConfig(self):
-        #remake cfg TODO
-        cfg = self.actors
+    def saveActors(self):
+        ''' Saves the config to a specific file.
+        '''
         
+        wflag = True
+        
+        cfg = self.actors
+
         saveFile = self.configFile.split('.')[0]
-        pathName = saveFile + '_save.yaml'
+        pathName = saveFile + '_actors.yaml'
 
         for a in self.actors.values():
-            a.saveConfig(pathName) 
-        # TODO iterate through strings in twkmodule
-       
+            wflag = a.saveConfigModules(pathName, wflag)
+
 
 class TweakModule():
     def __init__(self, name, packagename, classname, options=None):
@@ -120,24 +119,30 @@ class TweakModule():
         self.classname = classname
         self.options = options
 
-    def saveConfigModules(self, pathName):
+    def saveConfigModules(self, pathName, wflag):
+        ''' Loops through each actor to save the modules to the config file.
+        '''
 
-        cfg = {'package':self.packagename,
-                'class':self.classname,
-                'name':self.name,
-                'options':self.options} 
-        # TODO finish building dictionary of tweakModule strings
-        # TODO run through options in for loop
+        if wflag: 
+            writeOption = 'w'
+            wflag = False
+            #cfg = {"actors": []}
+        else:
+            writeOption = 'a'
 
-        #for key, value in self.options:
-        #    [].extend([
-        #        {key:value}
-        #    ])
+        cfg = {self.name:
+                    {'package':self.packagename,
+                    'class':self.classname}} # fix indentation
 
-        cfg.update(self.options) # TODO append to combine the 2 dictionaries
-
-        with open(pathName, 'w') as file: # TODO append to file instead of write
+        #for name in self.name:
+        #for b in self.name:
+        for key, value in self.options.items():
+            cfg[self.name].update({key:value})         
+        
+        with open(pathName, writeOption) as file:
             documents = yaml.dump(cfg, file)
+        
+        return wflag
 
 class RepeatedActorError(Exception):
     def __init__(self, repeat):
@@ -167,10 +172,11 @@ class RepeatedConnectionsError(Exception):
 
 
 if __name__ == '__main__':
-    tweak = Tweak(configFile='test/basic_demo')
+    tweak = Tweak(configFile='pytest/configs/good_config.yaml')
     tweak.createConfig()
-    for actor in tweak.actors:
-        print(actor)
+    tweak.saveActors()
+    # for actor in tweak.actors:
+    #     print(actor)
 
-    for connection in tweak.connections:
-        print(connection)
+    # for connection in tweak.connections:
+    #     print(connection)
