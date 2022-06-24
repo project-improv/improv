@@ -4,6 +4,7 @@ import queue
 import asyncio
 import signal
 import concurrent.futures
+import pyarrow
 
 from async_timeout import timeout
 
@@ -102,15 +103,16 @@ def test_Link_init_limbo(setup_store, example_link):
     ([None]),
     ([1]),
     ([i for i in range(5)]),
-    ([str(i ** i) for i in range(10)]),
-    ([Actor("test " + str(i)) for i in range(3)])
+    ([str(i ** i) for i in range(10)])
 ])
 def test_qsize_empty(example_link, input):
     """ Tests that the queue has the number of elements in "input".
     """
 
     lnk = example_link
-    [lnk.put(i) for i in input]
+    for i in input:
+        lnk.put(i)
+
     qsize = lnk.queue.qsize()
     assert qsize == len(input) 
 
@@ -145,6 +147,33 @@ def test_put(example_link):
 
     lnk.put(msg)
     assert lnk.get() == "message"
+
+@pytest.mark.skip(reason = "unfinished")
+def test_put_unserializable(example_link):
+    """ Tests if an unserializable objecet raises an error.
+
+    Instantiates an actor, which is unserializable, and passes it into 
+    Link.put(). 
+
+    Raises:
+        SerializationCallbackError: Actor objects are unserializable.
+    """
+
+    act = Actor("test")
+    lnk = example_link
+    try:
+        lnk.log_to_limbo(act)
+    except Exception as e:
+        assert e == None
+
+    res = lnk.limbo.get(f"q__{lnk.start}__{lnk.num - 1}")
+
+    assert res == None
+    # with pytest.raises(pyarrow.lib.SerializationCallbackError):
+    #     buf = pyarrow.serialize(act).to_buffer()
+    #     example_link.log_to_limbo(act) 
+    # with pytest.raises(TypeError):
+    #     example_link.put(act)
 
 
 def test_put_nowait(example_link):
