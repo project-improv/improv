@@ -24,22 +24,27 @@ def set_configdir():
     return None
 
 @pytest.mark.parametrize(
-        "test_input, expected",
-        [(None, os.getcwd() + "/basic_demo.yaml"),
-        ("good_config.yaml", os.getcwd() + "/good_config.yaml")])
+        "test_input",[
+            ("basic_demo.yaml"),
+            ("good_config.yaml")
+        ])
 
-def test_init(test_input, expected):
-    """ Checks if config files match what is passed to the constructor.
+def test_init(test_input, set_configdir):
+    """ Checks if twk.configFile matches the provided configFile.
 
-        Asserts:
-            Whether tweak has the correct config file.
-
-        TODO:
-            Figure out what parts of __init__ should be tested.
+    Asserts:
+        Whether tweak has the correct config file.
     """
 
     twk = tweak(test_input)
-    assert twk.configFile == expected
+    assert twk.configFile == os.getcwd() + "/" + test_input 
+
+def test_init_default(set_configdir):
+    """ Checks if the default config file is "basic_demo.yaml".
+    """
+
+    twk = tweak()
+    assert twk.configFile == os.getcwd() + "/basic_demo.yaml"
 
 def test_init_attributes():
     """ Tests if tweak has correct default attributes on initialization.
@@ -55,31 +60,27 @@ def test_init_attributes():
 
     twk = tweak()
     errors = []
-    sentinel = False
 
     if(twk.actors != {}):
         errors.append("tweak.actors is not empty! ")
-        sentinel = True
     if(twk.connections != {}):
         errors.append("tweak.connections is not empty! ")
-        sentinel = True
     if(twk.hasGUI):
         errors.append("tweak.hasGUI already exists! ")
-        sentinel = True
 
     assert not errors, "The following errors occurred:\n{}".format(
                                                             "\n".join(errors))
 
 def test_createConfig_settings(set_configdir):
-    """ Check if the default way tweak creates settings is correct.
+    """ Check if the default way tweak creates tweak.settings is correct.
 
     Asserts:
-        If the default setting is the dictionary {'use_watcher': None'}
+        If the default setting is the dictionary {"use_watcher": "None"}
     """
 
     twk = tweak("good_config.yaml")
     twk.createConfig()
-    assert twk.settings == {'use_watcher': None}
+    assert twk.settings == {"use_watcher": None}
 
 def test_createConfig_clean(set_configdir):
     """ Tests if createConfig runs without error given a good config.
@@ -87,11 +88,12 @@ def test_createConfig_clean(set_configdir):
     Asserts:
         If createConfig does not raise any errors.
     """
+
     twk = tweak("good_config.yaml")
     try:
         twk.createConfig()
     except Exception as exc:
-        assert False, f"'createConfig() raised an exception {exc}'"
+        assert False, f"createConfig() raised an exception {exc}"
 
 def test_createConfig_noActor(set_configdir):
     """ Tests if AttributeError is raised when there are no actors.
@@ -102,7 +104,7 @@ def test_createConfig_noActor(set_configdir):
         twk.createConfig()
 
 def test_createConfig_ModuleNotFound(set_configdir):
-    """ Tests if an error is raised when the package can't be found.
+    """ Tests if an error is raised when the package can"t be found.
     """
 
     twk = tweak("bad_package.yaml")
@@ -118,7 +120,7 @@ def test_createConfig_class_ImportError(set_configdir):
         twk.createConfig()
 
 def test_createConfig_AttributeError():
-    """ Tests fif AttributeError is raised.
+    """ Tests if AttributeError is raised.
     """
 
     twk = tweak("bad_class.yaml")
@@ -149,23 +151,18 @@ def test_cyclic_graph():
     path = os.getcwd() + "/cyclic_config.yaml"
     assert not checks.check_if_connections_acyclic(path)
 
-@pytest.mark.skip(reason = "this test is unfinished")
-def test_saveConfig_clean():
-    """ Tests if saveConfig runs without error given a good config.
+def test_saveActors_clean():
+    """ Compares internal actor representation to what was saved in the file.
     """
 
-    twk = tweak("configs/good_config.yaml")
+    twk = tweak("good_config.yaml")
     twk.createConfig()
-    twk.saveConfig()
-    twk2 = tweak("configs/good_config_save.yaml")
-    twk2.createConfig()
-    #yaml.safe_load(self.configFile)
-    #assert twk.saveConfig() == x
-    #import filecmp
-    #filecmp.cmp(x, y)
+    twk.saveActors()
+    
+    with open("good_config_actors.yaml") as savedConfig:
+        data = yaml.safe_load(savedConfig)
+    savedKeys = len(data.keys())
+    
+    originalKeys = len(twk.actors.keys())
 
-
-@pytest.mark.skip(reason = "this test is unfinished")
-def test_saveConfig_noActor():
-    """ Checks if there is an error while saving.
-    """
+    assert savedKeys == originalKeys
