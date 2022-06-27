@@ -127,7 +127,6 @@ dmypy.json
 *.mdb
 *.xml
 *.hdf5
-*.ipynb
 *.iml
 
 output/
