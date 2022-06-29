@@ -44,14 +44,10 @@ def init_actors(n = 1):
         list: A list of n actors, each being named after its index.
     """
 
-    actors_out = []
-    actor_num = 1
-    for i in range(n):
-        act = Actor("test " + str(actor_num))
-        actors_out.append(act)
-        actor_num += 1
+    #the links must be specified as an empty dictionary to avoid
+    #actors sharing a dictionary of links
 
-    return actors_out
+    return [Actor("test " + str(i), links={}) for i in range(n)]
 
 
 @pytest.fixture
@@ -80,17 +76,15 @@ def example_actor_system(setup_store):
 
     links = [L01, L13, L12, L23]
 
-    act = acts[1]
-    acts[1].setLinkOut(L01)
-    # acts[0].setLinkOut(L01)
-    # acts[1].setLinkOut(L13)
-    # acts[1].setLinkOut(L12)
-    # acts[2].setLinkOut(L23)
+    acts[0].addLink("q_out_1", L01)
+    acts[1].addLink("q_out_1", L13)
+    acts[1].addLink("q_out_2", L12)
+    acts[2].addLink("q_out_1", L23)
 
-    # acts[1].setLinkIn(L01)
-    # acts[2].setLinkIn(L12)
-    # acts[3].setLinkIn(L13)
-    # acts[3].setLinkIn(L23)
+    acts[1].addLink("q_in_1", L01)
+    acts[2].addLink("q_in_1", L12)
+    acts[3].addLink("q_in_1", L13)
+    acts[3].addLink("q_in_2", L23)
 
     yield [acts, links] #also yield Links
     acts = None
@@ -181,7 +175,7 @@ def test_getStart(example_link):
 
     lnk = example_link
 
-    assert str(lnk.getStart()) == str(Actor("test 1"))
+    assert str(lnk.getStart()) == str(Actor("test 0"))
 
 
 def test_getEnd(example_link):
@@ -190,7 +184,7 @@ def test_getEnd(example_link):
 
     lnk = example_link
 
-    assert str(lnk.getEnd()) == str(Actor("test 2"))
+    assert str(lnk.getEnd()) == str(Actor("test 1"))
 
 
 def test_put(example_link):
@@ -206,7 +200,7 @@ def test_put(example_link):
     lnk.put(msg)
     assert lnk.get() == "message"
 
-def test_put_unserializable(example_link, caplog):
+def test_put_unserializable(example_link, caplog, setup_store):
     """ Tests if an unserializable objecet raises an error.
 
     Instantiates an actor, which is unserializable, and passes it into 
@@ -215,17 +209,22 @@ def test_put_unserializable(example_link, caplog):
     Raises:
         SerializationCallbackError: Actor objects are unserializable.
     """
-
+    lmb = setup_store
     act = Actor("test")
     lnk = example_link
+    try:
+        lnk.put(act)
+    except:
+        with pytest.raises(TypeError):
+            lnk.put(act)
 
-    lnk.put(act)
-
+    sentinel = False
     if caplog.records:
         for record in caplog.records:
-            assert "SerializationCallbackError" in record.msg
-    else:
-        assert False, "Expected a logged error!"
+            sentinel = sentinel or "SerializationCallbackError" in record.msg
+
+    assert sentinel, "Expected logger output!"
+
 
 def test_put_nowait(example_link):
     """ Tests if messages can be put into the link without blocking.
@@ -496,27 +495,27 @@ def test_log_to_limbo_unserializable(example_link, caplog,
 
     kill_pytest_processes
 
-@pytest.mark.skip(reason = "unfinished")
 @pytest.mark.asyncio
-async def test_multi_actor_system(example_actor_system, setup_store):
+async def test_multi_actor_system(example_actor_system, 
+                             setup_store):
     """ Tests if async puts/gets with many actors have good messages.
     """
 
     setup_store
 
     graph = example_actor_system
-    acts = graph[0]
-    links = graph[1]
 
-    dicts = [acts[i].getLinks() for i in range(4)]
-    assert dicts == None
+    acts = graph[0]
 
     heavy_msg = [str(i) for i in range(10 ** 6)]
     light_msgs = ["message" + str(i) for i in range(3)]
     
-    await acts[0].q_out.put_async(heavy_msg)
-    await acts[1].q_out.put_async(light_msgs[0])
+    await acts[0].links["q_out_1"].put_async(heavy_msg)
+    await acts[1].links["q_out_1"].put_async(light_msgs[0])
+    await acts[1].links["q_out_2"].put_async(light_msgs[1])
+    await acts[2].links["q_out_1"].put_async(light_msgs[2])
     
-
-    dicts = [acts[i].getLinks() for i in range(4)]
-    assert dicts == None
+    assert await acts[1].links["q_in_1"].get_async() == heavy_msg
+    assert await acts[2].links["q_in_1"].get_async() == light_msgs[1]
+    assert await acts[3].links["q_in_1"].get_async() == light_msgs[0]
+    assert await acts[3].links["q_in_2"].get_async() == light_msgs[2]
