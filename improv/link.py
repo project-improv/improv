@@ -54,10 +54,13 @@ class AsyncQueue(object):
             name (str): String description of this queue
             start (str): The producer (input) actor for the queue
             end (str): The consumer (output) actor for the queue
-            limbo (improv.store.Limbo): Connection to the store for logging in case of future replay
+            limbo (improv.store.Limbo): Connection to the store for 
+                logging in case of future replay
 
-        #TODO: Rewrite to avoid limbo and use logger files instead
+        TODO: 
+            Rewrite to avoid limbo and use logger files instead.
         """
+
         self.queue = q
         self.real_executor = None
         self.cancelled_join = False
@@ -103,7 +106,15 @@ class AsyncQueue(object):
         return self.real_executor
 
     def __getstate__(self):
-        """ Gets the actual """
+        """ Gets a dictionary of attributes. 
+        
+        This function gets a dictionary, with keys being the names of 
+        the attributes, and values being the values of the attributes.
+        
+        Returns:
+            self_dict (dict): A dictionary containing attributes.
+        """
+
         self_dict = self.__dict__
         self_dict['_real_executor'] = None
         return self_dict
@@ -115,9 +126,12 @@ class AsyncQueue(object):
             name (str): Name of the attribute to be returned. 
 
         Raises:
-            AttributeError: Restricts the available attributes to a specific list. This error is raised
-            if a different attribute of the queue is requested.
-            #TODO: Don't raise this?
+            AttributeError: Restricts the available attributes to a
+            specific list. This error is raised if a different attribute
+             of the queue is requested.
+        
+        TODO: 
+            Don't raise this?
         
         Returns:
             (object): Value of the attribute specified by "name".
@@ -179,11 +193,12 @@ class AsyncQueue(object):
     async def get_async(self):
         """ Coroutine for an asynchronous get
 
-        It adds the get request to the event loop and awaits, setting the status to pending. 
-        Once the get has returned, it returns the result of the get and sets its status as done.
+        It adds the get request to the event loop and awaits, setting 
+        the status to pending. Once the get has returned, it returns the
+        result of the get and sets its status as done.
 
         Returns:
-            Awaitable or result of the get
+            Awaitable or result of the get.
         
         Exceptions:
             Explicitly passes any exceptions to not hinder execution.
@@ -201,10 +216,16 @@ class AsyncQueue(object):
             pass
 
     def cancel_join_thread(self):
+        """ Function wrapper for cancel_join_thread.
+        """
+
         self._cancelled_join = True
         self._queue.cancel_join_thread()
 
     def join_thread(self):
+        """ Function wrapper for join_thread.
+        """
+
         self._queue.join_thread()
         if self._real_executor and not self._cancelled_join:
             self._real_executor.shutdown()
@@ -247,13 +268,13 @@ class MultiAsyncQueue(AsyncQueue):
     """ Extension of AsyncQueue to have multiple endpoints.
 
     Inherits from AsyncQueue. 
-    A single producer queue's 'put' is copied to multiple consumer's queues
-    q_in is the producer queue, q_out are the consumer queues.
+    A single producer queue's 'put' is copied to multiple consumer's 
+    queues, q_in is the producer queue, q_out are the consumer queues.
     
-    #TODO: test the async nature of this group of queues
+    TODO: 
+        Test the async nature of this group of queues
     """
 
-    
     def __init__(self, q_in, q_out, name, start, end):
         self.queue = q_in
         self.output = q_out
