@@ -1,17 +1,17 @@
-import pytest
-import subprocess
-import queue
 import asyncio
-import signal
-import concurrent.futures
-import pyarrow
+import queue
+import subprocess
+import time
 
+import pyarrow
+import pytest
+import concurrent.futures
 from async_timeout import timeout
 
-from improv.link import Link
+from improv.actor import Actor
 from improv.link import AsyncQueue
 from improv.store import Limbo
-from improv.actor import Actor
+from improv.link import Link
 
 
 @pytest.fixture
@@ -37,7 +37,7 @@ def setup_store():
     p.kill()
 
 
-def init_actors(n: "int"=1) -> "list":
+def init_actors(n = 1):
     """ Function to return n unique actors.
 
     Returns:
@@ -63,6 +63,48 @@ def example_link(setup_store):
     lnk = Link("Example", act[0], act[1], setup_store)
     yield lnk
     lnk = None
+
+
+@pytest.fixture
+def example_actor_system(setup_store):
+    """ Fixture to provide a list of 4 connected actors.
+    """
+
+    lmb = setup_store
+    acts = init_actors(4)
+
+    L01 = Link("L01", acts[0], acts[1], lmb)
+    L13 = Link("L13", acts[1], acts[3], lmb)
+    L12 = Link("L12", acts[1], acts[2], lmb)
+    L23 = Link("L23", acts[2], acts[3], lmb)
+
+    links = [L01, L13, L12, L23]
+
+    act = acts[1]
+    acts[1].setLinkOut(L01)
+    # acts[0].setLinkOut(L01)
+    # acts[1].setLinkOut(L13)
+    # acts[1].setLinkOut(L12)
+    # acts[2].setLinkOut(L23)
+
+    # acts[1].setLinkIn(L01)
+    # acts[2].setLinkIn(L12)
+    # acts[3].setLinkIn(L13)
+    # acts[3].setLinkIn(L23)
+
+    yield [acts, links] #also yield Links
+    acts = None
+
+@pytest.fixture
+def kill_pytest_processes():
+    """ Kills all processes with "pytest" in their name.
+
+    NOTE:
+        This fixture should only be used at the end of testing.
+    """
+
+    p = subprocess.Popen(['kill', '`pgrep pytest`'], stdout=subprocess.\
+    DEVNULL, stderr=subprocess.DEVNULL)
 
 
 @pytest.mark.parametrize("attribute, expected",[
@@ -98,6 +140,22 @@ def test_Link_init_limbo(setup_store, example_link):
 
     assert example_link.limbo == setup_store
 
+def test_getstate(example_link):
+    """ Tests if __getstate__ has the right values on initialization.
+
+    Gets the dictionary of the link, then compares them against known
+    default values. Does not compare limbo and actors.
+
+    TODO:
+        Compare limbo and actors.
+    """
+
+    res = example_link.__getstate__()
+    errors = []
+    errors.append(res['_real_executor'] == None)
+    errors.append(res['cancelled_join'] == False)
+
+    assert all(errors)
 
 @pytest.mark.parametrize("input",[
     ([None]),
@@ -139,7 +197,7 @@ def test_put(example_link):
     """ Tests if messages can be put into the link.
 
     TODO:
-        Parametrize multiple test inputs.
+        Parametrize multiple test input types.
     """
 
     lnk = example_link
@@ -148,8 +206,7 @@ def test_put(example_link):
     lnk.put(msg)
     assert lnk.get() == "message"
 
-@pytest.mark.skip(reason = "unfinished")
-def test_put_unserializable(example_link):
+def test_put_unserializable(example_link, caplog):
     """ Tests if an unserializable objecet raises an error.
 
     Instantiates an actor, which is unserializable, and passes it into 
@@ -161,33 +218,32 @@ def test_put_unserializable(example_link):
 
     act = Actor("test")
     lnk = example_link
-    try:
-        lnk.log_to_limbo(act)
-    except Exception as e:
-        assert e == None
 
-    res = lnk.limbo.get(f"q__{lnk.start}__{lnk.num - 1}")
+    lnk.put(act)
 
-    assert res == None
-    # with pytest.raises(pyarrow.lib.SerializationCallbackError):
-    #     buf = pyarrow.serialize(act).to_buffer()
-    #     example_link.log_to_limbo(act) 
-    # with pytest.raises(TypeError):
-    #     example_link.put(act)
-
+    if caplog.records:
+        for record in caplog.records:
+            assert "SerializationCallbackError" in record.msg
+    else:
+        assert False, "Expected a logged error!"
 
 def test_put_nowait(example_link):
     """ Tests if messages can be put into the link without blocking.
 
     TODO:
-        Parametrize multiple test inputs.
+        Parametrize multiple test input types.
     """
 
     lnk = example_link
     msg = "message"
 
+    t_0 = time.perf_counter()
+    
     lnk.put_nowait(msg)
-    assert lnk.get() == "message"
+
+    t_1 = time.perf_counter()
+    t_net = t_1 - t_0
+    assert t_net < .005 #5 ms
 
 
 @pytest.mark.asyncio
@@ -202,6 +258,69 @@ async def test_put_async_success(example_link):
     msg = "message"
     res = await lnk.put_async(msg)
     assert res == None
+
+
+@pytest.mark.asyncio
+async def test_put_async_multiple(example_link):
+    """ Tests if async putting multiple objects preserves their order.
+    """
+
+    messages = [str(i) for i in range(10)] 
+
+    messages_out = []
+
+    for msg in messages:
+        await example_link.put_async(msg)
+
+    for msg in messages:
+        messages_out.append(example_link.get())
+
+    assert messages_out == messages
+
+
+@pytest.mark.asyncio
+async def test_put_and_get_async(example_link):
+    """ Tests if async get preserves order after async put.
+    """
+
+    messages = [str(i) for i in range(10)]
+
+    messages_out = []
+
+    for msg in messages:
+        await example_link.put_async(msg)
+
+    for msg in messages:
+        messages_out.append(await example_link.get_async())
+
+    assert messages_out == messages
+
+
+def test_put_overflow(setup_store, caplog):
+    """ Tests if putting too large of an object raises an error.
+    """
+
+    p = subprocess.Popen(
+        ['plasma_store', '-s', '/tmp/store', '-m', str(1000)],\
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    lmb = Limbo(store_loc = "/tmp/store")
+    
+    acts = init_actors(2)
+    lnk = Link("L1", acts[0], acts[1], lmb)    
+
+    message = [i for i in range(10 ** 6)] #24000 bytes
+
+    lnk.log_to_limbo(message)
+
+    p.kill()
+    setup_store #restore the 10 mb store
+
+    if caplog.records:
+        for record in caplog.records:
+            if "PlasmaStoreFull" in record.msg:
+                assert True
+    else:
+        assert False, "expected an error!"
 
 
 @pytest.mark.parametrize("message", [
@@ -227,6 +346,18 @@ def test_get(example_link, message):
     assert lnk.get() == expected
 
 
+def test_get_empty(example_link):
+    """ Tests if get blocks if the queue is empty.
+    """
+    
+    lnk = example_link
+    if lnk.queue.empty:
+        with pytest.raises(queue.Empty):
+            res = lnk.get(timeout=5.0)
+    else:
+        assert False, "expected a timeout!"
+
+
 @pytest.mark.parametrize("message", [
     ("message"),
     (""),
@@ -246,7 +377,14 @@ def test_get_nowait(example_link, message):
         lnk.put(message)
         expected = message
 
-    assert lnk.get_nowait() == expected
+    t_0 = time.perf_counter()
+   
+    res = lnk.get_nowait()
+    
+    t_1 = time.perf_counter()
+
+    assert res == expected and t_1 - t_0 < .005 #5 msg
+
 
 def test_get_nowait_empty(example_link):
     """ Tests if get_nowait raises an error when the queue is empty.
@@ -284,7 +422,11 @@ async def test_get_async_empty(example_link):
     timeout = 5.0
 
     with pytest.raises(asyncio.TimeoutError):
-        await asyncio.wait_for(lnk.get_async(), timeout)
+        task = asyncio.create_task(lnk.get_async())
+        await asyncio.wait_for(task, timeout)
+        task.cancel()
+
+    lnk.put("exit") #this is here to break out of get_async()
     
 
 @pytest.mark.skip(reason="unfinished")
@@ -316,12 +458,65 @@ async def test_join_thread(example_link):
     assert True
 
 
-def test_log_to_limbo_success(example_link):
+@pytest.mark.parametrize("input", [
+    (None),
+    ("message")
+])
+def test_log_to_limbo_success(example_link, input):
     """ Tests if log_to_limbo writes the specified message to limbo.
     """
 
     lnk = example_link
-    msg = "message"
+    msg = input 
     lnk.log_to_limbo(msg)
     res = lnk.limbo.get(f"q__{lnk.start}__{lnk.num - 1}")
-    assert res == "message"
+    assert res == input 
+
+
+def test_log_to_limbo_unserializable(example_link, caplog, 
+    kill_pytest_processes):
+    """ Tests if log_to_limbo logs an object not found error.
+
+    Constructs an actor, which is unserializable, and passes it into
+    log_to_limbo. log_to_limbo should log that it could not store 
+    the object.
+
+    Asserts:
+        bool: If the logger logged that the object could not be stored.
+    """
+
+    act = Actor("test")
+    example_link.log_to_limbo(act)
+
+    if caplog.records:
+        for record in caplog.records:
+            assert "SerializationCallbackError" in record.msg
+    else:
+        assert False, "An error was expected!"
+
+    kill_pytest_processes
+
+@pytest.mark.skip(reason = "unfinished")
+@pytest.mark.asyncio
+async def test_multi_actor_system(example_actor_system, setup_store):
+    """ Tests if async puts/gets with many actors have good messages.
+    """
+
+    setup_store
+
+    graph = example_actor_system
+    acts = graph[0]
+    links = graph[1]
+
+    dicts = [acts[i].getLinks() for i in range(4)]
+    assert dicts == None
+
+    heavy_msg = [str(i) for i in range(10 ** 6)]
+    light_msgs = ["message" + str(i) for i in range(3)]
+    
+    await acts[0].q_out.put_async(heavy_msg)
+    await acts[1].q_out.put_async(light_msgs[0])
+    
+
+    dicts = [acts[i].getLinks() for i in range(4)]
+    assert dicts == None
