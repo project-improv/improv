@@ -73,9 +73,27 @@ class AsyncQueue(object):
         self.num = 0
 
     def getStart(self):
+        """ Gets the starting actor.
+        
+        The starting actor is the actor that is at the tail of the link.
+        This actor is the one that gives output.
+
+        Returns:
+            start (Actor): The starting actor. 
+        """
+
         return self.start
 
     def getEnd(self):
+        """ Gets the ending actor.
+        
+        The ending actor is the actor that is at the head of the link. 
+        This actor is the one that takes input.
+        
+        Returns:
+            end (Actor): The ending actor.
+        """
+
         return self.end
 
     @property
@@ -85,24 +103,26 @@ class AsyncQueue(object):
         return self.real_executor
 
     def __getstate__(self):
+        """ Gets the actual """
         self_dict = self.__dict__
         self_dict['_real_executor'] = None
         return self_dict
 
     def __getattr__(self, name):
-        """_summary_
+        """ Gets the attribute specified by "name".
 
         Args:
-            name (_type_): _description_
+            name (str): Name of the attribute to be returned. 
 
         Raises:
             AttributeError: Restricts the available attributes to a specific list. This error is raised
             if a different attribute of the queue is requested.
             #TODO: Don't raise this?
-
+        
         Returns:
-            _type_: _description_
+            (object): Value of the attribute specified by "name".
         """
+
         if name in ['qsize', 'empty', 'full',
                     'get', 'get_nowait', 'close']:
             return getattr(self.queue, name)
@@ -111,14 +131,21 @@ class AsyncQueue(object):
                                     (self.__class__.__name__, name))
 
     def __repr__(self):
+        """ String representation for Link.
+        
+        Returns:
+            (str): "Link" followed by the name given in the constructor.
+        """
+
         return 'Link '+self.name
 
     def put(self, item):
-        """ Function wrapper for put
+        """ Function wrapper for put.
 
         Args:
             item (object): Any item that can be sent through a queue
         """
+
         self.log_to_limbo(item)
         self.queue.put(item)
 
@@ -128,6 +155,7 @@ class AsyncQueue(object):
         Args:
             item (object): Any item that can be sent through a queue
         """
+
         self.log_to_limbo(item)
         self.queue.put_nowait(item)
 
@@ -142,6 +170,7 @@ class AsyncQueue(object):
         Returns:
             Awaitable or result of the put
         """
+
         loop = asyncio.get_event_loop()
         self.log_to_limbo(item) #FIXME: This is blocking
         res = await loop.run_in_executor(self._executor, self.put, item)
@@ -160,6 +189,7 @@ class AsyncQueue(object):
             Explicitly passes any exceptions to not hinder execution.
             Errors are logged with the get_async tag.
         """
+
         loop = asyncio.get_event_loop()
         self.status = 'pending'
         try:
@@ -180,6 +210,12 @@ class AsyncQueue(object):
             self._real_executor.shutdown()
 
     def log_to_limbo(self, item):
+        """ Function to write an object into the store.
+        
+        Args:
+            item (object): Any object that can be sent through a queue.
+        """
+
         if self.limbo is not None:
             self.limbo.put(item, f'q__{self.start}__{self.num}')
             self.num += 1
