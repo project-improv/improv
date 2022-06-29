@@ -39,18 +39,18 @@ class Tweak():
                 self.settings = {}
                 self.settings['use_watcher'] = None
         except TypeError:
-            logger.error('Error: The config file is empty')
+            if cfg is None:
+                logger.error('Error: The config file is empty')
 
-        try:
-            actor_items = cfg['actors'].items()[0]
-        except TypeError:
-            logger.error('Error: The config file is formatted incorrectly')
+        if type(cfg) != dict:
+            logger.error("Error: The config file is not in dictionary format")
+            raise TypeError
 
         for name,actor in cfg['actors'].items():
             # put import/name info in TweakModule object TODO: make ordered?
 
             if name in self.actors.keys():
-                # Should be actor.keys() - self.actors.keys() is empty until update?
+                # Should be actor.keys() - self.a`ctors.keys() is empty until update?
                 raise RepeatedActorError(name)
 
             packagename = actor.pop('package')
