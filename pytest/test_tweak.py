@@ -135,7 +135,7 @@ def test_createConfig_blank_file(set_configdir):
     with pytest.raises(TypeError):
         twk.createConfig()
 
-def test_createConfig_nonsense_file(set_configdir):
+def test_createConfig_nonsense_file(set_configdir, caplog):
     """ Tests if an improperly formatted config raises an error.
     """
 
