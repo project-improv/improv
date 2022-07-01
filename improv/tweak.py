@@ -50,7 +50,7 @@ class Tweak():
             # put import/name info in TweakModule object TODO: make ordered?
 
             if name in self.actors.keys():
-                # Should be actor.keys() - self.a`ctors.keys() is empty until update?
+                # Should be actor.keys() - self.actors.keys() is empty until update?
                 raise RepeatedActorError(name)
 
             packagename = actor.pop('package')
