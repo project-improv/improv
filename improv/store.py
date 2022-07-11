@@ -141,7 +141,6 @@ class Limbo(StoreInterface):
         return object_id
         
         
-        
         # object_id = None
 
         # try:
