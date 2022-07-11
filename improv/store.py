@@ -361,6 +361,9 @@ class Limbo(StoreInterface):
         '''
         raise NotImplementedError
 
+    def saveObj(obj, name):
+        with open('/media/hawkwings/Ext Hard Drive/dump/dump'+str(name)+'.pkl', 'wb') as output: pickle.dump(obj, output)
+
 
 class LMDBStore(StoreInterface):
     def __init__(self, path='../outputs/', name=None, load=False, max_size=1e12,
@@ -524,63 +527,6 @@ class LMDBStore(StoreInterface):
     def replace(self): pass # TODO
 
     def subscribe(self): pass # TODO
-
-
-# Name for class below? Inherit from StoreInterface or Limbo? Limbo...is subclass of StoreInterface.
-class PyarrowUpdateStore(Limbo):
-    ''' Docstring here...
-    '''
-    # Necessary to include __init__ if inheriting? Additional/different attributes?
-
-    def __init__(self):
-        '''
-        '''
-
-    def put(self, object, object_name, save=False):
-    # Necessary to include all input variables if modifying function? Yes, rewriting? Rewrite entire?
-        ''' Put a single object referenced by its string name
-            into the store
-        '''
-        object_id = None
-        try:
-            # Need to pickle if object is csc_matrix
-            if isinstance(object, csc_matrix):
-                object_id = self.client.put(pickle.dumps(object, protocol=pickle.HIGHEST_PROTOCOL))
-            else:
-                object_id = self.client.put(object)
-            self.updateStored(object_name, object_id)
-            if self.use_hdd:
-                self.lmdb_store.put(object, object_name, obj_id=object_id, save=save)
-        except PlasmaObjectExists:
-            logger.error('Object already exists. Meant to call replace?')
-        except ArrowIOError as e:
-            logger.error('Could not store object '+object_name+': {} {}'.format(type(e).__name__, e))
-            logger.info('Refreshing connection and continuing')
-            self.reset()
-        except Exception as e:
-            logger.error('Could not store object '+object_name+': {} {}'.format(type(e).__name__, e))
-        return object_id
-
-    def get(self, object_name):
-        ''' Get a single object from the store
-            Checks to see if it knows the object first
-            Otherwise throw CannotGetObject to request dict update
-            TODO: update for lists of objects
-            TODO: replace with getID
-        '''
-        #print('trying to get ', object_name)
-        if self.stored.get(object_name) is None:
-            logger.error('Never recorded storing this object: '+object_name)
-            # Don't know anything about this object, treat as problematic
-            raise CannotGetObjectError(query = object_name)
-        else:
-            return self._get(object_name)
-
-
-
-def saveObj(obj, name):
-    with open('/media/hawkwings/Ext Hard Drive/dump/dump'+str(name)+'.pkl', 'wb') as output:
-        pickle.dump(obj, output)
 
 
 @dataclass
