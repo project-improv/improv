@@ -42,6 +42,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
 
         self.pushButton_2.clicked.connect(_call(self._setup))
         self.pushButton_2.clicked.connect(_call(self.started))
+        
         self.pushButton_3.clicked.connect(_call(self._runProcess))
         self.pushButton_3.clicked.connect(_call(self.update)) # Tell Nexus to start
 
