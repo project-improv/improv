@@ -9,6 +9,7 @@ loadFile = './bubble_demo.yaml'
 mypath = os.path.abspath(os.curdir)
 print('Absolute path : {}'.format(mypath))
 
+
 nexus = Nexus('Nexus')
 nexus.createNexus(file=loadFile)
 
