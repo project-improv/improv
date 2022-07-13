@@ -1,0 +1,22 @@
+actors:
+  GUI:
+    package: actors.visual
+    class: Visual
+    visual: Visual
+
+  Acquirer:
+    package: actors.acquire
+    class: Acquirer
+
+  DimReduction:
+    package: actors.dimension_reduction
+    class: DimReduction
+
+  Visual:
+    package: actors.visual
+    class: CaimanVisual
+
+connections:
+  Acquirer.q_out: [DimReduction.q_in]
+  DimReduction.q_out: [Visual.q_in]
+
