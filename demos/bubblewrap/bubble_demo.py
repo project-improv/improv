@@ -12,6 +12,7 @@ print('Absolute path : {}'.format(mypath))
 nexus = Nexus('Nexus')
 nexus.createNexus(file=loadFile)
 
+
 # All modules needed have been imported
 # so we can change the level of logging here
 # import logging
