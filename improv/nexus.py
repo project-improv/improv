@@ -472,8 +472,8 @@ class Nexus():
         ''' TODO: update asyncio library calls
         '''
         logging.info("Received shutdown order")
-        tasks = [t for t in asyncio.Task.all_tasks() if t is not
-                asyncio.Task.current_task()]
+        tasks = [t for t in asyncio.all_tasks() if t is not
+                asyncio.current_task()]
 
         [task.cancel() for task in tasks]
 
@@ -488,7 +488,7 @@ class Nexus():
 
         sys.stdout.flush()
 
-        cur_task = asyncio.Task.current_task()
+        cur_task = asyncio.current_task()
 
         try:
             cur_task.cancel() 
@@ -496,6 +496,6 @@ class Nexus():
             logging.info("cur_task cancelled")
         
         logging.info("Sending kill signal")
-        os.kill(os.getpid(), signal.SIGKILL) 
+        # os.kill(os.getpid(), signal.SIGKILL) 
         logging.info('Shutdown complete.')
 
