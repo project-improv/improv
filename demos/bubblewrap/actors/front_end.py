@@ -1,11 +1,12 @@
-from PyQt5 import QtGui, QtWidgets, QtCore
-from PyQt5.QtGui import QColor
-from . import improv_bubble
-from improv.actor import Spike
 import pyqtgraph
 import matplotlib.pylab as plt
 import matplotlib
 matplotlib.use('Qt5Agg')
+
+from PyQt5 import QtGui, QtWidgets, QtCore
+from PyQt5.QtGui import QColor
+from . import improv_bubble
+from improv.actor import Spike
 
 from queue import Empty
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
