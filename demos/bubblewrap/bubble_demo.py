@@ -5,6 +5,9 @@ from improv.nexus import Nexus
 
 import os
 from pathlib import Path
+from multiprocessing import set_start_method, get_context
+
+get_context("fork")
 loadFile = './bubble_demo.yaml'
 mypath = os.path.abspath(os.curdir)
 print('Absolute path : {}'.format(mypath))
