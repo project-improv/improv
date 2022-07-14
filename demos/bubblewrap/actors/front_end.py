@@ -67,9 +67,9 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_Demo):
 
     def loadVisual(self):
         ### 2D vdp oscillator
-        if checkBox_line.isChecked():
+        if self.checkBox_line.isChecked():
             self.sc.axes.plot(self.visual.data[1][:, 0], self.visual.data[1][:, 1], color='gray', alpha=0.8)
-        if checkBox_scatter.isChecked():
+        if self.checkBox_scatter.isChecked():
             self.sc.axes.scatter(self.visual.data[1][:, 0], self.visual.data[1][:, 1], color='gray', alpha=0.8)
         layout = QGridLayout()
         layout.addWidget(self.sc)
