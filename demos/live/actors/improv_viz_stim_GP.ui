@@ -416,7 +416,7 @@ Neuron</string>
      <rect>
       <x>1014</x>
       <y>-2</y>
-      <width>239</width>
+      <width>299</width>
       <height>77</height>
      </rect>
     </property>
@@ -450,8 +450,8 @@ Neuron</string>
     <widget class="PlotWidget" name="pop_con">
      <property name="geometry">
       <rect>
-       <x>6</x>
-       <y>10</y>
+       <x>8</x>
+       <y>8</y>
        <width>251</width>
        <height>205</height>
       </rect>
@@ -473,13 +473,13 @@ Neuron</string>
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="PlotWidget" name="single_dir">
+    <widget class="ImageView" name="quant_tc">
      <property name="geometry">
       <rect>
-       <x>6</x>
-       <y>6</y>
-       <width>247</width>
-       <height>209</height>
+       <x>4</x>
+       <y>4</y>
+       <width>249</width>
+       <height>211</height>
       </rect>
      </property>
     </widget>
@@ -499,13 +499,13 @@ Neuron</string>
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="PlotWidget" name="single_vel">
+    <widget class="ImageView" name="GP_est">
      <property name="geometry">
       <rect>
-       <x>6</x>
-       <y>6</y>
-       <width>259</width>
-       <height>253</height>
+       <x>4</x>
+       <y>4</y>
+       <width>263</width>
+       <height>261</height>
       </rect>
      </property>
     </widget>
@@ -525,13 +525,13 @@ Neuron</string>
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="PlotWidget" name="single_freq">
+    <widget class="ImageView" name="GP_unc">
      <property name="geometry">
       <rect>
-       <x>12</x>
-       <y>12</y>
-       <width>251</width>
-       <height>247</height>
+       <x>6</x>
+       <y>4</y>
+       <width>259</width>
+       <height>257</height>
       </rect>
      </property>
     </widget>
@@ -539,9 +539,9 @@ Neuron</string>
    <widget class="QLabel" name="label_9">
     <property name="geometry">
      <rect>
-      <x>1320</x>
+      <x>1288</x>
       <y>10</y>
-      <width>281</width>
+      <width>343</width>
       <height>57</height>
      </rect>
     </property>
@@ -602,9 +602,9 @@ Neuron</string>
    <widget class="QLabel" name="label_11">
     <property name="geometry">
      <rect>
-      <x>1380</x>
+      <x>1346</x>
       <y>336</y>
-      <width>239</width>
+      <width>273</width>
       <height>77</height>
      </rect>
     </property>
@@ -625,7 +625,7 @@ Neuron</string>
      <rect>
       <x>984</x>
       <y>660</y>
-      <width>155</width>
+      <width>231</width>
       <height>77</height>
      </rect>
     </property>
@@ -670,9 +670,9 @@ Neuron</string>
    <widget class="QLabel" name="label_13">
     <property name="geometry">
      <rect>
-      <x>1154</x>
+      <x>1232</x>
       <y>688</y>
-      <width>155</width>
+      <width>156</width>
       <height>23</height>
      </rect>
     </property>
