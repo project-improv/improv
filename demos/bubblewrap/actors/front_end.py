@@ -23,7 +23,7 @@ class MplCanvas(FigureCanvasQTAgg):
         self.axes = self.fig.add_subplot(111)
         super(MplCanvas, self).__init__(self.fig)
 
-class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
+class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_Demo):
     def __init__(self, visual, comm, q_sig, parent=None):
         ''' Setup GUI
             Setup and start Nexus controls
@@ -40,13 +40,21 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
         pyqtgraph.setConfigOptions(leftButtonPan=False)
         self.sc = MplCanvas(self, width=5, height=4, dpi=100)
 
+        #Setup button
         self.pushButton_4.clicked.connect(_call(self._setup))
         self.pushButton_4.clicked.connect(_call(self.started))
         
+        #Run button
         self.pushButton_3.clicked.connect(_call(self._runProcess))
         self.pushButton_3.clicked.connect(_call(self.update)) # Tell Nexus to start
 
-        self.checkBox
+        #Lineplot checkbox
+
+        self.checkBox.clicked.connect()
+
+        #Scatterplot checkbox
+
+        self.checkBox_2.clicked.connect()
 
     def update(self):
         self.visual.getData()
