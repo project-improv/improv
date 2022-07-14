@@ -26,7 +26,7 @@ class Ui_Demo(object):
         self.verticalLayout_2.addWidget(self.pushButton_setup)
         self.pushButton_run = QtWidgets.QPushButton(self.groupBox)
         self.pushButton_run.setObjectName("pushButton_run")
-        self.verticalLayrunut_2.addWidget(self.pushButton_run)
+        self.verticalLayout_2.addWidget(self.pushButton_run)
         self.label = QtWidgets.QLabel(Demo)
         self.label.setGeometry(QtCore.QRect(180, 52, 111, 20))
         self.label.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
