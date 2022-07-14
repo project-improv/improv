@@ -16,6 +16,7 @@ def main():
     training_data = datasets.MNIST(
         root="data",
         train=True,
+        # Only saving subset
         download=False,
         transform=ToTensor(),
     )
@@ -23,6 +24,7 @@ def main():
     # Download test data from open datasets.
     test_data = datasets.MNIST(
         root="data",
+        # Only saving subset
         train=False,
         download=False,
         transform=ToTensor(),
@@ -34,10 +36,10 @@ def main():
     train_subset, test_subset = random_split(train_data, [train_size, test_size])
 
     # Create DataLoader?
-    train_dl = DataLoader(train_subset, batch_size=batch_size, shuffle=True)
-    test_dl = DataLoader(test_subset, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(train_subset, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(test_subset, batch_size=batch_size, shuffle=False)
 
-    return train_dl, test_dl
+    return train_loader, test_loader
 
 if __name__ == "__main__":
     main()
