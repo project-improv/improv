@@ -40,11 +40,13 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
         pyqtgraph.setConfigOptions(leftButtonPan=False)
         self.sc = MplCanvas(self, width=5, height=4, dpi=100)
 
-        self.pushButton_2.clicked.connect(_call(self._setup))
-        self.pushButton_2.clicked.connect(_call(self.started))
+        self.pushButton_4.clicked.connect(_call(self._setup))
+        self.pushButton_4.clicked.connect(_call(self.started))
         
         self.pushButton_3.clicked.connect(_call(self._runProcess))
         self.pushButton_3.clicked.connect(_call(self.update)) # Tell Nexus to start
+
+        self.checkBox
 
     def update(self):
         self.visual.getData()
@@ -76,7 +78,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
             signal = self.q_sig.get(timeout=0.000001)
             if(signal == Spike.started()):
                 self.pushButton_3.setStyleSheet("background-color: rgb(255, 255, 255);")
-                self.pushButton_2.setEnabled(False)
+                self.pushButton_4.setEnabled(False)
                 self.pushButton_3.setEnabled(True)
             else:
                 QtCore.QTimer.singleShot(10, self.started)
