@@ -20,13 +20,6 @@ test_data = datasets.MNIST(
     transform=ToTensor(),
 )
 
-# Subset each for smaller dataset
-split_len = 1000
-
-subset_train = random_split(train_data, [split_len, len(train_data)-split_len])[0]
-
-subset_train = random_split(test_data, [split_len, len(test_data)-split_len])[0]
-
 # *time*
 
 # 2. Start store
