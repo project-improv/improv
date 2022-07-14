@@ -41,20 +41,12 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_Demo):
         self.sc = MplCanvas(self, width=5, height=4, dpi=100)
 
         #Setup button
-        self.pushButton_4.clicked.connect(_call(self._setup))
-        self.pushButton_4.clicked.connect(_call(self.started))
+        self.pushButton_setup.clicked.connect(_call(self._setup))
+        self.pushButton_setup.clicked.connect(_call(self.started))
         
         #Run button
-        self.pushButton_3.clicked.connect(_call(self._runProcess))
-        self.pushButton_3.clicked.connect(_call(self.update)) # Tell Nexus to start
-
-        #Lineplot checkbox
-
-        self.checkBox.clicked.connect()
-
-        #Scatterplot checkbox
-
-        self.checkBox_2.clicked.connect()
+        self.pushButton_run.clicked.connect(_call(self._runProcess))
+        self.pushButton_run.clicked.connect(_call(self.update)) # Tell Nexus to start
 
     def update(self):
         self.visual.getData()
@@ -69,13 +61,16 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_Demo):
         QtCore.QTimer.singleShot(10, self.update)
 
     def updateVisual(self):
+
         self.sc.axes.scatter(self.visual.data[1][:, 0], self.visual.data[1][:, 1], color='gray', alpha=0.8)
         self.sc.fig.canvas.draw_idle()
 
     def loadVisual(self):
         ### 2D vdp oscillator
-
-        self.sc.axes.scatter(self.visual.data[1][:, 0], self.visual.data[1][:, 1], color='gray', alpha=0.8)
+        if checkBox_line.isChecked():
+            self.sc.axes.plot(self.visual.data[1][:, 0], self.visual.data[1][:, 1], color='gray', alpha=0.8)
+        if checkBox_scatter.isChecked():
+            self.sc.axes.scatter(self.visual.data[1][:, 0], self.visual.data[1][:, 1], color='gray', alpha=0.8)
         layout = QGridLayout()
         layout.addWidget(self.sc)
         self.frame.setLayout(layout)
@@ -85,9 +80,9 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_Demo):
         try:
             signal = self.q_sig.get(timeout=0.000001)
             if(signal == Spike.started()):
-                self.pushButton_3.setStyleSheet("background-color: rgb(255, 255, 255);")
-                self.pushButton_4.setEnabled(False)
-                self.pushButton_3.setEnabled(True)
+                self.pushButton_run.setStyleSheet("background-color: rgb(255, 255, 255);")
+                self.pushButton_setup.setEnabled(False)
+                self.pushButton_run.setEnabled(True)
             else:
                 QtCore.QTimer.singleShot(10, self.started)
         except Empty as e:
