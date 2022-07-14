@@ -31,10 +31,11 @@ class FileAcquirerZMQ(Actor):
         ''' Setting up a port and socket for zmq messaging
         '''
         
-        port = "5556"
         context = zmq.Context()
-        self.socket = context.socket(zmq.REP)
-        self.socket.bind("tcp://*:%s" % port)
+        self.socket = context.socket(zmq.PUB)
+        self.socket.bind("tcp://127.0.0.1:5555")
+        # message = self.socket.recv()
+        # print("Received request from jupyter: ", message)
     
     def setup(self):
         '''Get file names from config or user input
@@ -53,7 +54,7 @@ class FileAcquirerZMQ(Actor):
 
         else: raise FileNotFoundError
 
-        self.setupZMQ
+        self.setupZMQ()
 
     def run(self):
         ''' Run indefinitely. Calls runAcquirer after checking for signals
@@ -96,17 +97,18 @@ class FileAcquirerZMQ(Actor):
             # if self.frame_num > 1500 and self.frame_num < 1800:
             #     frame = None
             t= time.time()
-            print("runAcq is going") # delete this
+            # print("runAcq is going") # delete this
             id = self.client.put(frame, 'acq_raw'+str(self.frame_num))
-            print("after putting into store") #delete this
+            # print("after putting into store") #delete this
             t1= time.time()
             self.timestamp.append([time.time(), self.frame_num])
             
             # try:
             # self.put([[id, str(self.frame_num)]], save=[True])
-            print("before sending thru zmq") # deltere this
+            # print("before sending thru zmq") # delete this
             self.socket.send(id.binary())
-            # self.socket.send_string("hi")
+            # self.socket.send_string("message sent from server!")
+            print("socket sent message out")
             logger.info(self.frame_num)
             self.frame_num += 1
                 #also log to disk #TODO: spawn separate process here?
@@ -191,9 +193,9 @@ if __name__=="__main__":
     lmb = Limbo(store_loc = "/tmp/store")
     testfile.setStore(lmb)
     
-    testfile.setupZMQ()
     testfile.setup()
     testfile.run()
+    print("run() is finished")
 
     p.kill()
 
@@ -203,4 +205,3 @@ if __name__=="__main__":
     #in jupyter
     #get id
 
-#basic_demo.py
