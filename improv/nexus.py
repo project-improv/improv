@@ -104,12 +104,18 @@ class Nexus():
             signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
             for s in signals:
                 loop.add_signal_handler(
-                    s, lambda s=s: asyncio.ensure_future(self.stop_polling(s, loop))) #TODO
-
+                    s, lambda s=s: self.stop_polling(s, loop)) #TODO
             try:
                 res = loop.run_until_complete(self.pollQueues()) #TODO: in Link executor, complete all tasks
             except asyncio.CancelledError:
                 logging.info("Loop is cancelled")
+            
+            try:
+                logging.info(f"Result of run_until_complete: {res}") 
+            except:
+                logging.info("Res failed to await")
+
+            logging.info(f"Current loop: {asyncio.get_event_loop()}") 
             
             loop.stop()
             loop.close()
@@ -356,22 +362,22 @@ class Nexus():
                 pass
         polling = list(self.comm_queues.values())
         pollingNames = list(self.comm_queues.keys())
-        tasks = []
+        self.tasks = []
         for q in polling:
-            tasks.append(asyncio.ensure_future(q.get_async()))
+            self.tasks.append(asyncio.ensure_future(q.get_async()))
 
         while not self.flags['quit']:
-            done, pending = await asyncio.wait(tasks, return_when=concurrent.futures.FIRST_COMPLETED)
+            done, pending = await asyncio.wait(self.tasks, return_when=concurrent.futures.FIRST_COMPLETED)
             #TODO: actually kill pending tasks
-
-            for i,t in enumerate(tasks):
+            print(f"DONE: {done}")
+            for i,t in enumerate(self.tasks):
                 if t in done or polling[i].status == 'done': #catch tasks that complete await wait/gather
                     r = polling[i].result
                     if 'GUI' in pollingNames[i]:
                         self.processGuiSignal(r, pollingNames[i])
                     else:
                         self.processActorSignal(r, pollingNames[i])
-                    tasks[i] = (asyncio.ensure_future(polling[i].get_async()))
+                    self.tasks[i] = (asyncio.ensure_future(polling[i].get_async()))
             #self.listing.append(self.limbo.notify())
 
         # import psutil
@@ -384,8 +390,14 @@ class Nexus():
         #     except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
         #         pass
 
-        res = await self.stop_polling("quit", asyncio.get_running_loop())
-        
+        # loop = asyncio.get_event_loop()
+        # logging.info(f"EVENT LOOP: {loop}")
+        # loop_run = asyncio.get_running_loop()
+        # logging.info(f"RUNNING: {loop_run}")
+        # loop_run.call_soon_threadsafe(loop_run.stop)
+        # loop_run.close()
+         
+        self.stop_polling("quit", asyncio.get_running_loop(), polling)
         logger.warning('Shutting down polling')
         return "Shutting Down"
 
@@ -468,27 +480,38 @@ class Nexus():
         except Exception as e:
             logger.exception('Store cannot be started: {0}'.format(e))
 
-    async def stop_polling(self, stop_signal, loop):
+    def stop_polling(self, stop_signal, loop, queues):
         ''' TODO: update asyncio library calls
         '''
         logging.info("Received shutdown order")
-        tasks = [t for t in asyncio.all_tasks() if t is not
-                asyncio.current_task()]
+        eloop = asyncio.get_event_loop()
+        print(eloop)
+        # tasks_except_current = [t for t in self.tasks if t is not asyncio.current_task()]
 
-        [task.cancel() for task in tasks]
+        # [task.cancel() for task in tasks_except_current]
 
         #TODO: Fix for hanging behavior
+
+        shutdown_message = "SHUTDOWN"
+        [q.put(shutdown_message) for q in queues]
         logging.info('Canceling outstanding tasks')
         try:
-            await asyncio.gather(*tasks)
+            asyncio.gather(*self.tasks)
         except asyncio.CancelledError: 
             logging.info("Gather is cancelled")
 
 
+        [task.cancel() for task in self.tasks]
 
         sys.stdout.flush()
 
         cur_task = asyncio.current_task()
+        cur_task.cancel()
+        tasks = [task for task in self.tasks if not task.done()]
+        [t.cancel() for t in tasks]
+        logging.info(f"All pending tasks: {[task for task in self.tasks if not task.done()]}")
+        logging.info(f"All cancelled tasks: {[task for task in self.tasks if task.cancelled()]}")
+        logging.info(f"All pending tasks that are cancelled: {[task for task in self.tasks if not task.done() and task.cancelled()]}")
 
         try:
             cur_task.cancel() 
@@ -496,6 +519,7 @@ class Nexus():
             logging.info("cur_task cancelled")
         
         logging.info("Sending kill signal")
+        logging.info(f"Current Task: {asyncio.current_task()}")
         # os.kill(os.getpid(), signal.SIGKILL) 
         logging.info('Shutdown complete.')
 
