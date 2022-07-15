@@ -369,7 +369,6 @@ class Nexus():
         while not self.flags['quit']:
             done, pending = await asyncio.wait(self.tasks, return_when=concurrent.futures.FIRST_COMPLETED)
             #TODO: actually kill pending tasks
-            print(f"DONE: {done}")
             for i,t in enumerate(self.tasks):
                 if t in done or polling[i].status == 'done': #catch tasks that complete await wait/gather
                     r = polling[i].result
@@ -484,8 +483,6 @@ class Nexus():
         ''' TODO: update asyncio library calls
         '''
         logging.info("Received shutdown order")
-        eloop = asyncio.get_event_loop()
-        print(eloop)
         # tasks_except_current = [t for t in self.tasks if t is not asyncio.current_task()]
 
         # [task.cancel() for task in tasks_except_current]
