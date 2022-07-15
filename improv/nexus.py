@@ -353,6 +353,18 @@ class Nexus():
         self.destroyNexus()
 
     async def pollQueues(self):
+        """ Listens to links and processes their signals.
+        
+        For every communications queue connected to Nexus, a task is
+        created that gets from the queue. Throughout runtime, when these
+        queues output a signal, they are processed by other functions.
+        At the end of runtime (when the gui has been closed), polling is 
+        stopped.
+        
+        Returns:
+            "Shutting down" (string): Notifies start() that pollQueues has completed.
+        """
+
         self.listing = [] #TODO: Remove or rewrite
         self.actorStates = dict.fromkeys(self.actors.keys())
         if not self.tweak.hasGUI:  # Since Visual is not started, it cannot send a ready signal.
@@ -480,15 +492,21 @@ class Nexus():
             logger.exception('Store cannot be started: {0}'.format(e))
 
     def stop_polling(self, stop_signal, loop, queues):
-        ''' TODO: update asyncio library calls
-        '''
+        """ Cancels outstanding tasks and fills their last request.
+
+        Puts a string into all active queues, then cancels their 
+        corresponding tasks. These tasks are not fully cancelled until 
+        the next run of the event loop.
+
+        Args:
+            stop_signal (signal.signal): Signal for signal handler.
+            loop (loop): Event loop for signal handler.
+            queues (AsyncQueue): Comm queues for links.
+        """ 
+
         logging.info("Received shutdown order")
-        # tasks_except_current = [t for t in self.tasks if t is not asyncio.current_task()]
 
-        # [task.cancel() for task in tasks_except_current]
-
-        #TODO: Fix for hanging behavior
-
+        logging.info(f"Stop signal: {stop_signal}")
         shutdown_message = "SHUTDOWN"
         [q.put(shutdown_message) for q in queues]
         logging.info('Canceling outstanding tasks')
@@ -497,26 +515,18 @@ class Nexus():
         except asyncio.CancelledError: 
             logging.info("Gather is cancelled")
 
-
         [task.cancel() for task in self.tasks]
-
-        sys.stdout.flush()
 
         cur_task = asyncio.current_task()
         cur_task.cancel()
         tasks = [task for task in self.tasks if not task.done()]
         [t.cancel() for t in tasks]
-        logging.info(f"All pending tasks: {[task for task in self.tasks if not task.done()]}")
-        logging.info(f"All cancelled tasks: {[task for task in self.tasks if task.cancelled()]}")
-        logging.info(f"All pending tasks that are cancelled: {[task for task in self.tasks if not task.done() and task.cancelled()]}")
+        [t.cancel() for t in tasks] #necessary in order to start cancelling tasks other than the first one
 
         try:
             cur_task.cancel() 
         except asyncio.CancelledError:
             logging.info("cur_task cancelled")
         
-        logging.info("Sending kill signal")
-        logging.info(f"Current Task: {asyncio.current_task()}")
-        # os.kill(os.getpid(), signal.SIGKILL) 
-        logging.info('Shutdown complete.')
+        logging.info('Polling has stopped.')
 
