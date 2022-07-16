@@ -1,8 +1,8 @@
 import os
 import torch
-from torchvision import models
+from torchvision.models import alexnet
 # Specifically for AlexNet --- could make generalizable, not necessary
-from torchvision.models import AlexNet_Weights
+import torchvision.models.AlexNet_Weights as weights
 
 # Default GPU=True or False...
 # https://stackoverflow.com/questions/3577163/how-to-input-variable-into-a-python-script-while-opening-from-cmd-prompt
@@ -14,11 +14,11 @@ from torchvision.models import AlexNet_Weights
 
 def main():
 
-    # Tmp dir in $HOME
-    os.makedirs('./models', exist_ok=True)
+    # os.makedirs('./models', exist_ok=True)
 
     # Default model_dir is $TORCH_HOME/models, $TORCH_HOME defaults to ~/.torch
-    os.environ['TORCH_HOME'] = './models/'
+    # Run from ~/improv/demos/pytorch/AlexNet
+    os.environ['TORCH_HOME'] = os.getcwd()
     
     # Download model from PyTorch
     # Arbitrary...from torchvision.models OR URL:
@@ -31,16 +31,16 @@ def main():
     # url = sys.argv[1]
     # url = "https://download.pytorch.org/models/alexnet-owt-7be5be79.pth"
     # from six.moves import urllib
-    # os.chdir('./models)
+    # os.chdir('./AlexNet)
     # model_name = sys.argv[2]
     # model_name = "alexnet.pth"
     # urllib.request.urlretrieve(url, model_name)
-    weights = AlexNet_Weights.DEFAULTS
-    model = models.alexnet(weights=weights, progress=True).cuda()
+    model = alexnet(weights=weights, progress=True).cuda()
     model.eval()
 
     # Use torch.jit.trace to generate a torch.jit.ScriptModule via tracing - might want to use script instead of trace?
     # Must use example data set of same size as input to model - either to GPU or CPU, could test both
+    # For AlexNet: 
     example_size = 
     example = torch.rand(example_size).cuda()
     traced_model = torch.jit.trace(model, example)
