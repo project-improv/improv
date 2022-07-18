@@ -61,8 +61,10 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_Demo):
         QtCore.QTimer.singleShot(10, self.update)
 
     def updateVisual(self):
-
-        self.sc.axes.scatter(self.visual.data[1][:, 0], self.visual.data[1][:, 1], color='gray', alpha=0.8)
+        if self.checkBox_line.isChecked():
+            self.sc.axes.plot(self.visual.data[1][:, 0], self.visual.data[1][:, 1], color='gray', alpha=0.8)
+        if self.checkBox_scatter.isChecked():
+            self.sc.axes.scatter(self.visual.data[1][:, 0], self.visual.data[1][:, 1], color='gray', alpha=0.8)
         self.sc.fig.canvas.draw_idle()
 
     def loadVisual(self):
