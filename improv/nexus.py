@@ -1,30 +1,29 @@
+import asyncio
+import concurrent
+import functools
 import multiprocessing
-import psutil
-# multiprocessing.set_start_method("spawn", force=True)
-
+import signal
 import sys
 import os
 import time
 import subprocess
 
-from multiprocessing import Process, Queue, Manager, cpu_count, set_start_method
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import numpy as np
-from PyQt5 import QtGui, QtWidgets
-import pyarrow.plasma as plasma
-from importlib import import_module
-from improv import store
-from improv.tweak import Tweak
-from threading import Thread
-import asyncio
-import concurrent
-import functools
-import signal
-from improv.actor import Spike
-from queue import Empty, Full
 import logging
+import pyarrow.plasma as plasma
+
+from multiprocessing import Process, Queue, Manager, cpu_count, set_start_method
+from PyQt5 import QtGui, QtWidgets
+from importlib import import_module
+from threading import Thread
+from queue import Empty, Full
 from datetime import datetime
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+
 from improv.watcher import BasicWatcher
+from improv import store
+from improv.actor import Spike
+from improv.tweak import Tweak
 from improv.link import Link, MultiLink
 
 logger = logging.getLogger(__name__)
@@ -33,14 +32,6 @@ logging.basicConfig(level=logging.DEBUG,
                     format='%(name)s %(message)s',
                     handlers=[logging.FileHandler("global.log"),
                               logging.StreamHandler()])
-#logging.basicConfig(filename='logs/nexus_{:%Y%m%d%H%M%S}.log'.format(datetime.now()),
-                   #filemode='w',
-                  #format='%(asctime)s | %(levelname)-8s | %(name)s | %(lineno)04d | %(message)s')
-
-        #fh = logging.FileHandler('logs/nexus_{:%Y%m%d%H%M%S}.log'.format(datetime.now()))
-        #formatter = logging.Formatter('%(asctime)s | %(levelname)-8s | %(lineno)04d | %(message)s')
-        #fh.setFormatter(formatter)
-        #logger.addHandler(fh)
 
 # TODO: Set up limbo.notify in async function (?)
 
@@ -327,9 +318,6 @@ class Nexus():
                     #queue full, keep going anyway TODO: add repeat trying as async task
 
     def quit(self):
-        # with open('timing/noticiations.txt', 'w') as output:
-        #     output.write(str(self.listing))
-
         logger.warning('Killing child processes')
 
         for q in self.sig_queues.values():
@@ -389,25 +377,7 @@ class Nexus():
                     else:
                         self.processActorSignal(r, pollingNames[i])
                     self.tasks[i] = (asyncio.ensure_future(polling[i].get_async()))
-            #self.listing.append(self.limbo.notify())
 
-        # import psutil
-        # for proc in psutil.process_iter():
-        #     try:
-        #         # Get process name & pid from process object.
-        #         processName = proc.name()
-        #         processID = proc.pid
-        #         print(processName , ' ::: ', processID)
-        #     except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-        #         pass
-
-        # loop = asyncio.get_event_loop()
-        # logging.info(f"EVENT LOOP: {loop}")
-        # loop_run = asyncio.get_running_loop()
-        # logging.info(f"RUNNING: {loop_run}")
-        # loop_run.call_soon_threadsafe(loop_run.stop)
-        # loop_run.close()
-         
         self.stop_polling("quit", asyncio.get_running_loop(), polling)
         logger.warning('Shutting down polling')
         return "Shutting Down"
