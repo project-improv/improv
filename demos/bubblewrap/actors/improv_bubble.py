@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'bwrap_ui_demo.ui'
+# Form implementation generated from reading ui file 'improv_bubble.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.7
 #
@@ -17,37 +17,45 @@ class Ui_Demo(object):
         Demo.resize(600, 485)
         self.groupBox = QtWidgets.QGroupBox(Demo)
         self.groupBox.setEnabled(True)
-        self.groupBox.setGeometry(QtCore.QRect(40, 82, 111, 101))
+        self.groupBox.setGeometry(QtCore.QRect(30, 22, 121, 101))
         self.groupBox.setObjectName("groupBox")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.groupBox)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.pushButton_setup = QtWidgets.QPushButton(self.groupBox)
-        self.pushButton_setup.setObjectName("pushButton_setup")
-        self.verticalLayout_2.addWidget(self.pushButton_setup)
-        self.pushButton_run = QtWidgets.QPushButton(self.groupBox)
-        self.pushButton_run.setObjectName("pushButton_run")
-        self.verticalLayout_2.addWidget(self.pushButton_run)
+        self.pushButton_4 = QtWidgets.QPushButton(self.groupBox)
+        self.pushButton_4.setObjectName("pushButton_4")
+        self.verticalLayout_2.addWidget(self.pushButton_4)
+        self.pushButton_3 = QtWidgets.QPushButton(self.groupBox)
+        self.pushButton_3.setObjectName("pushButton_3")
+        self.verticalLayout_2.addWidget(self.pushButton_3)
         self.label = QtWidgets.QLabel(Demo)
-        self.label.setGeometry(QtCore.QRect(180, 52, 111, 20))
+        self.label.setGeometry(QtCore.QRect(180, 20, 111, 20))
         self.label.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.label.setObjectName("label")
         self.groupBox_3 = QtWidgets.QGroupBox(Demo)
         self.groupBox_3.setEnabled(True)
-        self.groupBox_3.setGeometry(QtCore.QRect(40, 190, 111, 83))
+        self.groupBox_3.setGeometry(QtCore.QRect(30, 130, 121, 83))
         self.groupBox_3.setObjectName("groupBox_3")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.groupBox_3)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.checkBox_line = QtWidgets.QCheckBox(self.groupBox_3)
-        self.checkBox_line.setObjectName("checkBox_line")
-        self.verticalLayout_3.addWidget(self.checkBox_line)
-        self.checkBox_scatter = QtWidgets.QCheckBox(self.groupBox_3)
-        self.checkBox_scatter.setObjectName("checkBox_scatter")
-        self.verticalLayout_3.addWidget(self.checkBox_scatter)
+        self.checkBox = QtWidgets.QCheckBox(self.groupBox_3)
+        self.checkBox.setObjectName("checkBox")
+        self.verticalLayout_3.addWidget(self.checkBox)
+        self.checkBox_2 = QtWidgets.QCheckBox(self.groupBox_3)
+        self.checkBox_2.setObjectName("checkBox_2")
+        self.verticalLayout_3.addWidget(self.checkBox_2)
         self.frame = QtWidgets.QFrame(Demo)
-        self.frame.setGeometry(QtCore.QRect(180, 82, 361, 191))
-        self.frame.setStyleSheet("background-color: rgb(97, 141, 255);\n"
-"background-color: rgb(196, 229, 255);")
+        self.frame.setGeometry(QtCore.QRect(180, 40, 381, 221))
+        self.frame.setStyleSheet("background-color: rgb(196, 229, 255);")
         self.frame.setObjectName("frame")
+        self.frame_2 = QtWidgets.QFrame(Demo)
+        self.frame_2.setGeometry(QtCore.QRect(40, 290, 521, 161))
+        self.frame_2.setStyleSheet("background-color: rgb(196, 229, 255);")
+        self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_2.setObjectName("frame_2")
+        self.label_2 = QtWidgets.QLabel(Demo)
+        self.label_2.setGeometry(QtCore.QRect(40, 270, 191, 16))
+        self.label_2.setObjectName("label_2")
 
         self.retranslateUi(Demo)
         QtCore.QMetaObject.connectSlotsByName(Demo)
@@ -56,13 +64,15 @@ class Ui_Demo(object):
         _translate = QtCore.QCoreApplication.translate
         Demo.setWindowTitle(_translate("Demo", "Demo"))
         self.groupBox.setTitle(_translate("Demo", "Operations"))
-        self.pushButton_setup.setText(_translate("Demo", "Setup"))
-        self.pushButton_run.setText(_translate("Demo", "Run"))
+        self.pushButton_4.setText(_translate("Demo", "Setup"))
+        self.pushButton_3.setText(_translate("Demo", "Run"))
         self.label.setText(_translate("Demo", "Bubblewrap"))
         self.groupBox_3.setTitle(_translate("Demo", "Plot style"))
-        self.checkBox_line.setText(_translate("Demo", "Lineplot"))
-        self.checkBox_scatter.setText(_translate("Demo", "Scatterplot"))
+        self.checkBox.setText(_translate("Demo", "Lineplot"))
+        self.checkBox_2.setText(_translate("Demo", "Scatterplot"))
+        self.label_2.setText(_translate("Demo", "Some kind of plot"))
 
+        
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -71,4 +81,3 @@ if __name__ == "__main__":
     ui.setupUi(Demo)
     Demo.show()
     sys.exit(app.exec_())
-
