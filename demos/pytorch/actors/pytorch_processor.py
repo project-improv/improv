@@ -7,19 +7,15 @@ from improv.store import Limbo, CannotGetObjectError, ObjectNotFoundError
 from os.path import expanduser
 from queue import Empty
 from improv.actor import Actor, RunManager
-import traceback
+
 import torch
-from torch import nn
-from torch.utils.data import DataLoader, random_split
-from torchvision import datasets
+# Specifically use CIFAR-10 for this example...
+from torchvision.datasets import CIFAR10
 from torchvision.transforms import ToTensor
-from torchvision.models import resnet50, ResNet50_Weights
-# torchvision NOT installed due to OSError: [Errno 28] No space left on device: '/home/eao21/miniconda33/envs/improv.lib.python3.9/site-packages/torchvision-0.13.0.dist-info'
-# Mapped to location not in-memory: TMPDIR=/home/eao21/tmp pip install
-# https://github.com/pypa/pip/issues/7745
-# https://askubuntu.com/questions/1326304/cannot-install-pip-module-because-there-is-no-space-left-on-device
-# from torchvision import datasets
-# from torchvision.transforms import ToTensor
+
+from PIL import Image
+import torchvision.transforms as transforms
+
 import traceback
 
 import logging; logger = logging.getLogger(__name__)
@@ -33,99 +29,138 @@ class PyTorchProcessor(Actor):
     ''' Using PyTorch
     '''
 
-    def __init__(self, *args, data_path=None, model_path=None, config_file=None):
-        super().__init__(*args)
+    # def __init__(self, data_path=None, model_path=None, config_file=None):
+    def __init__(self, data_path='~/improv/demos/pytorch/data/CIFAR10', model_path='~/improv/demos/pytorch/models/AlexNet-CIFAR10.pt', config_file=None):
+        super().__init__(*args, data_path=data_path, model=torch.jit.load(model_path), config_file=config_file)
         logger.info(data_path, model_path)
-        # Add print statements - data_path
-        # Only for simulation, data = not acquired in real-time, no need to print...
-        # Make f-statements/strings
-        # print('Data: ', data_path)
-        # print('Model: ', model_path)
-        # print('config_file: ', config_file)
-        self.param_file = config_file
-        # Not necessary for real running...only for playing around w/different data + models
-        if data_path is None:
-            logger.error('Must specify data path.')
-        else:
-            self.data_path = data_path
+        self.img_number = 0
         if model_path is None:
-            logger.error('Must specify pre-trained model.')
+            logger.error("Must specify a pre-trained model path.")
         else:
             self.model_path = model_path
 
-    def load_data(self, data_path=None)
-        # Specify for data type...this is specifically for AlexNet-transformed MNIST data...
-        # Depends on file type...working w/downloaded data from PyTorch torchvision for now
-
-        
-
-        # NOTE: FOR ACTUAL MODELS TO BE INTEGRATED W/PYTORCH, WE MUST USE TORCH.JIT or something NOT DATALOADER!
-        # NOTE: Time to load data - 
-        # Images one-by-one
-        # Images in batches
-        # Create DataLoader
-        # Example to lock data so different processes don't simultaneously download the data and cause data corruption, if running multiple processes...actors...that download/load dataset
-        # from filelock import FileLock
-        # with FileLock('./data.lock'):
-        #     DataLoader(train_subset, batch_size=batch_size, shuffle=True)
-
-        self.train_loader = DataLoader(train_subset, batch_size=batch_size, shuffle=True)
-        self.test_loader = DataLoader(test_subset, batch_size=batch_size, shuffle=False)
-
-    def setup(self, model=None, weights=None):
-        ''' Setup PyTorch
+    def setup(self):
+        ''' Prep data and init model
+        Prep data = slow, load image
         '''
-        # Really only for demo...
-        if model is not None:
-            self.model = model
-        else:
-            print('Specify model.')
-        if weights is not None:
-            self.weights = weights
-        else:
-            print('Specify weights.')
-        logger.info('Running setup for '+self.name)
-
-        # Init model object
-        # Initialize model
-        self.weights =
-        self.model =
-
-        # Set model to eval mode
-        model.eval()
-
-        # self.loadParams(param_file=self.param_file)
-        # self.params = self.client.get('params_dict')
-
-    # def loadParams(self, param_file=None):
-    #     ''' Load parameters from file or 'defaults' into store
-    #         TODO: accept user input from GUI
-    #     '''
-    #     cwd = os.getcwd()+'/'
-    #     if param_file is not None:
-    #         try:
-    #             params_dict = json.load(open(param_file, 'r'))
-    #             # Load other keys in params_dict
-    #         except Exception as e:
-    #             logger.exception('File cannot be loaded. {0}'.format(e))
-    #     else:
-    #         logger.exception('Need a config file for PyTorch model!')
-    #     self.client.put(params_dict, 'params_dict')
+        logger.info('Loading model for ' + self.name)
+        self.done = False
+        # Necessary? See above init
+        self.model = torch.jit.load(self.model_path)
 
     def run(self):
-        ''' Run the processor on input data
+        ''' Run the processor continually on input data, e.g.,images
         '''
 
-    def load_model(self, model_path=None):
-        # Initialize model
-        self.model = torch.jit.load('model_scripted.pt')
-        self.model.eval()
+        # Done offline - iterate through online, only interested in time it takes to acquire data/get data "from store", process one sample (inference), put estimate into store
+        self.get_in_time = []
+        self.load_data_time = []
+        # Done offline
+        # self.load_model = []
+        self.inference_time = []
+        self.put_out_time = []
+        self.total_times = []
+        self.timestamp = []
+        self.counter = []
 
-# Create dataloaders for model...
-# TODO: input = output from download_data.py and batch_size
-# (download_data.py input = specified PyTorch dataset); 
-# batch_size = 64
+        with RunManager(self.name, self.runProcess, self.setup, self.q_sig, self.q_comm) as rm:
+            logger.info(rm)
 
-# # Create data loaders.
-# train_dataloader = DataLoader(training_data, batch_size=batch_size)
-# test_dataloader = DataLoader(test_data, batch_size=batch_size)
+        print('Processor broke, avg time per image: ', np.mean(self.total_times, axis=0))
+        print('Processor got through ', self.img_number, ' images')
+        if not os._exists('output'):
+            try:
+                os.makedirs('output')
+            except:
+                pass
+        if not os._exists('output/timing'):
+            try:
+                os.makedirs('output/timing')
+            except:
+                pass
+
+        np.savetxt('output/timing/process_image_time.txt', np.array(self.total_times))
+        np.savetxt('output/timing/process_timestamp.txt', np.array(self.timestamp))
+
+        # np.savetxt('output/timing/putAnalysis_time.txt', np.array(self.putAnalysis_time))
+        np.savetxt('output/timing/putModelOutput_time.txt', np.array(self.putModelOutput_time))
+        np.savetxt('output/timing/procImage_time.txt', np.array(self.procImage_time))
+
+    def runProcess(self):
+        ''' Run process. Runs once per sample (in this case, .jpg images).
+        Output (estimates) go in DS - ID is image name.
+        '''
+
+        # Necessary?
+        init = self.params['init_batch']
+        # Meh
+        img = self._checkImage()
+        img = self._loadImg()
+
+        if img is not None:
+            t = time.time()
+            self.done = False
+            try:
+                self.img = self.client.getID(img[0][str(self.img_number)])
+                self.img = self._loadImg(self.img, self.img_number+init)
+                t2 = time.time()
+                self._runInference(self.img, self.model)
+                t3 = time.time()
+                self.putModelOutput()
+                t4 = time.time()
+                self.timestamp.append([time.time(), self.img_number])
+            # Insert exceptions here...
+            # except:
+        self.img_number += 1
+        self.total_times.append(time.time()-t)
+        else:
+            pass
+
+    def putModelOutput(self):
+        ''' Put output of model into data store
+        '''
+        t = time.time()
+        ids = []
+        ids.append([self.client.put(self.output, 'output'+str(self.img_number)), 'output'+str(self.img_number)])
+
+        self.put(ids)
+
+        # self.q_comm.put([self.img_number])
+
+        self.putModelOutputTime.append([time.time()-t])
+
+
+    # def _processData(self, data):
+    #     ''' Processing on data
+    #     '''
+    #     # Run additional processing steps here, if necessary...
+    #     # return data
+
+    def _runInference(self, data, model):
+
+        self.output = self.model(self.tensor)
+
+    # def _loadImage(self, img):
+    #     ''' Load data - here, .jpg image
+    #     '''
+    #     import torch
+        
+    #     img = Image.open(self.img)
+    #     transform = transforms.Compose([transforms.PILToTensor()])
+    #     self.tensor = transform(img)
+
+    #     return img_tensor
+
+    def _checkImages(self):
+        ''' Check to see if we have images for processing
+        '''
+        try:
+            res = self.q_in.get(timeout=0.0005)
+            return res
+        #TODO: additional error handling
+        except Empty:
+            # logger.info('No frames for processing')
+            return None
+
+class NaNDataException(Exception):
+    pass

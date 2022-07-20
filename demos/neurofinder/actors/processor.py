@@ -141,7 +141,7 @@ class BasicProcessor(CaimanProcessor):
         else:
             self.put(ids, save= [False]*4)
 
-        t6= time.time()
+        t6 = time.time()
 
 
     def _updateCoords(self, A, dims):

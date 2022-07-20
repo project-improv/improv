@@ -1,23 +1,25 @@
+settings:
+  use_watcher: [Acquirer, Processor, Visual, Analysis]
+
 actors:
   GUI:
-    package: actors.visual
+    package: demos.basic.actors.visual
     class: BasicVisual
     visual: Visual
 
-# Acquire arbitrary data...MNIST, etc.
+# Acquire arbitrary data...image folder for now, such as MNIST/CIFAR10, etc.
   Acquirer:
-    package: improv.actors.acquire
-    class: FileAcquirer
-    filename: 
+    package: actors.acquire_folder
+    class: FolderAcquirer
+    folder: ~/improv/demos/pytorch/data/CIFAR10
 
   Processor:
     package: actors.pytorch_processor
     class: PyTorchProcessor
-    init_filename: 
-    config_file: 
+    model_path: ~/improv/demos/pytorch/models/AlexNet-CIFAR10.pt
 
   # Visual:
-  #   package: actors.visual
+  #   package: demos.basic.actors.visual
   #   class: BasicCaimanVisual
   
   # Analysis:
@@ -29,11 +31,9 @@ actors:
   #   class: BehaviorAcquirer
 
 
-# connections:
-#   Acquirer.q_out: [Processor.q_in, Visual.raw_frame_queue]
-#   Processor.q_out: [Analysis.q_in]
-#   Analysis.q_out: [Visual.q_in]
-#   InputStim.q_out: [Analysis.input_stim_queue]
-
-# settings:
-#   use_watcher: [Acquirer, Processor, Visual, Analysis]
+connections:
+  Acquirer.q_out: [Processor.q_in]
+  # Acquirer.q_out: [Processor.q_in, Visual.img_queue]
+  # Acquirer.q_out: [Processor.q_in, Visual.raw_frame_queue]
+  Processor.q_out: [Analysis.q_in]
+  Analysis.q_out: [Visual.q_in]
