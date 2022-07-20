@@ -162,7 +162,7 @@ class BasicProcessor(CaimanProcessor):
 
 
     def makeImage(self):
-        '''Create image data for visualiation
+        ''' Create image data for visualiation
             Using caiman code here
             #TODO: move to MeanAnalysis class ?? Check timing if we move it!
                 Other idea -- easier way to compute this?

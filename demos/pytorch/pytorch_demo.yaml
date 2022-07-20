@@ -1,11 +1,13 @@
 settings:
-  use_watcher: [Acquirer, Processor, Visual, Analysis]
+  # use_watcher: [Acquirer, Processor, Visual, Analysis]
+  use_watcher: [Acquirer, Processor]
+
 
 actors:
-  GUI:
-    package: demos.basic.actors.visual
-    class: BasicVisual
-    visual: Visual
+  # GUI:
+  #   package: demos.basic.actors.visual
+  #   class: BasicVisual
+  #   visual: Visual
 
 # Acquire arbitrary data...image folder for now, such as MNIST/CIFAR10, etc.
   Acquirer:
