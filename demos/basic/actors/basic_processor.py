@@ -167,7 +167,7 @@ class BasicProcessor(CaimanProcessor):
             self.counter += 1
 
 
-    def makeImage(self):
+    def     (self):
         '''Create image data for visualiation
             Using caiman code here
             #TODO: move to MeanAnalysis class ?? Check timing if we move it!

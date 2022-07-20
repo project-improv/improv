@@ -33,6 +33,7 @@ class FolderAcquirer(Actor):
         self.img_num = 0
         self.files= []
 
+        # Estimated time to get image from device
         self.lag = 0.005
 
         if not self.path.exists() or not self.path.is_dir():
@@ -71,21 +72,28 @@ class FolderAcquirer(Actor):
 
     def runAcquirer(self):
         ''' Main loop. If there're new files, read and put into store.
+        Adapted from bubblewrap demo
         '''
+        
         if self.done:
-            pass
-      
+            pass  
+
+        elif:
             t = time.time()
             try:
-                obj_id = self.client.put(self.get_img(self.files[self.img_num]), 'acq_raw' + str(self.img_num))
+                obj_id = self.client.put(self.get_img(self.files[self.img_num]), 'acq_raw_img' + str(self.img_num))
                 self.timestamp.append([time.time(), self.img_num])
                 self.q_out.put([[obj_id, str(self.img_num)]], save=[True])
                 self.img_num += 1
+            except Exception as e:
+                logger.error('Acquirer general exception: {}'.format(e))
             except IndexError as e:
                 pass
                 
             time.sleep(self.lag)
             self.total_times.append(time.time() - t)
+
+        # From bubblewrap demo
         else:  # simulating a done signal from the source
             logger.error('Done with all available images: {0}'.format(self.img_num))
             self.data = None
@@ -95,9 +103,9 @@ class FolderAcquirer(Actor):
     def get_img(self, file: Path):
         try:
             img = Image.open(file.as_posix())
-            transform = transforms.Compose([transforms.PILToTensor()])
-            img_tensor = transform(img)
+            # transform = transforms.Compose([transforms.PILToTensor()])
+            # img_tensor = transform(img)
         except ValueError as e:
             img = Image.open(file.as_posix())
             logger.error('File '+file.as_posix()+' had value error {}'.format(e))
-        return img_tensor
+        return img

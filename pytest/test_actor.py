@@ -3,10 +3,10 @@ import psutil
 import pytest
 import subprocess
 from improv.link import Link, AsyncQueue
-from improv.actor import Actor as actor
-from improv.store import Limbo as limbo
+from improv.actor import Actor
+from improv.store import Limbo
 
-#set global_variables
+# set global_variables
 
 pytest.example_string_links =  {}
 pytest.example_links = {}
@@ -28,7 +28,7 @@ def init_actor():
     """ Fixture to initialize and teardown an instance of actor.
     """
 
-    act = actor("Test")
+    act = Actor("Test")
     yield act
     act = None
 
@@ -48,9 +48,9 @@ def example_links(setup_store):
     """ Fixture to provide link objects as test input and setup store.
     """
     setup_store
-    lmb = limbo(store_loc="/tmp/store")
+    lmb = Limbo(store_loc="/tmp/store")
 
-    acts = [actor("act" + str(i)) for i in range(1, 5)] #range must be even
+    acts = [Actor("act" + str(i)) for i in range(1, 5)] # range must be even
 
     links = [Link("L" + str(i + 1), acts[i], acts[i + 1], lmb) for i in range(len(acts) // 2)]
     link_dict = {links[i].name: links[i] for i, l in enumerate(links)}
@@ -82,7 +82,7 @@ def test_repr_default_initialization(init_actor):
     """
 
     act = init_actor
-    rep = act.__repr__()
+    rep = Act.__repr__()
     assert rep == "Test: dict_keys([])"
 
 
@@ -99,8 +99,8 @@ def test_setStore(setup_store):
     """ Tests if the store is started and linked with the actor.
     """
 
-    act = actor("Acquirer")
-    lmb = limbo(store_loc="/tmp/store")
+    act = Actor("Acquirer")
+    lmb = Limbo(store_loc="/tmp/store")
     act.setStore(lmb.client)
     assert act.client is lmb.client
 
@@ -115,7 +115,7 @@ def test_setLinks(links):
     """ Tests if the actors links can be set to certain values.
     """
 
-    act = actor("test")
+    act = Actor("test")
     act.setLinks(links)
     assert act.links == links 
 
@@ -131,8 +131,8 @@ def test_setCommLinks(example_links, qc, qs, init_actor, setup_store):
     """
 
     if (qc == "LINK" and qs == "LINK"):
-        qc = Link("L1", actor("1"), actor("2"), limbo(store_loc = "/tmp/store"))
-        qs = Link("L2", actor("3"), actor("4"), limbo(store_loc = "/tmp/store"))
+        qc = Link("L1", Actor("1"), Actor("2"), Limbo(store_loc = "/tmp/store"))
+        qs = Link("L2", Actor("3"), Actor("4"), Limbo(store_loc = "/tmp/store"))
     act = init_actor
     act.setLinks(example_links)
     act.setCommLinks(qc, qs)
@@ -208,7 +208,7 @@ def test_addLink(setup_store):
     """ Tests if a link can be added to the dictionary of links.
     """
 
-    act = actor("test")
+    act = Actor("test")
     links = {"1": "one", "2": "two"}
     act.setLinks(links)
     newName = "3"
@@ -216,8 +216,8 @@ def test_addLink(setup_store):
     act.addLink(newName, newLink)
     links.update({"3": "three"})
 
-    #trying to check for two separate conditions while being able to
-    #distinguish between them should an error be raised
+    # trying to check for two separate conditions while being able to
+    # distinguish between them should an error be raised
     passes = []
     err_messages = []
 
@@ -305,10 +305,10 @@ def test_actor_connection(setup_store):
     checked to verify it matches the original message.
     """
 
-    act1 = actor("a1")
-    act2 = actor("a2")
+    act1 = Actor("a1")
+    act2 = Actor("a2")
 
-    lmb = limbo(store_loc="/tmp/store")
+    lmb = Limbo(store_loc="/tmp/store")
     link = Link("L12", act1, act2, lmb)
     act1.setLinkIn(link)
     act2.setLinkOut(link)
