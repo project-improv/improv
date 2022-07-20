@@ -8,7 +8,7 @@ from torchvision import datasets
 class AN(nn.Module):
 
     def __init__(self, weights=AlexNet_Weights.DEFAULT, model=alexnet):
-        super().__init__()
+        super(AN, self).__init__()
         self.weights = weights
         self.model = alexnet(weights=self.weights, progress=True).eval()
         self.transforms = weights.transforms()
@@ -21,18 +21,20 @@ class AN(nn.Module):
 def main():
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # weights = AlexNet_Weights.DEFAULT
+    # model = alexnet(weights=weights, progress=True).eval()
     model = AN().to(device)
     # model = AN()
-    # Might not be necessary since forward has torch.no_grad()
-    model.eval()
+
+    scripted_model = torch.jit.script(model).to(device)
 
     # For MNIST data example size, one "batch", one image to simulate model seeing one input at a time:
-    example_size = (1, 3, 28, 28)
+    # example_size = (1, 3, 32, 32)
     # example_size = (28, 28)
     # Without hard-coding example size...
     # dataset = datasets.MNIST(root="./data", download=False, transform=transforms.ToTensor())
 
-    example = torch.rand(example_size)
+    example = torch.rand(1, 3, 224, 224)
 
     # Use torch.jit.trace to generate a torch.jit.ScriptModule via tracing
     torchscript_AN = torch.jit.trace(model, (example))

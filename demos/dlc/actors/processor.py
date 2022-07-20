@@ -94,7 +94,7 @@ class DLCProcessor(Actor):
                 self.putEstimates()
                 self.timestamp.append([time.time(), self.frame_number])
             except ObjectNotFoundError:
-                logger.error('Processor: Frame {} unavailable from store, droppping'.format(self.frame_number))
+                logger.error('Processor: Frame {} unavailable from store, dropping'.format(self.frame_number))
                 self.dropped_frames.append(self.frame_number)
                 self.q_out.put([1])
             except KeyError as e:
