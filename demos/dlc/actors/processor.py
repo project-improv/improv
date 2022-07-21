@@ -15,8 +15,8 @@ import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 class DLCProcessor(Actor):
-    '''Wraps DLC-Live functionality to
-       interface with our pipeline.
+    ''' Wraps DLC-Live functionality to
+       interface with improv pipeline.
     '''
     def __init__(self, *args, video_path=None,  model_path=None, config_file=None):
         super().__init__(*args)
@@ -46,7 +46,7 @@ class DLCProcessor(Actor):
         #self.params = self.client.get('params_dict')
 
     def run(self):
-        '''Run the processor continually on input frames
+        ''' Run the processor continually on input frames
         '''
 
         self.timestamp = []
@@ -123,7 +123,8 @@ class DLCProcessor(Actor):
             except Exception as e:
                 logger.exception('File cannot be loaded. {0}'.format(e))
         else:
-            # defaults from demo scripts;
+            # defaults from demo scripts
+            # TODO: load from file
             params_dict = {
                 'fnames': [cwd+self.init_filename],
                 'fr': 2,
@@ -132,7 +133,7 @@ class DLCProcessor(Actor):
         self.client.put(params_dict, 'params_dict')
 
     def _load_params_from_file(self, param_file):
-        '''Filehandler for loading caiman parameters
+        ''' Filehandler for loading parameters
             TODO: Error handling, check params as loaded
         '''
         params_dict = json.load(open(param_file, 'r'))
@@ -178,9 +179,9 @@ class DLCProcessor(Actor):
             logger.error('Fit frame error! {}: {}'.format(type(e).__name__, e))
             raise Exception
 
-
+    # Move to visual.py
     def makeImage(self):
-        '''Create image data for visualiation
+        ''' Create image data for visualiation
         '''
         image = None
 
