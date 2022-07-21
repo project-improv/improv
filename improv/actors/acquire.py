@@ -18,7 +18,7 @@ logger.setLevel(logging.INFO)
 
 class FileAcquirer(Actor):
     # TODO: Make file type-/extension-agnostic?
-    '''Class to import data from files and output
+    ''' Class to import data from files and output
        frames in a buffer, or discrete.
     '''
     def __init__(self, *args, filename=None, framerate=30, **kwargs):
@@ -31,7 +31,7 @@ class FileAcquirer(Actor):
         self.framerate = 1/framerate
 
     def setup(self):
-        '''Get file names from config or user input
+        ''' Get file names from config or user input
         Also get specified framerate, or default is 10 Hz
         Open file stream
         # TODO: implement more than .h5 files
@@ -72,7 +72,7 @@ class FileAcquirer(Actor):
         np.savetxt('output/timing/acquire_timestamp.txt', np.array(self.timestamp))
 
     def runAcquirer(self):
-        '''While frames exist in location specified during setup,
+        ''' While frames exist in location specified during setup,
            grab frame, save, put in store
         '''
         t = time.time()
