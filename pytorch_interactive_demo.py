@@ -91,7 +91,6 @@ transforms = pt_proc.setup(name, transforms_path, device, out_timing_path, msg='
 # 4. runProcess - loop through images
 # A. Get image - load folder offline, don't time, time loop to get, process, put one-by-one
 img_acq = FolderAcquirer('Acquire Images from Folder', folder=data_path)
-lag = 0.005
 
 path = Path(data_path)
 files = os.listdir(data_path)
@@ -121,7 +120,7 @@ for img_num in range(total_imgs):
     img = img_acq.get_img(data_path + file)
     # End load image from file
     # Start put image into store
-    time.sleep(lag)
+    # time.sleep(lag)
     t2 = time.time()
     # Camel case?
     # TODO: update to pickle PIL image, or any way we would like to read image data...see .tiff
