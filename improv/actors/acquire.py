@@ -5,6 +5,10 @@ import random
 import numpy as np
 from skimage.io import imread
 
+# For FolderAcquirer
+from pathlib import Path
+from queue import Empty
+
 from improv.actor import Actor, RunManager
 
 import logging; logger = logging.getLogger(__name__)
@@ -114,7 +118,6 @@ class FileAcquirer(Actor):
         self.f.flush()
 
 class FolderAcquirer(Actor):
-    # TODO: Make file type-/extension-agnostic?
     ''' Current behavior is looping over all files in a folder.
         Class to read TIFF/JPG/PNG files in a specified {path} from disk.
         Designed for scenarios when new TIFF files are created during the run.
