@@ -18,6 +18,8 @@ from pyarrow import SerializationCallbackError
 from pyarrow.lib import ArrowIOError
 from pyarrow._plasma import PlasmaObjectExists, ObjectNotAvailable, ObjectID
 
+import torch
+
 import logging; logger=logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -44,7 +46,7 @@ class StoreInterface():
 
 
 class Limbo(StoreInterface):
-    ''' Basic interface for our specific data store implemented with apache arrow plasma
+    ''' Basic interface for our specific data store implemented with Apache Arrow Plasma
     Objects are stored with object_ids
     References to objects are contained in a dict where key is shortname, value is object_id
     '''
@@ -119,6 +121,8 @@ class Limbo(StoreInterface):
         
         object_id = None
         try:
+            if torch.is_tensor(object):
+                object_id = self.client.put(pickle.dumps(object, protocol=pickle.HIGHEST_PROTOCOL))
             # Need to pickle if object is csc_matrix
             if isinstance(object, csc_matrix):
                 object_id = self.client.put(pickle.dumps(object, protocol=pickle.HIGHEST_PROTOCOL))
@@ -126,7 +130,6 @@ class Limbo(StoreInterface):
                 object_id = self.client.put(object)
             
             self.updateStored(object_name, object_id)
-
             if self.use_hdd:
                 self.lmdb_store.put(object, object_name, obj_id=object_id)
         except PlasmaObjectExists:
@@ -526,63 +529,6 @@ class LMDBStore(StoreInterface):
     def subscribe(self): pass # TODO
 
 
-# Name for class below? Inherit from StoreInterface or Limbo? Limbo...is subclass of StoreInterface.
-class PyarrowUpdateStore(Limbo):
-    ''' Docstring here...
-    '''
-    # Necessary to include __init__ if inheriting? Additional/different attributes?
-
-    def __init__(self):
-        '''
-        '''
-
-    def put(self, object, object_name, save=False):
-    # Necessary to include all input variables if modifying function? Yes, rewriting? Rewrite entire?
-        ''' Put a single object referenced by its string name
-            into the store
-        '''
-        object_id = None
-        try:
-            # Need to pickle if object is csc_matrix
-            if isinstance(object, csc_matrix):
-                object_id = self.client.put(pickle.dumps(object, protocol=pickle.HIGHEST_PROTOCOL))
-            else:
-                object_id = self.client.put(object)
-            self.updateStored(object_name, object_id)
-            if self.use_hdd:
-                self.lmdb_store.put(object, object_name, obj_id=object_id, save=save)
-        except PlasmaObjectExists:
-            logger.error('Object already exists. Meant to call replace?')
-        except ArrowIOError as e:
-            logger.error('Could not store object '+object_name+': {} {}'.format(type(e).__name__, e))
-            logger.info('Refreshing connection and continuing')
-            self.reset()
-        except Exception as e:
-            logger.error('Could not store object '+object_name+': {} {}'.format(type(e).__name__, e))
-        return object_id
-
-    def get(self, object_name):
-        ''' Get a single object from the store
-            Checks to see if it knows the object first
-            Otherwise throw CannotGetObject to request dict update
-            TODO: update for lists of objects
-            TODO: replace with getID
-        '''
-        #print('trying to get ', object_name)
-        if self.stored.get(object_name) is None:
-            logger.error('Never recorded storing this object: '+object_name)
-            # Don't know anything about this object, treat as problematic
-            raise CannotGetObjectError(query = object_name)
-        else:
-            return self._get(object_name)
-
-
-
-def saveObj(obj, name):
-    with open('/media/hawkwings/Ext Hard Drive/dump/dump'+str(name)+'.pkl', 'wb') as output:
-        pickle.dump(obj, output)
-
-
 @dataclass
 class LMDBData:
     """
@@ -607,6 +553,7 @@ class LMDBData:
         logger.error('Attempt to get queue name from objects not from queue.')
         return None
 
+
 class ObjectNotFoundError(Exception):
 
     def __init__(self, obj_id_or_name):
@@ -622,6 +569,7 @@ class ObjectNotFoundError(Exception):
     def __str__(self):
         return self.message
 
+
 class CannotGetObjectError(Exception):
 
     def __init__(self, query):
@@ -634,6 +582,7 @@ class CannotGetObjectError(Exception):
 
     def __str__(self):
         return self.message
+
 
 class CannotConnectToStoreError(Exception):
     '''Raised when failing to connect to store.
@@ -648,6 +597,7 @@ class CannotConnectToStoreError(Exception):
 
     def __str__(self):
         return self.message
+
 
 class Watcher():
     ''' Monitors the store as separate process

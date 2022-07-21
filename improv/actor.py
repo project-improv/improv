@@ -233,7 +233,8 @@ class RunManager():
                     logger.warning('Received resume signal, resuming')
                     self.run = True
             except Empty as e:
-                pass #no signal from Nexus
+                # TODO: add error here if no signal from Nexus
+                pass # no signal from Nexus
         return None #Status...?
 
 

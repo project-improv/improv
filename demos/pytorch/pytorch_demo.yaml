@@ -1,6 +1,6 @@
-settings:
+# settings:
   # use_watcher: [Acquirer, Processor, Visual, Analysis]
-  use_watcher: [Acquirer, Processor]
+  # use_watcher: [Acquirer, Processor]
 
 
 actors:
@@ -13,12 +13,12 @@ actors:
   Acquirer:
     package: actors.acquire_folder
     class: FolderAcquirer
-    folder: ~/improv/demos/pytorch/data/CIFAR10
+    folder: /home/eao21/improv/demos/pytorch/data/CIFAR10
 
   Processor:
     package: actors.pytorch_processor
     class: PyTorchProcessor
-    model_path: ~/improv/demos/pytorch/models/AlexNet-CIFAR10.pt
+    model_path: /home/eao21/improv/demos/pytorch/models/AlexNet-CIFAR10.pt
 
   # Visual:
   #   package: demos.basic.actors.visual
@@ -37,5 +37,8 @@ connections:
   Acquirer.q_out: [Processor.q_in]
   # Acquirer.q_out: [Processor.q_in, Visual.img_queue]
   # Acquirer.q_out: [Processor.q_in, Visual.raw_frame_queue]
-  Processor.q_out: [Analysis.q_in]
-  Analysis.q_out: [Visual.q_in]
+  # Def Analysis for inference?
+  # Processor.q_out: [Analysis.q_in]
+  # Visual output of Analysis in GUI - inference time/frame, anything dropped, frame/video in, UMAP/t-SNE plots, etc.
+  # For behavior + neural 
+  # Analysis.q_out: [Visual.q_in]

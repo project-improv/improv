@@ -7,15 +7,19 @@ from pathlib import Path
 from improv.actor import Actor, RunManager
 from queue import Empty
 
+from matplotlib import image
 from PIL import Image
+import torch
 import torchvision.transforms as transforms
+from torchvision.io import read_image
 
+import pickle
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 # Modified from ~/improv/demos/neurofinder/actors
-
+# Maybe rename - ImageAcquirer?
 class FolderAcquirer(Actor):
     ''' Current behavior is looping over all files in a folder.
         Class to read JPG files in a specified {path} from disk.
@@ -78,9 +82,10 @@ class FolderAcquirer(Actor):
         if self.done:
             pass  
 
-        elif:
+        else:
             t = time.time()
             try:
+                print('Put image', t)
                 obj_id = self.client.put(self.get_img(self.files[self.img_num]), 'acq_raw_img' + str(self.img_num))
                 self.timestamp.append([time.time(), self.img_num])
                 self.q_out.put([[obj_id, str(self.img_num)]], save=[True])
@@ -92,20 +97,37 @@ class FolderAcquirer(Actor):
                 
             time.sleep(self.lag)
             self.total_times.append(time.time() - t)
+            print(self.total_times)
 
         # From bubblewrap demo
-        else:  # simulating a done signal from the source
-            logger.error('Done with all available images: {0}'.format(self.img_num))
-            self.data = None
-            self.q_comm.put(None)
-            self.done = True  # stay awake in case we get a shutdown signal
+        # simulating a done signal from the source
+        logger.error('Done with all available images: {0}'.format(self.img_num))
+        self.data = None
+        self.q_comm.put(None)
+        self.done = True  # stay awake in case we get a shutdown signal
 
     def get_img(self, file: Path):
         try:
-            img = Image.open(file.as_posix())
+            # Should get image raw...
+            # self.img = Image.open(file)
+            self.img = read_image(file)
+            # self.img = image.imread(file.as_posix())
             # transform = transforms.Compose([transforms.PILToTensor()])
             # img_tensor = transform(img)
         except ValueError as e:
-            img = Image.open(file.as_posix())
-            logger.error('File '+file.as_posix()+' had value error {}'.format(e))
-        return img
+            self.img = Image.open(file)
+            logger.error('File '+ file +' had value error {}'.format(e))
+            # self.img = image.imread(file.as_posix())
+            # logger.error('File '+file.as_posix()+' had value error {}'.format(e))
+        return self.img
+
+    # ONLY FOR NO_IMPROV
+    def put_img(self, client, img, img_num):
+        # print('Put image', t)
+        # obj_id = self.client.put(self.get_img(self.files[self.img_num]), 'acq_raw_img' + str(self.img_num))
+        # img = pickle.dumps(img_PIL, protocol=pickle.HIGHEST_PROTOCOL)
+        if torch.is_tensor(img):
+            obj_id = client.put(pickle.dumps(img, protocol=pickle.HIGHEST_PROTOCOL), 'acq_raw_img-' + str(img_num))
+        else:
+            obj_id = client.put(img, 'acq_raw_img-' + str(img_num))
+        return obj_id

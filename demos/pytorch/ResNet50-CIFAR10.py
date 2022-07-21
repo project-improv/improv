@@ -8,22 +8,19 @@ def main():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     weights = ResNet50_Weights.DEFAULT
-    model = resnet50(weights=weights, progress=True).eval().to(device)
+    model = resnet50(weights=weights, progress=True)
+    model.eval().to(device)
+
     transforms = torch.jit.script(weights.transforms()).to(device)
 
-    # Load image, tranform to tensor using torchvision.ToTensor
-    # Single image - unsqueeze (1, 3, h, w)
-    # For CIFAR-10 - dk why it doesn't work w/MNIST
-    # MNIST - 1, 1, 28, 28
-    example = torch.rand(1, 3, 32, 32).to(device)
-
-    traced_model = torch.jit.trace(model, transforms(example)).to(device)
-
+    ex = torch.rand(1, 3, 224, 224).to(device)
+    
+    traced_model = torch.jit.trace(model, ex).to(device)
 
     # Save the TorchScript model
-    os.makedirs("./models", exist_ok=True)
-    traced_model.save("./models/ResNet50-CIFAR10.pt")
-
+    os.makedirs("/home/eao21/improv/demos/pytorch/models", exist_ok=True)
+    transforms.save("/home/eao21/improv/demos/pytorch/models/ResNet50-transforms.pt")
+    traced_model.save("/home/eao21/improv/demos/pytorch/models/ResNet50-CIFAR10.pt")
 
 if __name__ == "__main__":
     main()

@@ -21,44 +21,32 @@ import traceback
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-class PyTorchProcessor(Actor):
-    # TODO: Update ALL docstrings
-    # TODO: Clean commented sections
-    # TODO: add GPU/CPU option as input...device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    ''' Using PyTorch
-    '''
-    # def __init__(self, data_path=None, model_path=None, config_file=None):
-    def __init__(self, *args, data_path='/home/eao21/improv/demos/pytorch/data/CIFAR10', model_path='/home/eao21/improv/demos/pytorch/models/AlexNet-CIFAR10.pt', config_file='/home/eao21/improv/demos/pytorch/pytorch_demo.yaml', device=None):
-        super().__init__(*args, data_path=data_path, model_path=model_path, config_file=config_file)
-        logger.info(data_path, model_path)
-        self.img_number = 0
-        if model_path is None:
-            logger.error("Must specify a pre-trained model path.")
-        else:
-            self.model_path = model_path
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+data_path = '/home/eao21/improv/demos/pytorch/data/CIFAR10'
+model_path = '/home/eao21/improv/demos/pytorch/models/AlexNet-CIFAR10.pt'
+config_file = '/home/eao21/improv/demos/pytorch/pytorch_demo.yaml'
 
-    # def setup(self):
-    def setup(self, name, model_path, device, out_timing_path, msg):
-        ''' Init model
-        Prep data = slow, load image
-        Done in runAcquirer, acquire_folder, q._in - _checkImage
-        Process done in loadImage
-        '''
-        logger.info('Loading model for ' + self.name)
-        self.done = False
-        # Necessary? See above init
-        # Load model offline, test how long it takes to load model - do outside processor - fine at init setup
-        t = time.time()
-        # TODO: Don't need all the "self"s unless saving as attribute - remove
-        # self.model = torch.jit.load(self.model_path).to(self.device)
-        self.model = torch.jit.load(model_path).to(device)
-        self.load_model_time = time.time() - t
-        # Only for running offline:
-        print(msg, self.load_model_time*1000.0)
-        # np.savetxt('output/timing/load_model_time.txt', np.array(self.load_model_time))
-        return self.model
+out_path = '/home/eao21/improv/demos/pytorch/output/no_improv'
+if not os._exists(out_path):
+    try:
+        os.makedirs(out_path)
+except:
+    pass
 
+logger.info(data_path, model_path, out_path)
+
+# print('data_pat: ', data_path, '\n', 'model_path: ', model_path, '\n','config_file: ', config_file, '\n', 'out_path: ', out_path)
+
+# img_number = 0
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+# Load model - def setup(self):
+logger.info('Loading model for ' + self.name)
+done = False
+t = time.time()
+model = torch.jit.load(self.model_path).to(self.device)
+load_model_time = time.time() - t
+np.savetxt('output/timing/load_model_time.txt', np.array(self.load_model_time))
 
     def run(self):
         ''' Run the processor continually on input data, e.g.,images
@@ -79,17 +67,6 @@ class PyTorchProcessor(Actor):
 
         print('Processor broke, avg time per image: ', np.mean(self.total_times, axis=0))
         print('Processor got through ', self.img_number, ' images')
-        out_path = '~/improv/demos/pytorch/output'
-        if not os._exists(out_path):
-            try:
-                os.makedirs(out_path)
-            except:
-                pass
-        if not os._exists(out_path):
-            try:
-                os.makedirs(out_path)
-            except:
-                pass
 
         np.savetxt(out_path + '/timing/total_times.txt', np.array(self.total_times))
         np.savetxt(out_path + '/timing/process_timestamp.txt', np.array(self.timestamp))
@@ -113,9 +90,9 @@ class PyTorchProcessor(Actor):
             self.done = False
             try:
                 # self.img = self.client.getID(img[0][str(self.img_number)])
-                self.img = self.loadImage(self.img, self.img_number)
+                self.img = self._loadImg(self.img, self.img_number)
                 t2 = time.time()
-                self.runInference(self.img.to(device), self.model.to(device))
+                self._runInference(self.img.to(device), self.model.to(device))
                 t3 = time.time()
                 self.putModelOutput()
                 t4 = time.time()
@@ -155,35 +132,32 @@ class PyTorchProcessor(Actor):
 
         # self.put_out_time.append([time.time()-t])
 
-    # SEE loadImage
+    # SEE _loadImage
     # def _processData(self, data):
     #     ''' Processing on data
     #     '''
     #     # Run additional processing steps here, if necessary...
     #     # return data
 
-    def runInference(self, data, model, device):
+    def _runInference(self, data, model):
 
         data = data.to(self.device)
-        with torch.no_grad():
-            self.output = self.model(data).squeeze(dim=0).to(device)
-        return self.output
+        self.output = self.model(data).to(device)
 
-    def loadImage(self, img, transforms):
+    def _loadImage(self, img):
         ''' Load data - here, .jpg image to tensor
-        Input is already loaded image from q_in?
-        TODO: Time? Above?
+        TODO: time
         '''
         # t = time.time()
         if img is None:
             raise ObjectNotFoundError
-        self.img = transforms(img).unsqueeze(dim=0).to(self.device)
-        # self.img = Image.open(img_path)
-        # self.img_tensor = PILToTensor(img)
-        # self.img_tensor = ToTensor()(np.array(img))
-        return self.img
+        img = Image.open(self.img)
+        transform = transforms.Compose([transforms.PILToTensor()])
+        img_tensor = transform(img)
 
         # self.load_img_time.append([time.time() - t])
+
+        return img_tensor
 
     def _checkImages(self):
         ''' Check to see if we have images for processing
@@ -191,8 +165,7 @@ class PyTorchProcessor(Actor):
         '''
         t = time.time()
         try:
-            # Timeout = 0 ms
-            res = self.q_in.get(timeout=0)
+            res = self.q_in.get(timeout=1)
             return res
         #TODO: additional error handling
         except Empty:
