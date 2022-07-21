@@ -212,8 +212,8 @@ class Nexus():
         if self.use_hdd:
             limbo_arg = [limbo, self.createLimbo('default')]
 
-        q_comm = Link(actor.name+'_comm', actor.name, self.name, limbo_arg[0])
-        q_sig = Link(actor.name+'_sig', self.name, actor.name, limbo_arg[1])
+        q_comm = Link(actor.name+'_comm', actor.name, self.name)
+        q_sig = Link(actor.name+'_sig', self.name, actor.name)
         self.comm_queues.update({q_comm.name:q_comm})
         self.sig_queues.update({q_sig.name:q_sig})
         instance.setCommLinks(q_comm, q_sig)
@@ -227,17 +227,16 @@ class Nexus():
         '''
         for source,drain in self.tweak.connections.items():
             name = source.split('.')[0]
-            limbo = self.createLimbo(name) if self.use_hdd else None
             #current assumption is connection goes from q_out to something(s) else
             if len(drain) > 1: #we need multiasyncqueue 
-                link, endLinks = MultiLink(name+'_multi', source, drain, limbo)
+                link, endLinks = MultiLink(name+'_multi', source, drain)
                 self.data_queues.update({source:link})
                 for i,e in enumerate(endLinks):
                     self.data_queues.update({drain[i]:e})
             else: #single input, single output
                 d = drain[0]
                 d_name = d.split('.') #TODO: check if .anything, if not assume q_in
-                link = Link(name+'_'+d_name[0], source, d, limbo)
+                link = Link(name+'_'+d_name[0], source, d)
                 self.data_queues.update({source:link})
                 self.data_queues.update({d:link})
 
@@ -279,7 +278,7 @@ class Nexus():
     def startWatcher(self):
         self.watcher = store.Watcher('watcher', self.createLimbo('watcher'))
         limbo = self.createLimbo('watcher') if self.use_hdd else None
-        q_sig = Link('watcher_sig', self.name, 'watcher', limbo)
+        q_sig = Link('watcher_sig', self.name, 'watcher')
         self.watcher.setLinks(q_sig)
         self.sig_queues.update({q_sig.name:q_sig})
 

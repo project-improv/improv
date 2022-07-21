@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.DEBUG,
                     handlers=[logging.FileHandler("global.log"),
                               logging.StreamHandler()])
 
-def Link(name, start, end, limbo):
+def Link(name, start, end):
     """ Function to construct a queue that Nexus uses for
     inter-process (actor) signaling and information passing.
 
@@ -26,7 +26,7 @@ def Link(name, start, end, limbo):
     """
 
     m = Manager()
-    q = AsyncQueue(m.Queue(maxsize=0), name, start, end, limbo)
+    q = AsyncQueue(m.Queue(maxsize=0), name, start, end)
     return q
 
 class AsyncQueue(object):
@@ -41,12 +41,11 @@ class AsyncQueue(object):
         end:
         status:
         result:
-        limbo:
         num:
         dict:
     """
 
-    def __init__(self, q, name, start, end, limbo):
+    def __init__(self, q, name, start, end):
         """ Constructor for the queue class.
 
         Args:
@@ -54,11 +53,7 @@ class AsyncQueue(object):
             name (str): String description of this queue
             start (str): The producer (input) actor for the queue
             end (str): The consumer (output) actor for the queue
-            limbo (improv.store.Limbo): Connection to the store for 
-                logging in case of future replay
-
-        TODO: 
-            Rewrite to avoid limbo and use logger files instead.
+            
         """
 
         self.queue = q
@@ -72,9 +67,6 @@ class AsyncQueue(object):
         self.status = 'pending'
         self.result = None
         
-        self.limbo = limbo
-        self.num = 0
-
     def getStart(self):
         """ Gets the starting actor.
         
@@ -160,7 +152,6 @@ class AsyncQueue(object):
             item (object): Any item that can be sent through a queue
         """
 
-        self.log_to_limbo(item)
         self.queue.put(item)
 
     def put_nowait(self, item):
@@ -170,7 +161,6 @@ class AsyncQueue(object):
             item (object): Any item that can be sent through a queue
         """
 
-        self.log_to_limbo(item)
         self.queue.put_nowait(item)
 
     async def put_async(self, item):
@@ -186,7 +176,6 @@ class AsyncQueue(object):
         """
 
         loop = asyncio.get_event_loop()
-        self.log_to_limbo(item) #FIXME: This is blocking
         res = await loop.run_in_executor(self._executor, self.put, item)
         return res
 
@@ -230,19 +219,8 @@ class AsyncQueue(object):
         if self._real_executor and not self._cancelled_join:
             self._real_executor.shutdown()
 
-    def log_to_limbo(self, item):
-        """ Function to write an object into the store.
-        
-        Args:
-            item (object): Any object that can be sent through a queue.
-        """
 
-        if self.limbo is not None:
-            self.limbo.put(item, f'q__{self.start}__{self.num}')
-            self.num += 1
-
-
-def MultiLink(name, start, end, limbo):
+def MultiLink(name, start, end):
     """ Function to generate links for the multi-output queue case.
 
     Args:
@@ -257,7 +235,7 @@ def MultiLink(name, start, end, limbo):
 
     q_out = []
     for endpoint in end:
-        q = AsyncQueue(m.Queue(maxsize=0), name, start, endpoint, limbo=limbo)
+        q = AsyncQueue(m.Queue(maxsize=0), name, start, endpoint)
         q_out.append(q)
 
     q = MultiAsyncQueue(m.Queue(maxsize=0), q_out, name, start, end)
