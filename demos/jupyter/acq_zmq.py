@@ -99,22 +99,24 @@ class FileAcquirerZMQ(Actor):
             t= time.time()
             # print("runAcq is going") # delete this
             id = self.client.put(frame, 'acq_raw'+str(self.frame_num))
-            # print("after putting into store") #delete this
+            print("id has been put into the store") #delete this
             t1= time.time()
             self.timestamp.append([time.time(), self.frame_num])
             
-            # try:
-            # self.put([[id, str(self.frame_num)]], save=[True])
-            # print("before sending thru zmq") # delete this
-            self.socket.send(id.binary())
-            # self.socket.send_string("message sent from server!")
-            print("socket sent message out")
-            logger.info(self.frame_num)
-            self.frame_num += 1
-                #also log to disk #TODO: spawn separate process here?
+            try:
+                # self.put([[id, str(self.frame_num)]], save=[True])
+                # print("before sending thru zmq") # delete this
+                print(id)
+                self.socket.send(id.binary())
+                time.sleep(.2)
+                # self.socket.send_string("message sent from server!")
+                print("socket sent message out")
+                logger.info(self.frame_num)
+                self.frame_num += 1
+                    #also log to disk #TODO: spawn separate process here?
            
-            # except Exception as e:
-            #     logger.error('Acquirer general exception: {}'.format(e))
+            except Exception as e:
+                logger.error('Acquirer general exception: {}'.format(e))
 
             time.sleep(self.framerate) #pretend framerate
             self.total_times.append(time.time()-t)
@@ -122,7 +124,7 @@ class FileAcquirerZMQ(Actor):
         else: # simulating a done signal from the source (eg, camera)
             logger.error('Done with all available frames: {0}'.format(self.frame_num))
             self.data = None
-            self.q_comm.put(None)
+            # self.q_comm.put(None)
             self.done = True # stay awake in case we get e.g. a shutdown signal
             #if self.saving:
             #    self.f.close()
@@ -193,6 +195,7 @@ if __name__=="__main__":
     lmb = Limbo(store_loc = "/tmp/store")
     testfile.setStore(lmb)
     
+    print("store is started")
     testfile.setup()
     testfile.run()
     print("run() is finished")
