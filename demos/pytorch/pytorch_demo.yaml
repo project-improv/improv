@@ -1,44 +1,28 @@
 # settings:
-  # use_watcher: [Acquirer, Processor, Visual, Analysis]
-  # use_watcher: [Acquirer, Processor]
-
+  # use_watcher: [Acquirer, Processor, Analysis, Visual]
 
 actors:
-  # GUI:
-  #   package: demos.basic.actors.visual
-  #   class: BasicVisual
-  #   visual: Visual
-
-# Acquire arbitrary data...image folder for now, such as MNIST/CIFAR10, etc.
   Acquirer:
     package: actors.acquire_folder
     class: FolderAcquirer
-    folder: /home/eao21/improv/demos/pytorch/data/CIFAR10
+    folder: data/CIFAR10
 
   Processor:
-    package: actors.pytorch_processor
+    package: actors.processor
     class: PyTorchProcessor
-    model_path: /home/eao21/improv/demos/pytorch/models/AlexNet-CIFAR10.pt
+    transforms_path: models/ResNet50-transforms.pt
 
-  # Visual:
-  #   package: demos.basic.actors.visual
-  #   class: BasicCaimanVisual
-  
-  # Analysis:
-  #   package: improv.actors.analysis
-  #   class: MeanAnalysis
+  Analysis:
+    package: actors.analysis
+    class: PyTorchAnalysis
+    model_path: models/AlexNet-CIFAR10.pt
 
-  # InputStim:
-  #   package: improv.actors.acquire
-  #   class: BehaviorAcquirer
+  Visual:
+    package: actors.visual
+    class: PyTorchAnalysis
 
 
 connections:
   Acquirer.q_out: [Processor.q_in]
-  # Acquirer.q_out: [Processor.q_in, Visual.img_queue]
-  # Acquirer.q_out: [Processor.q_in, Visual.raw_frame_queue]
-  # Def Analysis for inference?
-  # Processor.q_out: [Analysis.q_in]
-  # Visual output of Analysis in GUI - inference time/frame, anything dropped, frame/video in, UMAP/t-SNE plots, etc.
-  # For behavior + neural 
-  # Analysis.q_out: [Visual.q_in]
+  Processor.q_out: [Analysis.q_in]
+  Analysis.q_out: [Visual.q_in]
