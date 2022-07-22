@@ -195,7 +195,7 @@ if __name__=="__main__":
     lmb = Limbo(store_loc = "/tmp/store")
     testfile.setStore(lmb)
     
-    print("store is started")
+    print("the store has started")
     testfile.setup()
     testfile.run()
     print("run() is finished")
