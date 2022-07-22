@@ -16,7 +16,7 @@ logger.setLevel(logging.INFO)
 
 # Modified from ~/improv/demos/neurofinder/actors/acquire_folder.py
 # Maybe rename - ImageAcquirer? 
-# Move to src?
+# Moved to src
 class FolderAcquirer(Actor):
     ''' Current behavior is looping over all files in a folder.
         Class to read TIFF/JPG/PNG files in a specified {path} from disk.
@@ -61,6 +61,7 @@ class FolderAcquirer(Actor):
             Get list of files in the folder and use that as the baseline.
             Arg: exts = list of possible extensions
         '''
+        self.put_img_time = []
         self.total_times = []
         self.timestamp = []
         
@@ -85,10 +86,12 @@ class FolderAcquirer(Actor):
         else:
             t = time.time()
             try:
+                t1 = time.time()
                 obj_id = self.client.put(self.get_sample(self.files[self.sample_num]), 'acq_raw' + str(self.sample_num))
                 self.timestamp.append([time.time(), self.sample_num])
                 self.put([[obj_id, str(self.sample_num)]], save=[True])
                 self.sample_num += 1
+                self.put_img_time = time.time() - t1
             except Exception as e:
                 logger.error('Acquirer general exception: {}'.format(e))
             except IndexError as e:
@@ -103,8 +106,11 @@ class FolderAcquirer(Actor):
         self.done = True  # stay awake in case we get a shutdown signal
 
     def get_sample(self, file: Path):
+        self.load_img_time = []
+        t = time.time()
         try:
             img = imread(file.as_posix())
+            self.load_img_time.append(time.time() - t
         except ValueError as e:
             img = imread(file.as_posix())
             logger.error('File ' + file.as_posix() + ' had value error {}'.format(e))
