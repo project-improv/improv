@@ -54,6 +54,9 @@ class FileAcquirerZMQ(Actor):
 
         else: raise FileNotFoundError
 
+        x = np.loadtxt('raw_C.txt')
+        self.raw_C = np.transpose(x)
+
         self.setupZMQ()
 
     def run(self):
@@ -102,12 +105,19 @@ class FileAcquirerZMQ(Actor):
             print("id has been put into the store") #delete this
             t1= time.time()
             self.timestamp.append([time.time(), self.frame_num])
-            
+
+            timepiece = self.raw_C[self.frame_num]
+            id2 = self.client.put(timepiece, 'acq_raw_timepiece'+str(self.frame_num))
+            print(id2)
+            zmqlist = [id.binary(),id2.binary()]
+            print(zmqlist)
+
             try:
                 # self.put([[id, str(self.frame_num)]], save=[True])
                 # print("before sending thru zmq") # delete this
                 print(id)
-                self.socket.send(id.binary())
+                # self.socket.send(id.binary())
+                self.socket.send(zmqlist)
                 time.sleep(.2)
                 # self.socket.send_string("message sent from server!")
                 print("socket sent message out")
