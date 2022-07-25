@@ -32,7 +32,7 @@ class DLCProcessor(Actor):
     def setup(self):
         ''' Initialize DLC model
         '''
-        logger.info('Running setup for '+self.name)
+        logger.info('Running setup for '+ self.name)
         self.done = False
         self.dropped_frames = []
 

@@ -25,7 +25,7 @@ class FolderAcquirer(Actor):
         If there're multiple files, files are loaded by name.
     '''
 
-    def __init__(self, *args, folder=None, **kwargs):
+    def __init__(self, *args, folder="data/CIFAR10/images", exts=[".jpg", ".png"], **kwargs):
         super().__init__(*args, **kwargs)
         self.data = None
         self.done = False
@@ -35,19 +35,24 @@ class FolderAcquirer(Actor):
         self.sample_num = 0
         self.files = []
 
+        if exts is None:
+            logger.error('Must specify filetype/extensions of data.')
+        else:
+            self.exts = exts
+
         if not self.path.exists() or not self.path.is_dir():
             raise AttributeError('Folder {} does not exist.'.format(self.path))
 
     def setup(self):
         pass
         
-    def saveImgs(self, exts):
+    def saveImgs(self):
         '''
         Arg: exts = list of possible file extensions
         '''
         self.imgs = []
-        files = {f for f in self.path.iterdir() if f.suffix in exts}
-        files = sorted(list(files))
+        files = [f.as_posix() for f in self.path.iterdir() if f.suffix in self.exts]
+        files.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
         for file in files:
             img = self.get_sample(file)
             self.imgs.append(img)
@@ -56,7 +61,7 @@ class FolderAcquirer(Actor):
         f.create_dataset("default", data=self.imgs)
         f.close()
 
-    def run(self, exts):
+    def run(self):
         ''' Triggered at Run
             Get list of files in the folder and use that as the baseline.
             Arg: exts = list of possible extensions
@@ -64,18 +69,19 @@ class FolderAcquirer(Actor):
         self.put_img_time = []
         self.total_times = []
         self.timestamp = []
-        
-        self.files = [f for f in self.path.iterdir() if f.suffix in exts]
 
         with RunManager(self.name, self.runAcquirer, self.setup, self.q_sig, self.q_comm) as rm:
             print(rm)
 
-        if '.tif' or '.tiff' in exts:
+        if '.tif' or '.tiff' in self.exts:
             print('Acquire broke, avg time per frame: ', np.mean(self.total_times))
             print('Acquire got through ', self.sample_num, ' frames')
-        if '.jpg' or '.png' in exts:
+        if '.jpg' or '.png' in self.exts:
             print('Acquire broke, avg time per image: ', np.mean(self.total_times))
             print('Acquire got through ', self.sample_num, ' images')
+
+        np.savetxt('output/timing/put_image_time.txt', np.array(self.put_img_time))
+        np.savetxt('output/timing/acquire_timestamp.txt', np.array(self.timestamp))
 
     def runAcquirer(self):
         ''' Main loop. If there're new files, read and put into store.
@@ -90,8 +96,8 @@ class FolderAcquirer(Actor):
                 obj_id = self.client.put(self.get_sample(self.files[self.sample_num]), 'acq_raw' + str(self.sample_num))
                 self.timestamp.append([time.time(), self.sample_num])
                 self.put([[obj_id, str(self.sample_num)]], save=[True])
-                self.sample_num += 1
                 self.put_img_time = time.time() - t1
+                self.sample_num += 1
             except Exception as e:
                 logger.error('Acquirer general exception: {}'.format(e))
             except IndexError as e:
@@ -106,23 +112,10 @@ class FolderAcquirer(Actor):
         self.done = True  # stay awake in case we get a shutdown signal
 
     def get_sample(self, file: Path):
+        '''
+        '''
         self.load_img_time = []
         t = time.time()
-        try:
-            img = imread(file.as_posix())
-            self.load_img_time.append(time.time() - t
-        except ValueError as e:
-            img = imread(file.as_posix())
-            logger.error('File ' + file.as_posix() + ' had value error {}'.format(e))
-        return img # [0,0,0, :, :,0]  # Extract first channel in this image set, or tensor/3D array for .jpg/.png
-
-    # ONLY FOR NO_IMPROV
-    def put_img(self, client, img, img_num):
-        # print('Put image', t)
-        # obj_id = self.client.put(self.get_img(self.files[self.img_num]), 'acq_raw_img' + str(self.img_num))
-        # img = pickle.dumps(img_PIL, protocol=pickle.HIGHEST_PROTOCOL)
-        if torch.is_tensor(img):
-            obj_id = client.put(pickle.dumps(img, protocol=pickle.HIGHEST_PROTOCOL), 'acq_raw_img-' + str(img_num))
-        else:
-            obj_id = client.put(img, 'acq_raw_img-' + str(img_num))
-        return obj_id
+        img = imread(file)
+        self.load_img_time.append(time.time() - t)
+        return img
