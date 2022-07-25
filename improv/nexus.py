@@ -1,29 +1,29 @@
+import asyncio
+import concurrent
+import functools
 import multiprocessing
-# multiprocessing.set_start_method("spawn", force=True)
-
+import signal
 import sys
 import os
 import time
 import subprocess
 
-from multiprocessing import Process, Queue, Manager, cpu_count, set_start_method
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import numpy as np
-from PyQt5 import QtGui, QtWidgets
-import pyarrow.plasma as plasma
-from importlib import import_module
-from improv import store
-from improv.tweak import Tweak
-from threading import Thread
-import asyncio
-import concurrent
-import functools
-import signal
-from improv.actor import Spike
-from queue import Empty, Full
 import logging
+import pyarrow.plasma as plasma
+
+from multiprocessing import Process, Queue, Manager, cpu_count, set_start_method
+from PyQt5 import QtGui, QtWidgets
+from importlib import import_module
+from threading import Thread
+from queue import Empty, Full
 from datetime import datetime
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+
 from improv.watcher import BasicWatcher
+from improv import store
+from improv.actor import Spike
+from improv.tweak import Tweak
 from improv.link import Link, MultiLink
 
 logger = logging.getLogger(__name__)
@@ -32,14 +32,6 @@ logging.basicConfig(level=logging.DEBUG,
                     format='%(name)s %(message)s',
                     handlers=[logging.FileHandler("global.log"),
                               logging.StreamHandler()])
-#logging.basicConfig(filename='logs/nexus_{:%Y%m%d%H%M%S}.log'.format(datetime.now()),
-                   #filemode='w',
-                  #format='%(asctime)s | %(levelname)-8s | %(name)s | %(lineno)04d | %(message)s')
-
-        #fh = logging.FileHandler('logs/nexus_{:%Y%m%d%H%M%S}.log'.format(datetime.now()))
-        #formatter = logging.Formatter('%(asctime)s | %(levelname)-8s | %(lineno)04d | %(message)s')
-        #fh.setFormatter(formatter)
-        #logger.addHandler(fh)
 
 # TODO: Set up limbo.notify in async function (?)
 
@@ -103,9 +95,21 @@ class Nexus():
             signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
             for s in signals:
                 loop.add_signal_handler(
-                    s, lambda s=s: asyncio.ensure_future(self.stop_polling(s, loop))) #TODO
+                    s, lambda s=s: self.stop_polling(s, loop)) #TODO
+            try:
+                res = loop.run_until_complete(self.pollQueues()) #TODO: in Link executor, complete all tasks
+            except asyncio.CancelledError:
+                logging.info("Loop is cancelled")
+            
+            try:
+                logging.info(f"Result of run_until_complete: {res}") 
+            except:
+                logging.info("Res failed to await")
 
-            loop.run_until_complete(self.pollQueues()) #TODO: in Link executor, complete all tasks
+            logging.info(f"Current loop: {asyncio.get_event_loop()}") 
+            
+            loop.stop()
+            loop.close()
             logger.info('Shutdown loop')
         else:
             pass
@@ -212,8 +216,8 @@ class Nexus():
         if self.use_hdd:
             limbo_arg = [limbo, self.createLimbo('default')]
 
-        q_comm = Link(actor.name+'_comm', actor.name, self.name, limbo_arg[0])
-        q_sig = Link(actor.name+'_sig', self.name, actor.name, limbo_arg[1])
+        q_comm = Link(actor.name+'_comm', actor.name, self.name)
+        q_sig = Link(actor.name+'_sig', self.name, actor.name)
         self.comm_queues.update({q_comm.name:q_comm})
         self.sig_queues.update({q_sig.name:q_sig})
         instance.setCommLinks(q_comm, q_sig)
@@ -227,17 +231,16 @@ class Nexus():
         '''
         for source,drain in self.tweak.connections.items():
             name = source.split('.')[0]
-            limbo = self.createLimbo(name) if self.use_hdd else None
             #current assumption is connection goes from q_out to something(s) else
             if len(drain) > 1: #we need multiasyncqueue 
-                link, endLinks = MultiLink(name+'_multi', source, drain, limbo)
+                link, endLinks = MultiLink(name+'_multi', source, drain)
                 self.data_queues.update({source:link})
                 for i,e in enumerate(endLinks):
                     self.data_queues.update({drain[i]:e})
             else: #single input, single output
                 d = drain[0]
                 d_name = d.split('.') #TODO: check if .anything, if not assume q_in
-                link = Link(name+'_'+d_name[0], source, d, limbo)
+                link = Link(name+'_'+d_name[0], source, d)
                 self.data_queues.update({source:link})
                 self.data_queues.update({d:link})
 
@@ -279,7 +282,7 @@ class Nexus():
     def startWatcher(self):
         self.watcher = store.Watcher('watcher', self.createLimbo('watcher'))
         limbo = self.createLimbo('watcher') if self.use_hdd else None
-        q_sig = Link('watcher_sig', self.name, 'watcher', limbo)
+        q_sig = Link('watcher_sig', self.name, 'watcher')
         self.watcher.setLinks(q_sig)
         self.sig_queues.update({q_sig.name:q_sig})
 
@@ -314,9 +317,6 @@ class Nexus():
                     #queue full, keep going anyway TODO: add repeat trying as async task
 
     def quit(self):
-        # with open('timing/noticiations.txt', 'w') as output:
-        #     output.write(str(self.listing))
-
         logger.warning('Killing child processes')
 
         for q in self.sig_queues.values():
@@ -340,6 +340,18 @@ class Nexus():
         self.destroyNexus()
 
     async def pollQueues(self):
+        """ Listens to links and processes their signals.
+        
+        For every communications queue connected to Nexus, a task is
+        created that gets from the queue. Throughout runtime, when these
+        queues output a signal, they are processed by other functions.
+        At the end of runtime (when the gui has been closed), polling is 
+        stopped.
+        
+        Returns:
+            "Shutting down" (string): Notifies start() that pollQueues has completed.
+        """
+
         self.listing = [] #TODO: Remove or rewrite
         self.actorStates = dict.fromkeys(self.actors.keys())
         if not self.tweak.hasGUI:  # Since Visual is not started, it cannot send a ready signal.
@@ -349,26 +361,25 @@ class Nexus():
                 pass
         polling = list(self.comm_queues.values())
         pollingNames = list(self.comm_queues.keys())
-        tasks = []
+        self.tasks = []
         for q in polling:
-            tasks.append(asyncio.ensure_future(q.get_async()))
+            self.tasks.append(asyncio.ensure_future(q.get_async()))
 
         while not self.flags['quit']:
-            done, pending = await asyncio.wait(tasks, return_when=concurrent.futures.FIRST_COMPLETED)
+            done, pending = await asyncio.wait(self.tasks, return_when=concurrent.futures.FIRST_COMPLETED)
             #TODO: actually kill pending tasks
-
-            for i,t in enumerate(tasks):
+            for i,t in enumerate(self.tasks):
                 if t in done or polling[i].status == 'done': #catch tasks that complete await wait/gather
                     r = polling[i].result
                     if 'GUI' in pollingNames[i]:
                         self.processGuiSignal(r, pollingNames[i])
                     else:
                         self.processActorSignal(r, pollingNames[i])
-                    tasks[i] = (asyncio.ensure_future(polling[i].get_async()))
+                    self.tasks[i] = (asyncio.ensure_future(polling[i].get_async()))
 
-            #self.listing.append(self.limbo.notify())
-
+        self.stop_polling("quit", asyncio.get_running_loop(), polling)
         logger.warning('Shutting down polling')
+        return "Shutting Down"
 
     def processGuiSignal(self, flag, name):
         '''Receive flags from the Front End as user input
@@ -449,19 +460,42 @@ class Nexus():
         except Exception as e:
             logger.exception('Store cannot be started: {0}'.format(e))
 
-    async def stop_polling(self, signal, loop):
-        ''' TODO: update asyncio library calls
-        '''
-        logging.info('Received exit signal {}'.format(signal.name))
+    def stop_polling(self, stop_signal, loop, queues):
+        """ Cancels outstanding tasks and fills their last request.
 
-        tasks = [t for t in asyncio.Task.all_tasks() if t is not
-                asyncio.Task.current_task()]
+        Puts a string into all active queues, then cancels their 
+        corresponding tasks. These tasks are not fully cancelled until 
+        the next run of the event loop.
 
-        [task.cancel() for task in tasks]
+        Args:
+            stop_signal (signal.signal): Signal for signal handler.
+            loop (loop): Event loop for signal handler.
+            queues (AsyncQueue): Comm queues for links.
+        """ 
 
-        #TODO: Fix for hanging behavior
+        logging.info("Received shutdown order")
+
+        logging.info(f"Stop signal: {stop_signal}")
+        shutdown_message = "SHUTDOWN"
+        [q.put(shutdown_message) for q in queues]
         logging.info('Canceling outstanding tasks')
-        await asyncio.gather(*tasks)
-        loop.stop()
-        logging.info('Shutdown complete.')
+        try:
+            asyncio.gather(*self.tasks)
+        except asyncio.CancelledError: 
+            logging.info("Gather is cancelled")
+
+        [task.cancel() for task in self.tasks]
+
+        cur_task = asyncio.current_task()
+        cur_task.cancel()
+        tasks = [task for task in self.tasks if not task.done()]
+        [t.cancel() for t in tasks]
+        [t.cancel() for t in tasks] #necessary in order to start cancelling tasks other than the first one
+
+        try:
+            cur_task.cancel() 
+        except asyncio.CancelledError:
+            logging.info("cur_task cancelled")
+        
+        logging.info('Polling has stopped.')
 
