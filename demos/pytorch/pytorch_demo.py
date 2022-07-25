@@ -1,4 +1,5 @@
 import logging
+import time
 # Matplotlib is overly verbose by default
 logging.getLogger("matplotlib").setLevel(logging.WARNING)
 from improv.nexus import Nexus
@@ -20,3 +21,9 @@ nexus.createNexus(file=loadFile)
 # logger.setLevel(logging.INFO)
 
 nexus.startNexus()
+
+nexus.setup()
+time.sleep(100)
+nexus.run()
+time.sleep(1000000)
+nexus.quit()
