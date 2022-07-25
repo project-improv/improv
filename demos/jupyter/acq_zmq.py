@@ -54,7 +54,7 @@ class FileAcquirerZMQ(Actor):
 
         else: raise FileNotFoundError
 
-        x = np.loadtxt('raw_C.txt')
+        x = np.loadtxt('data/raw_C.txt')
         self.raw_C = np.transpose(x)
 
         self.setupZMQ()
@@ -109,7 +109,7 @@ class FileAcquirerZMQ(Actor):
             timepiece = self.raw_C[self.frame_num]
             id2 = self.client.put(timepiece, 'acq_raw_timepiece'+str(self.frame_num))
             print(id2)
-            zmqlist = [id.binary(),id2.binary()]
+            zmqlist = id.binary() #[id.binary(),id2.binary()]
             print(zmqlist)
 
             try:
@@ -198,10 +198,10 @@ if __name__=="__main__":
     #start the store manually (dont start in jupyter)
     import subprocess
     from improv.store import Limbo
-    p = subprocess.Popen(["/home/ameliacang7/anaconda3/envs/improv/bin/plasma_store", "-s", "/tmp/store", "-m", str(10000000)],\
+    p = subprocess.Popen(["plasma_store", "-s", "/tmp/store", "-m", str(1000000000)],\
     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-    testfile = FileAcquirerZMQ(filename='tbif_ex_crop.h5', framerate=30, name='j')
+    testfile = FileAcquirerZMQ(filename='data/tbif_ex_crop.h5', framerate=5, name='j')
     lmb = Limbo(store_loc = "/tmp/store")
     testfile.setStore(lmb)
     
