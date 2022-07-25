@@ -304,7 +304,7 @@ class Nexus():
                 logger.warning('Signal queue'+q.name+'is full')
 
     def run(self):
-        if self.allowStart:
+        if self.allowStart or not self.tweak.hasGUI:
             for q in self.sig_queues.values():
                 try:
                     q.put_nowait(Spike.run())
