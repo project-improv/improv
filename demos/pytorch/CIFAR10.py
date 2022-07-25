@@ -8,7 +8,8 @@ from torchvision.utils import save_image
 def main():
 
     root = "/home/eao21/improv/demos/pytorch/data/"
-    os.makedirs(root + "/CIFAR10", exist_ok=True)
+    os.makedirs(root + "/CIFAR10/images", exist_ok=True)
+    os.makedirs(root + "/CIFAR10/labels", exist_ok=True)
 
     batch_size = 200
     
@@ -16,8 +17,10 @@ def main():
     dataset = iter(DataLoader(dataset, batch_size=batch_size))
     
     for i in range(batch_size):
-        x, _ = (next(dataset))
-        save_image(x[0], root + "CIFAR10/{}.jpg".format(i))
+        x, label = (next(dataset))
+        save_image(x[0], root + "CIFAR10/images/{}.jpg".format(i))
+        with open(root + "CIFAR10/labels/{}.txt".format(i), "w") as text_file:
+            text_file.write("%s" % label)
 
 if __name__ == "__main__":
     main()

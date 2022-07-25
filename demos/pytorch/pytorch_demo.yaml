@@ -5,24 +5,26 @@ actors:
   Acquirer:
     package: actors.acquire_folder
     class: FolderAcquirer
-    folder: data/CIFAR10
+    folder: data/CIFAR10/images
 
   Processor:
     package: actors.processor
     class: PyTorchProcessor
     transforms_path: models/ResNet50-transforms.pt
+    model_path: models/ResNet50-CIFAR10.pt
+    classify: False
+    
+  # Analysis:
+  #   package: actors.analysis
+  #   class: PyTorchAnalysis
+  #   model_path: models/ResNet50-CIFAR10.pt
 
-  Analysis:
-    package: actors.analysis
-    class: PyTorchAnalysis
-    model_path: models/AlexNet-CIFAR10.pt
-
-  Visual:
-    package: actors.visual
-    class: PyTorchAnalysis
+  # Visual:
+  #   package: actors.visual
+  #   class: PyTorchAnalysis
 
 
 connections:
   Acquirer.q_out: [Processor.q_in]
-  Processor.q_out: [Analysis.q_in]
-  Analysis.q_out: [Visual.q_in]
+  # Processor.q_out: [Analysis.q_in]
+  # Analysis.q_out: [Visual.q_in]
