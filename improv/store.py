@@ -225,8 +225,10 @@ class Limbo(StoreInterface):
             if res is not None:
                 return res
 
-        logger.warning('Object {} cannot be found.'.format(obj_id))
-        raise ObjectNotFoundError
+        logger.warning('Object {} cannot be found. Perhaps the store is too small?'.format(obj_id))
+        ## internal
+        # print(self.client.list())
+        raise ObjectNotFoundError(obj_id)
 
     def getList(self, ids):
         ''' Get multiple objects from the store
@@ -309,7 +311,7 @@ class Limbo(StoreInterface):
         logger.warning('{}'.format(object_name))
         if isinstance(res, ObjectNotAvailable):
             logger.warning('Object {} cannot be found.'.format(object_name))
-            raise ObjectNotFoundError(obj_id_or_name = object_name) #TODO: Don't raise?
+            raise ObjectNotFoundError(object_name) #TODO: Don't raise?
         else:
             return res
 
@@ -511,7 +513,7 @@ class LMDBStore(StoreInterface):
         with self.lmdb_env.begin(write=True) as txn:
             out = txn.pop(LMDBStore._convert_obj_id_to_bytes(obj_id))
         if out is None:
-            raise ObjectNotFoundError
+            raise ObjectNotFoundError(obj_id)
 
 
     @staticmethod
