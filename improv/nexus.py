@@ -34,6 +34,22 @@ class Nexus:
     def __str__(self):
         return self.name
 
+    def createNexus(self, file=None, use_hdd=False):
+        """Function to initialize class variables based on config file.
+
+        Starts a store of class Limbo, and then loads the config file.
+        The config file specifies the specific actors that nexus will
+        be connected to, as well as their links.
+
+        Args:
+            file (string): Name of the config file.
+            use_hdd (bool): Whether to use hdd for the store.
+        """
+
+        self._startStore(
+            40000000000
+        )  # default size should be system-dependent; this is 40 GB
+
     def createNexus(
         self,
         file=None,
