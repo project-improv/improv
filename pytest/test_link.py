@@ -54,9 +54,9 @@ def init_actors(n = 1):
 def example_link(setup_store):
     """ Fixture to provide a commonly used Link object.
     """
-
+    setup_store
     act = init_actors(2)
-    lnk = Link("Example", act[0].name, act[1].name, setup_store)
+    lnk = Link("Example", act[0].name, act[1].name)
     yield lnk
     lnk = None
 
@@ -69,10 +69,10 @@ def example_actor_system(setup_store):
     lmb = setup_store
     acts = init_actors(4)
 
-    L01 = Link("L01", acts[0].name, acts[1].name, lmb)
-    L13 = Link("L13", acts[1].name, acts[3].name, lmb)
-    L12 = Link("L12", acts[1].name, acts[2].name, lmb)
-    L23 = Link("L23", acts[2].name, acts[3].name, lmb)
+    L01 = Link("L01", acts[0].name, acts[1].name)
+    L13 = Link("L13", acts[1].name, acts[3].name)
+    L12 = Link("L12", acts[1].name, acts[2].name)
+    L23 = Link("L23", acts[2].name, acts[3].name)
 
     links = [L01, L13, L12, L23]
 
@@ -123,7 +123,7 @@ def test_Link_init_start_end(setup_store):
     """
 
     act = init_actors(2)
-    lnk = Link("example_link", act[0].name, act[1].name, setup_store)
+    lnk = Link("example_link", act[0].name, act[1].name)
 
     assert lnk.start == act[0].name and lnk.end == act[1].name
 
@@ -305,7 +305,7 @@ def test_put_overflow(setup_store, caplog):
     lmb = Limbo(store_loc = "/tmp/store")
     
     acts = init_actors(2)
-    lnk = Link("L1", acts[0], acts[1], lmb)    
+    lnk = Link("L1", acts[0], acts[1])    
 
     message = [i for i in range(10 ** 6)] #24000 bytes
 
