@@ -193,7 +193,7 @@ def test_put(example_link):
     assert lnk.get() == "message"
 
 def test_put_unserializable(example_link, caplog, setup_store):
-    """ Tests if an unserializable objecet raises an error.
+    """ Tests if an unserializable object raises an error.
 
     Instantiates an actor, which is unserializable, and passes it into 
     Link.put(). 
@@ -212,6 +212,15 @@ def test_put_unserializable(example_link, caplog, setup_store):
 
     assert sentinel, "Unable to put" 
     assert str(lnk.get()) == str(act)
+
+def test_put_irreducible(example_link, setup_store):
+    """ Tests if an irreducible object raises an error.
+    """
+    
+    lnk = example_link
+    lmb = setup_store
+    with pytest.raises(TypeError):
+       lnk.put(lmb) 
 
 def test_put_nowait(example_link):
     """ Tests if messages can be put into the link without blocking.

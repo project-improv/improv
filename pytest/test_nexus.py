@@ -18,7 +18,8 @@ def sample_nex(setdir):
     setdir
     nex = Nexus("test")
     nex.createNexus()
-    return nex
+    yield nex
+    nex.destroyNexus()
 
 # @pytest.fixture
 # def setup_store(setdir):
@@ -64,30 +65,47 @@ def test_loadTweak(sample_nex):
     nex.loadTweak()
     assert set(nex.comm_queues.keys()) == set(["Acquirer_comm", "Analysis_comm", "GUI_comm", "InputStim_comm", "Processor_comm"])
 
-# @pytest.mark.skip("this is unfinished")
 def test_startNexus(sample_nex):
     nex = sample_nex
     nex.startNexus()
     assert [p.name for p in nex.processes] == ["Acquirer", "Processor", "Analysis", "InputStim"]
 
-@pytest.mark.skip(reason = "This test is unfinished.")
-def test_basic_demo_config():
+@pytest.mark.skip(reason="This test is unfinished")
+@pytest.mark.parametrize("cfg_name", "actor_list", "link_list", [
+    ("basic_demo.yaml", None, None),
+    ("good_config.yaml", None, None),
+    ("simple_graph.yaml", None, None),
+    ("complex_graph.yaml", None, None),
+    ("single_actor_graph.yaml", None, None)
+])
+def test_config_construction(cfg_name, actor_list, link_list, setdir):
+    """ Tests if constructing a nexus based on the provided config has the right structure.
+    
+    After construction based on the config, this 
+    checks whether all the right actors are constructed and whether the 
+    links between them are constructed correctly. 
+    """
+
+    setdir
+    cfg_name = "basic_demo.yaml"
+
+    nex = Nexus("test")
+    nex.createNexus(file = os.getcwd() + "/" + cfg_name)
+
+    # Check for actors
+
+    act_lst = list(nex.actors)
+    lnk_lst = list(nex.sig_queues)
+
+    assert act_lst == lnk_lst
     assert True
 
-@pytest.mark.skip(reason = "This test is unfinished.")
-def test_good_config_config():
+@pytest.mark.skip(reason="This test is unfinished")
+def test_cyclic_graph():
     assert True
 
-@pytest.mark.skip(reason = "This test is unfinished.")
-def test_simple_graph():
-    assert True
-
-@pytest.mark.skip(reason = "This test is unfinished.")
-def test_complex_graph():
-    assert True
-
-@pytest.mark.skip(reason = "This test is unfinished.")
-def test_single_actor_graph():
+@pytest.mark.skip(reason="This test is unfinished")
+def test_empty_graph():
     assert True
 
 @pytest.mark.skip(reason = "This test is unfinished.")
