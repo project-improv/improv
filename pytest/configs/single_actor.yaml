@@ -1,0 +1,11 @@
+actors:
+  Acquirer:
+    package: improv.actors.acquire
+    class: FileAcquirer
+    filename: data/Tolias_mesoscope_2.hdf5
+    framerate: 15
+
+connections:
+  None: None
+# settings:
+#   use_watcher: [Acquirer, Processor, Visual, Analysis]
