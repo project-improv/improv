@@ -195,50 +195,6 @@ class Nexus():
             logger.info(p)
             p.start()
 
-<<<<<<< HEAD
-
-    def setup(self):
-        for q in self.sig_queues.values():
-            try:
-                q.put_nowait(Spike.setup())
-            except Full:
-                logger.warning('Signal queue'+q.name+'is full')
-
-    def run(self):
-        if self.allowStart or not self.tweak.hasGUI:
-            for q in self.sig_queues.values():
-                try:
-                    q.put_nowait(Spike.run())
-                except Full:
-                    logger.warning('Signal queue'+q.name+'is full')
-                    #queue full, keep going anyway TODO: add repeat trying as async task
-
-    def quit(self):
-        # with open('timing/noticiations.txt', 'w') as output:
-        #     output.write(str(self.listing))
-
-        logger.warning('Killing child processes')
-
-        for q in self.sig_queues.values():
-            try:
-                q.put_nowait(Spike.quit())
-            except Full as f:
-                logger.warning('Signal queue '+q.name+' full, cannot tell it to quit: {}'.format(f))
-
-        self.processes.append(self.p_GUI)
-        #self.processes.append(self.p_watch)
-
-        for p in self.processes:
-            # if p.is_alive():
-            #     p.terminate()
-            p.terminate()
-            p.join()
-
-        logger.warning('Actors terminated')
-        print('total time ', time.time()-self.t)
-
-        self.destroyNexus()
-=======
     def destroyNexus(self):
         ''' Method that calls the internal method
             to kill the process running the store (plasma server)
@@ -246,7 +202,6 @@ class Nexus():
         logger.warning('Destroying Nexus')
         self._closeStore()
         logger.warning('Killed the central store')
->>>>>>> origin/test
 
     async def pollQueues(self):
         """ Listens to links and processes their signals.
