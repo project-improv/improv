@@ -46,7 +46,6 @@ def example_string_links():
 def example_links(setup_store):
     """ Fixture to provide link objects as test input and setup store.
     """
-    setup_store
     lmb = Limbo(store_loc="/tmp/store")
 
     acts = [Actor("act" + str(i)) for i in range(1, 5)] # range must be even
@@ -82,7 +81,7 @@ def test_repr_default_initialization(init_actor):
     """
 
     act = init_actor
-    rep = Act.__repr__()
+    rep = act.__repr__()
     assert rep == "Test: dict_keys([])"
 
 
@@ -90,7 +89,7 @@ def test_repr(example_string_links):
     """ Test if the actor representation has the right, nonempty, dict.
     """
 
-    act = actor("Test")
+    act = Actor("Test")
     act.setLinks(example_string_links)
     assert act.__repr__() == "Test: dict_keys([\'1\', \'2\', \'3\'])"
 
@@ -133,8 +132,8 @@ def test_setCommLinks(example_links, qc, qs, init_actor, setup_store):
     """
 
     if (qc == "LINK" and qs == "LINK"):
-        qc = Link("L1", Actor("1"), Actor("2"), Limbo(store_loc = "/tmp/store"))
-        qs = Link("L2", Actor("3"), Actor("4"), Limbo(store_loc = "/tmp/store"))
+        qc = Link("L1", Actor("1"), actor("2"))
+        qs = Link("L2", Actor("3"), actor("4"))
     act = init_actor
     act.setLinks(example_links)
     act.setCommLinks(qc, qs)
@@ -312,8 +311,7 @@ def test_actor_connection(setup_store):
     act1 = Actor("a1")
     act2 = Actor("a2")
 
-    lmb = Limbo(store_loc="/tmp/store")
-    link = Link("L12", act1, act2, lmb)
+    link = Link("L12", act1, act2)
     act1.setLinkIn(link)
     act2.setLinkOut(link)
 
