@@ -1,11 +1,12 @@
-from PyQt5 import QtGui, QtWidgets, QtCore
-from PyQt5.QtGui import QColor
-from . import improv_bubble
-from improv.actor import Spike
 import pyqtgraph
 import matplotlib.pylab as plt
 import matplotlib
 matplotlib.use('Qt5Agg')
+
+from PyQt5 import QtGui, QtWidgets, QtCore
+from PyQt5.QtGui import QColor
+from . import improv_bubble
+from improv.actor import Spike
 
 from queue import Empty
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
@@ -22,7 +23,7 @@ class MplCanvas(FigureCanvasQTAgg):
         self.axes = self.fig.add_subplot(111)
         super(MplCanvas, self).__init__(self.fig)
 
-class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
+class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_Demo):
     def __init__(self, visual, comm, q_sig, parent=None):
         ''' Setup GUI
             Setup and start Nexus controls
@@ -36,11 +37,14 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
 
         super(FrontEnd, self).__init__(parent)
         self.setupUi(self)
-        pyqtgraph.setConfigOptions(leftButtonPan=False)
+        pyqtgraph.setConfigOptions(leftButtonPan=True)
         self.sc = MplCanvas(self, width=5, height=4, dpi=100)
 
-        self.pushButton_2.clicked.connect(_call(self._setup))
-        self.pushButton_2.clicked.connect(_call(self.started))
+        #Setup button
+        self.pushButton_4.clicked.connect(_call(self._setup))
+        self.pushButton_4.clicked.connect(_call(self.started))
+        
+        #Run button
         self.pushButton_3.clicked.connect(_call(self._runProcess))
         self.pushButton_3.clicked.connect(_call(self.update)) # Tell Nexus to start
 
@@ -57,13 +61,18 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
         QtCore.QTimer.singleShot(10, self.update)
 
     def updateVisual(self):
-        self.sc.axes.scatter(self.visual.data[1][:, 0], self.visual.data[1][:, 1], color='gray', alpha=0.8)
+        if self.radioButton.isChecked():
+            self.sc.axes.plot(self.visual.data[1][:, 0], self.visual.data[1][:, 1], color='gray', alpha=0.8)
+        if self.radioButton_2.isChecked():
+            self.sc.axes.scatter(self.visual.data[1][:, 0], self.visual.data[1][:, 1], color='gray', alpha=0.8)
         self.sc.fig.canvas.draw_idle()
 
     def loadVisual(self):
         ### 2D vdp oscillator
-
-        self.sc.axes.scatter(self.visual.data[1][:, 0], self.visual.data[1][:, 1], color='gray', alpha=0.8)
+        if self.radioButton.isChecked():
+            self.sc.axes.plot(self.visual.data[1][:, 0], self.visual.data[1][:, 1], color='gray', alpha=0.8)
+        if self.radioButton_2.isChecked():
+            self.sc.axes.scatter(self.visual.data[1][:, 0], self.visual.data[1][:, 1], color='gray', alpha=0.8)
         layout = QGridLayout()
         layout.addWidget(self.sc)
         self.frame.setLayout(layout)
@@ -74,7 +83,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
             signal = self.q_sig.get(timeout=0.000001)
             if(signal == Spike.started()):
                 self.pushButton_3.setStyleSheet("background-color: rgb(255, 255, 255);")
-                self.pushButton_2.setEnabled(False)
+                self.pushButton_4.setEnabled(False)
                 self.pushButton_3.setEnabled(True)
             else:
                 QtCore.QTimer.singleShot(10, self.started)
