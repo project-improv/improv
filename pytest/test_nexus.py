@@ -1,6 +1,7 @@
 import os
 import pytest
 import subprocess
+import logging
 
 from improv.nexus import Nexus
 from improv.link import Link
@@ -59,6 +60,8 @@ def test_createNexus(setdir):
     assert list(nex.actors.keys()) == ["Acquirer", "Processor", "Analysis", "InputStim"]
     assert list(nex.flags.keys()) == ["quit", "run", "load"] 
     assert nex.processes == []
+    nex.destroyNexus()
+    assert True
 
 def test_loadTweak(sample_nex):
     nex = sample_nex 
@@ -70,13 +73,13 @@ def test_startNexus(sample_nex):
     nex.startNexus()
     assert [p.name for p in nex.processes] == ["Acquirer", "Processor", "Analysis", "InputStim"]
 
-@pytest.mark.skip(reason="This test is unfinished")
-@pytest.mark.parametrize("cfg_name", "actor_list", "link_list", [
+# @pytest.mark.skip(reason="This test is unfinished")
+@pytest.mark.parametrize("cfg_name, actor_list, link_list", [
     ("basic_demo.yaml", None, None),
     ("good_config.yaml", None, None),
     ("simple_graph.yaml", None, None),
     ("complex_graph.yaml", None, None),
-    ("single_actor_graph.yaml", None, None)
+    ("single_actor.yaml", None, None)
 ])
 def test_config_construction(cfg_name, actor_list, link_list, setdir):
     """ Tests if constructing a nexus based on the provided config has the right structure.
@@ -87,17 +90,23 @@ def test_config_construction(cfg_name, actor_list, link_list, setdir):
     """
 
     setdir
-    cfg_name = "basic_demo.yaml"
 
     nex = Nexus("test")
-    nex.createNexus(file = os.getcwd() + "/" + cfg_name)
+    nex.createNexus(file = cfg_name)
+    logging.info(cfg_name)
 
     # Check for actors
 
     act_lst = list(nex.actors)
     lnk_lst = list(nex.sig_queues)
 
-    assert act_lst == lnk_lst
+    nex.destroyNexus()
+
+    assert actor_list == link_list
+    assert actor_list == act_lst
+    assert link_list == lnk_lst 
+    act_lst = []
+    lnk_lst = []
     assert True
 
 @pytest.mark.skip(reason="This test is unfinished")
