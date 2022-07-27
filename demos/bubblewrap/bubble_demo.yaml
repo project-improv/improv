@@ -11,12 +11,17 @@ actors:
   DimReduction:
     package: actors.dimension_reduction
     class: DimReduction
-
+    
+  Bubblewrap:
+    package: actors.bubblewrap
+    class: Bubblewrap
+  
   Visual:
     package: actors.visual
     class: CaimanVisual
 
 connections:
   Acquirer.q_out: [DimReduction.q_in]
-  DimReduction.q_out: [Visual.q_in]
+  DimReduction.q_out: [Visual.q_in, Bubblewrap.q_in]
+  Bubblewrap.q_out: [Visual.bw_in]
 
