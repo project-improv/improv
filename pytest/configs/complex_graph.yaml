@@ -20,9 +20,9 @@ actors:
     class: BehaviorAcquirer
 
 connections:
-  Acquirer.q_out: [Processor.q_in,]
-  Processor.q_out: [Analysis.q_in]
-  InputStim.q_out: [Analysis.input_stim_queue]
+  Acquirer.q_out: [Processor.q_in, Analysis.q_in]
+  Processor.q_out: [InputStim.q_in]
+  Analysis.q_out: [InputStim.q_in]
 
 # settings:
 #   use_watcher: [Acquirer, Processor, Visual, Analysis]

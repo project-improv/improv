@@ -15,14 +15,9 @@ actors:
     package: improv.actors.analysis
     class: MeanAnalysis
 
-  InputStim:
-    package: improv.actors.acquire
-    class: BehaviorAcquirer
-
 connections:
   Acquirer.q_out: [Processor.q_in,]
   Processor.q_out: [Analysis.q_in]
-  InputStim.q_out: [Analysis.input_stim_queue]
 
 # settings:
 #   use_watcher: [Acquirer, Processor, Visual, Analysis]
