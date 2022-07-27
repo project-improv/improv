@@ -24,7 +24,7 @@ import subprocess
 #     store_loc = '/dev/shm'
 #     return store_loc
 
-store_loc = '/dev/shm'
+# store_loc = '/dev/shm'
 
 @pytest.fixture
 # TODO: put in conftest.py
@@ -44,19 +44,18 @@ def setup_store(store_loc='/tmp/store'):
         # print('Tearing down Plasma store.')
         p.kill()
 
-# @pytest.fixture
+# UNNECESSARY?
 # # TODO: change name...
 # # def run_before_after?
-# def init_limbo(store_loc):
-#     # limbo = Limbo()
+# set store_loc or check default path in Limbo works as store_loc?
+# @pytest.fixture
+# def init_limbo(store_loc='/tmp/store'):
 #     limbo = Limbo(store_loc)
-#     return limbo
+#     # limbo = Limbo(store_loc)
+#     yield limbo
 
-# class LimboConnect(self):
 def test_connect(setup_store):
-    store_loc = '/tmp/store'
     limbo = Limbo()
-    limbo.connect_store(store_loc)
     assert isinstance(limbo.client, plasma.PlasmaClient)
 
 def test_connect_incorrect_path(setup_store):
@@ -97,8 +96,7 @@ def test_connect_none_path(setup_store):
     # TODO: @pytest.parameterize...limbo.get and limbo.getID for diff datatypes, pickleable and not, etc.
     # Check raises...CannotGetObjectError (object never stored)
 def test_init_empty(setup_store):
-    store_loc = '/tmp/store'
-    limbo = Limbo(store_loc)
+    limbo = Limbo()
     assert limbo.get_all() == {}
 
 # class LimboGetID(self):
@@ -150,8 +148,7 @@ def test_is_csc_matrix_and_put(setup_store):
 
 @pytest.mark.skip()
 def test_get_list_and_all(setup_store):
-    store_loc = '/tmp/store'
-    limbo = Limbo(store_loc)
+    limbo = Limbo()
     id = limbo.put(1, 'one')
     id2 = limbo.put(2, 'two')
     id3 = limbo.put(3, 'three')
@@ -172,8 +169,7 @@ def test_get_list_and_all(setup_store):
 #     # TODO: assert info == 'Refreshing connection and continuing'
 
 def test_reset(setup_store):
-    store_loc = '/tmp/store'
-    limbo = Limbo(store_loc)    
+    limbo = Limbo()
     limbo.reset()
     limbo.put(1, 'one')
     assert limbo.get('one') == 1
@@ -181,15 +177,13 @@ def test_reset(setup_store):
 # class Limbo_Put(StoreDependentTestCase):
 
 def test_put_one(setup_store):
-    store_loc = '/tmp/store'
-    limbo = Limbo(store_loc)
+    limbo = Limbo()
     id = limbo.put(1, 'one')
     assert 1 == limbo.get('one')
 
 @pytest.mark.skip(reason = 'Error not being raised')
 def test_put_twice(setup_store):
-    store_loc = '/tmp/store'
-    limbo = Limbo(store_loc)
+    limbo = Limbo()
     with pytest.raises(PlasmaObjectExists) as e:
         id = limbo.put(2, 'two')
         id2 = limbo.put(2, 'two')
@@ -199,16 +193,14 @@ def test_put_twice(setup_store):
 # class Limbo_PutGet(StoreDependentTestCase):
 
 def test_getOne(setup_store):
-    store_loc = '/tmp/store'
-    limbo = Limbo(store_loc)
+    limbo = Limbo()
     id = limbo.put(1, 'one')
     id2 = limbo.put(2, 'two')
     assert 1 == limbo.get('one')
     assert id == limbo.stored['one']
 
 def test_get_nonexistent(setup_store):
-    store_loc = '/tmp/store'
-    limbo = Limbo(store_loc)
+    limbo = Limbo()
     # Handle exception thrown
     # Check that the exception thrown is a CannotGetObjectError
     with pytest.raises(CannotGetObjectError) as e:

@@ -40,7 +40,6 @@ def example_string_links():
 
     pytest.example_string_links = {"1": "one", "2": "two", "3": "three"}
     yield pytest.example_string_links
-    pytest.example_string_links = {"1": "one", "2": "two", "3": "three"}
 
 
 @pytest.fixture
@@ -52,11 +51,10 @@ def example_links(setup_store):
 
     acts = [Actor("act" + str(i)) for i in range(1, 5)] # range must be even
 
-    links = [Link("L" + str(i + 1), acts[i], acts[i + 1], lmb) for i in range(len(acts) // 2)]
+    links = [Link("L" + str(i + 1), acts[i], acts[i + 1]) for i in range(len(acts) // 2)]
     link_dict = {links[i].name: links[i] for i, l in enumerate(links)}
     pytest.example_links = link_dict
     yield pytest.example_links
-    pytest.example_links = link_dict
 
 
 @pytest.mark.parametrize("attribute, expected", [
@@ -68,6 +66,8 @@ def example_links(setup_store):
     ("q_in", None),
     ("q_out", None)
 ])
+
+
 def test_default_init(attribute, expected, init_actor):
     """ Tests if the default init attributes are as expected.
     """
@@ -111,6 +111,8 @@ def test_setStore(setup_store):
     (pytest.example_links),
     (None)
 ])
+
+
 def test_setLinks(links):
     """ Tests if the actors links can be set to certain values.
     """
@@ -147,6 +149,8 @@ def test_setCommLinks(example_links, qc, qs, init_actor, setup_store):
     ({}, {}),
     (None, TypeError)
 ])
+
+
 def test_setLinkIn(init_actor, example_string_links, example_links, links, expected):
     """ Tests if we can set the input queue.
     """

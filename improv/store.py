@@ -144,7 +144,6 @@ class Limbo(StoreInterface):
         return object_id
         
         
-        
         # object_id = None
 
         # try:
@@ -363,6 +362,9 @@ class Limbo(StoreInterface):
             to disk
         '''
         raise NotImplementedError
+
+    def saveObj(obj, name):
+        with open('/media/hawkwings/Ext Hard Drive/dump/dump'+str(name)+'.pkl', 'wb') as output: pickle.dump(obj, output)
 
 
 class LMDBStore(StoreInterface):
