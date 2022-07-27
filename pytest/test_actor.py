@@ -132,8 +132,8 @@ def test_setCommLinks(example_links, qc, qs, init_actor, setup_store):
     """
 
     if (qc == "LINK" and qs == "LINK"):
-        qc = Link("L1", Actor("1"), actor("2"))
-        qs = Link("L2", Actor("3"), actor("4"))
+        qc = Link("L1", Actor("1"), Actor("2"))
+        qs = Link("L2", Actor("3"), Actor("4"))
     act = init_actor
     act.setLinks(example_links)
     act.setCommLinks(qc, qs)
