@@ -75,11 +75,10 @@ def test_startNexus(sample_nex):
 
 # @pytest.mark.skip(reason="This test is unfinished")
 @pytest.mark.parametrize("cfg_name, actor_list, link_list", [
-    ("basic_demo.yaml", None, None),
-    ("good_config.yaml", None, None),
-    ("simple_graph.yaml", None, None),
-    ("complex_graph.yaml", None, None),
-    ("single_actor.yaml", None, None)
+    ("basic_demo.yaml", ["Acquirer", "Processor", "Analysis", "InputStim"], ["Acquirer_sig", "Processor_sig", "Analysis_sig", "InputStim_sig"]),
+    ("good_config.yaml", ["Acquirer", "Processor", "Analysis"], ["Acquirer_sig", "Processor_sig", "Analysis_sig"]),
+    ("simple_graph.yaml", ["Acquirer", "Processor", "Analysis"], ["Acquirer_sig", "Processor_sig", "Analysis_sig"]),
+    ("complex_graph.yaml", ["Acquirer", "Processor", "Analysis", "InputStim"], ["Acquirer_sig", "Processor_sig", "Analysis_sig", "InputStim_sig"])
 ])
 def test_config_construction(cfg_name, actor_list, link_list, setdir):
     """ Tests if constructing a nexus based on the provided config has the right structure.
@@ -102,65 +101,86 @@ def test_config_construction(cfg_name, actor_list, link_list, setdir):
 
     nex.destroyNexus()
 
-    assert actor_list == link_list
     assert actor_list == act_lst
     assert link_list == lnk_lst 
     act_lst = []
     lnk_lst = []
     assert True
 
-@pytest.mark.skip(reason="This test is unfinished")
-def test_cyclic_graph():
+def test_single_actor(setdir):
+    setdir
+    nex = Nexus("test")
+    with pytest.raises(AttributeError):
+        nex.createNexus(file="single_actor.yaml")
+
+    nex.destroyNexus()
+
+def test_cyclic_graph(setdir):
+    setdir
+    nex = Nexus("test")
+    nex.createNexus(file="cyclic_config.yaml")
+    assert True
+    nex.destroyNexus()
+
+def test_blank_cfg(setdir, caplog):
+    setdir
+    nex = Nexus("test")
+    with pytest.raises(TypeError):
+        nex.createNexus(file="blank_file.yaml")
+    assert any(["The config file is empty" in record.msg for record in list(caplog.records)])
+    nex.destroyNexus()
+
+def test_hasGUI_True(setdir):
+    setdir
+    nex = Nexus("test")
+    nex.createNexus(file="basic_demo_with_GUI.yaml")
+
+    assert True
+    nex.destroyNexus()
+
+# @pytest.mark.skip(reason="This test is unfinished.")
+# def test_hasGUI_False():
+#     assert True
+
+def test_queue_message(setdir, sample_nex):
+    setdir
+    nex = sample_nex
+    nex.startNexus()
+    nex.destroyNexus()
     assert True
 
-@pytest.mark.skip(reason="This test is unfinished")
-def test_empty_graph():
-    assert True
-
-@pytest.mark.skip(reason = "This test is unfinished.")
-def test_hasGUI_True():
-    assert True
-
-@pytest.mark.skip(reason = "This test is unfinished.")
-def test_hasGUI_False():
-    assert True
-
-@pytest.mark.skip(reason = "This test is unfinished.")
-def test_queue_message():
-    assert True
-
-@pytest.mark.skip(reason = "This test is unfinished.")
+@pytest.mark.skip(reason="This test is unfinished.")
 def test_queue_readin():
     assert True
 
-@pytest.mark.skip(reason = "This test is unfinished.")
+@pytest.mark.skip(reason="This test is unfinished.")
 def test_queue_sendout():
     assert True
 
-@pytest.mark.skip(reason = "This test is unfinished.")
+@pytest.mark.skip(reason="This test is unfinished.")
 def test_run_sig():
     assert True
 
-@pytest.mark.skip(reason = "This test is unfinished.")
+@pytest.mark.skip(reason="This test is unfinished.")
 def test_setup_sig():
     assert True
 
-@pytest.mark.skip(reason = "This test is unfinished.")
+@pytest.mark.skip(reason="This test is unfinished.")
 def test_quit_sig():
     assert True
 
-@pytest.mark.skip(reason = "This test is unfinished.")
+@pytest.mark.skip(reason="This test is unfinished.")
 def test_usehdd_True():
     assert True
 
-@pytest.mark.skip(reason = "This test is unfinished.")
+@pytest.mark.skip(reason="This test is unfinished.")
 def test_usehdd_False():
     assert True
 
-@pytest.mark.skip(reason = "This test is unfinished.")
+@pytest.mark.skip(reason="This test is unfinished.")
 def test_startstore():
     assert True
 
-@pytest.mark.skip(reason = "This test is unfinished.")
+@pytest.mark.skip(reason="This test is unfinished.")
 def test_closestore():
     assert True
