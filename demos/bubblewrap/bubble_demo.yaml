@@ -15,6 +15,7 @@ actors:
   Bubblewrap:
     package: actors.bubblewrap
     class: Bubblewrap
+    dimension: 2
   
   Visual:
     package: actors.visual
