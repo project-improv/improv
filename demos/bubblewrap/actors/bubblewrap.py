@@ -1,7 +1,8 @@
 import numpy as np
 from queue import Empty
+import os
 
-from bubblewrap import Bubblewrap
+from bubblewrap_n import Bubblewrap_N
 from improv.actor import Actor, RunManager
 
 import logging; logger = logging.getLogger(__name__)
@@ -9,9 +10,9 @@ logger.setLevel(logging.INFO)
 
 class Bubblewrap(Actor):
 
-    def __init__(self, dimension, *args, **kwargs):
+    def __init__(self, *args, dimension=2):
+        super().__init__(*args)
         self.d = dimension
-        super().__init__(*args, **kwargs)
 
 
     def setup(self):
@@ -30,12 +31,14 @@ class Bubblewrap(Actor):
         go_fast = False     # flag to skip computing priors, predictions, and entropy for optimal speed
 
         ## Load data from datagen/datagen.py 
-        s = np.load('vdp_1trajectories_2dim_500to20500_noise0.05.npz')
-        # s = np.load('lorenz_1trajectories_3dim_500to20500_noise0.05.npz')
-        data = s['y'][0]
+        #s = np.load('vdp_1trajectories_2dim_500to20500_noise0.05.npz')
+        #s = np.load('lorenz_1trajectories_3dim_500to20500_noise0.05.npz')
+        s = np.load('neuropixel_reduced.npz')
+        data = s['ssSVD10'][0]
+        #data = s['y'][0]
         T = data.shape[0]
 
-        self.bw = Bubblewrap(N, self.d, step=step, lam=lam, M=M, eps=eps, nu=nu, B_thresh=B_thresh, batch=batch, batch_size=batch_size, go_fast=go_fast) 
+        self.bw = Bubblewrap_N(N, self.d, step = step, lam=lam, M=M, eps=eps, nu=nu, B_thresh=B_thresh, batch=batch, batch_size=batch_size, go_fast=go_fast) 
 
         init = -M
         end = T-M
@@ -84,3 +87,5 @@ class Bubblewrap(Actor):
         ids.append([self.frame_number, str(self.frame_number)])
 
         self.q_out.put(ids)
+        
+
