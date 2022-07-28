@@ -202,6 +202,7 @@ class Nexus():
         ''' Function to instantiate actor, add signal and comm Links,
             and update self.actors dictionary
         '''
+        print(actor.options)
         # Instantiate selected class
         mod = import_module(actor.packagename)
         clss = getattr(mod, actor.classname)
