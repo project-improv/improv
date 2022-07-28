@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'improv_bubble.ui'
+# Form implementation generated from reading ui file 'demo_ui.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.7
 #
@@ -11,53 +11,55 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_Demo(object):
-    def setupUi(self, Demo):
-        Demo.setObjectName("Demo")
-        Demo.resize(600, 485)
-        self.groupBox = QtWidgets.QGroupBox(Demo)
-        self.groupBox.setEnabled(True)
-        self.groupBox.setGeometry(QtCore.QRect(30, 22, 121, 111))
-        self.groupBox.setObjectName("groupBox")
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.groupBox)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.pushButton_4 = QtWidgets.QPushButton(self.groupBox)
-        self.pushButton_4.setObjectName("pushButton_4")
-        self.verticalLayout_2.addWidget(self.pushButton_4)
-        self.pushButton_3 = QtWidgets.QPushButton(self.groupBox)
-        self.pushButton_3.setObjectName("pushButton_3")
-        self.verticalLayout_2.addWidget(self.pushButton_3)
-        self.label = QtWidgets.QLabel(Demo)
-        self.label.setGeometry(QtCore.QRect(180, 20, 111, 20))
-        self.label.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
-        self.label.setObjectName("label")
-        self.groupBox_3 = QtWidgets.QGroupBox(Demo)
-        self.groupBox_3.setEnabled(True)
-        self.groupBox_3.setGeometry(QtCore.QRect(30, 150, 121, 101))
-        self.groupBox_3.setObjectName("groupBox_3")
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.groupBox_3)
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.radioButton = QtWidgets.QRadioButton(self.groupBox_3)
-        self.radioButton.setObjectName("radioButton")
-        self.verticalLayout_3.addWidget(self.radioButton)
-        self.radioButton_2 = QtWidgets.QRadioButton(self.groupBox_3)
-        self.radioButton_2.setObjectName("radioButton_2")
-        self.verticalLayout_3.addWidget(self.radioButton_2)
-        self.frame = QtWidgets.QFrame(Demo)
-        self.frame.setGeometry(QtCore.QRect(180, 40, 381, 221))
-        self.frame.setStyleSheet("")
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.resize(769, 457)
+        font = QtGui.QFont()
+        font.setStyleStrategy(QtGui.QFont.PreferAntialias)
+        MainWindow.setFont(font)
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+        self.widget = PlotWidget(self.centralwidget)
+        self.widget.setGeometry(QtCore.QRect(150, 0, 611, 431))
+        self.widget.setObjectName("widget")
+        self.frame = QtWidgets.QFrame(self.centralwidget)
+        self.frame.setGeometry(QtCore.QRect(20, 140, 117, 151))
+        self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.frame)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.widget_2 = QtWidgets.QWidget(self.frame)
+        self.widget_2.setObjectName("widget_2")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.widget_2)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.pushButton = QtWidgets.QPushButton(self.widget_2)
+        self.pushButton.setObjectName("pushButton")
+        self.verticalLayout.addWidget(self.pushButton)
+        self.pushButton_2 = QtWidgets.QPushButton(self.widget_2)
+        self.pushButton_2.setObjectName("pushButton_2")
+        self.verticalLayout.addWidget(self.pushButton_2)
+        self.radioButton = QtWidgets.QRadioButton(self.widget_2)
+        self.radioButton.setObjectName("radioButton")
+        self.verticalLayout.addWidget(self.radioButton)
+        self.radioButton_2 = QtWidgets.QRadioButton(self.widget_2)
+        self.radioButton_2.setObjectName("radioButton_2")
+        self.verticalLayout.addWidget(self.radioButton_2)
+        self.verticalLayout_2.addWidget(self.widget_2)
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
 
-        self.retranslateUi(Demo)
-        QtCore.QMetaObject.connectSlotsByName(Demo)
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def retranslateUi(self, Demo):
+    def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        Demo.setWindowTitle(_translate("Demo", "Demo"))
-        self.groupBox.setTitle(_translate("Demo", "Operations"))
-        self.pushButton_4.setText(_translate("Demo", "Setup"))
-        self.pushButton_3.setText(_translate("Demo", "Run"))
-        self.label.setText(_translate("Demo", "Bubblewrap"))
-        self.groupBox_3.setTitle(_translate("Demo", "Plot style"))
-        self.radioButton.setText(_translate("Demo", "Lineplot"))
-        self.radioButton_2.setText(_translate("Demo", "Scatterplot"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Bubblewrap Demo"))
+        self.pushButton.setText(_translate("MainWindow", "Setup"))
+        self.pushButton_2.setText(_translate("MainWindow", "Run"))
+        self.radioButton.setText(_translate("MainWindow", "Scatter"))
+        self.radioButton_2.setText(_translate("MainWindow", "Line"))
+from pyqtgraph import PlotWidget
