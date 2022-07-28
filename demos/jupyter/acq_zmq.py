@@ -1,13 +1,12 @@
-import time
 import os
+import zmq
+import time
 import h5py
 import random
 import numpy as np
 from skimage.io import imread
 
-import zmq
-
-from improv.actor import Actor, RunManager
+from improv.actor import Actor, RunManager, Spike
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -34,8 +33,6 @@ class FileAcquirerZMQ(Actor):
         context = zmq.Context()
         self.socket = context.socket(zmq.PUB)
         self.socket.bind("tcp://127.0.0.1:5555")
-        # message = self.socket.recv()
-        # print("Received request from jupyter: ", message)
     
     def setup(self):
         '''Get file names from config or user input
@@ -50,12 +47,15 @@ class FileAcquirerZMQ(Actor):
                 with h5py.File(self.filename, 'r') as file:
                     keys = list(file.keys())
                     self.data = file[keys[0]][()]
-                    print('Data length is ', len(self.data))
+                    print('Data length of ', self.filename,' is ', len(self.data))
+
 
         else: raise FileNotFoundError
 
+        print('Loading data/raw_C.txt')
         x = np.loadtxt('data/raw_C.txt')
-        self.raw_C = np.transpose(x)
+        self.raw_C = np.transpose(x) # transposed so each frame is an element
+        print('Data length of data/raw_C.txt is ', len(self.raw_C))
 
         self.setupZMQ()
 
@@ -65,8 +65,6 @@ class FileAcquirerZMQ(Actor):
         self.total_times = []
         self.timestamp = []
 
-        # with RunManager(self.name, self.runAcquirer, self.setup, self.q_sig, self.q_comm) as rm:
-        #     print(rm)
         while True:
             self.runAcquirer()
 
@@ -94,36 +92,35 @@ class FileAcquirerZMQ(Actor):
 
         if self.done:
             pass
-        elif(self.frame_num < len(self.data)):
+        elif((self.frame_num < len(self.data)) and (self.frame_num < len(self.raw_C))):
             frame = self.getFrame(self.frame_num)
             ## simulate frame-dropping
             # if self.frame_num > 1500 and self.frame_num < 1800:
             #     frame = None
             t= time.time()
-            # print("runAcq is going") # delete this
+            
+            # data from given file (currently it's the image data)
             id = self.client.put(frame, 'acq_raw'+str(self.frame_num))
-            print("id has been put into the store") #delete this
             t1= time.time()
             self.timestamp.append([time.time(), self.frame_num])
 
+            # raw_C data
             timepiece = self.raw_C[self.frame_num]
             id2 = self.client.put(timepiece, 'acq_raw_timepiece'+str(self.frame_num))
-            print(id2)
-            zmqlist = id.binary() #[id.binary(),id2.binary()]
-            print(zmqlist)
+            
+            print('Put into store:', id)
+
+            # TODO: encode ids to successfully send at the same time through zmq (maybe use pyarrow encoding/decoding)
+            zmqlist = [id.binary(),id2.binary()] # or create a dict
+            # print(zmqlist) # checking format
 
             try:
-                # self.put([[id, str(self.frame_num)]], save=[True])
-                # print("before sending thru zmq") # delete this
-                print(id)
-                # self.socket.send(id.binary())
-                self.socket.send(zmqlist)
-                time.sleep(.2)
-                # self.socket.send_string("message sent from server!")
-                print("socket sent message out")
+                self.socket.send(id.binary()) # id.binary() for image data and id2.binary() for raw_C data
+                # self.socket.send(zmqlist) # TODO: still working on sending both id's at once
+                print("Message sent to jupyter notebook!")
+                time.sleep(.3)
                 logger.info(self.frame_num)
                 self.frame_num += 1
-                    #also log to disk #TODO: spawn separate process here?
            
             except Exception as e:
                 logger.error('Acquirer general exception: {}'.format(e))
@@ -139,6 +136,8 @@ class FileAcquirerZMQ(Actor):
             #if self.saving:
             #    self.f.close()
 
+            self.socket.send_string(Spike.quit())
+
     def getFrame(self, num):
         ''' Here just return frame from loaded data
         '''
@@ -150,71 +149,27 @@ class FileAcquirerZMQ(Actor):
         self.dset[self.frame_num-1] = frame
         self.f.flush()
 
-# class StimAcquirer(Actor):
-#     ''' Class to load visual stimuli data from file
-#         and stream into the pipeline
-#     '''
-#     def __init__(self, *args, param_file=None, filename=None, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.param_file = param_file
-#         self.filename= filename
-
-#     def setup(self):
-#         self.n= 0
-#         self.sID = 0
-#         if os.path.exists(self.filename):
-#             print('Looking for ', self.filename)
-#             n, ext = os.path.splitext(self.filename)[:2]
-#             if ext== ".txt":
-#                 # self.stim = np.loadtxt(self.filename)
-#                 self.stim=[]
-#                 f = np.loadtxt(self.filename)
-#                 for _, frame in enumerate(f):
-#                     stiminfo = frame[0:2]
-#                     self.stim.append(stiminfo)
-#             else:
-#                 logger.error('Cannot load file, possible bad extension')
-#                 raise Exception
-
-#         else: raise FileNotFoundError
-
-#     def run(self):
-#         ''' Run continuously, waiting for input
-#         '''
-#         with RunManager(self.name, self.getInput, self.setup, self.q_sig, self.q_comm) as rm:
-#             logger.info(rm)
-
-#     def getInput(self):
-#         ''' Check for input from behavioral control
-#         '''
-#         if self.n<len(self.stim):
-#             # s = self.stim[self.sID]
-#             # self.sID+=1
-#             self.q_out.put({self.n:self.stim[self.n]})
-#         time.sleep(0.5)   # simulate a particular stimulus rate
-#         self.n+=1
-
 if __name__=="__main__":
-    #start the store manually (dont start in jupyter)
+    #starting the store manually
     import subprocess
     from improv.store import Limbo
-    p = subprocess.Popen(["plasma_store", "-s", "/tmp/store", "-m", str(1000000000)],\
+    p = subprocess.Popen(["plasma_store", "-s", "/tmp/store", "-m", str(10000000000)],\
     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # 1000000000 for id and 10000000000 for id2
 
     testfile = FileAcquirerZMQ(filename='data/tbif_ex_crop.h5', framerate=5, name='j')
+    # TODO: add the second file (currently the raw_C data) as another attribute to FileAcquirerZMQ
+    
     lmb = Limbo(store_loc = "/tmp/store")
     testfile.setStore(lmb)
     
-    print("the store has started")
+    print("The store has started")
     testfile.setup()
     testfile.run()
     print("run() is finished")
 
     p.kill()
 
-    #put in store
-    #send id
 
-    #in jupyter
-    #get id
+
 
