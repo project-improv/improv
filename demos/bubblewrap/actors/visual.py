@@ -10,6 +10,7 @@ class Visual(Actor):
     '''
 
     def setup(self, visual):
+	#self.visual is CaimanVisual
         self.visual = visual
         self.visual.setup()
         logger.info('Running setup for '+self.name)
