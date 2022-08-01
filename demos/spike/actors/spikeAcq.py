@@ -60,7 +60,7 @@ class Spike_Acquirer(Actor):
             S = self.data[np.any(curr, axis=1), before:self.frame_num] #.get_ordered()
 
             id = self.client.put(S, 'acq_spike'+str(self.frame_num))
-            self.put([[id, 'acq_spike'+str(self.frame_num)]], save=[True])
+            self.q_out.put([[id, 'acq_spike'+str(self.frame_num)]]) #, save=[True])
 
             self.frame_num+=1
 
