@@ -1,3 +1,4 @@
+import time
 import os
 import pytest
 import subprocess
@@ -6,6 +7,7 @@ import logging
 from improv.nexus import Nexus
 from improv.link import Link
 from improv.actor import Actor
+from improv.actor import Spike
 from improv.store import Limbo
 
 @pytest.fixture
@@ -142,15 +144,34 @@ def test_hasGUI_True(setdir):
 # def test_hasGUI_False():
 #     assert True
 
+@pytest.mark.skip(reason="unfinished")
 def test_queue_message(setdir, sample_nex):
     setdir
     nex = sample_nex
     nex.startNexus()
+    time.sleep(20)
+    nex.setup()
+    time.sleep(20)
+    nex.run()
+    time.sleep(10)
+    acq_comm = nex.comm_queues["Acquirer_comm"]
+    acq_comm.put("Test Message")
+    
+    assert nex.comm_queues == None 
     nex.destroyNexus()
     assert True
 
-@pytest.mark.skip(reason="This test is unfinished.")
-def test_queue_readin():
+@pytest.mark.asyncio
+# @pytest.mark.skip(reason="This test is unfinished.")
+async def test_queue_readin(sample_nex, caplog):
+    nex = sample_nex
+    nex.startNexus()
+    # cqs = nex.comm_queues
+    # assert cqs == None
+    assert [record.msg for record in caplog.records] == None
+    # cqs["Acquirer_comm"].put('quit')
+    # assert "quit" == cqs["Acquirer_comm"].get()
+    # await nex.pollQueues() 
     assert True
 
 @pytest.mark.skip(reason="This test is unfinished.")
@@ -177,10 +198,26 @@ def test_usehdd_True():
 def test_usehdd_False():
     assert True
 
-@pytest.mark.skip(reason="This test is unfinished.")
-def test_startstore():
+def test_startstore(caplog):
+    nex = Nexus("test")
+    nex._startStore(10000) # 10 kb store
+
+    assert any(["Store started successfully" in record.msg for record in caplog.records])
+    
+    nex._closeStore()
     assert True
 
-@pytest.mark.skip(reason="This test is unfinished.")
-def test_closestore():
+def test_closestore(caplog):
+    nex = Nexus("test")
+
+    nex._startStore(10000)
+    nex._closeStore()
+
+    assert any("Store closed successfully" in record.msg for record in caplog.records)
+
+    # write to store
+
+    with pytest.raises(AttributeError):
+        nex.p_Limbo.put("Message in", "Message in Label")
+    
     assert True
