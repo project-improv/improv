@@ -55,12 +55,12 @@ class SpikeAnalysis(Actor):
         print('Analysis broke, avg time per stim avg: ', np.mean(self.stimtime))
         print('Analysis got through ', self.frame, ' frames')
 
-        np.savetxt('output/timing/analysis_frame_time.txt', np.array(self.total_times))
-        np.savetxt('output/timing/analysisput_frame_time.txt', np.array(self.puttime))
-        np.savetxt('output/timing/analysiscolor_frame_time.txt', np.array(self.colortime))
-        np.savetxt('output/timing/analysis_timestamp.txt', np.array(self.timestamp))
+        # np.savetxt('output/timing/analysis_frame_time.txt', np.array(self.total_times))
+        # np.savetxt('output/timing/analysisput_frame_time.txt', np.array(self.puttime))
+        # np.savetxt('output/timing/analysiscolor_frame_time.txt', np.array(self.colortime))
+        # np.savetxt('output/timing/analysis_timestamp.txt', np.array(self.timestamp))
 
-        np.savetxt('output/final/analysis_tuning_curves.txt', np.array(self.polarAvg))
+        # np.savetxt('output/final/analysis_tuning_curves.txt', np.array(self.polarAvg))
 
     def runAvg(self):
         ''' Take numpy estimates and frame_number
@@ -105,7 +105,7 @@ class SpikeAnalysis(Actor):
                 self.Cx = np.arange(0,self.Cpop.size)+(self.frame-window)
                 self.Call = self.C #already a windowed version #[:,self.frame-window:self.frame]
             
-            self.putAnalysis()
+            # self.putAnalysis()
             self.timestamp.append([time.time(), self.frame])
             self.total_times.append(time.time()-t)
         except ObjectNotFoundError:
@@ -169,7 +169,7 @@ class SpikeAnalysis(Actor):
         ids.append([self.client.put(self.color, 'color'+str(self.frame)), 'color'+str(self.frame)])
         ids.append([self.frame, str(self.frame)])
 
-        self.put(ids, save= [False, True, False, False, True, False])
+        self.q_out.put(ids) #, save= [False, True, False, False, True, False])
 
         self.frame+=1
 
