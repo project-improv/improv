@@ -1,20 +1,21 @@
-settings:
-  use_watcher: [Acquirer, Analysis]
+# settings:
+#   use_watcher: [Acquirer, Analysis]
 
 actors:
-  GUI:
-    package: actors.visual
-    class: BasicVisual
-    visual: Visual
+  # GUI:
+  #   package: actors.visual
+  #   class: BasicVisual
+  #   visual: Visual
 
   Acquirer:
     package: actors.spikeAcq
     class: Spike_Acquirer
-    filename: data/neurofind_spikes.txt
+    # filename: data/neurofind_spikes.txt
+    filename: data/raw_C.txt
 
-  Visual:
-    package: actors.visual
-    class: BasicSpikeVisual
+  # Visual:
+  #   package: actors.visual
+  #   class: BasicSpikeVisual
   
   Analysis:
     package: actors.spikeAnalysis
@@ -28,5 +29,5 @@ actors:
 
 connections:
   Acquirer.q_out: [Analysis.q_in]
-  Analysis.q_out: [Visual.q_in]
+  # Analysis.q_out: [Visual.q_in]
   InputStim.q_out: [Analysis.input_stim_queue]
