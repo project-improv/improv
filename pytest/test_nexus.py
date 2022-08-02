@@ -8,11 +8,11 @@ from improv.link import Link
 from improv.actor import Actor
 from improv.store import Limbo
 
-@pytest.fixture
-def setdir():
-    os.chdir(os.getcwd() + '/./configs')
-    yield None
-    os.chdir(os.getcwd() + "/../")
+# @pytest.fixture
+# def setdir():
+#     os.chdir(os.getcwd() + '/./configs')
+#     yield None
+#     os.chdir(os.getcwd() + "/../")
 
 @pytest.fixture
 def sample_nex(setdir):
@@ -75,11 +75,11 @@ def test_startNexus(sample_nex):
 
 # @pytest.mark.skip(reason="This test is unfinished")
 @pytest.mark.parametrize("cfg_name, actor_list, link_list", [
-    ("basic_demo.yaml", None, None),
-    ("good_config.yaml", None, None),
-    ("simple_graph.yaml", None, None),
-    ("complex_graph.yaml", None, None),
-    ("single_actor.yaml", None, None)
+    ("/config/basic_demo.yaml", None, None),
+    ("/config/good_config.yaml", None, None),
+    ("/config/simple_graph.yaml", None, None),
+    ("/config/complex_graph.yaml", None, None),
+    ("config/single_actor.yaml", None, None)
 ])
 def test_config_construction(cfg_name, actor_list, link_list, setdir):
     """ Tests if constructing a nexus based on the provided config has the right structure.
