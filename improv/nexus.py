@@ -155,6 +155,7 @@ class Nexus():
 
         #TODO: error handling for if a user tries to use q_in without defining it
 
+
     def startNexus(self):
 
         ''' Puts all actors in separate processes and begins polling
@@ -173,30 +174,31 @@ class Nexus():
 
         self.start()
 
-        if self.tweak.hasGUI:
-            loop = asyncio.get_event_loop()
+        # if self.tweak.hasGUI:
+        loop = asyncio.get_event_loop()
 
-            signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
-            for s in signals:
-                loop.add_signal_handler(
-                    s, lambda s=s: self.stop_polling(s, loop)) #TODO
-            try:
-                res = loop.run_until_complete(self.pollQueues()) #TODO: in Link executor, complete all tasks
-            except asyncio.CancelledError:
-                logging.info("Loop is cancelled")
-            
-            try:
-                logging.info(f"Result of run_until_complete: {res}") 
-            except:
-                logging.info("Res failed to await")
+        signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
+        for s in signals:
+            loop.add_signal_handler(
+                s, lambda s=s: self.stop_polling(s, loop)) #TODO
+        try:
+            res = loop.run_until_complete(self.pollQueues()) #TODO: in Link executor, complete all tasks
+        except asyncio.CancelledError:
+            logging.info("Loop is cancelled")
+        
+        try:
+            logging.info(f"Result of run_until_complete: {res}") 
+        except:
+            logging.info("Res failed to await")
 
-            logging.info(f"Current loop: {asyncio.get_event_loop()}") 
-            
-            loop.stop()
-            loop.close()
-            logger.info('Shutdown loop')
-        else:
-            pass
+        logging.info(f"Current loop: {asyncio.get_event_loop()}") 
+        
+        loop.stop()
+        loop.close()
+        logger.info('Shutdown loop')
+        # else:
+        #     pass
+
 
     def start(self):
         logger.info('Starting processes')
@@ -206,6 +208,7 @@ class Nexus():
             logger.info(p)
             p.start()
 
+
     def destroyNexus(self):
         ''' Method that calls the internal method
             to kill the process running the store (plasma server)
@@ -213,6 +216,7 @@ class Nexus():
         logger.warning('Destroying Nexus')
         self._closeStore()
         logger.warning('Killed the central store')
+
 
     async def pollQueues(self):
         """ Listens to links and processes their signals.
@@ -240,28 +244,47 @@ class Nexus():
         for q in polling:
             self.tasks.append(asyncio.ensure_future(q.get_async()))
 
+        self.tasks.append(asyncio.ensure_future(self.ainput('Awaiting input ')))
+
         while not self.flags['quit']:
             done, pending = await asyncio.wait(self.tasks, return_when=concurrent.futures.FIRST_COMPLETED)
             #TODO: actually kill pending tasks
             for i,t in enumerate(self.tasks):
-                if t in done or polling[i].status == 'done': #catch tasks that complete await wait/gather
-                    r = polling[i].result
-                    if 'GUI' in pollingNames[i]:
-                        self.processGuiSignal(r, pollingNames[i])
-                    else:
-                        self.processActorSignal(r, pollingNames[i])
-                    self.tasks[i] = (asyncio.ensure_future(polling[i].get_async()))
+                # print(i, t, t.result)
+                if i < len(polling):
+                    if t in done or polling[i].status == 'done': #catch tasks that complete await wait/gather
+                        r = polling[i].result
+                        if 'GUI' in pollingNames[i]:
+                            self.processGuiSignal(r, pollingNames[i])
+                        else:
+                            self.processActorSignal(r, pollingNames[i])
+                        self.tasks[i] = (asyncio.ensure_future(polling[i].get_async()))
+                elif t in done: ##cmd line
+                    res = t.result()
+                    print(res, '------------------')
+                    # print('Got command line input: ', t.result(), '\n')
+                    self.processGuiSignal([res.rstrip('\n')], 'commandLine_Nexus')
+                    self.tasks[i] = (asyncio.ensure_future(self.ainput('Awaiting input \n')))
 
         self.stop_polling("quit", asyncio.get_running_loop(), polling)
         logger.warning('Shutting down polling')
         return "Shutting Down"
+
+
+    # https://stackoverflow.com/questions/58454190/python-async-waiting-for-stdin-input-while-doing-other-stuff
+    async def ainput(self, string: str) -> str:
+        await asyncio.get_event_loop().run_in_executor(
+                None, lambda s=string: sys.stdout.write(s))
+        return await asyncio.get_event_loop().run_in_executor(
+                None, sys.stdin.readline)
+
 
     def processGuiSignal(self, flag, name):
         '''Receive flags from the Front End as user input
             TODO: Not all needed
         '''
         name = name.split('_')[0]
-        logger.info('Received signal from GUI: '+flag[0])
+        logger.info('Received signal from user: '+flag[0])
         if flag[0]:
             if flag[0] == Spike.run():
                 logger.info('Begin run!')
@@ -324,7 +347,8 @@ class Nexus():
             except Full as f:
                 logger.warning('Signal queue '+q.name+' full, cannot tell it to quit: {}'.format(f))
 
-        self.processes.append(self.p_GUI)
+        if self.tweak.hasGUI:
+            self.processes.append(self.p_GUI)
         #self.processes.append(self.p_watch)
 
         for p in self.processes:
