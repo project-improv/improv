@@ -118,5 +118,6 @@ class FolderAcquirer(Actor):
         # self.load_img_time = []
         # t = time.time()
         img = imread(file)
+        print(img.shape)
         # self.load_img_time.append(time.time() - t)
         return img
