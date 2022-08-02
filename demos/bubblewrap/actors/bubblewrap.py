@@ -33,7 +33,7 @@ class Bubblewrap(Actor):
         ## Load data from datagen/datagen.py 
         #s = np.load('vdp_1trajectories_2dim_500to20500_noise0.05.npz')
         #s = np.load('lorenz_1trajectories_3dim_500to20500_noise0.05.npz')
-        s = np.load('neuropixel_reduced.npz')
+        s = np.load('WaksmanwithFaces_KS2.mat')
         data = s['ssSVD10'][0]
         #data = s['y'][0]
         T = data.shape[0]
