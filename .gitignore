@@ -138,3 +138,4 @@ demos/improv.demos.code-workspace
 demos/pytorch/models/ResNet50-transforms.pt
 improv.code-workspace
 demos/pytorch/improv.pytorch_demo.code-workspace
+.vscode/settings.json

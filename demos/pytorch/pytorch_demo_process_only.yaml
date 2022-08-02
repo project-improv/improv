@@ -11,8 +11,6 @@ actors:
     package: actors.processor
     class: PyTorchProcessor
     transforms_path: models/ResNet50-transforms.pt
-    model_path: models/ResNet50-CIFAR10.pt
-    classify: False
     
   # Analysis:
   #   package: actors.analysis

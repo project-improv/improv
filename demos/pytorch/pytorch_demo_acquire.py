@@ -4,7 +4,7 @@ import time
 logging.getLogger("matplotlib").setLevel(logging.WARNING)
 from improv.nexus import Nexus
 
-loadFile = './pytorch_demo.yaml'
+loadFile = './pytorch_demo_acquire.yaml'
 
 nexus = Nexus('Nexus')
 nexus.createNexus(file=loadFile)
