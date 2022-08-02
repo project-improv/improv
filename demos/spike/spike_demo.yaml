@@ -10,7 +10,8 @@ actors:
   Acquirer:
     package: actors.spikeAcq
     class: Spike_Acquirer
-    filename: data/neurofind_spikes.txt
+    # filename: data/neurofind_spikes.txt
+    filename: data/raw_C.txt
 
   # Visual:
   #   package: actors.visual
