@@ -163,7 +163,7 @@ def test_queue_message(setdir, sample_nex):
     assert True
 
 @pytest.mark.asyncio
-# @pytest.mark.skip(reason="This test is unfinished.")
+@pytest.mark.skip(reason="This test is unfinished.")
 async def test_queue_readin(sample_nex, caplog):
     nex = sample_nex
     nex.startNexus()
