@@ -71,49 +71,6 @@ class Nexus():
         self.flags.update({'quit':False, 'run':False, 'load':False})
         self.allowStart = False
 
-    def startNexus(self):
-
-        ''' Puts all actors in separate processes and begins polling
-            to listen to comm queues
-        '''
-        for name,m in self.actors.items(): # m accesses the specific actor class instance
-            if 'GUI' not in name: #GUI already started
-                p = Process(target=self.runActor, name=name, args=(m,))
-                if 'Watcher' not in name:
-                    if 'daemon' in self.tweak.actors[name].options: # e.g. suite2p creates child processes.
-                        p.daemon = self.tweak.actors[name].options['daemon']
-                        logger.info('Setting daemon to {} for {}'.format(p.daemon,name))
-                    else: 
-                        p.daemon = True #default behavior
-                self.processes.append(p)
-
-        self.start()
-
-        if self.tweak.hasGUI:
-            loop = asyncio.get_event_loop()
-
-            signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
-            for s in signals:
-                loop.add_signal_handler(
-                    s, lambda s=s: self.stop_polling(s, loop)) #TODO
-            try:
-                res = loop.run_until_complete(self.pollQueues()) #TODO: in Link executor, complete all tasks
-            except asyncio.CancelledError:
-                logging.info("Loop is cancelled")
-            
-            try:
-                logging.info(f"Result of run_until_complete: {res}") 
-            except:
-                logging.info("Res failed to await")
-
-            logging.info(f"Current loop: {asyncio.get_event_loop()}") 
-            
-            loop.stop()
-            loop.close()
-            logger.info('Shutdown loop')
-        else:
-            pass
-
     def loadTweak(self, file=None):
         ''' For each connection:
             create a Link with a name (purpose), start, and end
@@ -187,110 +144,50 @@ class Nexus():
 
         #TODO: error handling for if a user tries to use q_in without defining it
 
-    def createWatcher(self, watchin):
-        watcher= BasicWatcher('Watcher', inputs=watchin)
-        watcher.setStore(store.Limbo(watcher.name))
-        q_comm = Link('Watcher_comm', watcher.name, self.name)
-        q_sig = Link('Watcher_sig', self.name, watcher.name)
-        self.comm_queues.update({q_comm.name:q_comm})
-        self.sig_queues.update({q_sig.name:q_sig})
-        watcher.setCommLinks(q_comm, q_sig)
 
-        self.actors.update({watcher.name: watcher})
+    def startNexus(self):
 
-    def createActor(self, name, actor):
-        ''' Function to instantiate actor, add signal and comm Links,
-            and update self.actors dictionary
+        ''' Puts all actors in separate processes and begins polling
+            to listen to comm queues
         '''
-        print(actor.options)
-        # Instantiate selected class
-        mod = import_module(actor.packagename)
-        clss = getattr(mod, actor.classname)
-        instance = clss(actor.name, **actor.options)
+        for name,m in self.actors.items(): # m accesses the specific actor class instance
+            if 'GUI' not in name: #GUI already started
+                p = Process(target=self.runActor, name=name, args=(m,))
+                if 'Watcher' not in name:
+                    if 'daemon' in self.tweak.actors[name].options: # e.g. suite2p creates child processes.
+                        p.daemon = self.tweak.actors[name].options['daemon']
+                        logger.info('Setting daemon to {} for {}'.format(p.daemon,name))
+                    else: 
+                        p.daemon = True #default behavior
+                self.processes.append(p)
 
-        # Add link to Limbo store
-        limbo = self.createLimbo(actor.name)
-        instance.setStore(limbo)
+        self.start()
 
-        # Add signal and communication links
-        limbo_arg = [None, None]
-        if self.use_hdd:
-            limbo_arg = [limbo, self.createLimbo('default')]
+        # if self.tweak.hasGUI:
+        loop = asyncio.get_event_loop()
 
-        q_comm = Link(actor.name+'_comm', actor.name, self.name)
-        q_sig = Link(actor.name+'_sig', self.name, actor.name)
-        self.comm_queues.update({q_comm.name:q_comm})
-        self.sig_queues.update({q_sig.name:q_sig})
-        instance.setCommLinks(q_comm, q_sig)
+        signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
+        for s in signals:
+            loop.add_signal_handler(
+                s, lambda s=s: self.stop_polling(s, loop)) #TODO
+        try:
+            res = loop.run_until_complete(self.pollQueues()) #TODO: in Link executor, complete all tasks
+        except asyncio.CancelledError:
+            logging.info("Loop is cancelled")
+        
+        try:
+            logging.info(f"Result of run_until_complete: {res}") 
+        except:
+            logging.info("Res failed to await")
 
-        # Update information
-        self.actors.update({name:instance})
+        logging.info(f"Current loop: {asyncio.get_event_loop()}") 
+        
+        loop.stop()
+        loop.close()
+        logger.info('Shutdown loop')
+        # else:
+        #     pass
 
-    def createConnections(self):
-        ''' Assemble links (multi or other)
-            for later assignment
-        '''
-        for source,drain in self.tweak.connections.items():
-            name = source.split('.')[0]
-            #current assumption is connection goes from q_out to something(s) else
-            if len(drain) > 1: #we need multiasyncqueue 
-                link, endLinks = MultiLink(name+'_multi', source, drain)
-                self.data_queues.update({source:link})
-                for i,e in enumerate(endLinks):
-                    self.data_queues.update({drain[i]:e})
-            else: #single input, single output
-                d = drain[0]
-                d_name = d.split('.') #TODO: check if .anything, if not assume q_in
-                link = Link(name+'_'+d_name[0], source, d)
-                self.data_queues.update({source:link})
-                self.data_queues.update({d:link})
-
-    def assignLink(self, name, link):
-        ''' Function to set up Links between actors
-            for data location passing
-            Actor must already be instantiated
-
-            #NOTE: Could use this for reassigning links if actors crash?
-            #TODO: Adjust to use default q_out and q_in vs being specified
-        '''
-        #logger.info('Assigning link {}'.format(name))
-        classname = name.split('.')[0]
-        linktype = name.split('.')[1]
-        if linktype == 'q_out':
-            self.actors[classname].setLinkOut(link)
-        elif linktype == 'q_in':
-            self.actors[classname].setLinkIn(link)
-        elif linktype == 'watchout':
-            self.actors[classname].setLinkWatch(link)
-        else:
-            self.actors[classname].addLink(linktype, link)
-
-    def createLimbo(self, name):
-        """ Creates Limbo w/ or w/out LMDB functionality based on {self.use_hdd}. """
-        if not self.use_hdd:
-            return store.Limbo(name)
-        else:
-            if name not in self.limbo_dict:
-                self.limbo_dict[name] = store.Limbo(name, use_hdd=True, lmdb_name=self.lmdb_name)
-            return self.limbo_dict[name]
-
-    def runActor(self, actor):
-        '''Run the actor continually; used for separate processes
-            #TODO: hook into monitoring here?
-        '''
-        actor.run()
-
-    def startWatcher(self):
-        self.watcher = store.Watcher('watcher', self.createLimbo('watcher'))
-        limbo = self.createLimbo('watcher') if self.use_hdd else None
-        q_sig = Link('watcher_sig', self.name, 'watcher')
-        self.watcher.setLinks(q_sig)
-        self.sig_queues.update({q_sig.name:q_sig})
-
-        self.p_watch = Process(target=self.watcher.run, name='watcher_process')
-        self.p_watch.daemon = True
-        self.p_watch.start()
-        self.processes.append(self.p_watch)
 
     def start(self):
         logger.info('Starting processes')
@@ -301,44 +198,14 @@ class Nexus():
             p.start()
 
 
-    def setup(self):
-        for q in self.sig_queues.values():
-            try:
-                q.put_nowait(Spike.setup())
-            except Full:
-                logger.warning('Signal queue'+q.name+'is full')
+    def destroyNexus(self):
+        ''' Method that calls the internal method
+            to kill the process running the store (plasma server)
+        '''
+        logger.warning('Destroying Nexus')
+        self._closeStore()
+        logger.warning('Killed the central store')
 
-    def run(self):
-        if self.allowStart:
-            for q in self.sig_queues.values():
-                try:
-                    q.put_nowait(Spike.run())
-                except Full:
-                    logger.warning('Signal queue'+q.name+'is full')
-                    #queue full, keep going anyway TODO: add repeat trying as async task
-
-    def quit(self):
-        logger.warning('Killing child processes')
-
-        for q in self.sig_queues.values():
-            try:
-                q.put_nowait(Spike.quit())
-            except Full as f:
-                logger.warning('Signal queue '+q.name+' full, cannot tell it to quit: {}'.format(f))
-
-        self.processes.append(self.p_GUI)
-        #self.processes.append(self.p_watch)
-
-        for p in self.processes:
-            # if p.is_alive():
-            #     p.terminate()
-            p.terminate()
-            p.join()
-
-        logger.warning('Actors terminated')
-        print('total time ', time.time()-self.t)
-
-        self.destroyNexus()
 
     async def pollQueues(self):
         """ Listens to links and processes their signals.
@@ -366,28 +233,47 @@ class Nexus():
         for q in polling:
             self.tasks.append(asyncio.ensure_future(q.get_async()))
 
+        self.tasks.append(asyncio.ensure_future(self.ainput('Awaiting input ')))
+
         while not self.flags['quit']:
             done, pending = await asyncio.wait(self.tasks, return_when=concurrent.futures.FIRST_COMPLETED)
             #TODO: actually kill pending tasks
             for i,t in enumerate(self.tasks):
-                if t in done or polling[i].status == 'done': #catch tasks that complete await wait/gather
-                    r = polling[i].result
-                    if 'GUI' in pollingNames[i]:
-                        self.processGuiSignal(r, pollingNames[i])
-                    else:
-                        self.processActorSignal(r, pollingNames[i])
-                    self.tasks[i] = (asyncio.ensure_future(polling[i].get_async()))
+                # print(i, t, t.result)
+                if i < len(polling):
+                    if t in done or polling[i].status == 'done': #catch tasks that complete await wait/gather
+                        r = polling[i].result
+                        if 'GUI' in pollingNames[i]:
+                            self.processGuiSignal(r, pollingNames[i])
+                        else:
+                            self.processActorSignal(r, pollingNames[i])
+                        self.tasks[i] = (asyncio.ensure_future(polling[i].get_async()))
+                elif t in done: ##cmd line
+                    res = t.result()
+                    print(res, '------------------')
+                    # print('Got command line input: ', t.result(), '\n')
+                    self.processGuiSignal([res.rstrip('\n')], 'commandLine_Nexus')
+                    self.tasks[i] = (asyncio.ensure_future(self.ainput('Awaiting input \n')))
 
         self.stop_polling("quit", asyncio.get_running_loop(), polling)
         logger.warning('Shutting down polling')
         return "Shutting Down"
+
+
+    # https://stackoverflow.com/questions/58454190/python-async-waiting-for-stdin-input-while-doing-other-stuff
+    async def ainput(self, string: str) -> str:
+        await asyncio.get_event_loop().run_in_executor(
+                None, lambda s=string: sys.stdout.write(s))
+        return await asyncio.get_event_loop().run_in_executor(
+                None, sys.stdin.readline)
+
 
     def processGuiSignal(self, flag, name):
         '''Receive flags from the Front End as user input
             TODO: Not all needed
         '''
         name = name.split('_')[0]
-        logger.info('Received signal from GUI: '+flag[0])
+        logger.info('Received signal from user: '+flag[0])
         if flag[0]:
             if flag[0] == Spike.run():
                 logger.info('Begin run!')
@@ -425,41 +311,45 @@ class Nexus():
                     # if not self.tweak.hasGUI:
                     #     self.run()
 
-    def destroyNexus(self):
-        ''' Method that calls the internal method
-            to kill the process running the store (plasma server)
-        '''
-        logger.warning('Destroying Nexus')
-        self._closeStore()
-        logger.warning('Killed the central store')
+    def setup(self):
+        for q in self.sig_queues.values():
+            try:
+                q.put_nowait(Spike.setup())
+            except Full:
+                logger.warning('Signal queue'+q.name+'is full')
 
-    def _closeStore(self):
-        ''' Internal method to kill the subprocess
-            running the store (plasma sever)
-        '''
-        try:
-            self.p_Limbo.kill()
-            logger.info('Store closed successfully')
-        except Exception as e:
-            logger.exception('Cannot close store {0}'.format(e))
+    def run(self):
+        if self.allowStart:
+            for q in self.sig_queues.values():
+                try:
+                    q.put_nowait(Spike.run())
+                except Full:
+                    logger.warning('Signal queue'+q.name+'is full')
+                    #queue full, keep going anyway TODO: add repeat trying as async task
 
-    def _startStore(self, size):
-        ''' Start a subprocess that runs the plasma store
-            Raises a RuntimeError exception size is undefined
-            Raises an Exception if the plasma store doesn't start
-        '''
-        if size is None:
-            raise RuntimeError('Server size needs to be specified')
-        try:
-            self.p_Limbo = subprocess.Popen(['plasma_store',
-                              '-s', '/tmp/store',
-                              '-m', str(size),
-                              '-e', 'hashtable://test'],
-                              stdout=subprocess.DEVNULL,
-                              stderr=subprocess.DEVNULL)
-            logger.info('Store started successfully')
-        except Exception as e:
-            logger.exception('Store cannot be started: {0}'.format(e))
+    def quit(self):
+        logger.warning('Killing child processes')
+
+        for q in self.sig_queues.values():
+            try:
+                q.put_nowait(Spike.quit())
+            except Full as f:
+                logger.warning('Signal queue '+q.name+' full, cannot tell it to quit: {}'.format(f))
+
+        if self.tweak.hasGUI:
+            self.processes.append(self.p_GUI)
+        #self.processes.append(self.p_watch)
+
+        for p in self.processes:
+            # if p.is_alive():
+            #     p.terminate()
+            p.terminate()
+            p.join()
+
+        logger.warning('Actors terminated')
+        print('total time ', time.time()-self.t)
+
+        self.destroyNexus()
 
     def stop_polling(self, stop_signal, loop, queues):
         """ Cancels outstanding tasks and fills their last request.
@@ -500,3 +390,134 @@ class Nexus():
         
         logging.info('Polling has stopped.')
 
+    def createLimbo(self, name):
+        """ Creates Limbo w/ or w/out LMDB functionality based on {self.use_hdd}. """
+        if not self.use_hdd:
+            return store.Limbo(name)
+        else:
+            if name not in self.limbo_dict:
+                self.limbo_dict[name] = store.Limbo(name, use_hdd=True, lmdb_name=self.lmdb_name)
+            return self.limbo_dict[name]
+
+    def _startStore(self, size):
+        ''' Start a subprocess that runs the plasma store
+            Raises a RuntimeError exception size is undefined
+            Raises an Exception if the plasma store doesn't start
+        '''
+        if size is None:
+            raise RuntimeError('Server size needs to be specified')
+        try:
+            self.p_Limbo = subprocess.Popen(['plasma_store',
+                              '-s', '/tmp/store',
+                              '-m', str(size),
+                              '-e', 'hashtable://test'],
+                              stdout=subprocess.DEVNULL,
+                              stderr=subprocess.DEVNULL)
+            logger.info('Store started successfully')
+        except Exception as e:
+            logger.exception('Store cannot be started: {0}'.format(e))
+
+    def _closeStore(self):
+        ''' Internal method to kill the subprocess
+            running the store (plasma sever)
+        '''
+        try:
+            self.p_Limbo.kill()
+            logger.info('Store closed successfully')
+        except Exception as e:
+            logger.exception('Cannot close store {0}'.format(e))
+
+    def createActor(self, name, actor):
+        ''' Function to instantiate actor, add signal and comm Links,
+            and update self.actors dictionary
+        '''
+        # Instantiate selected class
+        mod = import_module(actor.packagename)
+        clss = getattr(mod, actor.classname)
+        instance = clss(actor.name, **actor.options)
+
+        # Add link to Limbo store
+        limbo = self.createLimbo(actor.name)
+        instance.setStore(limbo)
+
+        # Add signal and communication links
+        limbo_arg = [None, None]
+        if self.use_hdd:
+            limbo_arg = [limbo, self.createLimbo('default')]
+
+        q_comm = Link(actor.name+'_comm', actor.name, self.name)
+        q_sig = Link(actor.name+'_sig', self.name, actor.name)
+        self.comm_queues.update({q_comm.name:q_comm})
+        self.sig_queues.update({q_sig.name:q_sig})
+        instance.setCommLinks(q_comm, q_sig)
+
+        # Update information
+        self.actors.update({name:instance})
+
+    def runActor(self, actor):
+        '''Run the actor continually; used for separate processes
+            #TODO: hook into monitoring here?
+        '''
+        actor.run()
+
+    def createConnections(self):
+        ''' Assemble links (multi or other)
+            for later assignment
+        '''
+        for source,drain in self.tweak.connections.items():
+            name = source.split('.')[0]
+            #current assumption is connection goes from q_out to something(s) else
+            if len(drain) > 1: #we need multiasyncqueue 
+                link, endLinks = MultiLink(name+'_multi', source, drain)
+                self.data_queues.update({source:link})
+                for i,e in enumerate(endLinks):
+                    self.data_queues.update({drain[i]:e})
+            else: #single input, single output
+                d = drain[0]
+                d_name = d.split('.') #TODO: check if .anything, if not assume q_in
+                link = Link(name+'_'+d_name[0], source, d)
+                self.data_queues.update({source:link})
+                self.data_queues.update({d:link})
+
+    def assignLink(self, name, link):
+        ''' Function to set up Links between actors
+            for data location passing
+            Actor must already be instantiated
+
+            #NOTE: Could use this for reassigning links if actors crash?
+            #TODO: Adjust to use default q_out and q_in vs being specified
+        '''
+        #logger.info('Assigning link {}'.format(name))
+        classname = name.split('.')[0]
+        linktype = name.split('.')[1]
+        if linktype == 'q_out':
+            self.actors[classname].setLinkOut(link)
+        elif linktype == 'q_in':
+            self.actors[classname].setLinkIn(link)
+        elif linktype == 'watchout':
+            self.actors[classname].setLinkWatch(link)
+        else:
+            self.actors[classname].addLink(linktype, link)
+
+    def createWatcher(self, watchin):
+        watcher= BasicWatcher('Watcher', inputs=watchin)
+        watcher.setStore(store.Limbo(watcher.name))
+        q_comm = Link('Watcher_comm', watcher.name, self.name)
+        q_sig = Link('Watcher_sig', self.name, watcher.name)
+        self.comm_queues.update({q_comm.name:q_comm})
+        self.sig_queues.update({q_sig.name:q_sig})
+        watcher.setCommLinks(q_comm, q_sig)
+
+        self.actors.update({watcher.name: watcher})
+
+    def startWatcher(self):
+        self.watcher = store.Watcher('watcher', self.createLimbo('watcher'))
+        limbo = self.createLimbo('watcher') if self.use_hdd else None
+        q_sig = Link('watcher_sig', self.name, 'watcher')
+        self.watcher.setLinks(q_sig)
+        self.sig_queues.update({q_sig.name:q_sig})
+
+        self.p_watch = Process(target=self.watcher.run, name='watcher_process')
+        self.p_watch.daemon = True
+        self.p_watch.start()
+        self.processes.append(self.p_watch)
