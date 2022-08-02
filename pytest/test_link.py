@@ -54,9 +54,9 @@ def init_actors(n = 1):
 def example_link(setup_store):
     """ Fixture to provide a commonly used Link object.
     """
-
+    setup_store
     act = init_actors(2)
-    lnk = Link("Example", act[0].name, act[1].name, setup_store)
+    lnk = Link("Example", act[0].name, act[1].name)
     yield lnk
     lnk = None
 
@@ -69,10 +69,10 @@ def example_actor_system(setup_store):
     lmb = setup_store
     acts = init_actors(4)
 
-    L01 = Link("L01", acts[0].name, acts[1].name, lmb)
-    L13 = Link("L13", acts[1].name, acts[3].name, lmb)
-    L12 = Link("L12", acts[1].name, acts[2].name, lmb)
-    L23 = Link("L23", acts[2].name, acts[3].name, lmb)
+    L01 = Link("L01", acts[0].name, acts[1].name)
+    L13 = Link("L13", acts[1].name, acts[3].name)
+    L12 = Link("L12", acts[1].name, acts[2].name)
+    L23 = Link("L23", acts[2].name, acts[3].name)
 
     links = [L01, L13, L12, L23]
 
@@ -106,8 +106,7 @@ def kill_pytest_processes():
     ("real_executor", None),
     ("cancelled_join", False),
     ("status", "pending"),
-    ("result", None),
-    ("num", 0)
+    ("result", None)
 ])
 def test_Link_init(setup_store, example_link, attribute, expected):
     """ Tests if the default initialization attributes are set.
@@ -123,16 +122,9 @@ def test_Link_init_start_end(setup_store):
     """
 
     act = init_actors(2)
-    lnk = Link("example_link", act[0].name, act[1].name, setup_store)
+    lnk = Link("example_link", act[0].name, act[1].name)
 
     assert lnk.start == act[0].name and lnk.end == act[1].name
-
-
-def test_Link_init_limbo(setup_store, example_link):
-    """ Tests if the initialization has the right store.
-    """
-
-    assert example_link.limbo == setup_store
 
 def test_getstate(example_link):
     """ Tests if __getstate__ has the right values on initialization.
@@ -201,7 +193,7 @@ def test_put(example_link):
     assert lnk.get() == "message"
 
 def test_put_unserializable(example_link, caplog, setup_store):
-    """ Tests if an unserializable objecet raises an error.
+    """ Tests if an unserializable object raises an error.
 
     Instantiates an actor, which is unserializable, and passes it into 
     Link.put(). 
@@ -212,19 +204,23 @@ def test_put_unserializable(example_link, caplog, setup_store):
     lmb = setup_store
     act = Actor("test")
     lnk = example_link
+    sentinel = True
     try:
         lnk.put(act)
     except:
-        with pytest.raises(TypeError):
-            lnk.put(act)
+        sentinel = False
 
-    sentinel = False
-    if caplog.records:
-        for record in caplog.records:
-            sentinel = sentinel or "SerializationCallbackError" in record.msg
+    assert sentinel, "Unable to put" 
+    assert str(lnk.get()) == str(act)
 
-    assert sentinel, "Expected logger output!"
-
+def test_put_irreducible(example_link, setup_store):
+    """ Tests if an irreducible object raises an error.
+    """
+    
+    lnk = example_link
+    lmb = setup_store
+    with pytest.raises(TypeError):
+       lnk.put(lmb) 
 
 def test_put_nowait(example_link):
     """ Tests if messages can be put into the link without blocking.
@@ -305,11 +301,11 @@ def test_put_overflow(setup_store, caplog):
     lmb = Limbo(store_loc = "/tmp/store")
     
     acts = init_actors(2)
-    lnk = Link("L1", acts[0], acts[1], lmb)    
+    lnk = Link("L1", acts[0], acts[1])    
 
     message = [i for i in range(10 ** 6)] #24000 bytes
 
-    lnk.log_to_limbo(message)
+    lnk.put(message)
 
     p.kill()
     setup_store #restore the 10 mb store
@@ -455,45 +451,6 @@ async def test_join_thread(example_link):
     msg = await lnk.get_async()
     lnk.join_thread()
     assert True
-
-
-@pytest.mark.parametrize("input", [
-    (None),
-    ("message")
-])
-def test_log_to_limbo_success(example_link, input):
-    """ Tests if log_to_limbo writes the specified message to limbo.
-    """
-
-    lnk = example_link
-    msg = input 
-    lnk.log_to_limbo(msg)
-    res = lnk.limbo.get(f"q__{lnk.start}__{lnk.num - 1}")
-    assert res == input 
-
-
-def test_log_to_limbo_unserializable(example_link, caplog, 
-    kill_pytest_processes):
-    """ Tests if log_to_limbo logs an object not found error.
-
-    Constructs an actor, which is unserializable, and passes it into
-    log_to_limbo. log_to_limbo should log that it could not store 
-    the object.
-
-    Asserts:
-        bool: If the logger logged that the object could not be stored.
-    """
-
-    act = Actor("test")
-    example_link.log_to_limbo(act)
-
-    if caplog.records:
-        for record in caplog.records:
-            assert "SerializationCallbackError" in record.msg
-    else:
-        assert False, "An error was expected!"
-
-    kill_pytest_processes
 
 @pytest.mark.asyncio
 async def test_multi_actor_system(example_actor_system, 
