@@ -7,12 +7,10 @@ actors:
     class: FolderAcquirer
     folder: data/CIFAR10/images
 
-  Processor:
-    package: actors.processor
-    class: PyTorchProcessor
-    transforms_path: models/ResNet50-transforms.pt
-    model_path: models/ResNet50-CIFAR10.pt
-    classify: False
+  # Processor:
+  #   package: actors.processor
+  #   class: PyTorchProcessor
+  #   transforms_path: models/ResNet50-transforms.pt
     
   # Analysis:
   #   package: actors.analysis
