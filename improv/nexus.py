@@ -44,8 +44,8 @@ class Nexus():
     def __str__(self):
         return self.name
     
-    def createNexus(self, file=None, use_hdd=False):
-        self._startStore(40000000000) #default size should be system-dependent; this is 40 GB
+    def createNexus(self, file=None, use_hdd=False, store_size=40000000000):
+        self._startStore(store_size) #default size should be system-dependent; this is 40 GB
 
         #connect to store and subscribe to notifications
         self.limbo = store.Limbo()
