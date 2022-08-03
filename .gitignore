@@ -132,10 +132,10 @@ dmypy.json
 output/
 *.tif
 arrow
-demos/pytorch/models/AlexNet-CIFAR10.pt
-demos/pytorch/models/ResNet50-CIFAR10.pt
-demos/improv.demos.code-workspace
-demos/pytorch/models/ResNet50-transforms.pt
+.vscode
 improv.code-workspace
+demos/improv.demos.code-workspace
 demos/pytorch/improv.pytorch_demo.code-workspace
-.vscode/settings.json
+demos/pytorch/data
+demos/pytorch/models
+demos/pytorch/output
