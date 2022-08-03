@@ -25,41 +25,52 @@ class FolderAcquirer(Actor):
         If there're multiple files, files are loaded by name.
     '''
 
-    def __init__(self, *args, folder="data/CIFAR10/images", exts=[".jpg", ".png"], **kwargs):
+    def __init__(self, *args, folder=None, exts=None, classify=False, label_folder=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.data = None
         self.done = False
-        self.path = Path(folder)
 
-        # self.frame_num = 0
         self.sample_num = 0
-        self.files = []
+
+        self.classify = classify
+
+        if folder is None:
+            logger.error('Must specify folder of data.')
+        else:
+            self.files = []
+            self.path = Path(folder)
+            if not self.path.exists() or not self.path.is_dir():
+                raise AttributeError('Data folder {} does not exist.'.format(self.path))
 
         if exts is None:
-            logger.error('Must specify filetype/extensions of data.')
+            logger.error('Must specify filetype/(possible) extension(s) of data.')
         else:
             self.exts = exts
 
-        if not self.path.exists() or not self.path.is_dir():
-            raise AttributeError('Folder {} does not exist.'.format(self.path))
+        if self.classify is True and label_folder is None:
+            logger.error('Must specify folder of labels.')
+        else:
+            self.lab_files = []
+            self.lab_path = Path(label_folder)
+            if not self.lab_path.exists() or not self.lab_path.is_dir():
+                raise AttributeError('Label folder {} does not exist.'.format(self.lab_path))
 
     def setup(self):
         pass
         
-    def saveImgs(self):
-        '''
-        Arg: exts = list of possible file extensions
-        '''
-        self.imgs = []
-        files = [f.as_posix() for f in self.path.iterdir() if f.suffix in self.exts]
-        files.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
-        for file in files:
-            img = self.get_sample(file)
-            self.imgs.append(img)
-        self.imgs = np.array(self.imgs)
-        f = h5py.File('output/sample.h5', 'w', libver='latest')
-        f.create_dataset("default", data=self.imgs)
-        f.close()
+    # def saveImgs(self):
+    #     '''
+    #     Arg: exts = list of possible file extensions
+    #     '''
+    #     self.imgs = []
+    #     files = [f.as_posix() for f in self.path.iterdir() if f.suffix in self.exts]
+    #     files.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+    #     for file in files:
+    #         img = self.get_sample(file)
+    #         self.imgs.append(img)
+    #     self.imgs = np.array(self.imgs)
+    #     f = h5py.File('output/sample.h5', 'w', libver='latest')
+    #     f.create_dataset("default", data=self.imgs)
+    #     f.close()
 
     def run(self):
         ''' Triggered at Run
@@ -69,6 +80,15 @@ class FolderAcquirer(Actor):
         self.put_img_time = []
         self.total_times = []
         self.timestamp = []
+
+        self.files = [f.as_posix() for f in self.path.iterdir() if f.suffix in self.exts]
+        self.files.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+        
+        if self.classify is True:
+            self.put_lab_time = []
+            self.lab_timestamp = []
+            self.lab_files = [f.as_posix() for f in self.lab_path.iterdir()]
+            self.lab_files.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
 
         with RunManager(self.name, self.runAcquirer, self.setup, self.q_sig, self.q_comm) as rm:
             print(rm)
@@ -82,6 +102,10 @@ class FolderAcquirer(Actor):
 
         np.savetxt('output/timing/put_image_time.txt', np.array(self.put_img_time))
         np.savetxt('output/timing/acquire_timestamp.txt', np.array(self.timestamp))
+        
+        if self.classify is True:
+            np.savetxt('output/timing/put_label_time.txt', np.array(self.put_lab_time))
+            np.savetxt('output/timing/acquire_lab_timestamp.txt', np.array(self.lab_timestamp))
 
     def runAcquirer(self):
         ''' Main loop. If there're new files, read and put into store.
@@ -93,10 +117,17 @@ class FolderAcquirer(Actor):
             t = time.time()
             try:
                 t1 = time.time()
-                obj_id = self.client.put(self.get_sample(self.files[self.sample_num]), 'acq_raw' + str(self.sample_num))
+                obj_id = self.client.put(self.files[self.sample_num], 'acq_raw' + str(self.sample_num))
                 self.timestamp.append([time.time(), self.sample_num])
                 self.q_out.put([obj_id, str(self.sample_num)])
                 self.put_img_time = time.time() - t1
+                # Get lab at same time as image? Simulate human labeling image?
+                if self.classify is True:
+                    t2 = time.time()
+                    obj_id = self.client.put(self.lab_files[self.sample_num], 'acq_lab' + str(self.sample_num))
+                    self.lab_timestamp.append([time.time(), self.sample_num])
+                    self.q_out.put([obj_id, str(self.sample_num)])
+                    self.put_lab_time = time.time() - t2
                 self.sample_num += 1
             except Exception as e:
                 logger.error('Acquirer general exception: {}'.format(e))
@@ -112,11 +143,14 @@ class FolderAcquirer(Actor):
         self.q_comm.put(None)
         self.done = True  # stay awake in case we get a shutdown signal
 
-    def get_sample(self, file: Path):
-        '''
-        '''
-        # self.load_img_time = []
-        # t = time.time()
-        img = imread(file)
-        # self.load_img_time.append(time.time() - t)
-        return img
+    # def get_sample(self, file):
+    #     '''
+    #     '''
+    #     try:
+    #         img = imread(file)
+    #     except ValueError as e:
+    #         img = imread(file)
+    #         logger.error('File '+file+' had value error {}'.format(e))
+    #     # For .tiff: [0,0,0, :, :,0] - extract first channel in image set
+    #     # For .jpg/.png -> PyTorch, tensor in processor
+    #     return img
