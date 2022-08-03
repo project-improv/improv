@@ -118,16 +118,16 @@ class FolderAcquirer(Actor):
             try:
                 t1 = time.time()
                 obj_id = self.client.put(self.files[self.sample_num], 'acq_raw' + str(self.sample_num))
-                self.timestamp.append([time.time(), self.sample_num])
+                self.timestamp.append([time.time()*1000.0, self.sample_num])
                 self.q_out.put([obj_id, str(self.sample_num)])
-                self.put_img_time = time.time() - t1
+                self.put_img_time = (time.time() - t1)*1000.0
                 # Get lab at same time as image? Simulate human labeling image?
                 if self.classify is True:
                     t2 = time.time()
                     obj_id = self.client.put(self.lab_files[self.sample_num], 'acq_lab' + str(self.sample_num))
-                    self.lab_timestamp.append([time.time(), self.sample_num])
+                    self.lab_timestamp.append([time.time()*1000.0, self.sample_num])
                     self.q_out.put([obj_id, str(self.sample_num)])
-                    self.put_lab_time = time.time() - t2
+                    self.put_lab_time = (time.time() - t2)*1000.0
                 self.sample_num += 1
             except Exception as e:
                 logger.error('Acquirer general exception: {}'.format(e))
@@ -135,7 +135,7 @@ class FolderAcquirer(Actor):
                 pass
 
             # time.sleep(self.framerate)  # pretend framerate
-            self.total_times.append(time.time() - t)
+            self.total_times.append((time.time() - t)*1000.0)
         
         # From bubblewrap demo and FileAcquirer
         logger.error('Done with all available data: {0}'.format(self.sample_num))
