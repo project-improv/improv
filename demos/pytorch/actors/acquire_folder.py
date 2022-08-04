@@ -1,7 +1,7 @@
 import time
-import os
-import h5py
-import random
+# import os
+# import h5py
+# import random
 import numpy as np
 from skimage.io import imread
 
@@ -16,7 +16,6 @@ logger.setLevel(logging.INFO)
 
 # Modified from ~/improv/demos/neurofinder/actors/acquire_folder.py
 # Maybe rename - ImageAcquirer? 
-# Moved to src
 class FolderAcquirer(Actor):
     ''' Current behavior is looping over all files in a folder.
         Class to read TIFF/JPG/PNG files in a specified {path} from disk.
