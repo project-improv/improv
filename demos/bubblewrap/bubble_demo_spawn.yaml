@@ -13,9 +13,10 @@ actors:
     class: DimReduction
     
   Bubblewrap:
-    package: actors.bubblewrap
-    class: Bubblewrap
+    package: actors.bubble
+    class: Bubble
     dimension: 2
+    method: spawn
   
   Visual:
     package: actors.visual

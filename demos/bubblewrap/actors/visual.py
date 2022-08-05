@@ -10,6 +10,7 @@ class Visual(Actor):
     '''
 
     def setup(self, visual):
+	#self.visual is CaimanVisual
         self.visual = visual
         self.visual.setup()
         logger.info('Running setup for '+self.name)
@@ -34,14 +35,16 @@ class CaimanVisual(Actor):
 
     def setup(self):
         self.data = []
-
+        self.bw_data = []
     def run(self):
         pass  # NOTE: Special case here, tied to GUI
 
     def getData(self):
         try:
             res = self.q_in.get(timeout=0.0005)
+            bw_res = self.bw_in.get(timeout=0.0005)
             self.data = self.client.getID(res[1])
+            self.bw_data = [self.client.getID(bw_res[i]) for i in range(7)]
         except Empty as e:
             pass
         except Exception as e:
