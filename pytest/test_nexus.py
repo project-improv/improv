@@ -10,11 +10,11 @@ from improv.actor import Actor
 from improv.actor import Spike
 from improv.store import Limbo
 
-# @pytest.fixture
-# def setdir():
-#     os.chdir(os.getcwd() + '/./configs')
-#     yield None
-#     os.chdir(os.getcwd() + "/../")
+@pytest.fixture
+def setdir():
+    os.chdir(os.getcwd() + '/./configs')
+    yield None
+    os.chdir(os.getcwd() + "/../")
 
 @pytest.fixture
 def sample_nex(setdir):
@@ -56,10 +56,10 @@ def test_createNexus(setdir):
     setdir
     nex = Nexus("test")
     nex.createNexus(file = "basic_demo.yaml")
-    assert list(nex.comm_queues.keys()) == ["GUI_comm", "Acquirer_comm", "Processor_comm", "Analysis_comm", "InputStim_comm"]
-    assert list(nex.sig_queues.keys()) == ["Acquirer_sig", "Processor_sig", "Analysis_sig", "InputStim_sig"]
-    assert list(nex.data_queues.keys()) == ["Acquirer.q_out", "Processor.q_in", "Processor.q_out", "Analysis.q_in", "InputStim.q_out", "Analysis.input_stim_queue"]
-    assert list(nex.actors.keys()) == ["Acquirer", "Processor", "Analysis", "InputStim"]
+    assert list(nex.comm_queues.keys()) == ["GUI_comm", "Acquirer_comm", "Analysis_comm", "InputStim_comm"]
+    assert list(nex.sig_queues.keys()) == ["Acquirer_sig", "Analysis_sig", "InputStim_sig"]
+    assert list(nex.data_queues.keys()) == ["Acquirer.q_out", "Analysis.q_in", "InputStim.q_out", "Analysis.input_stim_queue"]
+    assert list(nex.actors.keys()) == ["Acquirer", "Analysis", "InputStim"]
     assert list(nex.flags.keys()) == ["quit", "run", "load"] 
     assert nex.processes == []
     nex.destroyNexus()
@@ -68,25 +68,20 @@ def test_createNexus(setdir):
 def test_loadTweak(sample_nex):
     nex = sample_nex 
     nex.loadTweak()
-    assert set(nex.comm_queues.keys()) == set(["Acquirer_comm", "Analysis_comm", "GUI_comm", "InputStim_comm", "Processor_comm"])
+    assert set(nex.comm_queues.keys()) == set(["Acquirer_comm", "Analysis_comm", "GUI_comm", "InputStim_comm"])
 
 @pytest.mark.skip(reason="unfinished")
 def test_startNexus(sample_nex):
     nex = sample_nex
     nex.startNexus()
-    assert [p.name for p in nex.processes] == ["Acquirer", "Processor", "Analysis", "InputStim"]
+    assert [p.name for p in nex.processes] == ["Acquirer", "Analysis", "InputStim"]
 
 # @pytest.mark.skip(reason="This test is unfinished")
 @pytest.mark.parametrize("cfg_name, actor_list, link_list", [
-    ("/config/basic_demo.yaml", None, None),
-    ("/config/good_config.yaml", None, None),
-    ("/config/simple_graph.yaml", None, None),
-    ("/config/complex_graph.yaml", None, None),
-    ("config/single_actor.yaml", None, None)
-    ("basic_demo.yaml", ["Acquirer", "Processor", "Analysis", "InputStim"], ["Acquirer_sig", "Processor_sig", "Analysis_sig", "InputStim_sig"]),
-    ("good_config.yaml", ["Acquirer", "Processor", "Analysis"], ["Acquirer_sig", "Processor_sig", "Analysis_sig"]),
-    ("simple_graph.yaml", ["Acquirer", "Processor", "Analysis"], ["Acquirer_sig", "Processor_sig", "Analysis_sig"]),
-    ("complex_graph.yaml", ["Acquirer", "Processor", "Analysis", "InputStim"], ["Acquirer_sig", "Processor_sig", "Analysis_sig", "InputStim_sig"])
+    ("basic_demo.yaml", ["Acquirer", "Analysis", "InputStim"], ["Acquirer_sig", "Analysis_sig", "InputStim_sig"]),
+    ("good_config.yaml", ["Acquirer", "Analysis"], ["Acquirer_sig", "Analysis_sig"]),
+    ("simple_graph.yaml", ["Acquirer", "Analysis"], ["Acquirer_sig", "Analysis_sig"]),
+    ("complex_graph.yaml", ["Acquirer", "Analysis", "InputStim"], ["Acquirer_sig", "Analysis_sig", "InputStim_sig"])
 ])
 def test_config_construction(cfg_name, actor_list, link_list, setdir):
     """ Tests if constructing a nexus based on the provided config has the right structure.

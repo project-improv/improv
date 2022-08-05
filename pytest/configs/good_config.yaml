@@ -5,16 +5,9 @@ actors:
     filename: data/Tolias_mesoscope_2.hdf5
     framerate: 30
 
-  Processor:
-    package: improv.actors.process
-    class: CaimanProcessor
-    init_filename: data/tbif_ex_crop.h5
-    config_file: caiman_params.txt
-
   Analysis:
     package: improv.actors.analysis
     class: MeanAnalysis
 
 connections:
-  Acquirer.q_out: [Processor.q_in]
-  Processor.q_out: [Analysis.q_in]
+  Acquirer.q_out: [Analysis.q_in]
