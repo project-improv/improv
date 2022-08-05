@@ -1,5 +1,4 @@
 import os
-import numpy as np
 import torch
 from torch import nn
 from torchvision.models import resnet50, ResNet50_Weights
@@ -16,3 +15,9 @@ class ResNet50(nn.Module):
         with torch.no_grad():
             x = self.transform(x)
             return self.model(x)
+                
+model = ResNet50()
+scripted_model = torch.jit.script(model)
+
+os.makedirs("models", exist_ok=True)
+scripted_model.save("models/ResNet50.pt")
