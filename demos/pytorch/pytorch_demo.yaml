@@ -13,12 +13,11 @@ actors:
   Processor:
     package: actors.processor
     class: PyTorchProcessor
-    model_path: models/ResNet50-GPU.pt
-    # model_path: models/ResNet50-CPU.pt
+    model_path: models/ResNet50.pt
     # If using GPU - default is gpu=False, gpu_num=None
-    gpu: True
-    gpu_num: 0
-    # If classify - default is classify=False
+    # gpu: True
+    # gpu_num: 0
+    # If classifying - default is classify=False
     # classify: True
     
   # Analysis:
