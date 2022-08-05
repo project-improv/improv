@@ -5,12 +5,6 @@ actors:
     filename: data/Tolias_mesoscope_2.hdf5
     framerate: 15
 
-  Processor:
-    package: demos.basic.actors.basic_processor
-    class: BasicProcessor
-    init_filename: data/Tolias_mesoscope_2.hdf5
-    config_file: basic_caiman_params.txt
-
   Analysis:
     package: improv.actors.analysis
     class: MeanAnalysis
@@ -20,8 +14,7 @@ actors:
     class: BehaviorAcquirer
 
 connections:
-  Acquirer.q_out: [Processor.q_in,]
-  Processor.q_out: [Analysis.q_in]
+  Acquirer.q_out: [Analysis.q_in]
   InputStim.q_out: [Analysis.input_stim_queue]
 
 # settings:

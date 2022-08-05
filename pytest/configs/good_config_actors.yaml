@@ -3,11 +3,6 @@ Acquirer:
   filename: data/Tolias_mesoscope_2.hdf5
   framerate: 30
   package: improv.actors.acquire
-Processor:
-  class: CaimanProcessor
-  config_file: caiman_params.txt
-  init_filename: data/tbif_ex_crop.h5
-  package: improv.actors.process
 Analysis:
   class: MeanAnalysis
   package: improv.actors.analysis
