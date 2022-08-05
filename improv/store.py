@@ -190,12 +190,12 @@ class Limbo(StoreInterface):
             TODO: replace with getID
         '''
         #print('trying to get ', object_name)
-        if self.stored.get(object_name) is None:
-            logger.error('Never recorded storing this object: '+object_name)
-            # Don't know anything about this object, treat as problematic
-            raise CannotGetObjectError(query = object_name)
-        else:
-            return self._get(object_name)
+        # if self.stored.get(object_name) is None:
+        #     logger.error('Never recorded storing this object: '+object_name)
+        #     # Don't know anything about this object, treat as problematic
+        #     raise CannotGetObjectError(query = object_name)
+        # else:
+        return self.getID(object_name)
     
     def getID(self, obj_id, hdd_only=False):
         """
