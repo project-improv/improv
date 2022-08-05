@@ -3,7 +3,7 @@ import time
 # import h5py
 # import random
 import numpy as np
-from skimage.io import imread
+# from skimage.io import imread
 
 # For FolderAcquirer
 from pathlib import Path
@@ -35,7 +35,6 @@ class FolderAcquirer(Actor):
         if folder is None:
             logger.error('Must specify folder of data.')
         else:
-            self.files = []
             self.path = Path(folder)
             if not self.path.exists() or not self.path.is_dir():
                 raise AttributeError('Data folder {} does not exist.'.format(self.path))
@@ -47,8 +46,7 @@ class FolderAcquirer(Actor):
 
         if self.classify is True and label_folder is None:
             logger.error('Must specify folder of labels.')
-        else:
-            self.lab_files = []
+        elif self.classify is True and label_folder is not None:
             self.lab_path = Path(label_folder)
             if not self.lab_path.exists() or not self.lab_path.is_dir():
                 raise AttributeError('Label folder {} does not exist.'.format(self.lab_path))
@@ -83,7 +81,7 @@ class FolderAcquirer(Actor):
         self.files = [f.as_posix() for f in self.path.iterdir() if f.suffix in self.exts]
         self.files.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
         
-        if self.classify is True:
+        if self.classify is True and self.lab_path is not None:
             self.put_lab_time = []
             self.lab_timestamp = []
             self.lab_files = [f.as_posix() for f in self.lab_path.iterdir()]
@@ -102,9 +100,11 @@ class FolderAcquirer(Actor):
         np.savetxt('output/timing/put_image_time.txt', np.array(self.put_img_time))
         np.savetxt('output/timing/acquire_timestamp.txt', np.array(self.timestamp))
         
-        if self.classify is True:
+        if self.classify is True and self.lab_path is not None:
             np.savetxt('output/timing/put_label_time.txt', np.array(self.put_lab_time))
             np.savetxt('output/timing/acquire_lab_timestamp.txt', np.array(self.lab_timestamp))
+        
+        return self.q_out
 
     def runAcquirer(self):
         ''' Main loop. If there're new files, read and put into store.
@@ -116,12 +116,15 @@ class FolderAcquirer(Actor):
             t = time.time()
             try:
                 t1 = time.time()
+                # obj_id = self.client.put(self.get_sample(self.files[self.sample_num]), 'acq_raw' + str(self.sample_num))
+                print(self.files[self.sample_num])
                 obj_id = self.client.put(self.files[self.sample_num], 'acq_raw' + str(self.sample_num))
+                print(obj_id)
                 self.timestamp.append([time.time()*1000.0, self.sample_num])
                 self.q_out.put([obj_id, str(self.sample_num)])
                 self.put_img_time = (time.time() - t1)*1000.0
                 # Get lab at same time as image? Simulate human labeling image?
-                if self.classify is True:
+                if self.classify is True and self.lab_path is not None:
                     t2 = time.time()
                     obj_id = self.client.put(self.lab_files[self.sample_num], 'acq_lab' + str(self.sample_num))
                     self.lab_timestamp.append([time.time()*1000.0, self.sample_num])
