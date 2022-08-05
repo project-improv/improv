@@ -15,7 +15,7 @@ class Acquirer(Actor):
         self.framerate = 1
 
     def setup(self):
-        dataloc = './'
+        dataloc = "./"
         file = 'WaksmanwithFaces_KS2.mat'
         matdict = sio.loadmat(dataloc + file, squeeze_me=True)
         spks = matdict['stall']

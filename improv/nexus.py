@@ -12,13 +12,12 @@ import numpy as np
 import logging
 import pyarrow.plasma as plasma
 
-from multiprocessing import Process, Queue, Manager, cpu_count, set_start_method
+from multiprocessing import Process, Queue, get_context
 from PyQt5 import QtGui, QtWidgets
 from importlib import import_module
 from threading import Thread
 from queue import Empty, Full
 from datetime import datetime
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 
 from improv.watcher import BasicWatcher
 from improv import store
@@ -44,19 +43,8 @@ class Nexus():
     def __str__(self):
         return self.name
     
-    def createNexus(self, file=None, use_hdd=False):
-        """ Function to initialize class variables based on config file.
-        
-        Starts a store of class Limbo, and then loads the config file. 
-        The config file specifies the specific actors that nexus will 
-        be connected to, as well as their links. 
-        
-        Args:
-            file (string): Name of the config file.
-            use_hdd (bool): Whether to use hdd for the store.
-        """ 
-
-        self._startStore(40000000000) #default size should be system-dependent; this is 40 GB
+    def createNexus(self, file=None, use_hdd=False, store_size=10000000):
+        self._startStore(store_size) #default size should be system-dependent; this is 40 GB
 
         #connect to store and subscribe to notifications
         self.limbo = store.Limbo()
@@ -163,13 +151,20 @@ class Nexus():
         '''
         for name,m in self.actors.items(): # m accesses the specific actor class instance
             if 'GUI' not in name: #GUI already started
-                p = Process(target=self.runActor, name=name, args=(m,))
-                if 'Watcher' not in name:
-                    if 'daemon' in self.tweak.actors[name].options: # e.g. suite2p creates child processes.
-                        p.daemon = self.tweak.actors[name].options['daemon']
-                        logger.info('Setting daemon to {} for {}'.format(p.daemon,name))
-                    else: 
-                        p.daemon = True #default behavior
+                if 'method' in self.tweak.actors[name].options:
+                    meth = self.tweak.actors[name].options['method']
+                    logger.info('This actor wants: {}'.format(meth))
+                    ctx = get_context(meth)
+                    p = ctx.Process(target=m.run, name=name) #, args=(m,))
+                else:
+                    ctx = get_context('fork')
+                    p = ctx.Process(target=self.runActor, name=name, args=(m,))
+                    if 'Watcher' not in name:
+                        if 'daemon' in self.tweak.actors[name].options: # e.g. suite2p creates child processes.
+                            p.daemon = self.tweak.actors[name].options['daemon']
+                            logger.info('Setting daemon to {} for {}'.format(p.daemon,name))
+                        else: 
+                            p.daemon = True #default behavior
                 self.processes.append(p)
 
         self.start()
@@ -306,6 +301,11 @@ class Nexus():
             elif flag[0] == Spike.pause():
                 logger.info('Pausing processes')
                 # TODO. Alsoresume, reset
+            # temporary
+            elif flag[0] == Spike.kill():
+                print(f"Pre kill: {list(self.processes)[0]}")
+                list(self.processes)[0].kill()
+                print(f"Post kill: {list(self.processes)[0]}")
         else:
             logger.error('Signal received from Nexus but cannot identify {}'.format(flag))
 
@@ -447,9 +447,19 @@ class Nexus():
         clss = getattr(mod, actor.classname)
         instance = clss(actor.name, **actor.options)
 
-        # Add link to Limbo store
-        limbo = self.createLimbo(actor.name)
-        instance.setStore(limbo)
+        if 'method' in actor.options.keys():
+            ## check for spawn
+            if 'fork' == actor.options['method']:
+                # Add link to Limbo store
+                limbo = self.createLimbo(actor.name)
+                instance.setStore(limbo)
+            else:
+                ## spawn or forkserver; can't pickle plasma store  
+                logger.info('No store for this actor yet {}'.format(name))
+        else:
+            # Add link to Limbo store
+            limbo = self.createLimbo(actor.name)
+            instance.setStore(limbo)
 
         # Add signal and communication links
         limbo_arg = [None, None]
