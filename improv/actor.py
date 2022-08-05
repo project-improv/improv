@@ -24,6 +24,7 @@ class Actor():
         self.links = links
         self.done = False # TODO: obsolete, remove
         self.method = method
+        self.client = None
 
         self.lower_priority = False 
 
@@ -54,8 +55,9 @@ class Actor():
 
     def _getStoreInterface(self):
         ## TODO: Where do we require this be run? Add a Spike and include in RM?
-        limbo = Limbo(self.name)
-        self.setStore(limbo)
+        if not self.client:
+            limbo = Limbo(self.name)
+            self.setStore(limbo)
 
     def setLinks(self, links):
         ''' General full dict set for links
@@ -193,7 +195,7 @@ class Spike():
 class RunManager():
     '''
     '''
-    def __init__(self, name, runMethod, setup, q_sig, q_comm):
+    def __init__(self, name, runMethod, setup, q_sig, q_comm, runStore=None):
         self.run = False
         self.config = False
         self.runMethod = runMethod
@@ -201,6 +203,7 @@ class RunManager():
         self.q_sig = q_sig
         self.q_comm = q_comm
         self.actorName = name
+        self.runStore = runStore
 
         #TODO make this tunable
         self.timeout = 0.000001
@@ -217,6 +220,8 @@ class RunManager():
                     print(traceback.format_exc())
             elif self.config:
                 try:
+                    if self.runStore:
+                        self.runStore()
                     self.setup() #subfunction for setting up the actor
                     self.q_comm.put([Spike.ready()])
                 except Exception as e:
