@@ -3,6 +3,7 @@ from queue import Empty
 import time
 from typing import Awaitable, Callable
 import traceback
+from improv.store import Limbo  ## This is default, needs to be chaneable?
 
 
 import logging; logger = logging.getLogger(__name__)
@@ -14,7 +15,7 @@ class Actor():
         Needs to have a store and links for communication
         Also needs at least a setup and run function
     '''
-    def __init__(self, name, links={}, **kwargs):
+    def __init__(self, name, method='fork', links={}, **kwargs):
         ''' Require a name for multiple instances of the same actor/class
             Create initial empty dict of Links for easier referencing
         '''
@@ -22,6 +23,8 @@ class Actor():
         self.name = name
         self.links = links
         self.done = False # TODO: obsolete, remove
+        self.method = method
+        self.client = None
 
         self.lower_priority = False 
 
@@ -49,6 +52,12 @@ class Actor():
         ''' Set client interface to the store
         '''
         self.client = client
+
+    def _getStoreInterface(self):
+        ## TODO: Where do we require this be run? Add a Spike and include in RM?
+        if not self.client:
+            limbo = Limbo(self.name)
+            self.setStore(limbo)
 
     def setLinks(self, links):
         ''' General full dict set for links
@@ -190,7 +199,7 @@ class Spike():
 class RunManager():
     '''
     '''
-    def __init__(self, name, runMethod, setup, q_sig, q_comm):
+    def __init__(self, name, runMethod, setup, q_sig, q_comm, runStore=None):
         self.run = False
         self.config = False
         self.runMethod = runMethod
@@ -198,6 +207,7 @@ class RunManager():
         self.q_sig = q_sig
         self.q_comm = q_comm
         self.actorName = name
+        self.runStore = runStore
 
         #TODO make this tunable
         self.timeout = 0.000001
@@ -214,6 +224,8 @@ class RunManager():
                     print(traceback.format_exc())
             elif self.config:
                 try:
+                    if self.runStore:
+                        self.runStore()
                     self.setup() #subfunction for setting up the actor
                     self.q_comm.put([Spike.ready()])
                 except Exception as e:
