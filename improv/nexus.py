@@ -295,6 +295,11 @@ class Nexus():
             elif flag[0] == Spike.pause():
                 logger.info('Pausing processes')
                 # TODO. Alsoresume, reset
+            # temporary
+            elif flag[0] == Spike.kill():
+                print(f"Pre kill: {list(self.processes)[0]}")
+                list(self.processes)[0].kill()
+                print(f"Post kill: {list(self.processes)[0]}")
         else:
             logger.error('Signal received from Nexus but cannot identify {}'.format(flag))
 

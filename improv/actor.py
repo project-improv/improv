@@ -181,6 +181,10 @@ class Spike():
     @staticmethod
     def ready():
         return 'ready'
+    
+    @staticmethod
+    def kill():
+        return 'kill'
 
 
 class RunManager():
