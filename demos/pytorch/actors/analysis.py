@@ -7,7 +7,7 @@ from improv.actor import Actor, RunManager
 import torch
 # import torch.multiprocessing as mp
 import os
-os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
+# os.environ['CUDA_LAUNCH_BLOCKING'] = '-1'
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -17,20 +17,20 @@ class PyTorchAnalysis(Actor):
     '''
     '''
 
-    def __init__(self, *args, model_path=None, label_path=None, classify=True,):
-        super().__init__(*args)
+    def __init__(self, *args, gpu_num=0, model_path=None, labels_path=None, classify=True, **kwargs):
+        super().__init__(*args, **kwargs)
         logger.info(model_path)
         if model_path is None:
             # logger.error("Must specify a pre-trained model path.")
             logger.error("Must specify a JIT-compiled pre-trained model path.")
         else:
             self.model_path = model_path
-        if classify is True and label_path is None:
+        if classify is True and labels_path is None:
             logger.error("Must specify a path to image labels.")
         else:
-            self.label_path = label_path
+            self.labels_path = labels_path
         
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:{}".format(gpu_num) if torch.cuda.is_available() else "cpu")
 
     def setup(self):
         ''' Initialize pre-trained model
