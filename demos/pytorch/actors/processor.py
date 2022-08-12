@@ -6,13 +6,6 @@ from queue import Empty
 from improv.actor import Actor, RunManager
 
 import torch
-import torch.multiprocessing as mp
-from torchvision.io import read_image
-
-# mp.set_start_method('spawn')
-
-# import os
-# os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -26,7 +19,7 @@ class PyTorchProcessor(Actor):
     ''' 
     '''
 
-    def __init__(self, *args, gpu=False, gpu_num=None, model_path=None, classify=False, **kwargs):
+    def __init__(self, *args, gpu=False, gpu_num=None, model_path=None, classify=False, labels=None, out_path=None, method='spawn', **kwargs):
         super().__init__(*args, **kwargs)
         logger.info(model_path)
         if model_path is None:
@@ -44,18 +37,21 @@ class PyTorchProcessor(Actor):
 
         self.classify = classify
 
+        if self.classify is True and labels is None:
+            logger.error("Must specify labels for classification.")
+        elif self.classify is True and labels is not None:
+            self.labels = labels
+
+        self.out_path = out_path
+
     def setup(self):
         ''' Initialize model
         '''
         # Idk where this should be?
-        os.makedirs("output", exist_ok=True)
+        os.makedirs(self.out_path, exist_ok=True)
         logger.info('Loading model for ' + self.name)
         self.done = False
         self.dropped_img = []
-
-        # try:
-        #     mp.set_start_method("forkserver")
-        # except: pass
 
         t = time.time()
 
@@ -63,18 +59,9 @@ class PyTorchProcessor(Actor):
 
         # self.model = torch.jit.load(self.model_path).to(self.device).share_memory
 
-        # num_processes = 4
-        # processes = []
-        # for rank in range(num_processes):
-        #     p = mp.Process(target=self.transforms, args=(self.model,))
-        #     p.start()
-        #     processes.append(p)
-        # for p in processes:
-        #     p.join()
-
         load_model_time = time.time() - t
         print('Time to load model: ', load_model_time*1000.0)
-        with open("output/timing/load_model_time.txt", "w") as text_file:
+        with open(self.out_path + "/load_model_time.txt", "w") as text_file:
             text_file.write("%s" % load_model_time)
 
     def run(self):
@@ -84,34 +71,34 @@ class PyTorchProcessor(Actor):
         self.proc_img_time = []
         self.to_device = []
         self.inference_time = []
-        self.out_to_np = []
-        self.put_out_store = []
-        self.put_q_out = []
-        if self.classify is True:
-            self.pred_time = []
-            self.put_pred_store = []
-            self.put_pred_out = []
+        # self.out_to_np = []
+        # self.put_out_store = []
+        # self.put_q_out = []
+        # if self.classify is True:
+        #     self.pred_time = []
+        #     self.put_pred_store = []
+        #     self.put_pred_out = []
 
         self.total_times = []
         
-        with RunManager(self.name, self.runProcess, self.setup, self.q_sig, self.q_comm) as rm:
+        with RunManager(self.name, self.runProcess, self.setup, self.q_sig, self.q_comm, runStore=self._getStoreInterface()) as rm:
             print(rm)
         
         print('Processor broke, avg time per image: ', np.mean(self.total_times, axis=0))
         print('Processor got through ', self.img_num, ' images')
 
-        np.savetxt('output/timing/get_img_out.txt', np.array(self.get_img_out))
-        np.savetxt('output/timing/process_image_time.txt', np.array(self.proc_img_time))
-        np.savetxt('output/timing/to_device.txt', np.array(self.to_device))
-        np.savetxt('output/timing/inference_time.txt', np.array(self.inference_time))
-        np.savetxt('output/timing/out_to_np.txt', np.array(self.out_to_np))
-        np.savetxt('output/timing/put_out_store.txt', np.array(self.put_out_store))
-        np.savetxt('output/timing/put_q_out.txt', np.array(self.put_q_out))
-        if self.classify is True:
-            np.savetxt('output/timing/prediction_time.txt', np.array(self.pred_time))
-            np.savetxt('output/timing/put_prediction_time.txt', np.array(self.put_pred_store))
-            np.savetxt('output/timing/put_prediction_time.txt', np.array(self.put_pred_out))
-        np.savetxt('output/timing/total_times.txt', np.array(self.total_times))
+        np.savetxt(self.out_path + '/get_img_out.txt', np.array(self.get_img_out))
+        np.savetxt(self.out_path + '/process_image_time.txt', np.array(self.proc_img_time))
+        np.savetxt(self.out_path + 'to_device.txt', np.array(self.to_device))
+        np.savetxt(self.out_path + 'inference_time.txt', np.array(self.inference_time))
+        # np.savetxt(self.out_path + 'out_to_np.txt', np.array(self.out_to_np))
+        # np.savetxt(self.out_path + 'put_out_store.txt', np.array(self.put_out_store))
+        # np.savetxt(self.out_path + 'put_q_out.txt', np.array(self.put_q_out))
+        # if self.classify is True:
+        #     np.savetxt(self.out_path + 'prediction_time.txt', np.array(self.pred_time))
+        #     np.savetxt(self.out_path + 'put_prediction_time.txt', np.array(self.put_pred_store))
+        #     np.savetxt(self.out_path + 'put_prediction_time.txt', np.array(self.put_pred_out))
+        np.savetxt(self.out_path + 'total_times.txt', np.array(self.total_times))
 
     def runProcess(self):
         ''' Run process. Runs once per image.
@@ -120,7 +107,7 @@ class PyTorchProcessor(Actor):
             corresponds to the frame number (TODO)
             [From neurofinder/actors/processor.py]
         '''
-        ids = self._checkImages()
+        ids = self._checkInput()
 
         if ids is not None:
             t = time.time()
@@ -133,38 +120,44 @@ class PyTorchProcessor(Actor):
                 t2 = time.time()
                 output, t_dev = self._runInference(img)
                 t3 = time.time()
-                output = output.detach().numpy()
-                t4 = time.time()
-                out_obj_id = self.client.put(output, 'output' + str(self.img_num))
-                t5 = time.time()
-                self.q_out.put([[out_obj_id, str(self.img_num)]])
-                t6 = time.time()
-                if self.classify is True:
-                    pred = self._classifyImage(output, self.img_num)
-                    t7 = time.time()
-                    pred_obj_id = self.client.put(pred, 'prediction' + str(self.img_num))
-                    t8 = time.time()
-                    self.q_out.put([[pred_obj_id, str(self.img_num)]])
-                    t9 = time.time()
-                    self.pred_time.append((t7 - t6)*1000.0)
-                    self.put_pred_store.append((t8 - t7)*1000.0)
-                    self.put_pred_out.append((t9 - t8)*1000.0)
-
+                # # Necessary? Time? Optimize storage?
+                # img.detach()
+                # output = output.detach().numpy()
+                # t4 = time.time()
+                # out_obj_id = self.client.put(output, 'output' + str(self.img_num))
+                # t5 = time.time()
+                # # if self.classify is False:
+                # #     self.q_out.put([[out_obj_id, str(self.img_num)]])
+                # t6 = time.time()
+                # if self.classify is True:
+                #     # Do number correct in visual? Or output w/pred?
+                #     # Compare label in and label out, add to counter if correct, keep note of number for each class...but can compare list as both fill in, frame-by-frame? Updating confusion matrix?
+                #     pred = self._classifyImage(output, self.labels)
+                #     t7 = time.time()
+                #     pred_obj_id = self.client.put(pred, 'prediction' + str(self.img_num))
+                #     t8 = time.time()
+                #     self.q_out.put([[out_obj_id, pred_obj_id, str(self.img_num)]])
+                #     t9 = time.time()
+                #     self.pred_time.append((t7 - t6)*1000.0)
+                #     self.put_pred_store.append((t8 - t7)*1000.0)
+                #     self.put_pred_out.append((t9 - t8)*1000.0)
+                    # Visualize updated accuracy...update every few images? OR every image?
+                    # Confusion matrix that updates w/incoming data
 
                 self.get_img_out.append((t1 - t)*1000.0)
                 self.proc_img_time.append((t2 - t1)*1000.0)
                 self.to_device.append(t_dev*1000.0)
                 self.inference_time.append((t3 - t2)*1000.0)
-                self.out_to_np.append((t4 - t3)*1000.0)
-                self.put_out_store.append((t5 - t4)*1000.0)
-                self.put_q_out.append((t6 - t5)*1000.0)
+                # self.out_to_np.append((t4 - t3)*1000.0)
+                # self.put_out_store.append((t5 - t4)*1000.0)
+                # self.put_q_out.append((t6 - t5)*1000.0)
 
                 self.img_num += 1
             # Insert exceptions here...ERROR HANDLING, SEE ANNE'S ACTORS - from 1p demo
             except ObjectNotFoundError:
                 logger.error('Processor: Image {} unavailable from store, dropping'.format(self.img_num))
                 self.dropped_img.append(self.img_num)
-                self.q_out.put([1])
+                # self.q_out.put([1])
             except KeyError as e:
                 logger.error('Processor: Key error... {0}'.format(e))
                 # Proceed at all costs
@@ -179,7 +172,7 @@ class PyTorchProcessor(Actor):
             pass
 
 # Should the following technically be internal?
-    def _checkImages(self):
+    def _checkInput(self):
         ''' Check to see if we have images for processing
         From basic demo
         '''
@@ -190,6 +183,7 @@ class PyTorchProcessor(Actor):
         #TODO: additional error handling
         except Empty:
             logger.info('No images for processing')
+            self.q_comm = 
             return None
 
     def _processImage(self, img):
@@ -198,30 +192,29 @@ class PyTorchProcessor(Actor):
         '''
         if img is None:
             raise ObjectNotFoundError
-        # img = torch.from_numpy(img).unsqueeze(dim=0)
-        img = read_image(img)
-        return img
+        else:
+            # Takes np img (HWC) -> (NHWC) -> (NCHW)
+            img = torch.from_numpy(img)
+            img = img.unsqueeze(dim=0).permute(0, 3, 1, 2)
+        return torch.tensor(img)
 
     def _runInference(self, data):
         '''
         '''
-        # TODO: time to device
         t = time.time()
-        data = data.unsqueeze(dim=0).to(self.device)
-        t_dev = time.time() - t
+        data = data.to(self.device)
+        to_device = time.time() - t
         with torch.no_grad():
-            output = self.model(data).squeeze(dim=0).to(self.device)
-        return output, t_dev
-
-    # def _classifyImage(self, labels=('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')):
-    #     '''
-    #     '''
-    #     _, predicted = torch.max(self.output.data, 1)
-
-    #     with open(self.label_path + "label/{}.txt".format(self.img_num), "r") as text_file:
-    #         text_file.read("%s" % self.load_transforms_time)
-
-    #     correct = (predicted == labels).sum().item()
+            # Would we want to squeeze for batch size > 1?
+            output = self.model(data).to(self.device)
+        return output, to_device
+        
+    def _classifyImage(self, output, labels=('plane', 'car', 'bird', 'cat', 'deer' 'dog', 'frog', 'horse', 'ship', 'truck')):
+        '''
+        '''
+        _, predicted = np.argmax(output.data, dim=1)
+        
+        return labels[predicted]
 
 class NaNDataException(Exception):
     pass
