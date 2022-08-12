@@ -1,18 +1,17 @@
 import logging
 # Matplotlib is overly verbose by default
 logging.getLogger("matplotlib").setLevel(logging.WARNING)
-from improv.nexus import Nexus
 
-loadFile = './pytorch_demo.yaml'
+if __name__ == '__main__':
+    '''
+    '''
+    import torch.multiprocessing as mp
+    from improv.nexus import Nexus
 
-# import torch.multiprocessing as mp
-# from multiprocessing import set_start_method, get_context
+    loadFile = './pytorch_demo.yaml'
 
-# mp.get_context("forkserver")
-# mp.set_start_method("forkserver", force=True)
-
-nexus = Nexus('Nexus')
-nexus.createNexus(file=loadFile)
+    nexus = Nexus('Nexus')
+    nexus.createNexus(file=loadFile)
 
 # All modules needed have been imported
 # so we can change the level of logging here
@@ -25,4 +24,4 @@ nexus.createNexus(file=loadFile)
 # logger = logging.getLogger("improv")
 # logger.setLevel(logging.INFO)
 
-nexus.startNexus()
+    nexus.startNexus()

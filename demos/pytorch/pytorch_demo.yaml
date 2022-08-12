@@ -9,16 +9,22 @@ actors:
     exts:
       - .jpg
       - .png
+    # classify: True
+    # label_folder: data/CIFAR10/labels
+    out_path: output/CPU/timing/
 
   Processor:
     package: actors.processor
     class: PyTorchProcessor
-    model_path: models/ResNet50.pt
     # If using GPU - default is gpu=False, gpu_num=None
     # gpu: True
     # gpu_num: 0
+    model_path: models/ResNet50.pt
     # If classifying - default is classify=False
     # classify: True
+    out_path: output/CPU/timing/
+    method: spawn
+
     
   # Analysis:
   #   package: actors.analysis

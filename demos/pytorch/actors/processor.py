@@ -61,7 +61,7 @@ class PyTorchProcessor(Actor):
 
         load_model_time = time.time() - t
         print('Time to load model: ', load_model_time*1000.0)
-        with open(self.out_path + "/load_model_time.txt", "w") as text_file:
+        with open(self.out_path + "load_model_time.txt", "w") as text_file:
             text_file.write("%s" % load_model_time)
 
     def run(self):
@@ -87,8 +87,8 @@ class PyTorchProcessor(Actor):
         print('Processor broke, avg time per image: ', np.mean(self.total_times, axis=0))
         print('Processor got through ', self.img_num, ' images')
 
-        np.savetxt(self.out_path + '/get_img_out.txt', np.array(self.get_img_out))
-        np.savetxt(self.out_path + '/process_image_time.txt', np.array(self.proc_img_time))
+        np.savetxt(self.out_path + 'get_img_out.txt', np.array(self.get_img_out))
+        np.savetxt(self.out_path + 'process_image_time.txt', np.array(self.proc_img_time))
         np.savetxt(self.out_path + 'to_device.txt', np.array(self.to_device))
         np.savetxt(self.out_path + 'inference_time.txt', np.array(self.inference_time))
         # np.savetxt(self.out_path + 'out_to_np.txt', np.array(self.out_to_np))
