@@ -43,11 +43,7 @@ class Nexus():
     def __str__(self):
         return self.name
     
-<<<<<<< HEAD
-    def createNexus(self, file=None, use_hdd=False, store_size=40000000000):
-=======
     def createNexus(self, file=None, use_hdd=False, store_size=10000000):
->>>>>>> dev
         self._startStore(store_size) #default size should be system-dependent; this is 40 GB
 
         #connect to store and subscribe to notifications
@@ -298,6 +294,7 @@ class Nexus():
             elif flag[0] == Spike.quit():
                 logger.warning('Quitting the program!')
                 self.flags['quit'] = True
+                print(self.processes)
                 self.quit()
             elif flag[0] == Spike.load():
                 logger.info('Loading Tweak config from file '+flag[1])
@@ -307,9 +304,51 @@ class Nexus():
                 # TODO. Alsoresume, reset
             # temporary
             elif flag[0] == Spike.kill():
-                print(f"Pre kill: {list(self.processes)[0]}")
+                print(f"Pre kill: {list(self.processes)}")
                 list(self.processes)[0].kill()
-                print(f"Post kill: {list(self.processes)[0]}")
+                print(f"Post kill: {list(self.processes)}")
+            elif flag[0] == Spike.revive():
+                print("Reviving")
+                dead = [p for p in list(self.processes) if p.exitcode is not None] 
+                print(self.actors)
+                print(dead)
+            
+                for pro in dead: 
+                    name = pro.name
+                    m = self.actors[pro.name]
+                    if 'GUI' not in name: #GUI already started
+                        if 'method' in self.tweak.actors[name].options:
+                            meth = self.tweak.actors[name].options['method']
+                            logger.info('This actor wants: {}'.format(meth))
+                            ctx = get_context(meth)
+                            p = ctx.Process(target=m.run, name=name) #, args=(m,))
+                        else:
+                            ctx = get_context('fork')
+                            p = ctx.Process(target=self.runActor, name=name, args=(m,))
+                            if 'Watcher' not in name:
+                                if 'daemon' in self.tweak.actors[name].options: # e.g. suite2p creates child processes.
+                                    p.daemon = self.tweak.actors[name].options['daemon']
+                                    logger.info('Setting daemon to {} for {}'.format(p.daemon,name))
+                                else: 
+                                    p.daemon = True #default behavior
+                    print(p)
+                    print(f"M: {m}")
+                    self.processes.append(p)
+                    p.start()
+                    print("setting up")
+                    print(m.q_sig)
+                    print(f"Memory address of m.q_out: {hex(id(m.q_out))}")
+                    m.q_sig.put_nowait(Spike.setup())
+                    print("Put setup signal")
+                    # print(m.q_comm.get())
+                    # while m.q_comm.empty():
+                        # print("Waiting for ready signal")
+                        # pass
+                    m.q_sig.put_nowait(Spike.run())
+                     
+                print(self.processes) 
+                self.processes = [p for p in list(self.processes) if p.exitcode is None]
+                print(self.processes)
         else:
             logger.error('Signal received from Nexus but cannot identify {}'.format(flag))
 
@@ -356,6 +395,9 @@ class Nexus():
         #self.processes.append(self.p_watch)
 
         for p in self.processes:
+            print("terminating processes")
+            print(p)
+            print(self.processes)
             # if p.is_alive():
             #     p.terminate()
             p.terminate()
