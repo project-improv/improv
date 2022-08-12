@@ -129,18 +129,13 @@ dmypy.json
 *.hdf5
 *.iml
 
-output/
 *.tif
 arrow
 .vscode
-improv.code-workspace
 demos/improv.demos.code-workspace
 demos/pytorch/improv.pytorch_demo.code-workspace
 demos/pytorch/data
 demos/pytorch/models
 demos/pytorch/output
-improv.code-workspace
+improv/improv.src.code-workspace
 .vscode/settings.json
-demos/improv.demos.code-workspace
-demos/pytorch/improv.pytorch_demo.code-workspace
-demos/pytorch/models/ResNet50.pt
