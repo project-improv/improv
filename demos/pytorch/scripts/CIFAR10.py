@@ -13,13 +13,14 @@ def main():
     batch_size = 200
     
     dataset = datasets.CIFAR10(root="data", download=True, transform=ToTensor())
-    dataset = iter(DataLoader(dataset, batch_size=batch_size))
+    dataset = DataLoader(dataset, batch_size=batch_size)
+
+    img, label = [x[0] for x in iter(dataset).next()]
     
     for i in range(batch_size):
-        x, label = (next(dataset))
-        save_image(x[0], "data/CIFAR10/images/{}.jpg".format(i))
+        save_image(img[i], "data/CIFAR10/images/{}.jpg".format(i))
         with open("data/CIFAR10/labels/{}.txt".format(i), "w") as text_file:
-            text_file.write("%s" % label)
+            text_file.write("%s" % label[i])
 
 if __name__ == "__main__":
     main()
