@@ -5,6 +5,8 @@ from improv.store import CannotGetObjectError, ObjectNotFoundError
 from queue import Empty
 from improv.actor import Actor, RunManager
 
+from pyarrow._plasma import PlasmaObjectExists, ObjectNotAvailable, ObjectID
+
 import torch
 
 import logging; logger = logging.getLogger(__name__)
@@ -88,7 +90,7 @@ class PyTorchProcessor(Actor):
         print('Processor got through ', self.img_num, ' images')
 
         np.savetxt(self.out_path + 'get_img_out.txt', np.array(self.get_img_out))
-        np.savetxt(self.out_path + 'process_image_time.txt', np.array(self.proc_img_time))
+        np.savetxt(self.out_path + 'process_img_time.txt', np.array(self.proc_img_time))
         np.savetxt(self.out_path + 'to_device.txt', np.array(self.to_device))
         np.savetxt(self.out_path + 'inference_time.txt', np.array(self.inference_time))
         # np.savetxt(self.out_path + 'out_to_np.txt', np.array(self.out_to_np))
@@ -117,8 +119,12 @@ class PyTorchProcessor(Actor):
                 img = self.client.getID(ids[0])
                 t1 = time.time()
                 img = self._processImage(img)
+                print(img)
                 t2 = time.time()
                 output, t_dev = self._runInference(img)
+                print(t_dev)
+                print(output)
+                time.sleep(.01)
                 t3 = time.time()
                 # # Necessary? Time? Optimize storage?
                 # img.detach()
@@ -177,14 +183,13 @@ class PyTorchProcessor(Actor):
         From basic demo
         '''
         try:
-            # Timeout = 0 ms
-            res = self.q_in.get(timeout=0)
+            res = self.q_in.get()
             return res
         #TODO: additional error handling
         except Empty:
-            logger.info('No images for processing')
-            self.q_comm = 
-            return None
+            pass
+            # logger.info('No images for processing')
+            # return None
 
     def _processImage(self, img):
         ''' Load data - here, .jpg image to tensor
@@ -194,9 +199,9 @@ class PyTorchProcessor(Actor):
             raise ObjectNotFoundError
         else:
             # Takes np img (HWC) -> (NHWC) -> (NCHW)
-            img = torch.from_numpy(img)
+            img = torch.from_numpy(img.copy())
             img = img.unsqueeze(dim=0).permute(0, 3, 1, 2)
-        return torch.tensor(img)
+        return img
 
     def _runInference(self, data):
         '''

@@ -101,7 +101,7 @@ class FolderAcquirer(Actor):
             print('Acquire broke, avg time per image: ', np.mean(self.total_times))
             print('Acquire got through ', self.sample_num, ' images')
 
-        np.savetxt(self.out_path + 'put_image_time.txt', np.array(self.put_img_time))
+        np.savetxt(self.out_path + 'put_img_time.txt', np.array(self.put_img_time))
         np.savetxt(self.out_path + 'acquire_timestamp.txt', np.array(self.timestamp))
         
         if self.classify and self.lab_path is not None:
@@ -116,11 +116,13 @@ class FolderAcquirer(Actor):
         if self.done:
             pass
         
-        else:
+        elif self.sample_num != len(self.files):
             t = time.time()
             try:
                 t1 = time.time()
                 img_obj_id = self.client.put(self.get_sample(self.files[self.sample_num]), 'acq_raw' + str(self.sample_num))
+                # img = self.client.getID(img_obj_id)
+                # print(img)
                 # self.timestamp.append([time.time()*1000.0, self.sample_num])
                 # if self.classify is False:
                 self.q_out.put([img_obj_id, str(self.sample_num)])
@@ -132,6 +134,7 @@ class FolderAcquirer(Actor):
                     self.lab_timestamp.append([time.time()*1000.0, self.sample_num])
                     self.q_out.put([img_obj_id, lab_obj_id, str(self.sample_num)])
                     # self.put_both_time = (time.time() - t2)*1000.0
+                time.sleep(.05)
                 self.sample_num += 1
             except Exception as e:
                 logger.error('Acquirer general exception: {}'.format(e))
@@ -142,10 +145,10 @@ class FolderAcquirer(Actor):
             # self.total_times.append((time.time() - t)*1000.0)
         
         # From bubblewrap demo and FileAcquirer
-        logger.error('Done with all available data: {}'.format(self.sample_num))
-        self.data = None
-        self.q_comm.put(None)
         if self.sample_num == len(self.files):
+            logger.error('Done with all available data: {}'.format(self.sample_num))
+            self.data = None
+            self.q_comm.put(None)
             self.done = True  # stay awake in case we get a shutdown signal
 
     def get_sample(self, file):
