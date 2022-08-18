@@ -4,9 +4,11 @@
 # https://stackoverflow.com/questions/60138697/typeerror-cannot-handle-this-data-type-1-1-3-f4
 import os
 import numpy as np
-from PIL import Image
+from skimage.io import imsave
 import tarfile
 import urllib.request
+
+import json
 
 def unpickle(file):
     import pickle
@@ -39,7 +41,7 @@ data = data_batch_1['data']
 
 labels = data_batch_1['labels']
 
-meta_file = os.path.join(data_dir, "cifar-10-batches-py/batches.meta")
+meta_file = os.path.join(batch_path, "batches.meta")
 meta_data = unpickle(meta_file)
 
 label_names = meta_data['label_names']
@@ -49,16 +51,17 @@ os.makedirs(os.path.join(data_dir, "labels"), exist_ok=True)
 
 for i in range(300):
     img = data[i]
-    R = img[0:1024].reshape(32, 32).astype('float32')
-    G = img[1024:2048].reshape(32, 32).astype('float32')
-    B = img[2048:3072].reshape(32, 32).astype('float32')
+    R = img[0:1024].reshape(32, 32)
+    G = img[1024:2048].reshape(32, 32)
+    B = img[2048:3072].reshape(32, 32)
     img = np.dstack((R, G, B))
 
-    img = Image.fromarray((img * 1).astype(np.uint8)).convert('RGB')
-
-    img.save(os.path.join(data_dir, "images/{}.png".format(i)))
+    imsave(os.path.join(data_dir, "images/{}.jpg".format(i)), img)
+    
     with open(os.path.join(data_dir, "labels/{}.txt".format(i)), "w") as text_file:
         text_file.write("%s" % labels[i])
+        text_file.close()
 
 with open(os.path.join(data_dir, "label_names.txt"), "w") as text_file:
-    text_file.write("%s" % label_names)
+    text_file.write(json.dumps(label_names))
+    text_file.close()
