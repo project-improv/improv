@@ -139,3 +139,4 @@ demos/pytorch/models
 demos/pytorch/output
 improv/improv.src.code-workspace
 .vscode/settings.json
+demos/ava/improv.ava_demo.code-workspace
