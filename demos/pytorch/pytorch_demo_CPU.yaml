@@ -3,7 +3,7 @@
 
 actors:
   Acquirer:
-    package: actors.acquire_folder
+    package: actors.acquire
     class: FolderAcquirer
     folder: data/CIFAR10/images
     exts:
