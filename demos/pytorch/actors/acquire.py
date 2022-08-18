@@ -4,7 +4,6 @@ import os
 # import random
 import numpy as np
 from skimage.io import imread
-import json
 
 # For FolderAcquirer
 from pathlib import Path

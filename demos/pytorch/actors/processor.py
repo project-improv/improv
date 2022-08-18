@@ -8,7 +8,6 @@ from improv.actor import Actor, RunManager
 
 import torch
 from scipy.special import softmax
-import pickle
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
