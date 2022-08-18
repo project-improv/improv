@@ -6,7 +6,7 @@ actors:
     package: actors.acquire
     class: FolderAcquirer
     sleep_time: .01
-    folder: data/CIFAR10/images
+    folder: data/CIFAR10/five_images
     exts:
       - .jpg
       - .png
