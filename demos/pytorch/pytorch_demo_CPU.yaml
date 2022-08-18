@@ -1,0 +1,44 @@
+# settings:
+  # use_watcher: [Acquirer, Processor, Analysis, Visual]
+
+actors:
+  Acquirer:
+    package: actors.acquire_folder
+    class: FolderAcquirer
+    folder: data/CIFAR10/images
+    exts:
+      - .jpg
+      - .png
+    # classify: True
+    # label_folder: data/CIFAR10/labels
+    out_path: output/CPU/timing/
+    sleep_time: 1
+
+  Processor:
+    package: actors.processor
+    class: PyTorchProcessor
+    # If using GPU - default is gpu=False, gpu_num=None
+    # gpu: True
+    # gpu_num: 0
+    model_path: models/ResNet50_CPU.pt
+    # If classifying - default is classify=False
+    # classify: True
+    out_path: output/CPU/timing/
+    method: spawn
+
+    
+  # Analysis:
+  #   package: actors.analysis
+  #   class: PyTorchAnalysis
+  #   model_path: models/ResNet50-CIFAR10.pt
+  #   classify: False
+
+  # Visual:
+  #   package: actors.visual
+  #   class: PyTorchAnalysis
+
+
+connections:
+  Acquirer.q_out: [Processor.q_in]
+  # Processor.q_out: [Analysis.q_in]
+  # Analysis.q_out: [Visual.q_in]
