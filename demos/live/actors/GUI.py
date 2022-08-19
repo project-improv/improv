@@ -2,7 +2,7 @@ from PyQt5 import QtGui,QtCore,QtWidgets
 from PyQt5.QtGui import QColor, QPixmap
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
-from . import improv_viz_stim2 as improv_viz_stim
+from . import improv_viz_stim_GP as improv_viz_stim
 from improv.store import Limbo
 from improv.actor import Spike
 import numpy as np
@@ -13,7 +13,7 @@ from pyqtgraph import EllipseROI, PolyLineROI, ColorMap, ROI, LineSegmentROI
 from queue import Empty
 from matplotlib import cm
 from matplotlib.colors import ListedColormap
-from Pandas3D import simple_QPanda3D_example
+from demos.pandas.Pandas3D import live_QPanda3D
 from QPanda3D.QPanda3DWidget import QPanda3DWidget
 from PyQt5.QtWidgets import QGridLayout
 
@@ -42,6 +42,8 @@ class FrontEnd(QtWidgets.QMainWindow, improv_viz_stim.Ui_MainWindow):
         self.comm = comm #Link back to Nexus for transmitting signals
 
         self.total_times = []
+        self.first = True
+        self.prev = 0
 
         pyqtgraph.setConfigOption('background', QColor(100, 100, 100))
         super(FrontEnd, self).__init__(parent)
@@ -65,8 +67,8 @@ class FrontEnd(QtWidgets.QMainWindow, improv_viz_stim.Ui_MainWindow):
         # self.xs['contrast'] = np.arange(5)
         self.xs['angle'] = self.visual.stimuli[0]
         self.xs['vel'] = self.visual.stimuli[1]
-        self.xs['freq'] = self.visual.stimuli[2]
-        self.xs['contrast'] = self.visual.stimuli[3]
+        # self.xs['freq'] = self.visual.stimuli[2]
+        # self.xs['contrast'] = self.visual.stimuli[3]
 
     def update(self):
         ''' Update visualization while running
@@ -75,7 +77,6 @@ class FrontEnd(QtWidgets.QMainWindow, improv_viz_stim.Ui_MainWindow):
         #start looking for data to display
         self.visual.getData()
         #logger.info('Did I get something:', self.visual.Cx)
-
         if self.draw:
             #plot lines
             try:
@@ -92,25 +93,34 @@ class FrontEnd(QtWidgets.QMainWindow, improv_viz_stim.Ui_MainWindow):
                 logger.error('Error in FrontEnd update Video:  {}'.format(e))
                 import traceback
                 print('---------------------Exception in update video: ' , traceback.format_exc())
-
         #re-update
         if self.checkBox.isChecked():
             self.draw = True
         else:
             self.draw = False    
         self.visual.draw = self.draw
+        self.loadPandas()
             
         QtCore.QTimer.singleShot(10, self.update)
         
         self.total_times.append([self.visual.frame_num, time.time()-t])
 
     def loadPandas(self):
-        world = simple_QPanda3D_example.PandaTest()
-        world.get_size()
-        pandaWidget = QPanda3DWidget(world)
-        layout = QGridLayout()
-        layout.addWidget(pandaWidget, 0, 0)
-        self.frame_16.setLayout(layout)
+        if(self.visual.flag):
+            self.data = list(self.visual.idsStim.values())[0][2: len(list(self.visual.idsStim.values())[0])]
+            self.data.pop(1)
+            if(self.first):
+                world = live_QPanda3D.PandaTest()
+                world.get_size()
+                world.createCard(self.data[0], self.data[1], self.data[2], self.data[3])
+                pandaWidget = QPanda3DWidget(world)
+                layout = QGridLayout()
+                layout.addWidget(pandaWidget, 1, 0)
+                self.pop_con.setLayout(layout)
+                self.first = False
+            else:
+                messenger.send("stimulus", self.data)
+            self.visual.flag = False
 
     def customizePlots(self):
         self.checkBox.setChecked(True)
@@ -146,11 +156,15 @@ class FrontEnd(QtWidgets.QMainWindow, improv_viz_stim.Ui_MainWindow):
         # self.pop_lines['freq'] = self.pop_freq.plot()
         # self.pop_lines['contrast'] = self.pop_con.plot()
 
-        self.single_lines = {}
-        self.single_lines['angle'] = self.single_dir.plot()
-        self.single_lines['vel'] = self.single_vel.plot()
-        self.single_lines['freq'] = self.single_freq.plot()
-        self.single_lines['contrast'] = self.single_con.plot()
+        # self.single_lines = {}
+        # self.single_lines['angle'] = self.single_dir.plot()
+        # self.single_lines['vel'] = self.single_vel.plot()
+        # self.single_lines['freq'] = self.single_freq.plot()
+        # self.single_lines['contrast'] = self.single_con.plot()
+
+        # self.quant = self.single_dir.plot()
+        # self.GPest = self.single_vel.plot()
+        # self.GPuncert = self.single_freq.plot()
 
         #videos
         # self.rawplot.ui.histogram.vb.disableAutoRange()
@@ -159,6 +173,19 @@ class FrontEnd(QtWidgets.QMainWindow, improv_viz_stim.Ui_MainWindow):
 
         # if self.visual.showConnectivity:
         #     self.rawplot_3.setColorMap(cmapToColormap(cm.inferno))
+        self.GP_est.ui.histogram.hide()
+        self.GP_est.ui.roiBtn.hide()
+        self.GP_est.ui.menuBtn.hide()
+        self.GP_est.setColorMap(cmapToColormap(cm.inferno))
+
+        self.GP_unc.ui.histogram.hide()
+        self.GP_unc.ui.roiBtn.hide()
+        self.GP_unc.ui.menuBtn.hide()
+        self.GP_unc.setColorMap(cmapToColormap(cm.inferno))
+
+        self.quant_tc.ui.histogram.hide()
+        self.quant_tc.ui.roiBtn.hide()
+        self.quant_tc.ui.menuBtn.hide()
 
     def _loadParams(self):
         ''' Button event to load parameters from file
@@ -191,7 +218,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_viz_stim.Ui_MainWindow):
         ''' TODO: Bug on clicking ROI --> trace and report to pyqtgraph
         '''
         image = None
-        raw, color = self.visual.getFrames()
+        raw, color, est, unc = self.visual.getFrames()
         if raw is not None:
             raw = np.rot90(raw,2)
             if np.unique(raw).size > 1:
@@ -201,6 +228,10 @@ class FrontEnd(QtWidgets.QMainWindow, improv_viz_stim.Ui_MainWindow):
             color = np.rot90(color,2)
             self.rawplot_2.setImage(color)
             # self.rawplot_2.ui.histogram.vb.setLimits(yMin=8, yMax=255)
+        if est is not None:
+            self.GP_est.setImage(est)
+        if unc is not None:
+            self.GP_unc.setImage(unc)
 
     def updateLines(self):
         ''' Helper function to plot the line traces
@@ -268,9 +299,9 @@ class FrontEnd(QtWidgets.QMainWindow, improv_viz_stim.Ui_MainWindow):
                 # if self.selected is not None:
                 #     self._updateRedCirc()
 
-        if y_results is not None:
-            for key in y_results.keys():
-                self.single_lines[key].setData(self.xs[key], y_results[key][self.visual.selectedNeuron])
+        # if y_results is not None:
+        #     for key in y_results.keys():
+        #         self.single_lines[key].setData(self.xs[key], y_results[key][self.visual.selectedNeuron])
                 # pop_val = np.nanmean(y_results[key], axis=0)
                 # self.pop_lines[key].setData(self.xs[key], pop_val)
         

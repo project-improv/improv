@@ -1,6 +1,6 @@
 import time
 import numpy as np
-import cv2
+# import cv2
 from improv.store import Limbo, ObjectNotFoundError
 from scipy.spatial.distance import cdist
 from math import floor
@@ -61,6 +61,8 @@ class CaimanVisualStim(Actor):
             self.stimStatus[i] = deque()
 
         self.flagN = False
+        self.idsStim = None
+        self.flag = False
 
 
     def setup(self):
@@ -70,6 +72,9 @@ class CaimanVisualStim(Actor):
         self.raw = None
         self.color = None
         self.coords = None
+
+        self.curr_est = None
+        self.curr_unc = None
         
         self.draw = True
 
@@ -111,14 +116,24 @@ class CaimanVisualStim(Actor):
         except Exception as e:
             logger.error('Visual: Exception in get data: {}'.format(e))
         try:
-            idsStim = self.links['stim_in'].get(timeout=0.0001)
-            # print('visual got ', idsStim)
+            self.idsStim = self.links['stim_in'].get(timeout=0.0001)
+            self.flag = True
             # self.frame = idsStim[-1]
-            (selectedNeuron, self.confidence) = self.client.getList(idsStim)
-            if selectedNeuron != self.selectedNeuron:
-                self.selectedNeuron = selectedNeuron
-                print('set seleected neuron ', self.selectedNeuron)
-                self.flagN = True
+            # (selectedNeuron, self.confidence) = self.client.getList(idsStim)
+            # if selectedNeuron != self.selectedNeuron:
+            #     self.selectedNeuron = selectedNeuron
+            #     print('set seleected neuron ', self.selectedNeuron)
+            #     self.flagN = True
+        except Empty as e:
+            pass
+        except Exception as e:
+            logger.error('Visual: Exception in get stim for visual: {}'.format(e))
+        try:
+            self.optimized_N, id1, id2 = self.links['optim_in'].get(timeout=0.0001)
+            self.curr_est = self.client.getID(id1)
+            self.curr_unc = self.client.getID(id2)
+            self.selectedNeuron = int(self.optimized_N)
+            print('Visualizing neuron under optimization: ', self.selectedNeuron)
         except Empty as e:
             pass
         except Exception as e:
@@ -155,7 +170,7 @@ class CaimanVisualStim(Actor):
         # self.raw = np.flip(self.raw, axis=0)
         # self.color = np.flip(self.color, axis=0)
 
-        return self.raw, self.color
+        return self.raw, self.color, self.curr_est, self.curr_unc
 
     def selectNeurons(self, x, y):
         ''' x and y are coordinates

@@ -22,6 +22,7 @@ class ZMQAcquirer(Actor):
         self.ip = ip
         self.ports = ports
         self.frame_num = 0
+        self.stim_count = 0
 
         # Sanity check
         # ipaddress.ip_address(self.ip)  # Check if IP is valid.
@@ -48,6 +49,7 @@ class ZMQAcquirer(Actor):
         self.tailF = False
         self.stimF = False
         self.frameF = False
+        self.align_flag = True
 
         ## TODO: save initial set of frames to data/init_stream.h5
 
@@ -87,7 +89,6 @@ class ZMQAcquirer(Actor):
         np.save('output/fullstim.npy', self.fullStimmsg)
 
     def runAcquirer(self):
-        print("runAcquirer")
         ''' Main loop. If there're new files, read and put into store.
         '''
         t = time.time()
@@ -101,8 +102,7 @@ class ZMQAcquirer(Actor):
             # sendtime = msg_parts[0].split(b' ')[1].decode()
             # print(tag)
 
-            if 'stimid' in str(tag): #tag == b'stimid':
-                # print(msg)
+            if 'pandastim' in str(tag): #tag == b'stimid':
                 if not self.stimF:
                     logger.info('Receiving stimulus information')
                     self.stimF = True
@@ -116,22 +116,43 @@ class ZMQAcquirer(Actor):
                 #     new_dicts.append([j for j in [i.split(b' ') for i in msg.split(b'\n')][z] if j is not b''])
                 # print(new_dicts)
                 sendtime = msg_parts[2].decode()
-                types = str(msg_parts[5].decode()[:-1])
+                # types = str(msg_parts[5].decode()[:-1])
                 category = str(msg_parts[3].decode()[:-1])
                 # sendtime = new_dicts[0][2].decode()
                 # types = 's'
                 # category = new_dicts[0][3].decode()
-                
-                if 's' in str(types) and 'moving' in category:
-                    # print(new_dicts[1][1].decode())
-                    angle = (float(msg_parts[7].decode()[:-1])) #int(new_dicts[1][1].decode()) #int(msg_parts[7].decode()[:-1])
-                    vel = np.abs(float(msg_parts[9].decode()[:-1])) #np.abs(float(new_dicts[8][1].decode())) #np.abs(float(msg_parts[9].decode()[:-1]))
-                    freq = float(msg_parts[15].decode()[:-1]) #float(new_dicts[9][1].decode()) #float(msg_parts[15].decode()[:-1])
-                    light = 0#int(msg_parts[17].decode()[:-1])
-                    dark = 240#int(msg_parts[19].decode()[:-1])
-                    # print('stim sendtime ', sendtime)
-                    # print('stimulus id: {}, {}'.format(angle, vel))
+                if 'alignment' in category:
+                    s = msg_parts[5]
+                    status = str(s.decode('utf8').encode('ascii', errors='ignore'))
+                    # status = str(msg_parts[5].decode()[:-1])
+                    if 'start' in status:
+                        self.align_flag = False
+                        logger.info('Starting alignment...')
+                    elif 'completed' in status:
+                        self.align_flag = True
+                        print(msg_parts)
+                        logger.info('Alignment done, continuing')
 
+
+                elif 'motionOn' in category:
+                    # print(msg_parts)
+                    angle2 = None
+                    # if 's' in str(types):
+                    #     # print(new_dicts[1][1].decode())
+                    #     angle = (float(msg_parts[7].decode()[:-1])) #int(new_dicts[1][1].decode()) #int(msg_parts[7].decode()[:-1])
+                    #     vel = np.abs(float(msg_parts[9].decode()[:-1])) #np.abs(float(new_dicts[8][1].decode())) #np.abs(float(msg_parts[9].decode()[:-1]))
+                    #     freq = float(msg_parts[15].decode()[:-1]) #float(new_dicts[9][1].decode()) #float(msg_parts[15].decode()[:-1])
+                    #     light = 240#int(msg_parts[17].decode()[:-1])
+                    #     dark = 0#int(msg_parts[19].decode()[:-1])
+                        # print('stim sendtime ', sendtime)
+                        # print('stimulus id: {}, {}'.format(angle, vel))
+                    # elif 'b' in str(types):
+                    angle = (float(msg_parts[8].decode()[1:-1])) #int(new_dicts[1][1].decode()) #int(msg_parts[7].decode()[:-1])
+                    angle2 = (float(msg_parts[9].decode()[:-2]))
+                    vel = np.abs(float(msg_parts[11].decode()[1:-1])) #np.abs(float(new_dicts[8][1].decode())) #np.abs(float(msg_parts[9].decode()[:-1]))
+                    freq = float(msg_parts[14].decode()[1:-1]) #float(new_dicts[9][1].decode()) #float(msg_parts[15].decode()[:-1])
+                    light = 250#int(msg_parts[17].decode()[:-1])
+                    dark = 0
                     #calibration check:
                     # angle = 270+angle
                     if angle>=360:
@@ -189,32 +210,36 @@ class ZMQAcquirer(Actor):
                         print(msg_parts)
                         print(angle)
 
-                    if dark == 30:
-                        contrast = 0
-                    elif dark == 120:
-                        contrast = 1
-                    elif dark == 240 and light == 0:
-                        contrast = 2
-                    elif light == 120:
-                        contrast = 3
-                    elif light == 210:
-                        contrast = 4
-                    else:
-                        logger.error('Stimulus unrecognized')
-                        print(msg_parts)
-                        print(angle)
+                    # if dark == 30:
+                    #     contrast = 0
+                    # elif dark == 120:
+                    #     contrast = 1
+                    # elif dark == 240 and light == 0:
+                    #     contrast = 2
+                    # elif light == 120:
+                    #     contrast = 3
+                    # elif light == 210:
+                    #     contrast = 4
+                    # else:
+                    #     logger.error('Stimulus unrecognized')
+                    #     print(msg_parts)
+                    #     print(angle)
+                    contrast = 2
+
+                    self.stim_count += 1
 
                     if stimonOff:
-                        logger.info('Stimulus: {}, angle: {}, speed: {}, freq: {}, frame {}'.format(stim, angle, vel, freq, self.frame_num))
+                        logger.info('Stimulus: {}, angle: {},{}, speed: {}, freq: {}, frame {}'.format(stim, angle, angle2, vel, freq, self.frame_num))
+                        logger.info('Number of stimuli displayed: {}'.format(self.stim_count))
                     
 
-                    self.links['stim_queue'].put({self.frame_num:[stim, stimonOff, angle, vel, freq, contrast]})
+                    self.links['stim_queue'].put({self.frame_num:[stim, stimonOff, angle, angle2, vel, freq, contrast]})
                     # for i in np.arange(self.frame_num,self.frame_num+15): # known stimulus duration
                         # self.links['stim_queue'].put({i:[stim, stimonOff]})
-                    self.stimmed.append([self.frame_num, stim, angle, vel, freq, contrast, time.time()])
+                    self.stimmed.append([self.frame_num, stim, angle, angle2, vel, freq, contrast, time.time()])
                     self.stimsendtimes.append([sendtime])
 
-            elif tag == b'frame':
+            elif tag == b'frame': # and self.align_flag:
                 if not self.frameF:
                     logger.info('Receiving frame information')
                     self.frameF = True
@@ -229,10 +254,14 @@ class ZMQAcquirer(Actor):
                 # output example: b'frame ch0 10:02:01.115 AM 10/11/2019' messsage length: 1049637. Element sum: 48891125; time to process: 0.04192757606506348
                 
                 # array = np.flip(array, axis=0).copy()
+                self.saveArray.append(array)
+
+                if not self.align_flag:
+                    array = None
                 obj_id = self.client.put(array, 'acq_raw' + str(self.frame_num))
                 self.q_out.put([{str(self.frame_num): obj_id}])
 
-                self.saveArray.append(array)
+                # if self.align_flag:
                 self.frametimes.append([self.frame_num, time.time()])
                 self.framesendtimes.append([sendtime])
 
@@ -242,6 +271,7 @@ class ZMQAcquirer(Actor):
                     f.create_dataset("default", data=self.imgs)
                     f.close()
                     self.save_ind += 1
+                    del self.saveArray
                     self.saveArray = []
 
                 self.frame_num += 1
@@ -265,9 +295,9 @@ class ZMQAcquirer(Actor):
                 self.tails.append(np.array(vlist))
                 self.tailsendtimes.append([sendtime])
 
-            else:
-                # if len(msg) < 500:
-                print('--------frame: ', self.frame_num, ' ### ', msg)
+            # else:
+            #     # if len(msg) < 500:
+            #     print('--------frame: ', self.frame_num, ' ### ', msg)
                 # else:
                 #     print('msg length: {}'.format(len(msg)))
 

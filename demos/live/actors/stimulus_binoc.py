@@ -25,32 +25,24 @@ class VisualStimulus(Actor):
         self.frame_num = 0
         self.displayed_stim_num = 0
 
-        self.seed = 7419
+        self.seed = 42 #1337 #81 #1337 #7419
         np.random.seed(self.seed)
 
         self.prepared_frame = None
+        self.random_flag = False
+        
         self.stimuli = np.load(stimuli, allow_pickle=True)
         np.save('output/generated_stimuli.npy', self.stimuli)
 
         self.initial = True
         # self.angle_set = [0, 45, 90, 135, 180, 225, 270, 315] #[0, 175, 100, 275, 50, 225, 125, 325] ##np.arange(0, 315, 45)
         # random.shuffle(self.angle_set)
-        self.which_angle = 0
+        # self.which_angle = 0
         self.newN = False
         # self.vel_set = [0.02, 0.035, 0.05, 0.075, 0.10]
         # self.freq_set = [15, 30, 45]
         # random.shuffle(self.vel_set)
         # random.shuffle(self.freq_set)
-
-        # Sanity check
-        # ipaddress.ip_address(self.ip)  # Check if IP is valid.
-        # if not 0 <= port <= 65535:
-        #     raise ValueError(f'Port {self.port} invalid.')
-
-        # self.context = zmq.Context()
-        # self.socket = self.context.socket(zmq.SUB)
-        # self.socket.connect(f"tcp://{self.ip}:{self.port}")
-        # self.socket.setsockopt_string(zmq.SUBSCRIBE, self.topicfilter)
 
         self.stim_choice = []
         self.GP_stimuli = []
@@ -70,32 +62,48 @@ class VisualStimulus(Actor):
             self.stim_sets.append(s[indices].tolist())
         self.stim_choice = np.array(self.stim_choice)
 
+        print('GP stimuli is ', self.GP_stimuli)
+
+        snum = self.stim_choice[0]
+        print('Number of angles is :', snum)
+        self.grid_choice = np.arange(snum**2)
+        np.random.shuffle(self.grid_choice)
+        self.grid_choice = np.reshape(self.grid_choice, (snum,snum))
+        print(self.grid_choice)
+        self.grid_ind = np.arange(snum**2)
+
+        self.initial_angles = np.linspace(0,360,endpoint=False, num=8)
+        random.shuffle(self.initial_angles)
+        self.which_angle = 0
+        self.all_angles = self.stim_sets[0]
+        random.shuffle(self.all_angles)
+
         ### Optimizer
-        # maxS = self.stim_choice #np.array([l[-1] for l in self.stim_choice])
-        # gamma = 1 / maxS 
-        # print(gamma)
-        # var = 0.5 #1e-1
-        # nu = 1 #0.5 #1e-1
-        # eta = 8e-2 #-1e-2
-        d = 3
+        maxS = self.stim_choice #np.array([l[-1] for l in self.stim_choice])
+        gamma = (1 / maxS) / 2
+        print(gamma)
+        var = 0.5 #1e-1
+        nu = 1 #0.5 #1e-1
+        eta = 5e-2 #8e-2 #-1e-2
+        d = 2
 
-        # gp_copy = self.GP_stimuli.copy()
-        # xs = np.meshgrid(*gp_copy[:-1]) #,x3,x4])
-        # x_star = np.empty(xs[0].shape + (d,))
-        # for i in range(d):
-        #     x_star[...,i] = xs[i]
+        gp_copy = self.GP_stimuli.copy()
+        xs = np.meshgrid(*gp_copy) #,x3,x4])
+        x_star = np.empty(xs[0].shape + (d,))
+        for i in range(d):
+            x_star[...,i] = xs[i]
 
-        # self.x_star = x_star.reshape(-1, d)      #shape (a,d) where a is all possible test points
-        # print('Number of possible test points to optimize over: ', self.x_star.shape[0])
+        self.x_star = x_star.reshape(-1, d)      #shape (a,d) where a is all possible test points
+        print('Number of possible test points to optimize over: ', self.x_star.shape[0])
 
-        # self.optim = Optimizer(gamma[:d], var, nu, eta, self.x_star)
+        self.optim = Optimizer(gamma[:d], var, nu, eta, self.x_star)
         init_T = 8
         self.X0 = np.zeros((d, init_T))
-        # # self.X0[0,:] = np.arange(8) #self.angle_set
-        # # self.X0[1,:] = 2 #self.stimuli[1][0]
-        # # self.X0[2,:] = 2 #32
-        # # X0 = self.stimuli[:,:init_T]
-        # # print('Stim sets', self.stim_sets)
+        # self.X0[0,:] = np.arange(8) #self.angle_set
+        # self.X0[1,:] = 2 #self.stimuli[1][0]
+        # self.X0[2,:] = 2 #32
+        # X0 = self.stimuli[:,:init_T]
+        # print('Stim sets', self.stim_sets)
 
 
         # self.X0[0,:] = self.GP_stimuli_init[0][:init_T]
@@ -105,25 +113,40 @@ class VisualStimulus(Actor):
 
         self.X = self.X0.copy()
 
-        # self.nID = None
-        # self.conf = None
-        # self.maxT = 20
+        self.nID = None
+        self.conf = None
+        self.maxT = 20
 
-        # self.optimized_n = []
+        self.optimized_n = []
 
-        # xs = np.meshgrid(*self.stimuli[:-1]) #,x3,x4])
-        # x_star = np.empty(xs[0].shape + (d,))
-        # for i in range(d):
-        #     x_star[...,i] = xs[i]
+        self.saved_GP_est = []
+        self.saved_GP_unc = []
 
-        # self.stim_star = x_star.reshape(-1, d)
+        xs = np.meshgrid(*self.stimuli) #,x3,x4])
+        x_star = np.empty(xs[0].shape + (d,))
+        for i in range(d):
+            x_star[...,i] = xs[i]
 
-        # print(self.stim_choice, self.GP_stimuli)
+        self.stim_star = x_star.reshape(-1, d)
+
+        print(self.stim_choice, self.GP_stimuli)
 
         self.stopping_list = []
         self.peak_list = []
         self.goback_neurons = []
         self.optim_f_list = []
+
+        if self.random_flag:
+            self.stimuli = self.stimuli.copy()[:, ::2]
+
+            snum = int(self.stim_choice[0] / 2)
+            print('Number of angles during grid phase since random is :', snum)
+            self.grid_choice = np.arange(snum**2)
+            np.random.shuffle(self.grid_choice)
+            self.grid_choice = np.reshape(self.grid_choice, (snum,snum))
+            print(self.grid_choice)
+            self.grid_ind = np.arange(snum**2)
+
 
     def setup(self):
         context = zmq.Context()
@@ -172,9 +195,10 @@ class VisualStimulus(Actor):
             # print(tmpX.shape, '----------------------------------------------------')
             sh = len(tmpX.shape)
             if sh > 1:
+                self.X = tmpX.copy()
                 if tmpX.shape[1] > 8:
-                    self.X = self.X[:, -tmpX.shape[1]:]
-                    # print('truncating')
+                    self.X = tmpX[:, -tmpX.shape[1]:]
+                # print('self.X DIRECT from analysis is ', X, 'and self.X is ', self.X[:,-1])
             # print(self.X)
 
             try:
@@ -197,7 +221,7 @@ class VisualStimulus(Actor):
         if self.initial:
             if self.prepared_frame is None:
                 self.prepared_frame = self.initial_frame()
-                self.prepared_frame.pop('load')
+                # self.prepared_frame.pop('load')
             if (time.time() - self.timer) >= self.total_stim_time:
                 self.send_frame(self.prepared_frame)
                 self.prepared_frame = None
@@ -205,65 +229,93 @@ class VisualStimulus(Actor):
 
         ### once initial done, or we move on, initial GP with next neuron
         elif self.newN:
-            ## doing random speeds
-            if self.prepared_frame is None:
-                self.prepared_frame = self.random_frame()
-                self.prepared_frame.pop('load')
-            if (time.time() - self.timer) >= self.total_stim_time:
-                    # self.random_frame()
-                self.send_frame(self.prepared_frame)
-                self.prepared_frame = None
-
-            # # print(self.optimized_n, set(self.optimized_n))
-            # nonopt = np.array(list(set(np.arange(self.y0.shape[0]))-set(self.optimized_n)))
-            # print('nonopt is ', nonopt)
-            # if len(nonopt) >= 1 or len(self.goback_neurons)>=1:
-            #     if len(nonopt) >= 1:
-            #         self.nID = nonopt[np.argmax(np.mean(self.y0[nonopt,:], axis=1))]
-            #         print('selecting most responsive neuron: ', self.nID)
-            #         self.optimized_n.append(self.nID)
-            #     elif len(self.goback_neurons)>=1:
-            #         self.nID = self.goback_neurons.pop(0)
-            #         print('Trying again with neuron', self.nID)
-            #         self.optimized_n.append(self.nID)
+            # # ## doing random stims
+            if self.random_flag:
                 
-            #     print(self.y0.shape, self.X.shape, self.X0.shape)
-            #     if self.X.shape[1] < self.y0.shape[1]:
-            #         self.optim.initialize_GP(self.X[:, :].T, self.y0[self.nID, -self.X.shape[1]:].T)
-            #     elif self.y0.shape[1] < self.maxT:
-            #         self.optim.initialize_GP(self.X[:, -self.y0.shape[1]:].T, self.y0[self.nID, -self.y0.shape[1]:].T)
-            #     else:
-            #         self.optim.initialize_GP(self.X[:, -self.maxT:].T, self.y0[self.nID, -self.maxT:].T)
-            #     print('known average sigma, ', np.mean(self.optim.sigma))
-            #     # self.optim.initialize_GP(self.X0[:, :3], self.y0[self.nID, :3])
-            #     self.test_count = 0
-            #     self.newN = False
-            #     self.stopping = np.zeros(self.maxT)
+                if self.prepared_frame is None:
+                    self.prepared_frame = self.random_frame()
+                    # self.prepared_frame.pop('load')
+                if (time.time() - self.timer) >= self.total_stim_time:
+                        # self.random_frame()
+                    self.send_frame(self.prepared_frame)
+                    self.prepared_frame = None
 
-            #     ids = []
-            #     # print('--------------- nID', self.nID)
-            #     ids.append(self.client.put(self.nID, 'nID'))
-            #     ids.append(self.client.put(self.conf, 'conf'))
-            #     self.q_out.put(ids)
-            
-            # else:
-            #     self.initial = True
+            else:
+                # print(self.optimized_n, set(self.optimized_n))
+                nonopt = np.array(list(set(np.arange(self.y0.shape[0]))-set(self.optimized_n)))
+                print('nonopt is ', nonopt)
+                if len(nonopt) >= 1 or len(self.goback_neurons)>=1:
+                    if len(nonopt) >= 1:
+                        self.nID = nonopt[np.argmax(np.mean(self.y0[nonopt,:], axis=1))]
+                        print('selecting most responsive neuron: ', self.nID)
+                        self.optimized_n.append(self.nID)
+                        self.saved_GP_est = []
+                        self.saved_GP_unc = []
+                    elif len(self.goback_neurons)>=1:
+                        self.nID = self.goback_neurons.pop(0)
+                        print('Trying again with neuron', self.nID)
+                        self.optimized_n.append(self.nID)
+                    
+                    print(self.y0.shape, self.X.shape, self.X0.shape)
+                    if self.X.shape[1] < self.y0.shape[1]:
+                        self.optim.initialize_GP(self.X[:, :].T, self.y0[self.nID, -self.X.shape[1]:].T)
+                    elif self.y0.shape[1] < self.maxT:
+                        self.optim.initialize_GP(self.X[:, -self.y0.shape[1]:].T, self.y0[self.nID, -self.y0.shape[1]:].T)
+                    else:
+                        # self.optim.initialize_GP(self.X[:, -self.maxT:].T, self.y0[self.nID, -self.maxT:].T)
+                        self.optim.initialize_GP(self.X[:, :].T, self.y0[self.nID, :].T)
+                    print('known average sigma, ', np.mean(self.optim.sigma))
+                    # self.optim.initialize_GP(self.X0[:, :3], self.y0[self.nID, :3])
+                    self.test_count = 0
+                    self.newN = False
+                    self.stopping = np.zeros(self.maxT)
+
+                    curr_unc = np.diagonal(self.optim.sigma.reshape((576,576))).reshape((24,24))
+                    curr_est = self.optim.f.reshape((24,24))
+                    self.saved_GP_unc.append(curr_unc)
+                    self.saved_GP_est.append(curr_est)
+
+                    ids = []
+                    # print('--------------- nID', self.nID)
+                    # ids.append(self.client.put(self.nID, 'nID'))
+                    ids.append(self.nID)
+                    ids.append(self.client.put(curr_est, 'est'))
+                    ids.append(self.client.put(curr_unc, 'unc'))
+                    # ids.append(self.client.put(self.conf, 'conf'))
+                    self.q_out.put(ids)
+                
+                else:
+                    self.initial = True
 
         ### update GP, suggest next stim
         else:
             
             if self.prepared_frame is None:
-                X = np.zeros(3)
-                # print(self.X[0,-1])
-                # print(self.GP_stimuli[0])
+                X = np.zeros(2)
+                # print('self.X from analysis is ', self.X[:,-1])
+                # print('going back further', self.X)
+                # print('GP_stimuli', self.GP_stimuli[0])
                 # try:
                 X[0] = self.GP_stimuli[0][int(self.X[0,-1])]
                 X[1] = self.GP_stimuli[1][int(self.X[1,-1])]
-                X[2] = self.GP_stimuli[2][int(self.X[2,-1])]
+                # X[2] = self.GP_stimuli[2][int(self.X[2,-1])]
                 print('optim ', self.nID, ', update GP with', X, self.y0[self.nID, -1])
                 self.optim.update_GP(np.squeeze(X), self.y0[self.nID,-1])
+
+                curr_unc = np.diagonal(self.optim.sigma.reshape((576,576))).reshape((24,24))
+                curr_est = self.optim.f.reshape((24,24))
+                self.saved_GP_unc.append(curr_unc)
+                self.saved_GP_est.append(curr_est)
                 # except:
                 #     pass
+                ids = []
+                # print('--------------- nID', self.nID)
+                # ids.append(self.client.put(self.nID, 'nID'))
+                ids.append(self.nID)
+                ids.append(self.client.put(curr_est, 'est'))
+                ids.append(self.client.put(curr_unc, 'unc'))
+                # ids.append(self.client.put(self.conf, 'conf'))
+                self.q_out.put(ids)
 
                 stopCrit = self.optim.stopping()
                 print('----------- stopCrit: ', stopCrit)
@@ -271,7 +323,7 @@ class VisualStimulus(Actor):
                 self.test_count += 1
 
                 
-                if stopCrit < 0.01: #0.01 #8e-2: #0.37/2.05
+                if stopCrit < 3.0e-4: #6.0e-4: #8e-2: #0.37/2.05
                     peak = self.stim_star[np.argmax(self.optim.f)]
                     print('Satisfied with this neuron, moving to next. Est peak: ', peak)
                     # self.nID += 1
@@ -279,6 +331,24 @@ class VisualStimulus(Actor):
                     self.stopping_list.append(self.stopping)
                     self.peak_list.append(peak)
                     self.optim_f_list.append(self.optim.f)
+
+                    np.save('output/saved_GP_est_'+str(self.nID)+'.npy', np.array(self.saved_GP_est))
+                    np.save('output/saved_GP_unc_'+str(self.nID)+'.npy', np.array(self.saved_GP_unc))
+
+                    if len(self.optim_f_list) >= 50:
+                        print('------------------ stopping optim, going random')
+                        self.random_flag = True
+
+                        # lower resolution
+                        self.stimuli = self.stimuli.copy()[:, ::2]
+
+                        snum = int(self.stim_choice[0] / 2)
+                        print('Number of angles during grid phase is :', snum)
+                        self.grid_choice = np.arange(snum**2)
+                        np.random.shuffle(self.grid_choice)
+                        self.grid_choice = np.reshape(self.grid_choice, (snum,snum))
+                        print(self.grid_choice)
+                        self.grid_ind = np.arange(snum**2)
                     
                 elif self.test_count >= self.maxT:
                     self.goback_neurons.append(self.nID)
@@ -291,10 +361,10 @@ class VisualStimulus(Actor):
                 else:
                     ind, xt_1 = self.optim.max_acq()
                     print('suggest next stim: ', ind, xt_1, xt_1.T[...,None].shape)
-                    self.X = np.append(self.X, xt_1.T[...,None], axis=1)
+                    # self.X = np.append(self.X, xt_1.T[...,None], axis=1)
 
                     self.prepared_frame = self.create_frame(ind)
-                    self.prepared_frame.pop('load')
+                    # self.prepared_frame.pop('load')
 
             if (time.time() - self.timer) >= self.total_stim_time:
                 self.send_frame(self.prepared_frame)
@@ -361,68 +431,71 @@ class VisualStimulus(Actor):
         # if not self.nID or self.chooseFlag:
         if self.prepared_frame is None:
             self.prepared_frame = self.random_frame()
-            # self.prepared_frame.pop('load')
+            self.prepared_frame.pop('load')
         if (time.time() - self.timer) >= self.total_stim_time:
                 # self.random_frame()
             self.send_frame(self.prepared_frame)
             self.prepared_frame = None
 
 
-    def new_neuron(self):
-        # try:
-        self.optim.initialize_GP(self.X0, self.y0[self.nID])
-        # except:
-        #     pass
+    # def new_neuron(self):
+    #     # try:
+    #     self.optim.initialize_GP(self.X0, self.y0[self.nID])
+    #     # except:
+    #     #     pass
     
     def send_frame(self, stim):
-        self._socket.send_string(self.stimulus_topic, zmq.SNDMORE)
-        self._socket.send_pyobj(stim)
-        self.timer = time.time()
-        print('Number of stimuli displayed: ', self.displayed_stim_num)
-        self.displayed_stim_num += 1
+        if stim is not None:
+            text = {'frequency':30, 'dark_value':0, 'light_value':250, 'texture_size':(1024,1024), 'texture_name':'grating_gray'}
+            stimulus = {'stimulus': stim, 'texture': [text, text]}
+            self._socket.send_string(self.stimulus_topic, zmq.SNDMORE)
+            self._socket.send_pyobj(stimulus)
+            self.timer = time.time()
+            # print('Number of stimuli displayed: ', self.displayed_stim_num)
+            self.displayed_stim_num += 1
 
 
     def create_frame(self, ind):
         xt = self.stim_star[ind]
-        print('new frame ', ind, xt)
+        print('new stim frame ', ind, xt)
         angle = xt[0]
-        vel = -xt[1]
-        freq = xt[2]
-        light, dark = 240, 0
+        angle2 = xt[1]
+        vel = -0.01
+        freq = 30
+        light, dark = 250, 0
 
         stat_t = 10
-        stim_t = stat_t + 2
+        stim_t = stat_t + 5
         self.total_stim_time = stim_t
-        center_width = 16
+        center_width = 12
         center_x = 0
-        center_y = 0  
+        center_y = 0.015  
         strip_angle = 0
 
         stim = {
-                'load': 0,
-                'stim_type': 's', 'angle': angle, #angle],
-                'velocity': vel, #vel],
-                'stationary_time': stat_t, #stat_t],
-                'duration': stim_t, #stim_t],
-                'frequency': freq, #freq],
-                'lightValue': light,
-                'darkValue': dark,
-                'center_width' : center_width,
-                'center_x': center_x,
-                'center_y': center_y,
+                'stim_name': 'stim_name',
+                'angle': (angle, angle2),
+                'velocity': (vel, vel),
+                'stationary_time': (stat_t, stat_t),
+                'duration': (stim_t, stim_t),
+                'frequency': (freq, freq),
+                'light_value': (light, light),
+                'dark_value': (dark, dark),
+                'strip_width' : center_width,
+                'position': (center_x, center_y),
                 'strip_angle': strip_angle
                     }
 
-        self._socket.send_string(self.stimulus_topic, zmq.SNDMORE)
-        self._socket.send_pyobj(stim)
+        # self._socket.send_string(self.stimulus_topic, zmq.SNDMORE)
+        # self._socket.send_pyobj(stim)
 
         self.timer = time.time()
         return stim
 
     def initial_frame(self):
-        # if self.which_angle%8 == 0:
-            # random.shuffle(self.angle_set)
-        angle = self.stim_sets[0][self.which_angle%len(self.stim_sets[0])]
+        if self.which_angle%8 == 0:
+            random.shuffle(self.initial_angles)
+        angle = self.initial_angles[self.which_angle%8] #self.stim_sets[0][self.which_angle%len(self.stim_sets[0])]
         vel = -0.01 #self.stim_sets[1][4]#[self.which_angle%len(self.stim_sets[1])] #self.stimuli[1][2]
         freq = 30 #self.stim_sets[2][2] #[self.which_angle%len(self.stim_sets[2])] #30
 
@@ -431,38 +504,39 @@ class VisualStimulus(Actor):
         # angle = np.random.choice(self.stimuli[0])
         # vel = -np.random.choice(self.stimuli[1])
         # freq = np.random.choice(self.stimuli[2])
-        light, dark = 240, 0
+        light, dark = 250, 0
 
         self.which_angle += 1
         if self.which_angle >= initial_length: 
             self.initial = False
             self.newN = True
+            self.which_angle = 0
+            logger.info('Done with initial frames, starting random set')
         
         stat_t = 10
         stim_t = stat_t + 5
         self.total_stim_time = stim_t
-        center_width = 16
-        center_x = 0
-        center_y = 0  
+        center_width = 12
+        center_x = 0#.1
+        center_y = 0.015 
         strip_angle = 0
 
         stim = {
-                'load': 0,
-                'stim_type': 's', 'angle': angle, #angle],
-                'velocity': vel, #vel],
-                'stationary_time': stat_t, #stat_t],
-                'duration': stim_t, #stim_t],
-                'frequency': freq, #freq],
-                'lightValue': light,
-                'darkValue': dark,
-                'center_width' : center_width,
-                'center_x': center_x,
-                'center_y': center_y,
+                'stim_name': 'stim_name',
+                'angle': (angle, angle),
+                'velocity': (vel, vel),
+                'stationary_time': (stat_t, stat_t),
+                'duration': (stim_t, stim_t),
+                'frequency': (freq, freq),
+                'light_value': (light, light),
+                'dark_value': (dark, dark),
+                'strip_width' : center_width,
+                'position': (center_x, center_y),
                 'strip_angle': strip_angle
                     }
 
-        self._socket.send_string(self.stimulus_topic, zmq.SNDMORE)
-        self._socket.send_pyobj(stim)
+        # self._socket.send_string(self.stimulus_topic, zmq.SNDMORE)
+        # self._socket.send_pyobj(stim)
 
         self.timer = time.time()
         return stim
@@ -481,12 +555,22 @@ class VisualStimulus(Actor):
         #         self.initial = False
         #         self.newN = True
         
+        # if self.which_angle%24==0:
+        #     random.shuffle(self.all_angles)
+
+        ## grid choice
+        snum = int(self.stim_choice[0] / 2)
+        grid = np.argwhere(self.grid_choice==self.grid_ind[self.displayed_stim_num%(snum**2)])[0] #self.which_angle%24 #self.which_angle%24 #np.argwhere(self.grid_choice==self.grid_ind[self.displayed_stim_num%(36*36)])[0]
+        angle = self.stimuli[0][grid[0]] #self.all_angles[grid] #self.stimuli[0][grid[0]]
+        angle2 = self.stimuli[0][grid[1]]
+
         # else:
             ## stimuli has angle, vel, freq, contrast in that order
-        angle = np.random.choice(self.stimuli[0])
+        # angle = np.random.choice(self.stimuli[0])
+        # angle2 = np.random.choice(self.stimuli[0])
         vel = -0.01 #np.random.choice(self.stimuli[1])
         freq = 30 #np.random.choice(self.stimuli[2])
-        light, dark = 240, 0 # self.contrast(np.random.choice(self.stimuli[3]))
+        light, dark = 250, 0 # self.contrast(np.random.choice(self.stimuli[3]))
 
         # angle = self.angle_set[self.which_angle%16] #np.random.choice() #[0, 45, 90, 135, 180, 225, 270, 315])
         # self.which_angle += 1
@@ -498,28 +582,27 @@ class VisualStimulus(Actor):
         self.total_stim_time = stim_t
         # freq = 60 #np.random.choice(np.array([20,40,60])) #np.arange(5,80,5))
         # light, dark = 0, 240 #self.contrast(np.random.choice(5))
-        center_width = 16
-        center_x = 0
-        center_y = 0  
+        center_width = 12
+        center_x = 0#0.01
+        center_y = 0.015  
         strip_angle = 0
 
         stim = {
-                'load': 0,
-                'stim_type': 's', 'angle': angle, #angle],
-                'velocity': vel, #vel],
-                'stationary_time': stat_t, #stat_t],
-                'duration': stim_t, #stim_t],
-                'frequency': freq, #freq],
-                'lightValue': light,
-                'darkValue': dark,
-                'center_width' : center_width,
-                'center_x': center_x,
-                'center_y': center_y,
+                'stim_name': 'stim_name',
+                'angle': (angle, angle2),
+                'velocity': (vel, vel),
+                'stationary_time': (stat_t, stat_t),
+                'duration': (stim_t, stim_t),
+                'frequency': (freq, freq),
+                'light_value': (light, light),
+                'dark_value': (dark, dark),
+                'strip_width' : center_width,
+                'position': (center_x, center_y),
                 'strip_angle': strip_angle
                     }
 
-        self._socket.send_string(self.stimulus_topic, zmq.SNDMORE)
-        self._socket.send_pyobj(stim)
+        # self._socket.send_string(self.stimulus_topic, zmq.SNDMORE)
+        # self._socket.send_pyobj(stim)
 
         # print('Sent stimulus to be loaded: ', stim)
 
@@ -682,17 +765,31 @@ def kernel(x, x_j, variance, gamma):
     # print('min max ', np.min(x[:,1]), np.max(x[:,1]))
     # print('min max ', np.min(x[:,2]), np.max(x[:,2]))
 
+    period = 24
+
     for i in range(x.shape[0]):
         # K[:,i] = self.variance * rbf_kernel(x[:,i], x_j[:,i], gamma = self.gamma[i])
         for j in range(x_j.shape[0]):
             ## first dimension is direction
-            dist = np.abs(x[i,0] - x_j[j,0])
-            # print(dist)
-            if dist > 8:
-                dist = 16 - dist
-            # print(dist)
-            K[i,j] = np.exp(-gamma[0]*((dist)**2))
-            K[i,j] *= variance * np.exp(-gamma[1:].dot((x[i,1:]-x_j[j,1:])**2))
+            # dist = np.abs(x[i,0] - x_j[j,0])
+            # # print(dist)
+            # # if dist > 12:
+            # #     dist = 24 - dist
+            # # print(dist)
+            # K[i,j] = np.exp(-gamma[0]*((dist)**2))
+            # K[i,j] *= variance * np.exp(-gamma[1:].dot((x[i,1:]-x_j[j,1:])**2))
+
+            ## binocular
+            dist1 = np.sin(np.pi * np.abs(x[i,0] - x_j[j,0]) / period)
+            dist2 = np.sin(np.pi * np.abs(x[i,1] - x_j[j,1]) / period)
+
+            # dist1 = np.abs(x[i,0] - x_j[j,0])
+            # dist2 = np.abs(x[i,1] - x_j[j,1])
+
+            K[i,j] = np.exp(-gamma[0]*(dist1**2))
+            K[i,j] *= variance * np.exp(-gamma[1]*(dist2**2))
+
+            
     return K
 
 def update_GP_ext(X_t, x_t1, A, x_star, eta, y, y_t1, k_star, variance, gamma):

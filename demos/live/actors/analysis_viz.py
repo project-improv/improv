@@ -57,32 +57,34 @@ class VizStimAnalysis(Actor):
 
         self.x_angle = self.stimuli[0]
         self.x_vel = self.stimuli[1]
-        self.x_freq = self.stimuli[2]
-        self.x_contrast = self.stimuli[3]
+        # self.x_freq = self.stimuli[2]
+        # self.x_contrast = self.stimuli[3]
 
         self.counters = {}
         self.counters['angle'] = np.ones((self.x_angle.shape[0],2))
         self.counters['vel'] =  np.ones((self.x_vel.shape[0],2))
-        self.counters['freq'] =  np.ones((self.x_freq.shape[0],2))
-        self.counters['contrast'] =  np.ones((self.x_contrast.shape[0],2))
+        # self.counters['freq'] =  np.ones((self.x_freq.shape[0],2))
+        # self.counters['contrast'] =  np.ones((self.x_contrast.shape[0],2))
 
         self.ys = {}
         self.ys['angle'] = np.zeros((1, self.x_angle.shape[0], 2))
         self.ys['vel'] = np.zeros((1, self.x_vel.shape[0], 2))
-        self.ys['freq'] = np.zeros((1, self.x_freq.shape[0], 2))
-        self.ys['contrast'] = np.zeros((1, self.x_contrast.shape[0], 2))
+        # self.ys['freq'] = np.zeros((1, self.x_freq.shape[0], 2))
+        # self.ys['contrast'] = np.zeros((1, self.x_contrast.shape[0], 2))
 
         self.y_results = {}
         self.y_results['angle'] = None
         self.y_results['vel'] = None
-        self.y_results['freq'] = None
-        self.y_results['contrast'] = None
+        # self.y_results['freq'] = None
+        # self.y_results['contrast'] = None
 
         self.xs = {}
         self.xs['angle'] = 0
         self.xs['vel'] = 0
-        self.xs['freq'] = 0
-        self.xs['contrast'] = 0
+        # self.xs['freq'] = 0
+        # self.xs['contrast'] = 0
+
+        self.all_y = np.zeros((self.x_angle.shape[0],self.x_angle.shape[0]))
 
         self.stimX = []
         self.stimY = []
@@ -205,13 +207,15 @@ class VizStimAnalysis(Actor):
 
         angle = stim[frame][2]
         vel = stim[frame][3]
-        freq = stim[frame][4]
-        contrast = stim[frame][5]
+        # freq = stim[frame][4]
+        # contrast = stim[frame][5]
 
         self.xs['angle'] = np.argwhere(angle==self.x_angle)[0]
+        # print(stim)
+        # print(self.x_vel)
         self.xs['vel'] = np.argwhere(vel==self.x_vel)[0]
-        self.xs['freq'] = np.argwhere(freq==self.x_freq)[0]
-        self.xs['contrast'] = np.argwhere(contrast==self.x_contrast)[0]
+        # self.xs['freq'] = np.argwhere(freq==self.x_freq)[0]
+        # self.xs['contrast'] = np.argwhere(contrast==self.x_contrast)[0]
 
         # assuming we have one of those 8 stimuli
         if stimID != -10:
@@ -295,7 +299,7 @@ class VizStimAnalysis(Actor):
             # self.y_contrast = np.pad(self.y_contrast, ((0,diff),(0,0),(0,0)), mode='constant')
 
         before_amount = 5
-        after_amount = 8
+        after_amount = 20
         if self.currentStim is not None:
             # print('Computing for ', self.currentStim, ' starting at ', self.stimStart, ' but current  ', self.frame)
 
@@ -376,6 +380,7 @@ class VizStimAnalysis(Actor):
                     # self.counters['contrast'][self.xc, 0] += 1
 
             if self.frame == self.stimStart + after_amount:
+                print('appending to X: ', list(self.xs.values()))
                 self.stimX.append(list(self.xs.values()))
                 self.stimY.append(np.mean(ests[:,self.frame-after_amount:self.frame],1))
                 self.testNum += 1
@@ -390,6 +395,8 @@ class VizStimAnalysis(Actor):
             self.y_results[key] = np.where(np.isnan(self.y_results[key]), 0, self.y_results[key])
             self.y_results[key][self.y_results[key] == np.inf] = 0
             self.y_results[key][self.y_results[key]<0] = 0
+
+        # self.all_y[self.xs['angle'], self.xs['vel']] = 
 
         self.stimtime.append(time.time()-t)
 

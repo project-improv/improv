@@ -110,8 +110,8 @@ class CaimanProcessor(Actor):
                 S = np.stack([osi.s[init:] for osi in self.onAc.estimates.OASISinstances])
                 np.savetxt('output/end_spikes.txt', S)
             except Exception as e:
-                logger.error('Exception {}: {} during frame number {}'.format(type(e).__name__, e, self.frame_number))
-                print(traceback.format_exc())
+                logger.error('Exception {}: {} during S stacking, total frame number {}'.format(type(e).__name__, e, self.frame_number))
+                # print(traceback.format_exc())
         else:
             print('No OASIS')
         self.coords1 = [o['CoM'] for o in self.coords]
@@ -221,32 +221,36 @@ class CaimanProcessor(Actor):
         t2 = time.time()
         if self.onAc.estimates.OASISinstances is not None:
             try:
-                # if self.dropped_frames and self.dropped_frames[-1] > before: #Need to pad with zeros due to dropped/missing frames
-                #     S = np.zeros((self.onAc.estimates.C_on.shape[0], self.frame_number - before)) #should always be 500 or TODO self.onAC.window
-                #     print('osi.s shape ', self.onAc.estimates.OASISinstances[0].s.shape)
-                #     if before < self.dropped_frames[0]:
-                #         tmp = np.stack([osi.s[before:self.dropped_frames[0]] for osi in self.onAc.estimates.OASISinstances])
-                #         S[:tmp.shape[0],:self.dropped_frames[0]-before] = tmp
-                #     good_frames = np.array([f for f in range(before,self.frame_number,1) if f not in self.dropped_frames])
-                #     if good_frames.shape[0] > 0:
-                #         if good_frames[0] < self.onAc.estimates.OASISinstances[0].s.shape[0]: #may not have oasis for these frames yet
-                #             tmp2 = np.stack([osi.s[good_frames] for osi in self.onAc.estimates.OASISinstances])
-                #             S[:tmp2.shape[0], good_frames-before] = tmp2
-                #         else: #TODO just for testing
-                #             tmp2 = np.stack([osi.s[-good_frames.shape[0]:] for osi in self.onAc.estimates.OASISinstances])
-                #             S[:tmp2.shape[0], good_frames-before] = tmp2
-                #         # max_len = max([len(osi.s[before:self.frame_number]) for osi in self.onAc.estimates.OASISinstances])
-                #         # S = np.array([np.lib.pad(osi.s[before:self.frame_number], (0, max_len-len(osi.s[before:self.frame_number])), 'constant', constant_values=0) for osi in self.onAc.estimates.OASISinstances])
-                # else:
+            #     if self.dropped_frames and self.dropped_frames[-1] > before: #Need to pad with zeros due to dropped/missing frames
+            #         S = np.zeros((self.onAc.estimates.C_on.shape[0], self.frame_number - before)) #should always be 500 or TODO self.onAC.window
+            #         print('osi.s shape ', self.onAc.estimates.OASISinstances[0].s.shape)
+            #         if before < self.dropped_frames[0]:
+            #             tmp = np.stack([osi.s[before:self.dropped_frames[0]] for osi in self.onAc.estimates.OASISinstances])
+            #             S[:tmp.shape[0],:self.dropped_frames[0]-before] = tmp
+            #         good_frames = np.array([f for f in range(before,self.frame_number,1) if f not in self.dropped_frames])
+            #         if good_frames.shape[0] > 0:
+            #             if good_frames[0] < self.onAc.estimates.OASISinstances[0].s.shape[0]: #may not have oasis for these frames yet
+            #                 tmp2 = np.stack([osi.s[good_frames] for osi in self.onAc.estimates.OASISinstances])
+            #                 S[:tmp2.shape[0], good_frames-before] = tmp2
+            #             else: #TODO just for testing
+            #                 tmp2 = np.stack([osi.s[-good_frames.shape[0]:] for osi in self.onAc.estimates.OASISinstances])
+            #                 S[:tmp2.shape[0], good_frames-before] = tmp2
+            #             # max_len = max([len(osi.s[before:self.frame_number]) for osi in self.onAc.estimates.OASISinstances])
+            #             # S = np.array([np.lib.pad(osi.s[before:self.frame_number], (0, max_len-len(osi.s[before:self.frame_number])), 'constant', constant_values=0) for osi in self.onAc.estimates.OASISinstances])
+            #     else:
                 S = np.stack([osi.s[before:self.frame_number+before] for osi in self.onAc.estimates.OASISinstances])
             except IndexError:
-                print('Index error!')
+                pass
+                # print('Index error!')
                 # print('shape good frames ', good_frames.shape)
                 # print('good frames', good_frames)
-                print('len dropped frames ', len(self.dropped_frames))
+                # print('len dropped frames ', len(self.dropped_frames))
                 # if tmp2: print('tmp2 shape', tmp2.shape)
-                print(self.frame_number)
-                print(before)
+                # print(self.frame_number)
+                # print(before)
+            except ValueError:
+                pass
+                # logger.error('Cant stack S, ignoring...')
         else:
             S = np.zeros((self.onAc.estimates.C_on.shape[0], self.frame_number - before))
         t3 = time.time()
@@ -295,7 +299,7 @@ class CaimanProcessor(Actor):
         '''
         t=time.time()
         if frame is None:
-            raise ObjectNotFoundError
+            raise ObjectNotFoundError(frame_number)
         if np.isnan(np.sum(frame)):
             raise NaNFrameException
         frame = frame.astype(np.float32) #or require float32 from image acquistion

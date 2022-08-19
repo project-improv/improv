@@ -7,11 +7,11 @@ actors:
   Acquirer:
     package: actors.acquire_zmq
     class: ZMQAcquirer
-    ip: 127.0.0.1 #10.122.170.21
-    ports: [5000,5008,4701] #[4701,4702,4703]
+    ip: 10.122.170.21
+    ports: [5000,5008,5009,5010,4701] #[4701,4702,4703]
 
   Stimulus:
-    package: actors.stimulus
+    package: actors.stimulus_binoc
     class: VisualStimulus
     ip: '*'
     port: 5006 
@@ -39,6 +39,6 @@ connections:
   Acquirer.q_out: [Processor.q_in, Visual.raw_frame_queue]
   Processor.q_out: [Analysis.q_in]
   Analysis.q_out: [Visual.q_in]
-  Acquirer.stim_queue: [Analysis.input_stim_queue]
+  Acquirer.stim_queue: [Analysis.input_stim_queue, Visual.stim_in]
   Analysis.stim_out: [Stimulus.q_in]
-  Stimulus.q_out: [Visual.stim_in]
+  Stimulus.q_out: [Visual.optim_in]

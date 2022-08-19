@@ -25,17 +25,18 @@ class VisualStimulus(Actor):
         self.frame_num = 0
         self.displayed_stim_num = 0
 
-        self.seed = 7419
+        self.seed = 1337 #81 #1337 #7419
         np.random.seed(self.seed)
 
         self.prepared_frame = None
+        
         self.stimuli = np.load(stimuli, allow_pickle=True)
         np.save('output/generated_stimuli.npy', self.stimuli)
 
         self.initial = True
         # self.angle_set = [0, 45, 90, 135, 180, 225, 270, 315] #[0, 175, 100, 275, 50, 225, 125, 325] ##np.arange(0, 315, 45)
         # random.shuffle(self.angle_set)
-        self.which_angle = 0
+        # self.which_angle = 0
         self.newN = False
         # self.vel_set = [0.02, 0.035, 0.05, 0.075, 0.10]
         # self.freq_set = [15, 30, 45]
@@ -69,6 +70,19 @@ class VisualStimulus(Actor):
             # random.shuffle(s2)
             self.stim_sets.append(s[indices].tolist())
         self.stim_choice = np.array(self.stim_choice)
+
+        snum = 24
+        self.grid_choice = np.arange(snum**2)
+        np.random.shuffle(self.grid_choice)
+        self.grid_choice = np.reshape(self.grid_choice, (snum,snum))
+        print(self.grid_choice)
+        self.grid_ind = np.arange(snum**2)
+
+        self.initial_angles = np.linspace(0,360,endpoint=False, num=8)
+        random.shuffle(self.initial_angles)
+        self.which_angle = 0
+        self.all_angles = self.stim_sets[0]
+        random.shuffle(self.all_angles)
 
         ### Optimizer
         # maxS = self.stim_choice #np.array([l[-1] for l in self.stim_choice])
@@ -152,7 +166,7 @@ class VisualStimulus(Actor):
             print(rm)
         print('-------------------------------------------- stim')
 
-        np.save('output/optimized_neurons.npy', np.array(self.optimized_n))
+        # np.save('output/optimized_neurons.npy', np.array(self.optimized_n))
         # print(self.stopping_list)
         np.save('output/stopping_list.npy', np.array(self.stopping_list))
         # print(self.peak_list)
@@ -197,7 +211,7 @@ class VisualStimulus(Actor):
         if self.initial:
             if self.prepared_frame is None:
                 self.prepared_frame = self.initial_frame()
-                self.prepared_frame.pop('load')
+                # self.prepared_frame.pop('load')
             if (time.time() - self.timer) >= self.total_stim_time:
                 self.send_frame(self.prepared_frame)
                 self.prepared_frame = None
@@ -205,10 +219,10 @@ class VisualStimulus(Actor):
 
         ### once initial done, or we move on, initial GP with next neuron
         elif self.newN:
-            ## doing random speeds
+            ## doing random stims
             if self.prepared_frame is None:
                 self.prepared_frame = self.random_frame()
-                self.prepared_frame.pop('load')
+                # self.prepared_frame.pop('load')
             if (time.time() - self.timer) >= self.total_stim_time:
                     # self.random_frame()
                 self.send_frame(self.prepared_frame)
@@ -294,7 +308,7 @@ class VisualStimulus(Actor):
                     self.X = np.append(self.X, xt_1.T[...,None], axis=1)
 
                     self.prepared_frame = self.create_frame(ind)
-                    self.prepared_frame.pop('load')
+                    # self.prepared_frame.pop('load')
 
             if (time.time() - self.timer) >= self.total_stim_time:
                 self.send_frame(self.prepared_frame)
@@ -361,7 +375,7 @@ class VisualStimulus(Actor):
         # if not self.nID or self.chooseFlag:
         if self.prepared_frame is None:
             self.prepared_frame = self.random_frame()
-            # self.prepared_frame.pop('load')
+            self.prepared_frame.pop('load')
         if (time.time() - self.timer) >= self.total_stim_time:
                 # self.random_frame()
             self.send_frame(self.prepared_frame)
@@ -375,8 +389,10 @@ class VisualStimulus(Actor):
         #     pass
     
     def send_frame(self, stim):
+        text = {'frequency':30, 'dark_value':0, 'light_value':250, 'texture_size':(1024,1024), 'texture_name':'grating_gray'}
+        stimulus = {'stimulus': stim, 'texture': [text, text]}
         self._socket.send_string(self.stimulus_topic, zmq.SNDMORE)
-        self._socket.send_pyobj(stim)
+        self._socket.send_pyobj(stimulus)
         self.timer = time.time()
         print('Number of stimuli displayed: ', self.displayed_stim_num)
         self.displayed_stim_num += 1
@@ -394,7 +410,7 @@ class VisualStimulus(Actor):
         stim_t = stat_t + 2
         self.total_stim_time = stim_t
         center_width = 16
-        center_x = 0
+        center_x = 0.1
         center_y = 0  
         strip_angle = 0
 
@@ -420,9 +436,9 @@ class VisualStimulus(Actor):
         return stim
 
     def initial_frame(self):
-        # if self.which_angle%8 == 0:
-            # random.shuffle(self.angle_set)
-        angle = self.stim_sets[0][self.which_angle%len(self.stim_sets[0])]
+        if self.which_angle%8 == 0:
+            random.shuffle(self.initial_angles)
+        angle = self.initial_angles[self.which_angle%8] #self.stim_sets[0][self.which_angle%len(self.stim_sets[0])]
         vel = -0.01 #self.stim_sets[1][4]#[self.which_angle%len(self.stim_sets[1])] #self.stimuli[1][2]
         freq = 30 #self.stim_sets[2][2] #[self.which_angle%len(self.stim_sets[2])] #30
 
@@ -431,38 +447,39 @@ class VisualStimulus(Actor):
         # angle = np.random.choice(self.stimuli[0])
         # vel = -np.random.choice(self.stimuli[1])
         # freq = np.random.choice(self.stimuli[2])
-        light, dark = 240, 0
+        light, dark = 250, 0
 
         self.which_angle += 1
         if self.which_angle >= initial_length: 
             self.initial = False
             self.newN = True
+            self.which_angle = 0
+            logger.info('Done with initial frames, starting random set')
         
         stat_t = 10
         stim_t = stat_t + 5
         self.total_stim_time = stim_t
-        center_width = 16
-        center_x = 0
-        center_y = 0  
+        center_width = 12
+        center_x = 0#.1
+        center_y = 0.015 
         strip_angle = 0
 
         stim = {
-                'load': 0,
-                'stim_type': 's', 'angle': angle, #angle],
-                'velocity': vel, #vel],
-                'stationary_time': stat_t, #stat_t],
-                'duration': stim_t, #stim_t],
-                'frequency': freq, #freq],
-                'lightValue': light,
-                'darkValue': dark,
-                'center_width' : center_width,
-                'center_x': center_x,
-                'center_y': center_y,
+                'stim_name': 'stim_name',
+                'angle': (angle, angle),
+                'velocity': (vel, vel),
+                'stationary_time': (stat_t, stat_t),
+                'duration': (stim_t, stim_t),
+                'frequency': (freq, freq),
+                'light_value': (light, light),
+                'dark_value': (dark, dark),
+                'strip_width' : center_width,
+                'position': (center_x, center_y),
                 'strip_angle': strip_angle
                     }
 
-        self._socket.send_string(self.stimulus_topic, zmq.SNDMORE)
-        self._socket.send_pyobj(stim)
+        # self._socket.send_string(self.stimulus_topic, zmq.SNDMORE)
+        # self._socket.send_pyobj(stim)
 
         self.timer = time.time()
         return stim
@@ -481,12 +498,21 @@ class VisualStimulus(Actor):
         #         self.initial = False
         #         self.newN = True
         
+        # if self.which_angle%24==0:
+        #     random.shuffle(self.all_angles)
+
+        ## grid choice
+        grid = np.argwhere(self.grid_choice==self.grid_ind[self.displayed_stim_num%(24*24)])[0] #self.which_angle%24 #np.argwhere(self.grid_choice==self.grid_ind[self.displayed_stim_num%(36*36)])[0]
+        angle = self.stimuli[0][grid[0]] #self.all_angles[grid] #self.stimuli[0][grid[0]]
+        angle2 = self.stimuli[0][grid[1]]
+
         # else:
             ## stimuli has angle, vel, freq, contrast in that order
-        angle = np.random.choice(self.stimuli[0])
+        # angle = np.random.choice(self.stimuli[0])
+        # angle2 = np.random.choice(self.stimuli[0])
         vel = -0.01 #np.random.choice(self.stimuli[1])
         freq = 30 #np.random.choice(self.stimuli[2])
-        light, dark = 240, 0 # self.contrast(np.random.choice(self.stimuli[3]))
+        light, dark = 250, 0 # self.contrast(np.random.choice(self.stimuli[3]))
 
         # angle = self.angle_set[self.which_angle%16] #np.random.choice() #[0, 45, 90, 135, 180, 225, 270, 315])
         # self.which_angle += 1
@@ -498,28 +524,27 @@ class VisualStimulus(Actor):
         self.total_stim_time = stim_t
         # freq = 60 #np.random.choice(np.array([20,40,60])) #np.arange(5,80,5))
         # light, dark = 0, 240 #self.contrast(np.random.choice(5))
-        center_width = 16
-        center_x = 0
-        center_y = 0  
+        center_width = 12
+        center_x = 0#0.01
+        center_y = 0.015  
         strip_angle = 0
 
         stim = {
-                'load': 0,
-                'stim_type': 's', 'angle': angle, #angle],
-                'velocity': vel, #vel],
-                'stationary_time': stat_t, #stat_t],
-                'duration': stim_t, #stim_t],
-                'frequency': freq, #freq],
-                'lightValue': light,
-                'darkValue': dark,
-                'center_width' : center_width,
-                'center_x': center_x,
-                'center_y': center_y,
+                'stim_name': 'stim_name',
+                'angle': (angle, angle2),
+                'velocity': (vel, vel),
+                'stationary_time': (stat_t, stat_t),
+                'duration': (stim_t, stim_t),
+                'frequency': (freq, freq),
+                'light_value': (light, light),
+                'dark_value': (dark, dark),
+                'strip_width' : center_width,
+                'position': (center_x, center_y),
                 'strip_angle': strip_angle
                     }
 
-        self._socket.send_string(self.stimulus_topic, zmq.SNDMORE)
-        self._socket.send_pyobj(stim)
+        # self._socket.send_string(self.stimulus_topic, zmq.SNDMORE)
+        # self._socket.send_pyobj(stim)
 
         # print('Sent stimulus to be loaded: ', stim)
 
