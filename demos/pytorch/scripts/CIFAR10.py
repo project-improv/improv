@@ -8,8 +8,6 @@ from skimage.io import imsave
 import tarfile
 import urllib.request
 
-import json
-
 def unpickle(file):
     import pickle
     with open(file, 'rb') as fo:
@@ -49,6 +47,7 @@ label_names = meta_data['label_names']
 os.makedirs(os.path.join(data_dir, "images"), exist_ok=True)
 os.makedirs(os.path.join(data_dir, "labels"), exist_ok=True)
 
+# Loop is not necessary? Maybe?
 for i in range(300):
     img = data[i]
     R = img[0:1024].reshape(32, 32)
@@ -63,5 +62,5 @@ for i in range(300):
         text_file.close()
 
 with open(os.path.join(data_dir, "label_names.txt"), "w") as text_file:
-    text_file.write(json.dumps(label_names))
+    text_file.write(", ".join(label_names))
     text_file.close()
