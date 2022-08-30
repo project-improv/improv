@@ -142,6 +142,6 @@ demos/pytorch/improv.pytorch_demo.code-workspace
 demos/pytorch/data
 demos/pytorch/models
 demos/pytorch/output
+demos/pytorch/README.md
 
 demos/ava/improv.ava_demo.code-workspace
-demos/pytorch/README.md
