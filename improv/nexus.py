@@ -44,17 +44,6 @@ class Nexus():
         return self.name
     
     def createNexus(self, file=None, use_hdd=False, store_size=10000000):
-        """ Function to initialize class variables based on config file.
-        
-        Starts a store of class Limbo, and then loads the config file. 
-        The config file specifies the specific actors that nexus will 
-        be connected to, as well as their links. 
-        
-        Args:
-            file (string): Name of the config file.
-            use_hdd (bool): Whether to use hdd for the store.
-        """ 
-
         self._startStore(store_size) #default size should be system-dependent; this is 40 GB
 
         #connect to store and subscribe to notifications
@@ -290,7 +279,7 @@ class Nexus():
             TODO: Not all needed
         '''
         name = name.split('_')[0]
-        logger.info('Received signal from user: '+flag[0])
+        logger.info('Received signal from user: '+flag[0]) 
         if flag[0]:
             if flag[0] == Spike.run():
                 logger.info('Begin run!')
@@ -303,9 +292,19 @@ class Nexus():
                 logger.info('GUI ready')
                 self.actorStates[name] = flag[0]
             elif flag[0] == Spike.quit():
+                sig_received = time.time()
+                print('Received signal:', sig_received)
+                with open(self.out_path + "quit_received.txt", "w") as text_file:
+                    text_file.write("%s" % sig_received)
+                    text_file.close()     
                 logger.warning('Quitting the program!')
                 self.flags['quit'] = True
                 self.quit()
+                quit_time = time.time()
+                print('Quitting:', quit_time)
+                with open(self.out_path + "nexus_quit.txt", "w") as text_file:
+                    text_file.write("%s" % quit_time)
+                    text_file.close()  
             elif flag[0] == Spike.load():
                 logger.info('Loading Tweak config from file '+flag[1])
                 self.loadTweak(flag[1])
@@ -348,11 +347,11 @@ class Nexus():
         logger.warning('Killing child processes')
 
         for q in self.sig_queues.values():
-            try:
+            try:          
                 q.put_nowait(Spike.quit())
             except Full as f:
                 logger.warning('Signal queue '+q.name+' full, cannot tell it to quit: {}'.format(f))
-
+        time.sleep(10)
         if self.tweak.hasGUI:
             self.processes.append(self.p_GUI)
         #self.processes.append(self.p_watch)
