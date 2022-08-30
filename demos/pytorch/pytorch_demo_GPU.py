@@ -1,11 +1,10 @@
 import logging
 # Matplotlib is overly verbose by default
-logging.getLogger("matplotlib").setLevel(logging.WARNING)
+logging.getLogger("matplotlib").setLevel(logging.INFO)
 
 if __name__ == '__main__':
     '''
     '''
-    import torch.multiprocessing as mp
     from improv.nexus import Nexus
 
     loadFile = './pytorch_demo_GPU.yaml'
