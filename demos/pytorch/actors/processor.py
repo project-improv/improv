@@ -10,8 +10,7 @@ import torch
 from scipy.special import softmax
 
 import logging; logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logging.getLogger('PIL').setLevel(logging.WARNING)
+logger.setLevel(logging.INFO)
 
 import traceback
 
