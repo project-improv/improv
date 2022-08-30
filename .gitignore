@@ -132,11 +132,15 @@ dmypy.json
 *.tif
 arrow
 .vscode
+.vscode/settings.json
+
+improv/improv.src.code-workspace
+
 demos/improv.demos.code-workspace
+
 demos/pytorch/improv.pytorch_demo.code-workspace
 demos/pytorch/data
 demos/pytorch/models
 demos/pytorch/output
-improv/improv.src.code-workspace
-.vscode/settings.json
+
 demos/ava/improv.ava_demo.code-workspace
