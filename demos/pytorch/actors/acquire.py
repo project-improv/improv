@@ -127,7 +127,7 @@ class FolderAcquirer(Actor):
         if self.done:
             pass
         
-        elif self.img_num != len(self.files):
+        elif self.img_num != self.n_imgs:
             t = time.time()
             try:
                 t1 = time.time()
