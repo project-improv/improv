@@ -195,6 +195,10 @@ class Spike():
     def kill():
         return 'kill'
 
+    @staticmethod
+    def revive():
+        return 'revive'
+
 
 class RunManager():
     '''

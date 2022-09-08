@@ -4,11 +4,23 @@ import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 class Processor(Actor):
+    """ Sample processor used to calculate the average of an array of integers.
+
+    Intended for use with sample_generator.py.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
     def setup(self):
-        self.done = False
+        """ Initializes all class variables.
+        
+        self.name (string): name of the actor.
+        self.frame (ObjectID): Limbo object id referencing data from the store.
+        self.avg_list (list): list that contains averages of individual vectors.
+        self.frame_num (int): index of current frame.
+        """
+
         self.name = "Processor"
         self.frame = None
         self.avg_list = []
@@ -20,22 +32,23 @@ class Processor(Actor):
     
 
     def get_avg(self):
-        # print("Getting Average!")
+        """ Gets from the input queue and calculates the average.
+        
+        Receives an ObjectID, references data in the store using that
+        ObjectID, calculates the average of that data, and finally prints 
+        to stdout. 
+        """
+
         frame = None
-        print(f"Memory address of q_in: {hex(id(self.q_in))}")
-        print(f"Memory address of processor.client: {hex(id(self.client))}")
-        # print("Trying to get frame")
         try:
-            print("Acquiring frame")
             frame = self.q_in.get(timeout=0.05)
-            print(f"Acquired frame: {frame}")
         except:
-            print("Could not get frame")
+            logger.error("Could not get frame!")
+            pass
 
         if frame is not None and self.frame_num is not None:
             self.done = False
             self.frame = self.client.getID(frame[0][0])
-            print(f"self.frame: {self.frame}")
             avg = np.mean(self.frame[0])
             print(f"Average: {avg}") 
             self.avg_list.append(avg)

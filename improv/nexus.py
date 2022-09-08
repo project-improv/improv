@@ -333,6 +333,11 @@ class Nexus():
                                     p.daemon = True #default behavior
                     print(p)
                     print(f"M: {m}")
+                    #Setting the stores for each actor to be the same
+
+                    m.setStore([act for act in self.actors.values() if act.name != pro.name][0].client)
+                    m.client = None
+                    m._getStoreInterface()
                     self.processes.append(p)
                     p.start()
                     print("setting up")
@@ -345,7 +350,22 @@ class Nexus():
                         # print("Waiting for ready signal")
                         # pass
                     m.q_sig.put_nowait(Spike.run())
-                     
+
+
+                    #Checking if store objects are sealed
+
+                    # store_objs = m.client.client.list()
+                    # print(f"Store Objects: {store_objs}")
+                    # unsealed_objects = [o for o in store_objs.items() if o[1]['state'] != "sealed"]
+                    # print(f"Unsealed data: {unsealed_objects}")
+                    # print(store_objs.keys())
+                    # print([o_id for o_id in store_objs.keys()])
+
+                    # data_buffers = [m.client.client.get_buffers([o_id for o_id in store_objs.keys()])]
+                    # print("DATA BUFFERS: \n\n\n\n\n\n\n\n\n")
+                    # print(data_buffers)
+
+
                 print(self.processes) 
                 self.processes = [p for p in list(self.processes) if p.exitcode is None]
                 print(self.processes)
