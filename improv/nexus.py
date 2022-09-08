@@ -245,7 +245,6 @@ class Nexus():
             done, pending = await asyncio.wait(self.tasks, return_when=concurrent.futures.FIRST_COMPLETED)
             #TODO: actually kill pending tasks
             for i,t in enumerate(self.tasks):
-                # print(i, t, t.result)
                 if i < len(polling):
                     if t in done or polling[i].status == 'done': #catch tasks that complete await wait/gather
                         r = polling[i].result
@@ -256,8 +255,6 @@ class Nexus():
                         self.tasks[i] = (asyncio.ensure_future(polling[i].get_async()))
                 elif t in done: ##cmd line
                     res = t.result()
-                    print(res, '------------------')
-                    # print('Got command line input: ', t.result(), '\n')
                     self.processGuiSignal([res.rstrip('\n')], 'commandLine_Nexus')
                     self.tasks[i] = (asyncio.ensure_future(self.ainput('Awaiting input \n')))
 
@@ -294,7 +291,6 @@ class Nexus():
             elif flag[0] == Spike.quit():
                 logger.warning('Quitting the program!')
                 self.flags['quit'] = True
-                print(self.processes)
                 self.quit()
             elif flag[0] == Spike.load():
                 logger.info('Loading Tweak config from file '+flag[1])
@@ -304,14 +300,9 @@ class Nexus():
                 # TODO. Alsoresume, reset
             # temporary
             elif flag[0] == Spike.kill():
-                print(f"Pre kill: {list(self.processes)}")
                 list(self.processes)[0].kill()
-                print(f"Post kill: {list(self.processes)}")
             elif flag[0] == Spike.revive():
-                print("Reviving")
                 dead = [p for p in list(self.processes) if p.exitcode is not None] 
-                print(self.actors)
-                print(dead)
             
                 for pro in dead: 
                     name = pro.name
@@ -331,8 +322,6 @@ class Nexus():
                                     logger.info('Setting daemon to {} for {}'.format(p.daemon,name))
                                 else: 
                                     p.daemon = True #default behavior
-                    print(p)
-                    print(f"M: {m}")
                     #Setting the stores for each actor to be the same
 
                     m.setStore([act for act in self.actors.values() if act.name != pro.name][0].client)
@@ -340,12 +329,7 @@ class Nexus():
                     m._getStoreInterface()
                     self.processes.append(p)
                     p.start()
-                    print("setting up")
-                    print(m.q_sig)
-                    print(f"Memory address of m.q_out: {hex(id(m.q_out))}")
                     m.q_sig.put_nowait(Spike.setup())
-                    print("Put setup signal")
-                    # print(m.q_comm.get())
                     # while m.q_comm.empty():
                         # print("Waiting for ready signal")
                         # pass
@@ -366,9 +350,7 @@ class Nexus():
                     # print(data_buffers)
 
 
-                print(self.processes) 
                 self.processes = [p for p in list(self.processes) if p.exitcode is None]
-                print(self.processes)
         else:
             logger.error('Signal received from Nexus but cannot identify {}'.format(flag))
 
@@ -415,16 +397,12 @@ class Nexus():
         #self.processes.append(self.p_watch)
 
         for p in self.processes:
-            print("terminating processes")
-            print(p)
-            print(self.processes)
             # if p.is_alive():
             #     p.terminate()
             p.terminate()
             p.join()
 
         logger.warning('Actors terminated')
-        print('total time ', time.time()-self.t)
 
         self.destroyNexus()
 
