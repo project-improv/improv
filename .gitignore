@@ -138,10 +138,24 @@ improv/improv.src.code-workspace
 
 demos/improv.demos.code-workspace
 
-demos/pytorch/improv.pytorch_demo.code-workspace
-demos/pytorch/data
-demos/pytorch/models
-demos/pytorch/output
-demos/pytorch/README.md
+demos/cnn/improv.cnn_demo.code-workspace
+demos/cnn/actors_timing
+demos/cnn/data
+demos/cnn/models
+demos/cnn/output
+demos/cnn/README_errors.md
+demos/cnn/pytorch_demo_CPU.py
+demos/cnn/pytorch_demo_CPU.yaml
+demos/cnn/pytorch_demo_GPU.py
+demos/cnn/pytorch_demo_GPU.yaml
+
+demos/cnn/actors/analysis.py
+demos/cnn/actors/processor_two_models.py
+
+demos/cnn/scripts/CIFAR10_PyTorch.py
+demos/cnn/scripts/plotting.py
+demos/cnn/scripts/resnet50_TensorRT.py
+demos/cnn/torchscript/resnet50_trace.py
+demos/cnn/torchscript/resnet50_with_transforms.py
 
 demos/ava/improv.ava_demo.code-workspace
