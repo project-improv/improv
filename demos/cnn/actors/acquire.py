@@ -119,10 +119,11 @@ class ImageAcquirer(Actor):
         '''
         '''
         try:
-            img = imread(file.as_posix())
+            # Why does file.as_posix not work?
+            img = imread(file)
         except ValueError as e:
             img = imread(file)
-            logger.error('File ' + file.as_posix() + ' had value error {}'.format(e))
+            logger.error('File ' + file + ' had value error {}'.format(e))
         return img
 
     def get_label(self, label_file):
