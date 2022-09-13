@@ -21,7 +21,7 @@ class CNNProcessor(Actor):
     ''' 
     '''
 
-    def __init__(self, *args, input_size=None, n_imgs=None, gpu=False, gpu_num=None, model_path=None, classify=False, labels=None, out_path=None, method='spawn', **kwargs):
+    def __init__(self, *args, n_imgs=None, gpu=False, gpu_num=None, model_path=None, classify=False, labels=None, out_path=None, method='spawn', **kwargs):
         super().__init__(*args, **kwargs)
         logger.info(model_path)
         if model_path is None:
@@ -31,7 +31,6 @@ class CNNProcessor(Actor):
             self.model_path = model_path
 
         self.img_num = 0
-        self.input_size = input_size
 
         if gpu is True:
             self.device = torch.device("cuda:{}".format(gpu_num))
@@ -41,7 +40,6 @@ class CNNProcessor(Actor):
             torch.jit.fuser('fuser1')
 
         self.classify = classify
-
         self.labels = labels
 
         self.n_imgs = n_imgs
@@ -68,9 +66,9 @@ class CNNProcessor(Actor):
             text_file.close()
 
         t = time.time()
-        sample_input = torch.rand(size=self.input_size, device=self.device)
+        sample_input = torch.rand(size=(1, 3, 224, 224), device=self.device)
         with torch.no_grad():
-            for _ in range(5):
+            for _ in range(10):
                 self.model(sample_input)
         
         torch.cuda.synchronize()
@@ -90,6 +88,12 @@ class CNNProcessor(Actor):
         ''' Run the processor continually on input data, e.g.,images
         '''
         self.total_times = []
+
+        if self.classify is True:
+            self.true_label = []
+            self.pred_label = []
+            self.percent = []
+            self.top_five = []
 
         with RunManager(self.name, self.runProcess, self.setup, self.q_sig, self.q_comm, runStore=self._getStoreInterface()) as rm:
             print(rm)
