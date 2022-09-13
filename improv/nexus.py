@@ -291,20 +291,10 @@ class Nexus():
             elif flag[0] == Spike.ready():
                 logger.info('GUI ready')
                 self.actorStates[name] = flag[0]
-            elif flag[0] == Spike.quit():
-                sig_received = time.time()
-                print('Received signal:', sig_received)
-                with open(self.out_path + "quit_received.txt", "w") as text_file:
-                    text_file.write("%s" % sig_received)
-                    text_file.close()     
+            elif flag[0] == Spike.quit(): 
                 logger.warning('Quitting the program!')
                 self.flags['quit'] = True
                 self.quit()
-                quit_time = time.time()
-                print('Quitting:', quit_time)
-                with open(self.out_path + "nexus_quit.txt", "w") as text_file:
-                    text_file.write("%s" % quit_time)
-                    text_file.close()  
             elif flag[0] == Spike.load():
                 logger.info('Loading Tweak config from file '+flag[1])
                 self.loadTweak(flag[1])
