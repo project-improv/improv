@@ -12,11 +12,11 @@ actors:
       - .png
     classify: True
     label_folder: data/CIFAR10/labels
+    out_path: output/GPU/timing/
 
   Processor:
     package: actors.processor
     class: CNNProcessor
-    input_size: (1, 3, 224, 224)
     n_imgs: 300
     gpu: True
     gpu_num: 0
