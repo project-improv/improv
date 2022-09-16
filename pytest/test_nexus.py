@@ -70,6 +70,7 @@ def test_loadTweak(sample_nex):
     nex.loadTweak()
     assert set(nex.comm_queues.keys()) == set(["Acquirer_comm", "Analysis_comm", "GUI_comm", "InputStim_comm"])
 
+#delete this comment later
 @pytest.mark.skip(reason="unfinished")
 def test_startNexus(sample_nex):
     nex = sample_nex
