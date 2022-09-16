@@ -193,6 +193,14 @@ class Spike():
     @staticmethod
     def ready():
         return 'ready'
+    
+    @staticmethod
+    def kill():
+        return 'kill'
+
+    @staticmethod
+    def revive():
+        return 'revive'
 
     @staticmethod
     def stop():

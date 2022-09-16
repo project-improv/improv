@@ -1,3 +1,4 @@
+import sys
 import time
 import os
 import pytest
@@ -20,7 +21,7 @@ def setdir():
 def sample_nex(setdir):
     setdir
     nex = Nexus("test")
-    nex.createNexus()
+    nex.createNexus(store_size=4000)
     yield nex
     nex.destroyNexus()
 
@@ -222,4 +223,31 @@ def test_closestore(caplog):
     with pytest.raises(AttributeError):
         nex.p_Limbo.put("Message in", "Message in Label")
     
+    assert True
+
+@pytest.mark.skip(reason="unfinished")
+def test_actor_sub(setdir, capsys, monkeypatch):
+
+    
+    setdir
+    monkeypatch.setattr("improv.nexus.input", lambda: "setup\n")
+    cfg_file = "sample_config.yaml"
+    nex = Nexus("test")
+
+    
+    nex.createNexus(file = cfg_file, store_size=4000)
+    print("Nexus Created")
+    
+    nex.startNexus()
+    print("Nexus Started")
+    # time.sleep(5)
+    # print("Printing...")
+    # subprocess.Popen(["setup"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # time.sleep(2)
+    # subprocess.Popen(["run"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # time.sleep(5)
+    # subprocess.Popen(["quit"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+    nex.destroyNexus()
     assert True
