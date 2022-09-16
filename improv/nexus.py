@@ -301,6 +301,9 @@ class Nexus():
             elif flag[0] == Spike.pause():
                 logger.info('Pausing processes')
                 # TODO. Alsoresume, reset
+            elif flag[0] == Spike.stop():
+                logger.info('Stopping processes')
+                # TODO. Alsoresume, reset
         else:
             logger.error('Signal received from Nexus but cannot identify {}'.format(flag))
 
@@ -356,6 +359,13 @@ class Nexus():
         print('total time ', time.time()-self.t)
 
         self.destroyNexus()
+
+    def stop(self):
+        logger.warning('Starting stop procedure')
+
+        for p in polling:
+            pass
+
 
     def stop_polling(self, stop_signal, loop, queues):
         """ Cancels outstanding tasks and fills their last request.

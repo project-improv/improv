@@ -140,6 +140,9 @@ class Actor():
         ''' Suggested implementation for synchronous running: see RunManager class below
         '''
 
+    def stop():
+        raise NotImplementedError
+
     def changePriority(self):
         ''' Try to lower this process' priority
             Only changes priority if lower_priority is set
@@ -190,6 +193,10 @@ class Spike():
     @staticmethod
     def ready():
         return 'ready'
+
+    @staticmethod
+    def stop():
+        return 'stop'
 
 
 class RunManager():
