@@ -27,9 +27,16 @@ class Processor(Actor):
         self.frame_num = 1
 
     def run(self):
-        with RunManager(self.name, self.get_avg, self.setup, self.q_sig, self.q_comm) as rm:
+        with RunManager(self.name, self.get_avg, self.setup, self.q_sig, self.q_comm, self.stop) as rm:
             logger.info(rm)
-    
+
+    def stop(self):
+        """ Trivial stop function for testing purposes.
+        """
+
+        print("Processor stopping")
+        pass
+
 
     def get_avg(self):
         """ Gets from the input queue and calculates the average.

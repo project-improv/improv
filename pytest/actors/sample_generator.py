@@ -1,4 +1,5 @@
 from improv.actor import Actor, RunManager
+from datetime import date #used for saving
 import numpy as np
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -30,9 +31,16 @@ class Generator(Actor):
     def run(self):
         """ Send array into the store.
         """
-        with RunManager(self.name, self.generate, self.setup, self.q_sig, self.q_comm) as rm:
+        with RunManager(self.name, self.generate, self.setup, self.q_sig, self.q_comm, self.stop) as rm:
             logger.info(rm)
-        
+
+    def stop(self):
+        """ Save current randint vector to a file.
+        """ 
+
+        print("STOPPED")
+        np.save(f"sample_generator_data_{date.today()}", self.data)
+
     def generate(self):
         """ Generates additional data after initial setup data is exhausted.
         

@@ -69,6 +69,7 @@ class Nexus():
 
         self.flags.update({'quit':False, 'run':False, 'load':False})
         self.allowStart = False
+        self.stopped = False
 
     def loadTweak(self, file=None):
         ''' For each connection:
@@ -298,11 +299,6 @@ class Nexus():
             elif flag[0] == Spike.pause():
                 logger.info('Pausing processes')
                 # TODO. Alsoresume, reset
-<<<<<<< HEAD
-            elif flag[0] == Spike.stop():
-                logger.info('Stopping processes')
-                # TODO. Alsoresume, reset
-=======
             # temporary
             elif flag[0] == Spike.kill():
                 list(self.processes)[0].kill()
@@ -356,14 +352,16 @@ class Nexus():
 
 
                 self.processes = [p for p in list(self.processes) if p.exitcode is None]
->>>>>>> test
+            elif flag[0] == Spike.stop():
+                logger.info('Nexus received stop signal')
+                self.stop()
         else:
             logger.error('Signal received from Nexus but cannot identify {}'.format(flag))
 
     def processActorSignal(self, sig, name):
         if sig is not None:
             logger.info('Received signal '+str(sig[0])+' from '+name)
-            if sig[0]==Spike.ready():
+            if not self.stopped and sig[0]==Spike.ready():
                 self.actorStates[name.split('_')[0]] = sig[0]
                 if all(val==Spike.ready() for val in self.actorStates.values()):
                     self.allowStart = True      #TODO: replace with q_sig to FE/Visual
@@ -372,6 +370,13 @@ class Nexus():
                     #TODO: Maybe have flag for auto-start, else require explict command
                     # if not self.tweak.hasGUI:
                     #     self.run()
+            elif self.stopped and sig[0] == Spike.stop_success():
+                self.actorStates[name.split('_')[0]] = sig[0]
+                if all(val==Spike.stop_success() for val in self.actorStates.values()):
+                    self.allowStart = True      #TODO: replace with q_sig to FE/Visual
+                    self.stoppped = False
+                    logger.info('All stops were successful. Allowing start.')
+                
 
     def setup(self):
         for q in self.sig_queues.values():
@@ -415,8 +420,16 @@ class Nexus():
     def stop(self):
         logger.warning('Starting stop procedure')
 
-        for p in polling:
-            pass
+        for q in self.sig_queues.values():
+            try:
+                q.put_nowait(Spike.stop())
+            except Full:
+                logger.warning('Signal queue'+q.name+'is full')
+        self.allowStart = False
+
+
+    def revive(self):
+        logger.warning('Starting revive')
 
 
     def stop_polling(self, stop_signal, loop, queues):
