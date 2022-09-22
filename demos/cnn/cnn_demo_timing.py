@@ -7,7 +7,7 @@ if __name__ == '__main__':
     '''
     from improv.nexus import Nexus
 
-    loadFile = 'cnn_demo.yaml'
+    loadFile = 'cnn_demo_timing.yaml'
 
     nexus = Nexus('Nexus')
     nexus.createNexus(file=loadFile)

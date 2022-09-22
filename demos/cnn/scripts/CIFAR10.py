@@ -45,7 +45,7 @@ label_names = meta_data['label_names']
 os.makedirs(os.path.join(data_dir, "images"), exist_ok=True)
 os.makedirs(os.path.join(data_dir, "labels"), exist_ok=True)
 
-for i in range(300):
+for i in range(len(data)):
     img = data[i]
     R = img[0:1024].reshape(32, 32)
     G = img[1024:2048].reshape(32, 32)

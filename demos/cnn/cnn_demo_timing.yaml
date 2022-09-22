@@ -1,0 +1,67 @@
+# settings:
+  # use_watcher: [Acquirer, Processor, Analysis, Visual]
+
+actors:
+  Acquirer:
+    package: actors_timing.acquire
+    class: ImageAcquirer
+    n_imgs: 10000
+    folder: data/CIFAR10/images
+    exts:
+      - .jpg
+      - .png
+    classify: True
+    label_folder: data/CIFAR10/labels
+    time_opt: True
+    timing:
+      - acq_timestamps
+      - get_img_time
+      - put_img_time
+      - put_out_time
+      - acq_total_times
+    lab_timing:
+      - get_lab_time
+      - put_lab_time
+      - lab_timestamps
+    out_path: output/GPU/timing/
+
+  Processor:
+    package: actors_timing.processor
+    class: CNNProcessor
+    n_imgs: 10000
+    gpu: True
+    gpu_num: 0
+    model_path: models/ResNet50_GPU.pt
+    classify: True
+    labels: data/CIFAR10/label_names.txt
+    time_opt: True
+    timing:
+      - proc_timestamps
+      - get_img_out
+      - proc_img_time
+      - to_device
+      - inference_time
+      - out_to_np
+      - put_out_store
+      - put_q_out
+      - proc_total_times
+    lab_timing:
+      - pred_time
+      - put_pred_store
+    out_path: output/GPU/timing/
+    method: spawn
+    
+  # Analysis:
+  #   package: actors.analysis
+  #   class: PyTorchAnalysis
+  #   model_path: models/ResNet50-CIFAR10.pt
+  #   classify: False
+
+  # Visual:
+  #   package: actors.visual
+  #   class: PyTorchAnalysis
+
+connections:
+  Acquirer.q_out: [Processor.q_in]
+  # Processor.q_out: [Analysis.q_in]
+  # Analysis.q_out: [Visual.q_in]
