@@ -129,6 +129,10 @@ dmypy.json
 *.hdf5
 *.iml
 
-output/
 *.tif
 arrow
+
+.vscode/
+
+*.code-workspace
+
