@@ -1,0 +1,63 @@
+# settings:
+  # use_watcher: [Acquirer, Processor, Analysis, Visual]
+
+actors:
+  Acquirer:
+    package: actors.acquire
+    class: AudioAcquirer
+    n_segs: 30005
+    folder: data/blu285/v1/original_data/DIR/segments
+    time_opt: True
+    timing:
+      - acq_total_times
+      - acq_timestamps 
+      - get_wav_time
+      - put_wav_time 
+      - put_out_time
+    out_path: output/timing
+
+  Processor:
+    package: actors.processor
+    class: AudioProcessor
+    n_segs: 30005
+    model_path: models/vae.pt
+    params:
+      width: 128
+      height: 128
+      min_freq: 30000
+      max_freq: 110000
+      win_len: 1
+      nperseg: 512
+      noverlap: 256
+      spec_min_val: 2.0 # minimum STFT log-modulus
+      spec_max_val: 6.0 # maximum STFT log-modulus
+    gpu: True
+    gpu_num: 0
+    time_opt: True
+    timing:
+      - proc_timestamps
+      - get_wav_out
+      - get_spec
+      - spec_to_np
+      - spec_to_store
+      - to_device
+      - inference_time
+      - z_to_np
+      - put_out_store
+      - put_q_out
+      - proc_total_times
+    out_path: output/timing
+    method: fork
+  
+  # Analysis:
+  #   package: actors.analysis
+  #   class: VAEAnalysis
+
+  # Visual:
+  #   package: actors.visual
+  #   class: PyTorchAnalysis
+
+connections:
+  Acquirer.q_out: [Processor.q_in]
+  # Processor.q_out: [Analysis.q_in]
+  # Analysis.q_out: [Visual.q_in]
