@@ -38,7 +38,7 @@ class Generator(Actor):
         """ Save current randint vector to a file.
         """ 
 
-        print("STOPPED")
+        print("Generator stopping")
         np.save(f"sample_generator_data_{date.today()}", self.data)
 
     def generate(self):

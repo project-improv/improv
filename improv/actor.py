@@ -244,10 +244,18 @@ class RunManager():
                     logger.error('Actor '+self.actorName+' exception during run: {}'.format(e))
                     print(traceback.format_exc())
             elif self.stop:
+                    #Read stop codes
                 try:
-                    self.stopMethod()
+                    exit_code = self.stopMethod()
+                    #Read stop codes
+                    if not exit_code:
+                        self.q_comm.put([Spike.ready()])
+                    else:
+                        #Maybe send ready signal anyway?
+                        logger.error(f"Actor {self.actorName} was unable to stop")
                 except Exception as e:
                     logger.error(f'Actor {self.actorName} exception during run: {e}')
+                self.stop = False #Run once
             elif self.config:
                 try:
                     if self.runStore:

@@ -388,11 +388,12 @@ class Nexus():
     def run(self):
         if self.allowStart:
             for q in self.sig_queues.values():
-                try:
-                    q.put_nowait(Spike.run())
-                except Full:
-                    logger.warning('Signal queue'+q.name+'is full')
-                    #queue full, keep going anyway TODO: add repeat trying as async task
+                if self.allowStart: #needed for stopping
+                    try:
+                        q.put_nowait(Spike.run())
+                    except Full:
+                        logger.warning('Signal queue'+q.name+'is full')
+                        #queue full, keep going anyway TODO: add repeat trying as async task
 
     def quit(self):
         logger.warning('Killing child processes')
@@ -419,6 +420,7 @@ class Nexus():
 
     def stop(self):
         logger.warning('Starting stop procedure')
+        self.allowStart = False
 
         for q in self.sig_queues.values():
             try:
