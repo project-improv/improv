@@ -3,14 +3,14 @@ from queue import Empty
 import time
 from typing import Awaitable, Callable
 import traceback
-from improv.store import Limbo  ## This is default, needs to be chaneable?
+from improv.store import Limbo
 
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-class Actor():
-    ''' Abstract class for an actor that Nexus
+class AbstractActor():
+    ''' Base class for an actor that Nexus
         controls and interacts with.
         Needs to have a store and links for communication
         Also needs at least a setup and run function
@@ -153,43 +153,27 @@ class Actor():
             print('Lowered ', os.getpid(), ' for ', self.name)
 
 
-class Spike():
-    ''' Class containing definition of signals Nexus uses
-        to communicate with its actors
-        TODO: doc each of these with expected handling behavior
-        NOTE: add functionality as class objects..? Any advantage to this?
-    '''
-    @staticmethod
-    def run():
-        return 'run'
+class ManagedActor(AbstractActor):
 
-    @staticmethod
-    def quit():
-        return 'quit'
+    def runStep(self):
+        raise NotImplementedError
 
-    @staticmethod
-    def pause():
-        return 'pause'
+    def run(self):
+        with RunManager(self.name, self.runStep, self.setup, self.q_sig, self.q_comm) as rm:
+            pass
 
-    @staticmethod
-    def resume():
-        return 'resume'
+class AsyncActor(AbstractActor):
 
-    @staticmethod
-    def reset(): #TODO: implement in Nexus
-        return 'reset'
-    
-    @staticmethod
-    def load():
-        return 'load'
+    def runStep(self):
+        raise NotImplementedError
 
-    @staticmethod
-    def setup():
-        return 'setup'
+    def run(self):
+        with AsyncRunManager(self.name, self.runStep, self.setup, self.q_sig, self.q_comm) as rm:
+            pass
 
-    @staticmethod
-    def ready():
-        return 'ready'
+
+## Aliasing
+Actor = ManagedActor
 
 
 class RunManager():
@@ -299,3 +283,42 @@ class AsyncRunManager:
     async def __aexit__(self, type, value, traceback):
         logger.info('Ran for {} seconds'.format(time.time() - self.start))
         logger.warning('Exiting AsyncRunManager')
+
+
+class Spike():
+    ''' Class containing definition of signals Nexus uses
+        to communicate with its actors
+        TODO: doc each of these with expected handling behavior
+        NOTE: add functionality as class objects..? Any advantage to this?
+    '''
+    @staticmethod
+    def run():
+        return 'run'
+
+    @staticmethod
+    def quit():
+        return 'quit'
+
+    @staticmethod
+    def pause():
+        return 'pause'
+
+    @staticmethod
+    def resume():
+        return 'resume'
+
+    @staticmethod
+    def reset(): #TODO: implement in Nexus
+        return 'reset'
+    
+    @staticmethod
+    def load():
+        return 'load'
+
+    @staticmethod
+    def setup():
+        return 'setup'
+
+    @staticmethod
+    def ready():
+        return 'ready'

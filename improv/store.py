@@ -42,7 +42,7 @@ class StoreInterface():
         raise NotImplementedError
 
 
-class Limbo(StoreInterface):
+class PlasmaStore(StoreInterface):
     ''' Basic interface for our specific data store implemented with apache arrow plasma
     Objects are stored with object_ids
     References to objects are contained in a dict where key is shortname, value is object_id
@@ -524,6 +524,8 @@ class LMDBStore(StoreInterface):
 
     def subscribe(self): pass # TODO
 
+## Aliasing
+Limbo = PlasmaStore
 
 @dataclass
 class LMDBData:
