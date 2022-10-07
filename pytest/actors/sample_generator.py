@@ -39,7 +39,8 @@ class Generator(Actor):
         """ 
 
         print("Generator stopping")
-        np.save(f"sample_generator_data_{date.today()}", self.data)
+        np.save(f"sample_generator_data_{date.today()}", self.data) #This is not the best example of a save function, will overwrite previous files with the same name.
+        return 0
 
     def generate(self):
         """ Generates additional data after initial setup data is exhausted.

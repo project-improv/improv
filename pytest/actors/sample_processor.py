@@ -35,7 +35,7 @@ class Processor(Actor):
         """
 
         print("Processor stopping")
-        pass
+        return 0
 
 
     def get_avg(self):

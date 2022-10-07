@@ -143,11 +143,11 @@ class Actor():
     def stop():
         """ Specify method for momentarily stopping the run and saving data.
         
-        Must send a Spike.stop_success() when finished.
+        Returns 0 for exit success, Returns 1 for exit failure
         """
 
-        raise NotImplementedError
-
+        return 0
+    
     def changePriority(self):
         ''' Try to lower this process' priority
             Only changes priority if lower_priority is set
@@ -248,7 +248,7 @@ class RunManager():
                 try:
                     exit_code = self.stopMethod()
                     #Read stop codes
-                    if not exit_code:
+                    if exit_code == 0: 
                         self.q_comm.put([Spike.ready()])
                     else:
                         #Maybe send ready signal anyway?
