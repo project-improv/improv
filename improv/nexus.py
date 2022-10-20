@@ -1,27 +1,21 @@
 import asyncio
 import concurrent
-import functools
-import multiprocessing
 import signal
 import sys
-import os
 import time
 import subprocess
-
-import numpy as np
 import logging
+import numpy as np
 import pyarrow.plasma as plasma
 
-from multiprocessing import Process, Queue, get_context
-from PyQt5 import QtGui, QtWidgets
+from multiprocessing import Process, get_context
 from importlib import import_module
-from threading import Thread
 from queue import Empty, Full
 from datetime import datetime
 
-from improv.watcher import BasicWatcher
 from improv import store
-from improv.actor import Spike
+from improv.watcher import BasicWatcher
+from improv.actor import Signal
 from improv.tweak import Tweak
 from improv.link import Link, MultiLink
 
@@ -191,8 +185,6 @@ class Nexus():
         loop.stop()
         loop.close()
         logger.info('Shutdown loop')
-        # else:
-        #     pass
 
 
     def start(self):
@@ -243,9 +235,7 @@ class Nexus():
 
         while not self.flags['quit']:
             done, pending = await asyncio.wait(self.tasks, return_when=concurrent.futures.FIRST_COMPLETED)
-            #TODO: actually kill pending tasks
             for i,t in enumerate(self.tasks):
-                # print(i, t, t.result)
                 if i < len(polling):
                     if t in done or polling[i].status == 'done': #catch tasks that complete await wait/gather
                         r = polling[i].result
@@ -257,7 +247,6 @@ class Nexus():
                 elif t in done: ##cmd line
                     res = t.result()
                     print(res, '------------------')
-                    # print('Got command line input: ', t.result(), '\n')
                     self.processGuiSignal([res.rstrip('\n')], 'commandLine_Nexus')
                     self.tasks[i] = (asyncio.ensure_future(self.ainput('Awaiting input \n')))
 
@@ -281,24 +270,24 @@ class Nexus():
         name = name.split('_')[0]
         logger.info('Received signal from user: '+flag[0])
         if flag[0]:
-            if flag[0] == Spike.run():
+            if flag[0] == Signal.run():
                 logger.info('Begin run!')
                 #self.flags['run'] = True
                 self.run()
-            elif flag[0] == Spike.setup():
+            elif flag[0] == Signal.setup():
                 logger.info('Running setup')
                 self.setup()
-            elif flag[0] == Spike.ready():
+            elif flag[0] == Signal.ready():
                 logger.info('GUI ready')
                 self.actorStates[name] = flag[0]
-            elif flag[0] == Spike.quit():
+            elif flag[0] == Signal.quit():
                 logger.warning('Quitting the program!')
                 self.flags['quit'] = True
                 self.quit()
-            elif flag[0] == Spike.load():
+            elif flag[0] == Signal.load():
                 logger.info('Loading Tweak config from file '+flag[1])
                 self.loadTweak(flag[1])
-            elif flag[0] == Spike.pause():
+            elif flag[0] == Signal.pause():
                 logger.info('Pausing processes')
                 # TODO. Alsoresume, reset
         else:
@@ -307,9 +296,9 @@ class Nexus():
     def processActorSignal(self, sig, name):
         if sig is not None:
             logger.info('Received signal '+str(sig[0])+' from '+name)
-            if sig[0]==Spike.ready():
+            if sig[0]==Signal.ready():
                 self.actorStates[name.split('_')[0]] = sig[0]
-                if all(val==Spike.ready() for val in self.actorStates.values()):
+                if all(val==Signal.ready() for val in self.actorStates.values()):
                     self.allowStart = True      #TODO: replace with q_sig to FE/Visual
                     logger.info('Allowing start')
 
@@ -320,7 +309,7 @@ class Nexus():
     def setup(self):
         for q in self.sig_queues.values():
             try:
-                q.put_nowait(Spike.setup())
+                q.put_nowait(Signal.setup())
             except Full:
                 logger.warning('Signal queue'+q.name+'is full')
 
@@ -328,7 +317,7 @@ class Nexus():
         if self.allowStart:
             for q in self.sig_queues.values():
                 try:
-                    q.put_nowait(Spike.run())
+                    q.put_nowait(Signal.run())
                 except Full:
                     logger.warning('Signal queue'+q.name+'is full')
                     #queue full, keep going anyway TODO: add repeat trying as async task
@@ -338,7 +327,7 @@ class Nexus():
 
         for q in self.sig_queues.values():
             try:
-                q.put_nowait(Spike.quit())
+                q.put_nowait(Signal.quit())
             except Full as f:
                 logger.warning('Signal queue '+q.name+' full, cannot tell it to quit: {}'.format(f))
 
@@ -347,8 +336,6 @@ class Nexus():
         #self.processes.append(self.p_watch)
 
         for p in self.processes:
-            # if p.is_alive():
-            #     p.terminate()
             p.terminate()
             p.join()
 
@@ -397,7 +384,8 @@ class Nexus():
         logging.info('Polling has stopped.')
 
     def createLimbo(self, name):
-        """ Creates Limbo w/ or w/out LMDB functionality based on {self.use_hdd}. """
+        ''' Creates Limbo w/ or w/out LMDB functionality based on {self.use_hdd}. 
+        '''
         if not self.use_hdd:
             return store.Limbo(name)
         else:
