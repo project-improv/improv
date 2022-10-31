@@ -5,7 +5,7 @@ setup(
     version='0.0.2',
     description='',
     long_description='',
-    url='https://github.com/pearsonlab/improv',
+    url='https://github.com/project-improv/improv',
     author='',
     author_email='amw73@duke.edu',
     packages=[],
