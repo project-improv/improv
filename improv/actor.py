@@ -140,6 +140,14 @@ class Actor():
         ''' Suggested implementation for synchronous running: see RunManager class below
         '''
 
+    def stop():
+        """ Specify method for momentarily stopping the run and saving data.
+        
+        Returns 0 for exit success, Returns 1 for exit failure
+        """
+
+        return 0
+    
     def changePriority(self):
         ''' Try to lower this process' priority
             Only changes priority if lower_priority is set
@@ -190,15 +198,32 @@ class Spike():
     @staticmethod
     def ready():
         return 'ready'
+    
+    @staticmethod
+    def kill():
+        return 'kill'
 
+    @staticmethod
+    def revive():
+        return 'revive'
+
+    @staticmethod
+    def stop():
+        return 'stop'
+
+    @staticmethod
+    def stop_success():
+        return 'stop success'
 
 class RunManager():
     '''
     '''
-    def __init__(self, name, runMethod, setup, q_sig, q_comm, runStore=None):
+    def __init__(self, name, runMethod, setup, q_sig, q_comm, stopMethod, runStore=None):
         self.run = False
+        self.stop = False
         self.config = False
         self.runMethod = runMethod
+        self.stopMethod = stopMethod
         self.setup = setup
         self.q_sig = q_sig
         self.q_comm = q_comm
@@ -218,6 +243,19 @@ class RunManager():
                 except Exception as e:
                     logger.error('Actor '+self.actorName+' exception during run: {}'.format(e))
                     print(traceback.format_exc())
+            elif self.stop:
+                    #Read stop codes
+                try:
+                    exit_code = self.stopMethod()
+                    #Read stop codes
+                    if exit_code == 0: 
+                        self.q_comm.put([Spike.ready()])
+                    else:
+                        #Maybe send ready signal anyway?
+                        logger.error(f"Actor {self.actorName} was unable to stop")
+                except Exception as e:
+                    logger.error(f'Actor {self.actorName} exception during run: {e}')
+                self.stop = False #Run once
             elif self.config:
                 try:
                     if self.runStore:
@@ -235,6 +273,10 @@ class RunManager():
                     logger.warning('Received run signal, begin running')
                 elif signal == Spike.setup():
                     self.config = True
+                elif signal == Spike.stop():
+                    self.run = False
+                    self.stop = True
+                    logger.warning(f"actor {self.actorName} received stop signal")
                 elif signal == Spike.quit():
                     logger.warning('Received quit signal, aborting')
                     break

@@ -69,6 +69,7 @@ class Nexus():
 
         self.flags.update({'quit':False, 'run':False, 'load':False})
         self.allowStart = False
+        self.stopped = False
 
     def loadTweak(self, file=None):
         ''' For each connection:
@@ -245,7 +246,6 @@ class Nexus():
             done, pending = await asyncio.wait(self.tasks, return_when=concurrent.futures.FIRST_COMPLETED)
             #TODO: actually kill pending tasks
             for i,t in enumerate(self.tasks):
-                # print(i, t, t.result)
                 if i < len(polling):
                     if t in done or polling[i].status == 'done': #catch tasks that complete await wait/gather
                         r = polling[i].result
@@ -256,8 +256,6 @@ class Nexus():
                         self.tasks[i] = (asyncio.ensure_future(polling[i].get_async()))
                 elif t in done: ##cmd line
                     res = t.result()
-                    print(res, '------------------')
-                    # print('Got command line input: ', t.result(), '\n')
                     self.processGuiSignal([res.rstrip('\n')], 'commandLine_Nexus')
                     self.tasks[i] = (asyncio.ensure_future(self.ainput('Awaiting input \n')))
 
@@ -301,13 +299,69 @@ class Nexus():
             elif flag[0] == Spike.pause():
                 logger.info('Pausing processes')
                 # TODO. Alsoresume, reset
+            # temporary
+            elif flag[0] == Spike.kill():
+                list(self.processes)[0].kill()
+            elif flag[0] == Spike.revive():
+                dead = [p for p in list(self.processes) if p.exitcode is not None] 
+            
+                for pro in dead: 
+                    name = pro.name
+                    m = self.actors[pro.name]
+                    if 'GUI' not in name: #GUI already started
+                        if 'method' in self.tweak.actors[name].options:
+                            meth = self.tweak.actors[name].options['method']
+                            logger.info('This actor wants: {}'.format(meth))
+                            ctx = get_context(meth)
+                            p = ctx.Process(target=m.run, name=name) #, args=(m,))
+                        else:
+                            ctx = get_context('fork')
+                            p = ctx.Process(target=self.runActor, name=name, args=(m,))
+                            if 'Watcher' not in name:
+                                if 'daemon' in self.tweak.actors[name].options: # e.g. suite2p creates child processes.
+                                    p.daemon = self.tweak.actors[name].options['daemon']
+                                    logger.info('Setting daemon to {} for {}'.format(p.daemon,name))
+                                else: 
+                                    p.daemon = True #default behavior
+                    #Setting the stores for each actor to be the same
+
+                    m.setStore([act for act in self.actors.values() if act.name != pro.name][0].client)
+                    m.client = None
+                    m._getStoreInterface()
+                    self.processes.append(p)
+                    p.start()
+                    m.q_sig.put_nowait(Spike.setup())
+                    # while m.q_comm.empty():
+                        # print("Waiting for ready signal")
+                        # pass
+                    m.q_sig.put_nowait(Spike.run())
+
+
+                    #Checking if store objects are sealed
+
+                    # store_objs = m.client.client.list()
+                    # print(f"Store Objects: {store_objs}")
+                    # unsealed_objects = [o for o in store_objs.items() if o[1]['state'] != "sealed"]
+                    # print(f"Unsealed data: {unsealed_objects}")
+                    # print(store_objs.keys())
+                    # print([o_id for o_id in store_objs.keys()])
+
+                    # data_buffers = [m.client.client.get_buffers([o_id for o_id in store_objs.keys()])]
+                    # print("DATA BUFFERS: \n\n\n\n\n\n\n\n\n")
+                    # print(data_buffers)
+
+
+                self.processes = [p for p in list(self.processes) if p.exitcode is None]
+            elif flag[0] == Spike.stop():
+                logger.info('Nexus received stop signal')
+                self.stop()
         else:
             logger.error('Signal received from Nexus but cannot identify {}'.format(flag))
 
     def processActorSignal(self, sig, name):
         if sig is not None:
             logger.info('Received signal '+str(sig[0])+' from '+name)
-            if sig[0]==Spike.ready():
+            if not self.stopped and sig[0]==Spike.ready():
                 self.actorStates[name.split('_')[0]] = sig[0]
                 if all(val==Spike.ready() for val in self.actorStates.values()):
                     self.allowStart = True      #TODO: replace with q_sig to FE/Visual
@@ -316,6 +370,13 @@ class Nexus():
                     #TODO: Maybe have flag for auto-start, else require explict command
                     # if not self.tweak.hasGUI:
                     #     self.run()
+            elif self.stopped and sig[0] == Spike.stop_success():
+                self.actorStates[name.split('_')[0]] = sig[0]
+                if all(val==Spike.stop_success() for val in self.actorStates.values()):
+                    self.allowStart = True      #TODO: replace with q_sig to FE/Visual
+                    self.stoppped = False
+                    logger.info('All stops were successful. Allowing start.')
+                
 
     def setup(self):
         for q in self.sig_queues.values():
@@ -331,7 +392,7 @@ class Nexus():
                     q.put_nowait(Spike.run())
                 except Full:
                     logger.warning('Signal queue'+q.name+'is full')
-                    #queue full, keep going anyway TODO: add repeat trying as async task
+                        #queue full, keep going anyway TODO: add repeat trying as async task
 
     def quit(self):
         logger.warning('Killing child processes')
@@ -353,9 +414,24 @@ class Nexus():
             p.join()
 
         logger.warning('Actors terminated')
-        print('total time ', time.time()-self.t)
 
         self.destroyNexus()
+
+    def stop(self):
+        logger.warning('Starting stop procedure')
+        self.allowStart = False
+
+        for q in self.sig_queues.values():
+            try:
+                q.put_nowait(Spike.stop())
+            except Full:
+                logger.warning('Signal queue'+q.name+'is full')
+        self.allowStart = True
+
+
+    def revive(self):
+        logger.warning('Starting revive')
+
 
     def stop_polling(self, stop_signal, loop, queues):
         """ Cancels outstanding tasks and fills their last request.
