@@ -25,5 +25,5 @@ dependencies = [
 classifiers = ['Development Status :: 1 - Planning']
 
 [tool.setuptools.packages.find]
-include = ["improv", "README.md"]
-exclude = ["test", "pytest"]
+include = ["improv"]
+exclude = ["test", "pytest", "env", "demos", "figures"]
