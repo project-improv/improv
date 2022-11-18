@@ -1,5 +1,5 @@
 
-def basic_invocation():
+def default_invocation():
     import argparse
     import logging
 

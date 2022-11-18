@@ -25,7 +25,7 @@ dependencies = [
 classifiers = ['Development Status :: 1 - Planning']
 
 [project.scripts]
-improv = "improv:basic_invocation"
+improv = "improv:default_invocation"
 
 [tool.setuptools.packages.find]
 include = ["improv"]
