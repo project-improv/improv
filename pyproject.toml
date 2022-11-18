@@ -24,6 +24,9 @@ dependencies = [
 ]
 classifiers = ['Development Status :: 1 - Planning']
 
+[project.scripts]
+improv = "improv:basic_invocation"
+
 [tool.setuptools.packages.find]
 include = ["improv"]
 exclude = ["test", "pytest", "env", "demos", "figures"]
