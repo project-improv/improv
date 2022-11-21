@@ -1,0 +1,800 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>WSL INSTALL &#8212; My sample book</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="_static/sphinx-thebe.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Content with notebooks" href="notebooks.html" />
+    <link rel="prev" title="API" href="API.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="_static/logo.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">My sample book</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="landing.html">
+                    IMPROV
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="API.html">
+   API
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   WSL INSTALL
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks.html">
+   Content with notebooks
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="markdown-notebooks.html">
+   Notebooks with MyST Markdown
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="markdown.html">
+   Markdown Files
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Powered by <a href="https://jupyterbook.org">Jupyter Book</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/executablebooks/jupyter-book"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2FWSL INSTALL.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="_sources/WSL INSTALL.md"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.md</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   WSL INSTALL
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#improv-in-windows-subsystem-for-linux">
+     improv in Windows Subsystem for Linux
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#this-is-a-guide-to-installing-and-running-improv-on-windows-systems-using-windows-subsystem-for-linux-wsl">
+       This is a guide to installing and running improv on Windows systems using Windows Subsystem for Linux (WSL)
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#setup">
+   Setup
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#i-install-wsl">
+     I. Install WSL
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#ii-install-anaconda-3-in-wsl">
+     II. Install Anaconda 3 in WSL
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#iii-installing-running-x-server-for-any-guis-with-improv">
+     III. Installing &amp; Running X Server for any GUIs with improv
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#iv-improv-installation">
+     IV. improv Installation
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#v-run-improv">
+     V. Run improv
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#common-issues">
+   Common Issues
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#i-wsl-installation-from-windows-store">
+     I. WSL Installation from Windows Store
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#ii-caiman-anaconda-installation">
+     II. CaImAn/Anaconda Installation
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#iii-errors-running-improv">
+     III. Errors Running improv
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>WSL INSTALL</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   WSL INSTALL
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#improv-in-windows-subsystem-for-linux">
+     improv in Windows Subsystem for Linux
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#this-is-a-guide-to-installing-and-running-improv-on-windows-systems-using-windows-subsystem-for-linux-wsl">
+       This is a guide to installing and running improv on Windows systems using Windows Subsystem for Linux (WSL)
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#setup">
+   Setup
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#i-install-wsl">
+     I. Install WSL
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#ii-install-anaconda-3-in-wsl">
+     II. Install Anaconda 3 in WSL
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#iii-installing-running-x-server-for-any-guis-with-improv">
+     III. Installing &amp; Running X Server for any GUIs with improv
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#iv-improv-installation">
+     IV. improv Installation
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#v-run-improv">
+     V. Run improv
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#common-issues">
+   Common Issues
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#i-wsl-installation-from-windows-store">
+     I. WSL Installation from Windows Store
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#ii-caiman-anaconda-installation">
+     II. CaImAn/Anaconda Installation
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#iii-errors-running-improv">
+     III. Errors Running improv
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section class="tex2jax_ignore mathjax_ignore" id="wsl-install">
+<h1>WSL INSTALL<a class="headerlink" href="#wsl-install" title="Permalink to this headline">#</a></h1>
+<section id="improv-in-windows-subsystem-for-linux">
+<h2>improv in Windows Subsystem for Linux<a class="headerlink" href="#improv-in-windows-subsystem-for-linux" title="Permalink to this headline">#</a></h2>
+<section id="this-is-a-guide-to-installing-and-running-improv-on-windows-systems-using-windows-subsystem-for-linux-wsl">
+<h3>This is a guide to installing and running improv on Windows systems using Windows Subsystem for Linux (WSL)<a class="headerlink" href="#this-is-a-guide-to-installing-and-running-improv-on-windows-systems-using-windows-subsystem-for-linux-wsl" title="Permalink to this headline">#</a></h3>
+<br>
+</section>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="setup">
+<h1>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">#</a></h1>
+<section id="i-install-wsl">
+<h2>I. Install WSL<a class="headerlink" href="#i-install-wsl" title="Permalink to this headline">#</a></h2>
+<p>After completing the following WSL installation, the WSL shell can be activated by the <code class="docutils literal notranslate"><span class="pre">wsl</span></code> command in Command Prompt.</p>
+<ol>
+<li><p>Enable WSL via Powershell as administrator</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Enable</span><span class="o">-</span><span class="n">WindowsOptionalFeature</span> <span class="o">-</span><span class="n">Online</span> <span class="o">-</span><span class="n">FeatureName</span> <span class="n">Microsoft</span><span class="o">-</span><span class="n">Windows</span><span class="o">-</span><span class="n">Subsystem</span><span class="o">-</span><span class="n">Linux</span>
+</pre></div>
+</div>
+<p>-Be sure to install WSL 1 instead of WSL 2 due to unresolved network connectivity issues. In order to downgrade from WSL 2 to WSL 1, execute <code class="docutils literal notranslate"><span class="pre">wsl</span> <span class="pre">--set-version</span> <span class="pre">&lt;distro-name&gt;</span></code></p>
+</li>
+<li><p>Restart system</p></li>
+<li><p>Install Ubuntu 18.04 (or other distro) from <a class="reference external" href="https://www.microsoft.com/en-us/p/ubuntu-1804-lts/9n9tngvndl3q?activetab=pivot%3Aoverviewtab">Windows Store</a></p></li>
+<li><p>Initialize distro</p>
+<ul class="simple">
+<li><p>Set username, password when prompted</p></li>
+</ul>
+</li>
+</ol>
+<p>WSL files can be accessed through the path: <code class="docutils literal notranslate"><span class="pre">~</span></code>, which is equivalent to <code class="docutils literal notranslate"><span class="pre">/home/[USER]</span></code>, within the WSL shell. Windows files, specifically the C: drive can be accessed through the path: <code class="docutils literal notranslate"><span class="pre">/mnt/c</span></code>. For RASP purposes, only the plasma store and the anaconda environment used to execute RASP is within the WSL system. The RASP code is located within Windows file system.</p>
+<p>Furthermore, certain directories must be added to the PATH environmental variable in Linux in order for RASP to run properly. Below are the steps to “permanently” adding to the Linux $PATH.</p>
+<ol>
+<li><p>Use vim to edit <code class="docutils literal notranslate"><span class="pre">~/.profile</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vim</span> <span class="o">~/.</span><span class="n">profile</span>
+</pre></div>
+</div>
+</li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">PATH=&quot;[PATH]:$PATH&quot;</span></code> to end of <code class="docutils literal notranslate"><span class="pre">~/.profile</span></code></p></li>
+<li><p>Restart WSL shell</p></li>
+</ol>
+</section>
+<section id="ii-install-anaconda-3-in-wsl">
+<h2>II. Install Anaconda 3 in WSL<a class="headerlink" href="#ii-install-anaconda-3-in-wsl" title="Permalink to this headline">#</a></h2>
+<ol>
+<li><p>Find latest version of <a class="reference external" href="https://repo.continuum.io/archive">Anaconda 3 for Linux</a></p></li>
+<li><p>Install latest version within WSL</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">repo</span><span class="o">.</span><span class="n">continuum</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">archive</span><span class="o">/</span><span class="n">Anaconda3</span><span class="o">-</span><span class="p">[</span><span class="n">VERSION</span><span class="p">]</span><span class="o">-</span><span class="n">Linux</span><span class="o">-</span><span class="n">x86_64</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+</li>
+<li><p>Run installation script</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bash</span> <span class="n">Anaconda</span><span class="o">-</span><span class="p">[</span><span class="n">VERSION</span><span class="p">]</span><span class="o">-</span><span class="n">Linux</span><span class="o">-</span><span class="n">x86_64</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+</li>
+<li><p>Opt to install Visual Studio Code when prompted</p></li>
+<li><p>Update Anaconda if prompted or if necessary</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">update</span> <span class="n">anaconda</span>
+</pre></div>
+</div>
+</li>
+<li><p>Add Anaconda to <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> (see <a class="reference external" href="#I.-Install-WSL">Section I</a>)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">PATH</span><span class="o">=</span><span class="s2">&quot;~/anaconda3/bin:$PATH&quot;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="iii-installing-running-x-server-for-any-guis-with-improv">
+<h2>III. Installing &amp; Running X Server for any GUIs with improv<a class="headerlink" href="#iii-installing-running-x-server-for-any-guis-with-improv" title="Permalink to this headline">#</a></h2>
+<ol>
+<li><p>Download and install <a class="reference external" href="https://sourceforge.net/projects/vcxsrv/">VcXsrv</a></p></li>
+<li><p>Run XLaunch</p>
+<ul class="simple">
+<li><p>Set Display number to “0”</p></li>
+<li><p>Select Disable access control</p></li>
+<li><p>Keep other default settings</p></li>
+</ul>
+</li>
+<li><p>Allow access through Windows firewall if prompted</p></li>
+<li><p>Use vim to set display in <code class="docutils literal notranslate"><span class="pre">~/.profile</span></code> (See <a class="reference external" href="#I.-Install-WSL%5D">Section 1</a>)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">DISPLAY</span><span class="o">=</span><span class="p">:</span><span class="mi">0</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="iv-improv-installation">
+<h2>IV. improv Installation<a class="headerlink" href="#iv-improv-installation" title="Permalink to this headline">#</a></h2>
+<ol>
+<li><p>Clone improv</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">pearsonlab</span><span class="o">/</span><span class="n">improv</span>
+</pre></div>
+</div>
+</li>
+<li><p>Clone improv submodules</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">submodule</span> <span class="n">update</span> <span class="o">--</span><span class="n">init</span>
+</pre></div>
+</div>
+</li>
+<li><p>Create Anaconda environment <br>
+This creates a new anaconda environment named <code class="docutils literal notranslate"><span class="pre">caiman</span></code> using Python 3.6, which can be used for improv installations and executions. Execute the following command in the CaImAn dir.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">env</span> <span class="n">create</span> <span class="o">-</span><span class="n">f</span> <span class="n">environment</span><span class="o">.</span><span class="n">yml</span> <span class="o">-</span><span class="n">n</span> <span class="n">caiman</span>
+<span class="n">conda</span> <span class="n">activate</span> <span class="n">caiman</span> 
+</pre></div>
+</div>
+</li>
+<li><p>Install CaImAn module <br>
+Execute the following command within the CaImAn directory and <code class="docutils literal notranslate"><span class="pre">caiman</span></code> env.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
+</pre></div>
+</div>
+</li>
+<li><p>Install the following dependencies.</p>
+<ul class="simple">
+<li><p>pyarrow</p></li>
+<li><p>pyqtgraph</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="p">[</span><span class="n">PACKAGE</span><span class="p">]</span>
+</pre></div>
+</div>
+</li>
+<li><p>Add pyarrow <code class="docutils literal notranslate"><span class="pre">plasma_store_server</span></code> to path (See <a class="reference external" href="#I.-Install-WSL">Section I</a>) <br>
+<code class="docutils literal notranslate"><span class="pre">plasma_store_server</span></code> is most likely located in the bin directory of the <code class="docutils literal notranslate"><span class="pre">caiman</span></code> conda environment: <code class="docutils literal notranslate"><span class="pre">~/anaconda3/envs/caiman/bin</span></code>. You can find where your environment is installed by entering <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">info</span> <span class="pre">--envs</span></code>. <br></p></li>
+</ol>
+</section>
+<section id="v-run-improv">
+<h2>V. Run improv<a class="headerlink" href="#v-run-improv" title="Permalink to this headline">#</a></h2>
+<p>See <a class="reference external" href="#Common-Issues">Common Issues</a> for errors and missing dependencies that might need to be installed.</p>
+<ol>
+<li><p>Activate WSL</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wsl</span>
+</pre></div>
+</div>
+</li>
+<li><p>Activate <code class="docutils literal notranslate"><span class="pre">caiman</span></code> environment</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">activate</span> <span class="n">caiman</span>
+</pre></div>
+</div>
+</li>
+<li><p>Run XLaunch (see <a class="reference external" href="#V.-Installing-&amp;-Running-X-Server-for-GUI-Framework">Section V</a>)</p></li>
+<li><p>Run improv</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">nexus</span><span class="o">.</span><span class="n">nexus</span> <span class="n">demos</span><span class="o">/</span><span class="n">basic</span><span class="o">/</span><span class="n">basic_demo</span><span class="o">.</span><span class="n">yaml</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<br>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="common-issues">
+<h1>Common Issues<a class="headerlink" href="#common-issues" title="Permalink to this headline">#</a></h1>
+<section id="i-wsl-installation-from-windows-store">
+<h2>I. WSL Installation from Windows Store<a class="headerlink" href="#i-wsl-installation-from-windows-store" title="Permalink to this headline">#</a></h2>
+<p>If Ubuntu cannot be downloaded and installed from the Windows Store, it can be instead manually downloaded and installed through the following instructions.</p>
+<ol class="simple">
+<li><p>Go to <a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/install-manual">https://docs.microsoft.com/en-us/windows/wsl/install-manual</a> to download distro or <a class="reference external" href="https://aka.ms/wsl-ubuntu-1804">https://aka.ms/wsl-ubuntu-1804</a> to directly download Ubuntu 18.04</p></li>
+<li><p>If running the .appx file downloaded does not successfully install, rename .appx extension to .zip and uncompress</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">ubuntu18.04.exe</span></code> or altenerative distro executable</p></li>
+<li><p>Complete initialization and rest of installation</p></li>
+</ol>
+</section>
+<section id="ii-caiman-anaconda-installation">
+<h2>II. CaImAn/Anaconda Installation<a class="headerlink" href="#ii-caiman-anaconda-installation" title="Permalink to this headline">#</a></h2>
+<p>Several issues can appear during the CaImAn installation process. It is recommended that if any severe issues appear, one should delete and then recreate the caiman conda environment from scratch. Or, caiman can be uninstalled (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">uinstall</span> <span class="pre">caiman</span></code>) and installation can be reattempted. Some of the following issues might appear:</p>
+<ol>
+<li><p><code class="docutils literal notranslate"><span class="pre">Aborted</span> <span class="pre">(core</span> <span class="pre">dumped)</span></code> when activating the <code class="docutils literal notranslate"><span class="pre">caiman</span></code> env</p>
+<ul>
+<li><p>Solved by updating all packages</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">update</span> <span class="o">--</span><span class="nb">all</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Failed</span> <span class="pre">building</span> <span class="pre">wheel</span> <span class="pre">for</span> <span class="pre">caiman</span></code>: <code class="docutils literal notranslate"><span class="pre">command</span> <span class="pre">'gcc'</span> <span class="pre">failed</span> <span class="pre">with</span> <span class="pre">exit</span> <span class="pre">status</span> <span class="pre">1</span></code></p>
+<ul>
+<li><p>This error could be due to gcc or g++ not being installed. Follow these steps to install both.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">update</span> <span class="o">-</span><span class="nb">all</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">gcc</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">g</span><span class="o">++</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="iii-errors-running-improv">
+<h2>III. Errors Running improv<a class="headerlink" href="#iii-errors-running-improv" title="Permalink to this headline">#</a></h2>
+<ol>
+<li><p><code class="docutils literal notranslate"><span class="pre">ImportError:</span> <span class="pre">libGl.so.1:</span> <span class="pre">cannot</span> <span class="pre">open</span> <span class="pre">shared</span> <span class="pre">object</span> <span class="pre">file</span></code></p>
+<ul>
+<li><p>Solved by running the following</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">libgl1</span><span class="o">-</span><span class="n">mesa</span><span class="o">-</span><span class="n">glx</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ImportError:</span> <span class="pre">libopencv_reg.so.3.4:</span> <span class="pre">cannot</span> <span class="pre">enable</span> <span class="pre">executable</span> <span class="pre">stack</span> <span class="pre">as</span> <span class="pre">shared</span> <span class="pre">object</span></code></p>
+<ul>
+<li><p>Solved by running the following (second line contains path of opencv installation)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">execstack</span>
+<span class="n">sudo</span> <span class="n">execstack</span> <span class="o">-</span><span class="n">c</span> <span class="o">~/</span><span class="n">anaconda3</span><span class="o">/</span><span class="n">envs</span><span class="o">/</span><span class="n">caiman</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">libopencv_</span><span class="o">*</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">This</span> <span class="pre">application</span> <span class="pre">failed</span> <span class="pre">to</span> <span class="pre">start</span> <span class="pre">because</span> <span class="pre">it</span> <span class="pre">could</span> <span class="pre">not</span> <span class="pre">find</span> <span class="pre">or</span> <span class="pre">load</span> <span class="pre">the</span> <span class="pre">Qt</span> <span class="pre">platform</span> <span class="pre">plugin</span> <span class="pre">&quot;xcb&quot;</span></code></p>
+<ul>
+<li><p>Solved by running the following</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">libqt5x11extras5</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gcc:</span> <span class="pre">error</span> <span class="pre">trying</span> <span class="pre">to</span> <span class="pre">exec</span> <span class="pre">'cc1plus':</span> <span class="pre">execvp:</span> <span class="pre">No</span> <span class="pre">such</span> <span class="pre">file</span> <span class="pre">or</span> <span class="pre">directory</span></code></p>
+<ul>
+<li><p>Solved by installing gcc and g++</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">update</span> <span class="o">-</span><span class="nb">all</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">gcc</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">g</span><span class="o">++</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+</ol>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            kernelName: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="API.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">API</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="notebooks.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Content with notebooks</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By The Jupyter Book Community<br/>
+  
+      &copy; Copyright 2022.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>
