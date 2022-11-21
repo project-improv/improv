@@ -5,6 +5,10 @@ import os.path
 from improv.nexus import Nexus
 
 def default_invocation():
+    """
+    Function provided as an entry point for command-line usage. Invoke using
+    ``improv <config file>``.
+    """
     logging.getLogger("matplotlib").setLevel(logging.WARNING)
 
     parser = argparse.ArgumentParser()
