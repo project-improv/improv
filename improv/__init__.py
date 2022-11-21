@@ -1,12 +1,10 @@
+import argparse
+import logging
 import sys
 import os.path
+from improv.nexus import Nexus
 
 def default_invocation():
-    import argparse
-    import logging
-
-    from improv.nexus import Nexus
-
     logging.getLogger("matplotlib").setLevel(logging.WARNING)
 
     parser = argparse.ArgumentParser()
