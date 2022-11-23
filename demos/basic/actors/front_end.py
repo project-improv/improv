@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
 from . import improv_basic
 from improv.store import Limbo
-from improv.actor import Spike
+from improv.actor import Signal 
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -159,12 +159,12 @@ class BasicFrontEnd(QtWidgets.QMainWindow, improv_basic.Ui_MainWindow):
         '''Run ImageProcessor in separate thread
         '''
         #self.flag = True
-        self.comm.put([Spike.run()])
+        self.comm.put([Signal.run()])
         logger.info('-------------------------   put run in comm')
         #TODO: grey out button until self.t is done, but allow other buttons to be active
 
     def _setup(self):
-        self.comm.put([Spike.setup()])
+        self.comm.put([Signal.setup()])
         self.visual.setup()
 
     def _loadTweak(self, file):

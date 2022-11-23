@@ -4,7 +4,7 @@ import numpy as np
 from queue import Empty
 import os
 
-from improv.actor import Actor, Spike, RunManager
+from improv.actor import Actor, RunManager
 from improv.store import ObjectNotFoundError
 
 import logging; logger = logging.getLogger(__name__)
@@ -40,15 +40,13 @@ class MeanAnalysis(Actor):
         self.lastOnOff = None
         self.recentStim = [0]*self.window
 
-    def run(self):
         self.total_times = []
         self.puttime = []
         self.colortime = []
         self.stimtime = []
         self.timestamp = []
 
-        with RunManager(self.name, self.runAvg, self.setup, self.q_sig, self.q_comm) as rm:
-            logger.info(rm)
+    def stop(self):
         
         print('Analysis broke, avg time per frame: ', np.mean(self.total_times, axis=0))
         print('Analysis broke, avg time per put analysis: ', np.mean(self.puttime))
@@ -71,13 +69,14 @@ class MeanAnalysis(Actor):
         np.savetxt('output/timing/analysiscolor_frame_time.txt', np.array(self.colortime))
         np.savetxt('output/timing/analysis_timestamp.txt', np.array(self.timestamp))
 
-    def runAvg(self):
+    def runStep(self):
         ''' Take numpy estimates and frame_number
             Create X and Y for plotting
         '''
         t = time.time()
         ids = None
         try: 
+            print(self.links)
             sig = self.links['input_stim_queue'].get(timeout=0.0001)
             self.updateStim_start(sig)
         except Empty as e:

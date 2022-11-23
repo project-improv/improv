@@ -39,12 +39,7 @@ class RawBehavior(Actor):
         else: 
             raise FileNotFoundError
 
-    def run(self):
-
-        with RunManager(self.name, self.runBehAcq, self.setup, self.q_sig, self.q_comm) as rm:
-            print(rm)   
-
-    def runBehAcq(self):
+    def runStep(self):
 
         if self.done:
             pass 
@@ -100,12 +95,7 @@ class MotionBehavior(Actor):
         else: 
             raise FileNotFoundError
 
-    def run(self):
-    
-        with RunManager(self.name, self.runBehAcq, self.setup, self.q_sig, self.q_comm) as rm:
-            print(rm)  
-
-    def runBehAcq(self):
+    def runStep(self):
     
         if self.done:
             pass 

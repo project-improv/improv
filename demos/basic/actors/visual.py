@@ -8,7 +8,7 @@ from collections import deque
 from PyQt5 import QtGui, QtWidgets
 from scipy.spatial.distance import cdist
 
-from improv.actor import Actor, Spike
+from improv.actor import Actor, Signal
 from improv.store import Limbo, ObjectNotFoundError
 from .front_end import BasicFrontEnd
 
@@ -35,8 +35,8 @@ class BasicVisual(Actor):
         self.viewer = BasicFrontEnd(self.visual, self.q_comm)
         self.viewer.show()
         logger.info('GUI ready')
-        self.q_comm.put([Spike.ready()])
-        self.visual.q_comm.put([Spike.ready()])
+        self.q_comm.put([Signal.ready()])
+        self.visual.q_comm.put([Signal.ready()])
         self.app.exec_()
         logger.info('Done running GUI')
 

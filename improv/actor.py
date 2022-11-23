@@ -217,6 +217,8 @@ class RunManager():
 
         self.functions = functions
         self.links = links
+        self.q_sig = self.links['q_sig']
+        self.q_comm = self.links['q_comm']
         
         self.runStore = runStore
         self.timeout = timeout
@@ -258,7 +260,9 @@ class RunManager():
                 elif signal == Signal.setup():
                     self.config = True
                 elif signal == Signal.stop():
+                    self.run = False
                     self.stop = True
+                    logger.warning(f"actor {self.actorName} received stop signal")
                 elif signal == Signal.quit():
                     logger.warning('Received quit signal, aborting')
                     break
@@ -362,3 +366,15 @@ class Signal():
     @staticmethod
     def ready():
         return 'ready'
+
+    @staticmethod
+    def revive():
+        return 'revive'
+
+    @staticmethod
+    def stop():
+        return 'stop'
+
+    @staticmethod
+    def stop_success():
+        return 'stop success'

@@ -15,7 +15,7 @@ import caiman as cm
 from os.path import expanduser
 import os
 from queue import Empty
-from improv.actor import Actor, Spike, RunManager
+from improv.actor import Actor, RunManager
 import traceback
 
 import logging; logger = logging.getLogger(__name__)
@@ -46,8 +46,8 @@ class CaimanProcessor(Actor):
         self.A = None
         self.saving= True
 
-        self.loadParams(param_file=self.param_file)
-        self.params = self.client.get('params_dict')
+        self.params = self.loadParams(param_file=self.param_file)
+        # self.params = self.client.get('params_dict')
 
         # MUST include inital set of frames
         # TODO: Institute check here as requirement to Nexus
@@ -56,13 +56,11 @@ class CaimanProcessor(Actor):
         self.opts = CNMFParams(params_dict=self.params)
         self.onAc = OnACID(params = self.opts)
         #TODO: Need to rewrite init online as well to receive individual frames.
+        print('before init')
         self.onAc.initialize_online()
+        print('after init')
         self.max_shifts_online = self.onAc.params.get('online', 'max_shifts_online')
 
-
-    def run(self):
-        '''Run the processor continually on input frames
-        '''
         self.fitframe_time = []
         self.putAnalysis_time = []
         self.procFrame_time = [] #aka t_motion
@@ -73,8 +71,8 @@ class CaimanProcessor(Actor):
         self.timestamp = []
         self.counter = 0
 
-        with RunManager(self.name, self.runProcess, self.setup, self.q_sig, self.q_comm) as rm:
-            logger.info(rm)
+
+    def stop(self):
 
         print('Processor broke, avg time per frame: ', np.mean(self.total_times, axis=0))
         print('Processor got through ', self.frame_number, ' frames')
@@ -123,7 +121,7 @@ class CaimanProcessor(Actor):
         print('type ', type(self.coords1[0]))
         np.savetxt('output/contours.txt', np.array(self.coords1))
 
-    def runProcess(self):
+    def runStep(self):
         ''' Run process. Runs once per frame.
             Output is a location in the DS to continually
             place the Estimates results, with ref number that
@@ -205,6 +203,8 @@ class CaimanProcessor(Actor):
                    'show_movie': False,
                    'minibatch_shape': 100}
         self.client.put(params_dict, 'params_dict')
+
+        return params_dict
 
     def _load_params_from_file(self, param_file):
         '''Filehandler for loading caiman parameters

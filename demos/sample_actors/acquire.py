@@ -42,14 +42,10 @@ class FileAcquirer(Actor):
 
         else: raise FileNotFoundError
 
-    def run(self):
-        ''' Run indefinitely. Calls runAcquirer after checking for signals
-        '''
         self.total_times = []
         self.timestamp = []
 
-        with RunManager(self.name, self.runAcquirer, self.setup, self.q_sig, self.q_comm) as rm:
-            print(rm)
+    def stop(self):
 
         print('Done running Acquire, avg time per frame: ', np.mean(self.total_times))
         print('Acquire got through ', self.frame_num, ' frames')
@@ -66,7 +62,7 @@ class FileAcquirer(Actor):
         np.savetxt('output/timing/acquire_frame_time.txt', np.array(self.total_times))
         np.savetxt('output/timing/acquire_timestamp.txt', np.array(self.timestamp))
 
-    def runAcquirer(self):
+    def runStep(self):
         '''While frames exist in location specified during setup,
            grab frame, save, put in store
         '''
@@ -140,13 +136,7 @@ class StimAcquirer(Actor):
 
         else: raise FileNotFoundError
 
-    def run(self):
-        ''' Run continuously, waiting for input
-        '''
-        with RunManager(self.name, self.getInput, self.setup, self.q_sig, self.q_comm) as rm:
-            logger.info(rm)
-
-    def getInput(self):
+    def runStep(self):
         ''' Check for input from behavioral control
         '''
         if self.n<len(self.stim):
@@ -184,13 +174,7 @@ class BehaviorAcquirer(Actor):
         else:
             self.behaviors = [0, 1, 2, 3, 4, 5, 6, 7] #8 sets of input stimuli
 
-    def run(self):
-        ''' Run continuously, waiting for input
-        '''
-        with RunManager(self.name, self.getInput, self.setup, self.q_sig, self.q_comm) as rm:
-            logger.info(rm)
-
-    def getInput(self):
+    def runStep(self):
         ''' Check for input from behavioral control
         '''
         # Faking it for now.
@@ -201,6 +185,7 @@ class BehaviorAcquirer(Actor):
             logger.info('Changed stimulus! {}'.format(self.curr_stim))
         time.sleep(1) #0.068)
         self.n += 1
+
 
 class FileStim(Actor):
     ''' Actor that acquires information of behavioral stimulus
@@ -219,13 +204,7 @@ class FileStim(Actor):
 
         self.data= np.loadtxt(self.file)
 
-    def run(self):
-        ''' Run continuously, waiting for input
-        '''
-        with RunManager(self.name, self.getInput, self.setup, self.q_sig, self.q_comm) as rm:
-            logger.info(rm)
-
-    def getInput(self):
+    def runStep(self):
         ''' Check for input from behavioral control
         '''
         # Faking it for now.
@@ -236,6 +215,7 @@ class FileStim(Actor):
             logger.info('Changed stimulus! {}'.format(self.curr_stim))
         time.sleep(0.068)
         self.n += 1
+
 
 class TiffAcquirer(Actor):
     ''' Loops through a TIF file.
@@ -258,11 +238,7 @@ class TiffAcquirer(Actor):
         self.imgs = imread(self.filename)
         print(self.imgs.shape)
 
-    def run(self):
-        with RunManager(self.name, self.run_acquirer, self.setup, self.q_sig, self.q_comm) as rm:
-            print(rm)
-
-    def run_acquirer(self):
+    def runStep(self):
         t0 = time.time()
         id_store = self.client.put(self.imgs[self.n_frame], 'acq_raw' + str(self.n_frame))
         self.q_out.put([[id_store, str(self.n_frame)]])

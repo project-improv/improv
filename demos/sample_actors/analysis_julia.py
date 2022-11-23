@@ -51,14 +51,11 @@ class JuliaAnalysis(Actor):
         # Define functions: set conversion to zero-copy PyArray
         self.j_func.append(self.julia.eval('pyfunction(get_mean, PyArray)'))
 
-    def run(self):
-        with RunManager(self.name, self.runner, self.setup, self.q_sig, self.q_comm) as rm:
-            logger.info(rm)
-
+    def stop(self):
         print('Julia Analysis broke, avg time per frame: ', np.mean(self.t_per_frame))
         print('JuliaAnalysis got through ', self.frame_number, ' frames.')
 
-    def runner(self):
+    def runStep(self):
         t = time.time()
         try:
             obj_id = self.q_in.get(timeout=0.0001)  # List
@@ -84,7 +81,7 @@ class JuliaAnalysis(Actor):
 
     def export(self):
         t = time.time()
-        obj_ids = [self.client.put(self.result_ex, 'resultJulia'+self.frame_number})]
+        obj_ids = [self.client.put([self.result_ex, 'resultJulia'+self.frame_number])]
 
         # Automatic generation of variables to export.
         # export_list = [key for key, value in self.__dict__.items() if key.endswith('_ex')]
