@@ -131,6 +131,14 @@ class AbstractActor():
         ''' Suggested implementation for synchronous running: see RunManager class below
         '''
 
+    def stop():
+        """ Specify method for momentarily stopping the run and saving data.
+        
+        Returns 0 for exit success, Returns 1 for exit failure
+        """
+
+        return 0
+    
     def changePriority(self):
         ''' Try to lower this process' priority
             Only changes priority if lower_priority is set
@@ -210,8 +218,8 @@ class RunManager():
     '''
     def __init__(self, name, functions, links, runStore=None, timeout=1e-6):
         self.run = False
+        self.stop = False
         self.config = False
-        self.stop = False 
 
         self.actorName = name
 
@@ -234,6 +242,19 @@ class RunManager():
                 except Exception as e:
                     logger.error('Actor '+self.actorName+' exception during run: {}'.format(e))
                     print(traceback.format_exc())
+            elif self.stop:
+                    #Read stop codes
+                try:
+                    exit_code = self.stopMethod()
+                    #Read stop codes
+                    if exit_code == 0: 
+                        self.q_comm.put([Signal.ready()])
+                    else:
+                        #Maybe send ready signal anyway?
+                        logger.error(f"Actor {self.actorName} was unable to stop")
+                except Exception as e:
+                    logger.error(f'Actor {self.actorName} exception during run: {e}')
+                self.stop = False #Run once
             elif self.config:
                 try:
                     if self.runStore:
