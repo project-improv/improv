@@ -1,22 +1,20 @@
+import os
 import time
-import pickle
 import json
 import cv2
+import traceback
+
 import numpy as np
-import scipy.sparse
-from improv.store import Limbo, CannotGetObjectError, ObjectNotFoundError
+
 from caiman.source_extraction import cnmf
-from caiman.source_extraction.cnmf.utilities import detrend_df_f
 from caiman.source_extraction.cnmf.online_cnmf import OnACID
 from caiman.source_extraction.cnmf.params import CNMFParams
 from caiman.motion_correction import motion_correct_iteration_fast, tile_and_correct
 from caiman.utils.visualization import get_contours
-import caiman as cm
-from os.path import expanduser
-import os
+
 from queue import Empty
-from improv.actor import Actor, RunManager
-import traceback
+from improv.actor import Actor
+from improv.store import ObjectNotFoundError
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -28,9 +26,8 @@ class CaimanProcessor(Actor):
     '''
     def __init__(self, *args, init_filename='data/Tolias_mesoscope_2.hdf5', config_file=None):
         super().__init__(*args)
-        print('initfile ', init_filename, 'config file ', config_file)
+        logger.info('initfile {}, config file {}'.format(init_filename, config_file))
         self.param_file = config_file
-        print(init_filename)
         self.init_filename = init_filename
         self.frame_number = 0
 
@@ -44,21 +41,19 @@ class CaimanProcessor(Actor):
         self.coords = None
         self.ests = None
         self.A = None
-        self.saving= True
+        self.saving = True
 
         self.params = self.loadParams(param_file=self.param_file)
         # self.params = self.client.get('params_dict')
 
         # MUST include inital set of frames
         # TODO: Institute check here as requirement to Nexus
-        print(self.params['fnames'])
+        logger.info(self.params['fnames'])
 
         self.opts = CNMFParams(params_dict=self.params)
         self.onAc = OnACID(params = self.opts)
         #TODO: Need to rewrite init online as well to receive individual frames.
-        print('before init')
         self.onAc.initialize_online()
-        print('after init')
         self.max_shifts_online = self.onAc.params.get('online', 'max_shifts_online')
 
         self.fitframe_time = []
@@ -89,22 +84,7 @@ class CaimanProcessor(Actor):
         np.savetxt('output/timing/putAnalysis_time.txt', np.array(self.putAnalysis_time))
         np.savetxt('output/timing/procFrame_time.txt', np.array(self.procFrame_time))
 
-        # before = self.params['init_batch']
-        # nb = self.onAc.params.get('init', 'nb')
-        # np.savetxt('raw_C.txt', np.array(self.onAc.estimates.C_on[nb:self.onAc.M, before:self.frame_number+before]))
-
         print('Number of times coords updated ', self.counter)
-
-        # with open('../S.pk', 'wb') as f:
-        #     init = self.params['init_batch']
-        #     S = np.stack([osi.s[init:] for osi in self.onAc.estimates.OASISinstances])
-        #     print('--------Final S shape: ', S.shape)
-        #     pickle.dump(S, f)
-        # with open('../A.pk', 'wb') as f:
-        #     nb = self.onAc.params.get('init', 'nb')
-        #     A = self.onAc.estimates.Ab[:, nb:]
-        #     print(type(A))
-        #     pickle.dump(A, f)
 
         if self.onAc.estimates.OASISinstances is not None:
             try:

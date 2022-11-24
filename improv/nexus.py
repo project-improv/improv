@@ -5,12 +5,10 @@ import sys
 import time
 import subprocess
 import logging
-import numpy as np
-import pyarrow.plasma as plasma
 
 from multiprocessing import Process, get_context
 from importlib import import_module
-from queue import Empty, Full
+from queue import Full
 from datetime import datetime
 
 from improv import store
@@ -37,7 +35,7 @@ class Nexus():
     def __str__(self):
         return self.name
     
-    def createNexus(self, file=None, use_hdd=False, store_size=10000000):
+    def createNexus(self, file=None, use_hdd=False, use_watcher=False, store_size=10000000):
         self._startStore(store_size) #default size should be system-dependent; this is 40 GB
 
         #connect to store and subscribe to notifications
@@ -57,11 +55,13 @@ class Nexus():
         self.flags = {}
         self.processes = []
 
-        #self.startWatcher()
+        # TODO: Better logic/flow for using watcher as an option
+        self.p_watch = None
+        if use_watcher: self.startWatcher()
 
         self.loadTweak(file=file)
 
-        self.flags.update({'quit':False, 'run':False, 'load':False})
+        self.flags.update({'quit':False, 'run':False, 'load':False}) #TODO: only quit flag used atm
         self.allowStart = False
         self.stopped = False
 
@@ -219,7 +219,6 @@ class Nexus():
             "Shutting down" (string): Notifies start() that pollQueues has completed.
         """
 
-        self.listing = [] #TODO: Remove or rewrite
         self.actorStates = dict.fromkeys(self.actors.keys())
         if not self.tweak.hasGUI:  # Since Visual is not started, it cannot send a ready signal.
             try:
@@ -290,58 +289,44 @@ class Nexus():
             elif flag[0] == Signal.pause():
                 logger.info('Pausing processes')
                 # TODO. Alsoresume, reset
-            # temporary
+
+            # temporary WiP
             elif flag[0] == Signal.kill():
+                #TODO: specify actor to kill
                 list(self.processes)[0].kill()
             elif flag[0] == Signal.revive():
                 dead = [p for p in list(self.processes) if p.exitcode is not None] 
-            
                 for pro in dead: 
                     name = pro.name
                     m = self.actors[pro.name]
-                    if 'GUI' not in name: #GUI already started
+                    if 'GUI' not in name: #GUI hard to revive independently
                         if 'method' in self.tweak.actors[name].options:
                             meth = self.tweak.actors[name].options['method']
                             logger.info('This actor wants: {}'.format(meth))
                             ctx = get_context(meth)
-                            p = ctx.Process(target=m.run, name=name) #, args=(m,))
+                            p = ctx.Process(target=m.run, name=name) 
                         else:
                             ctx = get_context('fork')
                             p = ctx.Process(target=self.runActor, name=name, args=(m,))
                             if 'Watcher' not in name:
-                                if 'daemon' in self.tweak.actors[name].options: # e.g. suite2p creates child processes.
+                                if 'daemon' in self.tweak.actors[name].options:
                                     p.daemon = self.tweak.actors[name].options['daemon']
                                     logger.info('Setting daemon to {} for {}'.format(p.daemon,name))
                                 else: 
-                                    p.daemon = True #default behavior
-                    #Setting the stores for each actor to be the same
-
+                                    p.daemon = True 
+                    # Setting the stores for each actor to be the same
+                    # TODO: test if this works for fork -- don't think it does?
                     m.setStore([act for act in self.actors.values() if act.name != pro.name][0].client)
                     m.client = None
                     m._getStoreInterface()
                     self.processes.append(p)
                     p.start()
                     m.q_sig.put_nowait(Signal.setup())
+                    # TODO: ensure waiting for ready before run? Or no need since in queue?
                     # while m.q_comm.empty():
                         # print("Waiting for ready signal")
                         # pass
                     m.q_sig.put_nowait(Signal.run())
-
-
-                    #Checking if store objects are sealed
-
-                    # store_objs = m.client.client.list()
-                    # print(f"Store Objects: {store_objs}")
-                    # unsealed_objects = [o for o in store_objs.items() if o[1]['state'] != "sealed"]
-                    # print(f"Unsealed data: {unsealed_objects}")
-                    # print(store_objs.keys())
-                    # print([o_id for o_id in store_objs.keys()])
-
-                    # data_buffers = [m.client.client.get_buffers([o_id for o_id in store_objs.keys()])]
-                    # print("DATA BUFFERS: \n\n\n\n\n\n\n\n\n")
-                    # print(data_buffers)
-
-
                 self.processes = [p for p in list(self.processes) if p.exitcode is None]
             elif flag[0] == Signal.stop():
                 logger.info('Nexus received stop signal')
@@ -361,17 +346,18 @@ class Nexus():
                     #TODO: Maybe have flag for auto-start, else require explict command
                     # if not self.tweak.hasGUI:
                     #     self.run()
+
             elif self.stopped and sig[0] == Signal.stop_success():
                 self.actorStates[name.split('_')[0]] = sig[0]
                 if all(val==Signal.stop_success() for val in self.actorStates.values()):
                     self.allowStart = True      #TODO: replace with q_sig to FE/Visual
                     self.stoppped = False
                     logger.info('All stops were successful. Allowing start.')
-                
 
     def setup(self):
         for q in self.sig_queues.values():
             try:
+                print('telling to setup:', q)
                 q.put_nowait(Signal.setup())
             except Full:
                 logger.warning('Signal queue'+q.name+'is full')
@@ -396,7 +382,8 @@ class Nexus():
 
         if self.tweak.hasGUI:
             self.processes.append(self.p_GUI)
-        #self.processes.append(self.p_watch)
+        
+        if self.p_watch: self.processes.append(self.p_watch)
 
         for p in self.processes:
             p.terminate()
@@ -569,7 +556,6 @@ class Nexus():
             #NOTE: Could use this for reassigning links if actors crash?
             #TODO: Adjust to use default q_out and q_in vs being specified
         '''
-        #logger.info('Assigning link {}'.format(name))
         classname = name.split('.')[0]
         linktype = name.split('.')[1]
         if linktype == 'q_out':
@@ -581,20 +567,23 @@ class Nexus():
         else:
             self.actors[classname].addLink(linktype, link)
 
-    def createWatcher(self, watchin):
-        watcher= BasicWatcher('Watcher', inputs=watchin)
-        watcher.setStore(store.Limbo(watcher.name))
-        q_comm = Link('Watcher_comm', watcher.name, self.name)
-        q_sig = Link('Watcher_sig', self.name, watcher.name)
-        self.comm_queues.update({q_comm.name:q_comm})
-        self.sig_queues.update({q_sig.name:q_sig})
-        watcher.setCommLinks(q_comm, q_sig)
 
-        self.actors.update({watcher.name: watcher})
+    ## Appears depricated? FIXME
+    # def createWatcher(self, watchin):
+    #     watcher= BasicWatcher('Watcher', inputs=watchin)
+    #     watcher.setStore(store.Limbo(watcher.name))
+    #     q_comm = Link('Watcher_comm', watcher.name, self.name)
+    #     q_sig = Link('Watcher_sig', self.name, watcher.name)
+    #     self.comm_queues.update({q_comm.name:q_comm})
+    #     self.sig_queues.update({q_sig.name:q_sig})
+    #     watcher.setCommLinks(q_comm, q_sig)
 
+    #     self.actors.update({watcher.name: watcher})
+
+    # TODO: Store access here seems wrong, need to test
     def startWatcher(self):
         self.watcher = store.Watcher('watcher', self.createLimbo('watcher'))
-        limbo = self.createLimbo('watcher') if self.use_hdd else None
+        limbo = self.createLimbo('watcher') if not self.use_hdd else None
         q_sig = Link('watcher_sig', self.name, 'watcher')
         self.watcher.setLinks(q_sig)
         self.sig_queues.update({q_sig.name:q_sig})

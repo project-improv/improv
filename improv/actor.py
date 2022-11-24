@@ -210,8 +210,9 @@ class AsyncActor(AbstractActor):
 
 
 ## Aliasing
-Actor = ManagedActor
-
+class Actor(ManagedActor):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 class RunManager():
     '''
@@ -222,6 +223,7 @@ class RunManager():
         self.config = False
 
         self.actorName = name
+        print('RunManager for {} created'.format(self.actorName))
 
         self.functions = functions
         self.links = links
@@ -259,7 +261,9 @@ class RunManager():
                 try:
                     if self.runStore:
                         self.runStore()
+                    logger.info('Running setup for {}'.format(self.actorName))
                     self.functions['setup']()
+                    logger.info(' Done with setup for {}'.format(self.actorName))
                     self.q_comm.put([Signal.ready()])
                 except Exception as e:
                     logger.error('Actor '+self.actorName+' exception during setup: {}'.format(e))  
@@ -274,7 +278,8 @@ class RunManager():
 
             # Check for new Signals received from Nexus
             try: 
-                signal = self.links['q_sig'].get(timeout=self.timeout)
+                signal = self.q_sig.get(timeout=self.timeout)
+                logger.info('{} received Signal {}'.format(self.actorName, signal))
                 if signal == Signal.run(): 
                     self.run = True
                     logger.warning('Received run signal, begin running')

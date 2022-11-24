@@ -1,15 +1,13 @@
 import time
 import cv2
 import numpy as np
-import pyqtgraph as pg
-from math import floor
 from queue import Empty
 from collections import deque
-from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtWidgets
 from scipy.spatial.distance import cdist
 
 from improv.actor import Actor, Signal
-from improv.store import Limbo, ObjectNotFoundError
+from improv.store import ObjectNotFoundError
 from .front_end import BasicFrontEnd
 
 import logging; logger = logging.getLogger(__name__)
@@ -107,6 +105,7 @@ class BasicCaimanVisual(Actor):
             self.timestamp.append([time.time(), self.frame_num])
         except Empty as e:
             pass
+        # TODO: I think we want to handle this in the store, not in actors?
         except ObjectNotFoundError as e:
             logger.error('Object not found, continuing...')
         except Exception as e:

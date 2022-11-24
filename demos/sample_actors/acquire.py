@@ -5,7 +5,7 @@ import random
 import numpy as np
 from skimage.io import imread
 
-from improv.actor import Actor, RunManager
+from improv.actor import Actor
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -31,14 +31,12 @@ class FileAcquirer(Actor):
            Open file stream
            #TODO: implement more than h5 files
         '''
-        print('Looking for ', self.filename)
         if os.path.exists(self.filename):
             n, ext = os.path.splitext(self.filename)[:2]
             if ext == '.h5' or ext == '.hdf5':
                 with h5py.File(self.filename, 'r') as file:
                     keys = list(file.keys())
                     self.data = file[keys[0]][()]
-                    print('Data length is ', len(self.data))
 
         else: raise FileNotFoundError
 
