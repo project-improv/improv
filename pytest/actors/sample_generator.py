@@ -27,12 +27,7 @@ class Generator(Actor):
         """
 
         self.data = np.asmatrix(np.random.randint(100, size = (100, 5)))
-
-    def run(self):
-        """ Send array into the store.
-        """
-        with RunManager(self.name, self.generate, self.setup, self.q_sig, self.q_comm, self.stop) as rm:
-            logger.info(rm)
+        logger.info('Completed setup for Generator')
 
     def stop(self):
         """ Save current randint vector to a file.
@@ -42,7 +37,7 @@ class Generator(Actor):
         np.save(f"sample_generator_data_{date.today()}", self.data) #This is not the best example of a save function, will overwrite previous files with the same name.
         return 0
 
-    def generate(self):
+    def runStep(self):
         """ Generates additional data after initial setup data is exhausted.
         
         Data is of a different form as the setup data in that although it is 

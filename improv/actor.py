@@ -241,6 +241,7 @@ class RunManager():
             if self.run:
                 try:
                     self.functions['run']()
+                    logger.info('did a run step for {}'.format(self.actorName))
                 except Exception as e:
                     logger.error('Actor '+self.actorName+' exception during run: {}'.format(e))
                     print(traceback.format_exc())
@@ -392,6 +393,10 @@ class Signal():
     @staticmethod
     def ready():
         return 'ready'
+
+    @staticmethod
+    def kill():
+        return 'kill'
 
     @staticmethod
     def revive():

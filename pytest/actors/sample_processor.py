@@ -25,20 +25,17 @@ class Processor(Actor):
         self.frame = None
         self.avg_list = []
         self.frame_num = 1
-
-    def run(self):
-        with RunManager(self.name, self.get_avg, self.setup, self.q_sig, self.q_comm, self.stop) as rm:
-            logger.info(rm)
+        logger.info('Completed setup for Processor')
 
     def stop(self):
         """ Trivial stop function for testing purposes.
         """
 
-        print("Processor stopping")
+        logger.info("Processor stopping")
         return 0
 
 
-    def get_avg(self):
+    def runStep(self):
         """ Gets from the input queue and calculates the average.
         
         Receives an ObjectID, references data in the store using that
