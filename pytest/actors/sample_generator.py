@@ -29,6 +29,17 @@ class Generator(Actor):
         self.data = np.asmatrix(np.random.randint(100, size = (100, 5)))
         logger.info('Completed setup for Generator')
 
+    # def run(self):
+    #     """ Send array into the store.
+    #     """
+    #     self.fcns = {}
+    #     self.fcns['setup'] = self.setup
+    #     self.fcns['run'] = self.runStep
+    #     self.fcns['stop'] = self.stop
+
+    #     with RunManager(self.name, self.fcns, self.links) as rm:
+    #         logger.info(rm)
+
     def stop(self):
         """ Save current randint vector to a file.
         """ 

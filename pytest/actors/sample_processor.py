@@ -34,6 +34,17 @@ class Processor(Actor):
         logger.info("Processor stopping")
         return 0
 
+    # def run(self):
+    #     """ Send array into the store.
+    #     """
+    #     self.fcns = {}
+    #     self.fcns['setup'] = self.setup
+    #     self.fcns['run'] = self.runStep
+    #     self.fcns['stop'] = self.stop
+
+    #     with RunManager(self.name, self.fcns, self.links) as rm:
+    #         logger.info(rm)
+
 
     def runStep(self):
         """ Gets from the input queue and calculates the average.

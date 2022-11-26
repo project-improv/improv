@@ -14,13 +14,13 @@ class AbstractActor():
         Needs to have a store and links for communication
         Also needs to be responsive to sent Signals (e.g. run, setup, etc)
     '''
-    def __init__(self, name, method='fork', links={}, **kwargs):
+    def __init__(self, name, method='fork'):
         ''' Require a name for multiple instances of the same actor/class
             Create initial empty dict of Links for easier referencing
         '''
         self.q_watchout = None
         self.name = name
-        self.links = links
+        self.links = {} 
         self.method = method
         self.client = None
 
@@ -133,11 +133,8 @@ class AbstractActor():
 
     def stop():
         """ Specify method for momentarily stopping the run and saving data.
-        
-        Returns 0 for exit success, Returns 1 for exit failure
         """
-
-        return 0
+        pass
     
     def changePriority(self):
         ''' Try to lower this process' priority
@@ -210,9 +207,10 @@ class AsyncActor(AbstractActor):
 
 
 ## Aliasing
-class Actor(ManagedActor):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+Actor = ManagedActor
+# class Actor(ManagedActor):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
 
 class RunManager():
     '''
@@ -223,7 +221,7 @@ class RunManager():
         self.config = False
 
         self.actorName = name
-        print('RunManager for {} created'.format(self.actorName))
+        logger.debug('RunManager for {} created'.format(self.actorName))
 
         self.functions = functions
         self.links = links
@@ -241,30 +239,22 @@ class RunManager():
             if self.run:
                 try:
                     self.functions['run']()
-                    logger.info('did a run step for {}'.format(self.actorName))
                 except Exception as e:
                     logger.error('Actor '+self.actorName+' exception during run: {}'.format(e))
                     print(traceback.format_exc())
             elif self.stop:
                     #Read stop codes
                 try:
-                    exit_code = self.stopMethod()
-                    #Read stop codes
-                    if exit_code == 0: 
-                        self.q_comm.put([Signal.ready()])
-                    else:
-                        #Maybe send ready signal anyway?
-                        logger.error(f"Actor {self.actorName} was unable to stop")
+                    self.functions['run']()
+                    self.q_comm.put([Signal.ready()])
                 except Exception as e:
-                    logger.error(f'Actor {self.actorName} exception during run: {e}')
+                    logger.error(f'Actor {self.actorName} exception during stop: {e}')
                 self.stop = False #Run once
             elif self.config:
                 try:
                     if self.runStore:
                         self.runStore()
-                    logger.info('Running setup for {}'.format(self.actorName))
                     self.functions['setup']()
-                    logger.info(' Done with setup for {}'.format(self.actorName))
                     self.q_comm.put([Signal.ready()])
                 except Exception as e:
                     logger.error('Actor '+self.actorName+' exception during setup: {}'.format(e))  
@@ -280,7 +270,7 @@ class RunManager():
             # Check for new Signals received from Nexus
             try: 
                 signal = self.q_sig.get(timeout=self.timeout)
-                logger.info('{} received Signal {}'.format(self.actorName, signal))
+                logger.debug('{} received Signal {}'.format(self.actorName, signal))
                 if signal == Signal.run(): 
                     self.run = True
                     logger.warning('Received run signal, begin running')
