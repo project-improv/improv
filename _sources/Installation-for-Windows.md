@@ -1,6 +1,4 @@
-# WSL INSTALL
-
-## improv in Windows Subsystem for Linux 
+# improv in Windows Subsystem for Linux
 
 ### This is a guide to installing and running improv on Windows systems using Windows Subsystem for Linux (WSL)
 
@@ -167,5 +165,4 @@ Several issues can appear during the CaImAn installation process. It is recommen
         sudo apt-get install gcc
         sudo apt-get install g++
         ```
-
 

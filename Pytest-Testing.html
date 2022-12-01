@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Welcome to your Jupyter Book &#8212; Improv</title>
+    <title>Overview &#8212; Improv</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -52,6 +52,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Using ScanImage" href="Stimulation.html" />
+    <link rel="prev" title="Pipeline for online processing using CaImAn" href="Process-Raw-Frames.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -111,7 +113,7 @@ const thebe_selector_output = ".output, .cell_output"
                 </a>
             </li>
         </ul>
-        <ul class="nav bd-sidenav">
+        <ul class="current nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="home.html">
    Table of Contents
@@ -199,8 +201,8 @@ const thebe_selector_output = ".output, .cell_output"
    Pipeline for online processing using CaImAn
   </a>
  </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="Pytest-Testing.html">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
    Overview
   </a>
  </li>
@@ -329,7 +331,7 @@ title="Source repository"
       </li>
       
       <li>
-        <a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Fintro.html&body=Your%20issue%20content%20here."
+        <a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2FPytest-Testing.html&body=Your%20issue%20content%20here."
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -357,7 +359,7 @@ title="Open an issue"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="_sources/intro.md"
+        <a href="_sources/Pytest-Testing.md"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -394,23 +396,110 @@ title="Print to PDF"
     </ul>
   </div>
 </div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
 
     </div>
 </div>
 
 <!-- Table of contents -->
 <div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   Overview
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#installation">
+   Installation
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#usage">
+   Usage
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#coverage">
+   Coverage
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#timing">
+   Timing
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#currently-written-tests">
+   Currently Written Tests
+  </a>
+ </li>
+</ul>
+
+    </nav>
 </div>
     </div>
     <div class="article row">
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Welcome to your Jupyter Book</h1>
+                <h1>Overview</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
                         
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   Overview
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#installation">
+   Installation
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#usage">
+   Usage
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#coverage">
+   Coverage
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#timing">
+   Timing
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#currently-written-tests">
+   Currently Written Tests
+  </a>
+ </li>
+</ul>
+
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -418,13 +507,35 @@ title="Print to PDF"
                 
               <div>
                 
-  <section class="tex2jax_ignore mathjax_ignore" id="welcome-to-your-jupyter-book">
-<h1>Welcome to your Jupyter Book<a class="headerlink" href="#welcome-to-your-jupyter-book" title="Permalink to this headline">#</a></h1>
-<p>This is a small sample book to give you a feel for how book content is
-structured.
-It shows off a few of the major file types, as well as some sample content.
-It does not go in-depth into any particular topic - check out <a class="reference external" href="https://jupyterbook.org">the Jupyter Book documentation</a> for more information.</p>
-<p>Check out the content pages bundled with this sample book to see more.</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">#</a></h1>
+<p>Unit and integration testing is done using the <strong>pytest</strong> framework. Since parts of improv require asynchronous processing, the <strong>pytest-asyncio</strong> package is used in order to support tests that deal with asynchronous elements of the codebase. To measure testing coverage, we use the <strong>pytest-cov</strong> package. As of 10/27/2022, the versions of <strong>pytest</strong>, <strong>pytest-asyncio</strong>, and <strong>pytest-cov</strong> being used are versions 7.1.2, 0.19.0, and 3.0.0 respectively, running on python 3.9.0. Currently, there are 120 tests, 105 of which are fully written. For further reference regarding <strong>pytest</strong>, please visit their <a class="reference external" href="https://docs.pytest.org/en/7.2.x/">website</a>.</p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">#</a></h1>
+<p>To install <strong>pytest</strong>, run the following in the command line while in the environment you wish to use for testing: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">pytest</span></code>. Similarly, to install <strong>pytest-asyncio</strong> and <strong>pytest-cov</strong>, run <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pytest-asyncio</span></code> and <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pytest-cov</span></code>, respectively.</p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">#</a></h1>
+<p>Once <strong>pytest</strong> and all its related packages are installed, open the command line and navigate to the improv/pytest directory. Then, type <code class="docutils literal notranslate"><span class="pre">pytest</span></code> and enter to begin running the tests. You should see an output that looks like this:</p>
+<p><img alt="default_pytest_out" src="https://user-images.githubusercontent.com/104780909/198359858-9cfc3096-c771-46e4-a1f2-4e54ae640e3a.png" /></p>
+<p>To run the tests without warnings, use <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">--disable-warnings</span></code>.</p>
+<p>To run the tests with more information, use <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">-vv</span></code>. The output should look something like this:</p>
+<p><img alt="verbose_pytest_out" src="https://user-images.githubusercontent.com/104780909/198360515-4a720ff4-1160-4f4f-8cef-130c9615cef0.png" /></p>
+<p>To run a specific test, use <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">-k</span> <span class="pre">&lt;test_name&gt;</span></code>.</p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="coverage">
+<h1>Coverage<a class="headerlink" href="#coverage" title="Permalink to this headline">#</a></h1>
+<p>To examine test coverage, type the following command: <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">--cov</span></code>. You should see something like this:</p>
+<p><img alt="cov_report" src="https://user-images.githubusercontent.com/104780909/198361418-5aede6fa-c406-4eea-b174-e0214c12de44.png" /></p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="timing">
+<h1>Timing<a class="headerlink" href="#timing" title="Permalink to this headline">#</a></h1>
+<p>To get the duration of the first <em>n</em> tests, run the following: <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">--duration=n</span></code>; e.g to get how long it takes for the 3 slowest tests to run, type the command <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">--duration=3</span></code>.</p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="currently-written-tests">
+<h1>Currently Written Tests<a class="headerlink" href="#currently-written-tests" title="Permalink to this headline">#</a></h1>
+<p>Tests are currently written for the following python classes: <a class="reference external" href="http://Actor.py">Actor.py</a>, <a class="reference external" href="http://Link.py">Link.py</a>, <a class="reference external" href="http://Nexus.py">Nexus.py</a>, <a class="reference external" href="http://Store.py">Store.py</a>, and <a class="reference external" href="http://Tweak.py">Tweak.py</a>.</p>
 </section>
 
     <script type="text/x-thebe-config">
@@ -454,6 +565,20 @@ It does not go in-depth into any particular topic - check out <a class="referenc
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="Process-Raw-Frames.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Pipeline for online processing using CaImAn</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="Stimulation.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Using ScanImage</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
 </div>
             </footer>
         </div>

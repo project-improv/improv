@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Welcome to your Jupyter Book &#8212; Improv</title>
+    <title>Table of Contents &#8212; Improv</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -52,6 +52,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Calling Julia functions from Python" href="Analysis%3A-Julia.html" />
+    <link rel="prev" title="IMPROV" href="landing.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -111,9 +113,9 @@ const thebe_selector_output = ".output, .cell_output"
                 </a>
             </li>
         </ul>
-        <ul class="nav bd-sidenav">
- <li class="toctree-l1">
-  <a class="reference internal" href="home.html">
+        <ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
    Table of Contents
   </a>
  </li>
@@ -329,7 +331,7 @@ title="Source repository"
       </li>
       
       <li>
-        <a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Fintro.html&body=Your%20issue%20content%20here."
+        <a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Fhome.html&body=Your%20issue%20content%20here."
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -357,7 +359,7 @@ title="Open an issue"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="_sources/intro.md"
+        <a href="_sources/home.md"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -394,23 +396,114 @@ title="Print to PDF"
     </ul>
   </div>
 </div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
 
     </div>
 </div>
 
 <!-- Table of contents -->
 <div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   Table of Contents
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-documentations">
+   Module Documentations
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#file-system-structure">
+   File System Structure
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#overview">
+   Overview
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#user-pipeline">
+     User Pipeline
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#code-pipeline">
+     Code Pipeline
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
 </div>
     </div>
     <div class="article row">
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Welcome to your Jupyter Book</h1>
+                <h1>Table of Contents</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
                         
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   Table of Contents
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-documentations">
+   Module Documentations
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#file-system-structure">
+   File System Structure
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#overview">
+   Overview
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#user-pipeline">
+     User Pipeline
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#code-pipeline">
+     Code Pipeline
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -418,13 +511,93 @@ title="Print to PDF"
                 
               <div>
                 
-  <section class="tex2jax_ignore mathjax_ignore" id="welcome-to-your-jupyter-book">
-<h1>Welcome to your Jupyter Book<a class="headerlink" href="#welcome-to-your-jupyter-book" title="Permalink to this headline">#</a></h1>
-<p>This is a small sample book to give you a feel for how book content is
-structured.
-It shows off a few of the major file types, as well as some sample content.
-It does not go in-depth into any particular topic - check out <a class="reference external" href="https://jupyterbook.org">the Jupyter Book documentation</a> for more information.</p>
-<p>Check out the content pages bundled with this sample book to see more.</p>
+  <p>Welcome to the improv wiki!</p>
+<section id="table-of-contents">
+<h1>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">#</a></h1>
+<ul class="simple">
+<li><p><span class="xref myst">Project Overview</span></p></li>
+<li><p><a class="reference internal" href="design.html"><span class="doc std std-doc">System Design</span></a></p></li>
+<li><p><a class="reference internal" href="interfaces.html"><span class="doc std std-doc">API</span></a></p></li>
+<li><p><span class="xref myst">Milestones</span></p></li>
+<li><p><span class="xref myst">System Operation</span></p></li>
+</ul>
+</section>
+<section id="module-documentations">
+<h1>Module Documentations<a class="headerlink" href="#module-documentations" title="Permalink to this headline">#</a></h1>
+<ul class="simple">
+<li><p>[Acquirer](Data Acquisition)</p></li>
+</ul>
+</section>
+<section id="file-system-structure">
+<h1>File System Structure<a class="headerlink" href="#file-system-structure" title="Permalink to this headline">#</a></h1>
+<p>Plan for organizing the repo:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">data/</span></code>: Symbolic links to synced folders (such as Dropbox) with large data files</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">doc/</span></code>: Text-based documentation not already added into Python docstrings</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/</span></code>: Top-level directory for all source code. Further divided into modules, e.g. <code class="docutils literal notranslate"><span class="pre">src/visual/</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test/</span></code>: Top-level directory for all test code. Mirrors the src directory structure</p></li>
+</ul>
+</section>
+<section id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">#</a></h1>
+<section id="user-pipeline">
+<h2>User Pipeline<a class="headerlink" href="#user-pipeline" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p>Configure experimental setup:</p>
+<ul>
+<li><p>Choose image acquisition source, which chooses an Acquisition module</p></li>
+<li><p>Choose processing sources, currently only caiman. Can be broken out:</p>
+<ul>
+<li><p>Motion correction</p></li>
+<li><p>Neuron/component identification</p></li>
+<li><p>Spike extraction</p></li>
+</ul>
+</li>
+<li><p>Choose analysis sources to obtain inferences</p></li>
+<li><p>Configure other experimental parameters (size, rate, expected components, etc)</p></li>
+<li><p>Configure display options: either choose module, or configure default visualization</p></li>
+</ul>
+</li>
+<li><p>Initialize server:</p>
+<ul>
+<li><p>Load data store – need to consider persistence between days and sessions</p></li>
+<li><p>Load chosen experimental parameters</p></li>
+<li><p>Initialize chosen pipeline components</p></li>
+</ul>
+</li>
+<li><p>Run server:</p>
+<ul>
+<li><p>Pipeline components wait or run depending on signals from nexus server</p></li>
+<li><p>Front end interfaces with the user and the server</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="code-pipeline">
+<h2>Code Pipeline<a class="headerlink" href="#code-pipeline" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p>Front end as GUI is run first</p>
+<ul>
+<li><p>Creates Nexus and communicates with it</p></li>
+<li><p>Nexus can alternatively be run as stand-alone on command line</p></li>
+<li><p>Has store client from Nexus from which to pull images, plots</p></li>
+<li><p>Also hands off user-input in the form of configuration to Nexus</p></li>
+</ul>
+</li>
+<li><p>Nexus runs inside front-end and handles all communication</p>
+<ul>
+<li><p>Starts data store server and handles clients interfacing with the store</p></li>
+<li><p>between front-end (user) and other components</p></li>
+<li><p>between components in the form of signaling</p></li>
+</ul>
+</li>
+<li><p>Other components: analysis, processing, etc</p>
+<ul>
+<li><p>Have access to the store through the client provided by Nexus</p></li>
+</ul>
+</li>
+</ul>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -454,6 +627,20 @@ It does not go in-depth into any particular topic - check out <a class="referenc
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="landing.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">IMPROV</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="Analysis%3A-Julia.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Calling Julia functions from Python</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
 </div>
             </footer>
         </div>

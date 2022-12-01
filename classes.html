@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Welcome to your Jupyter Book &#8212; Improv</title>
+    <title>OnACID &#8212; Improv</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -52,6 +52,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="From HDF5" href="Data-Acquistion.html" />
+    <link rel="prev" title="Introduction" href="Building-your-own-actor-system.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -111,7 +113,7 @@ const thebe_selector_output = ".output, .cell_output"
                 </a>
             </li>
         </ul>
-        <ul class="nav bd-sidenav">
+        <ul class="current nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="home.html">
    Table of Contents
@@ -132,8 +134,8 @@ const thebe_selector_output = ".output, .cell_output"
    Introduction
   </a>
  </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="classes.html">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
    OnACID
   </a>
  </li>
@@ -329,7 +331,7 @@ title="Source repository"
       </li>
       
       <li>
-        <a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Fintro.html&body=Your%20issue%20content%20here."
+        <a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Fclasses.html&body=Your%20issue%20content%20here."
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -357,7 +359,7 @@ title="Open an issue"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="_sources/intro.md"
+        <a href="_sources/classes.md"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -394,23 +396,152 @@ title="Print to PDF"
     </ul>
   </div>
 </div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
 
     </div>
 </div>
 
 <!-- Table of contents -->
 <div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   OnACID
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#attributes">
+     Attributes
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#methods">
+     Methods
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#ringbuffer">
+   RingBuffer
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     Attributes
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id2">
+     Methods
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#cnmfparams">
+   CNMFParams
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id3">
+     Attributes
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id4">
+     Methods
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
 </div>
     </div>
     <div class="article row">
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Welcome to your Jupyter Book</h1>
+                <h1>OnACID</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
                         
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   OnACID
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#attributes">
+     Attributes
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#methods">
+     Methods
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#ringbuffer">
+   RingBuffer
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     Attributes
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id2">
+     Methods
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#cnmfparams">
+   CNMFParams
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id3">
+     Attributes
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id4">
+     Methods
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -418,13 +549,112 @@ title="Print to PDF"
                 
               <div>
                 
-  <section class="tex2jax_ignore mathjax_ignore" id="welcome-to-your-jupyter-book">
-<h1>Welcome to your Jupyter Book<a class="headerlink" href="#welcome-to-your-jupyter-book" title="Permalink to this headline">#</a></h1>
-<p>This is a small sample book to give you a feel for how book content is
-structured.
-It shows off a few of the major file types, as well as some sample content.
-It does not go in-depth into any particular topic - check out <a class="reference external" href="https://jupyterbook.org">the Jupyter Book documentation</a> for more information.</p>
-<p>Check out the content pages bundled with this sample book to see more.</p>
+  <section id="onacid">
+<h1>OnACID<a class="headerlink" href="#onacid" title="Permalink to this headline">#</a></h1>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p>params: CNMFParams</p></li>
+<li><p>estimates: Estimates</p></li>
+<li><p>N: int from columns in estimates.A, # of imaged sources</p></li>
+<li><p>M: int from params and self.N, # of total components (background + imaged)</p></li>
+<li><p>dims: (int,int) dimensions of FOV in pixels</p></li>
+<li><p>ind_A: index matrix of Ab stacked matrix; separate from estimates</p></li>
+<li><p>update_counter: array counter for updating shapes, for each component</p></li>
+<li><p>time_neuron_added: array of ‘when’ component are added</p></li>
+<li><p>time_spend: cumulative time spent running</p></li>
+<li><p>loaded_model: keras model from json; optional</p></li>
+<li><p>Ab_dense_copy: from estimates.Ab_dense. Unused.</p></li>
+<li><p>Ab_copy: from local variable Ab_ (copied from estimates.Ab), then copied back into estimates.Ab after shape updating</p></li>
+<li><p>Ab_epoch: copies of estimates.Ab for each epoch</p></li>
+<li><p>bnd_Y: percentiles of loaded data; used if show movie.</p></li>
+<li><p>bnd_AC: same for A.C</p></li>
+<li><p>bnd_BG: same for b.f. Unused.</p></li>
+<li><p>img_min: min of loaded data</p></li>
+<li><p>img_norm: norm of loaded data, std+median</p></li>
+<li><p>t: counter during online fitting; used if show movie and in create_frame method (problematic)</p></li>
+<li><p>t_shapes: list of times for shape updating</p></li>
+<li><p>t_detect: list of times</p></li>
+<li><p>t_motion: list of times</p></li>
+<li><p>comp_upd: list of updated components, used to count updating shapes during fit_next</p></li>
+<li><p>captions: list of captions in show movie. Unused.</p></li>
+<li><p>dview: Unused.</p></li>
+</ul>
+<p>Below from update_num_components: Potentially problematic.</p>
+<ul class="simple">
+<li><p>rhos_buf: RingBuffer, after update, from estimates.rho_buf. Unused.</p></li>
+<li><p>ind_new_all: Unused.</p></li>
+<li><p>cnn_pos:  Unused.</p></li>
+</ul>
+</section>
+<section id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p>fit_next: fits the next frame, updates the object</p></li>
+<li><p>initialize_online: initialize using small portion of the dataset</p></li>
+<li><p>fit_online: take files and fit in real-time</p></li>
+<li><p>create_frame: currently only used for showing movie, has implicit assumptions</p></li>
+<li><p>_prepare_object: prepares the online object given some estimates</p></li>
+<li><p>save: save object in hdf5 (h5) format</p></li>
+</ul>
+<p>Other methods in online_cnmf:</p>
+<ul class="simple">
+<li><p>bare_initialization: bypass cnmf to quickly init OnACID (default)</p></li>
+<li><p>seeded_initialization: init OnACID from user specified binary masks</p></li>
+<li><p>HALS4shape: reshape A</p></li>
+<li><p>HALS4activity: get C using block-coordinate descent</p></li>
+<li><p>demix_and_deconvolve: get C using OASIS within b-c descent</p></li>
+<li><p>init_shapes_and_sufficient_stats: estimate shapes on initial batch</p></li>
+<li><p>update_shapes: updates shapes</p></li>
+<li><p>update_num_components: check for new components in residual buffer, adds if needed</p></li>
+<li><p>get_candidate_components: extract new candidate components and test them</p></li>
+<li><p>remove_components_online: remove indexed components</p></li>
+<li><p>initialize_movie_online: init movie using cnmf</p></li>
+<li><p>load_OnlineCNMF: load object from save (hdf5)</p></li>
+<li><p>csc_append: appends second csc_matrix to the right of the first one</p></li>
+<li><p>corr: fast correlation</p></li>
+<li><p>rank1nmf: fast rank 1 NMF</p></li>
+</ul>
+</section>
+</section>
+<section id="ringbuffer">
+<h1>RingBuffer<a class="headerlink" href="#ringbuffer" title="Permalink to this headline">#</a></h1>
+<p>Implements ring buffer efficiently, inherits from np.ndarray</p>
+<section id="id1">
+<h2>Attributes<a class="headerlink" href="#id1" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p>max_, cur</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>Methods<a class="headerlink" href="#id2" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p>append, get_ordered, get_first, get_last_frames</p></li>
+</ul>
+</section>
+</section>
+<section id="cnmfparams">
+<h1>CNMFParams<a class="headerlink" href="#cnmfparams" title="Permalink to this headline">#</a></h1>
+<p>Class for setting processing parameters, grouped. Dictionary implementation</p>
+<section id="id3">
+<h2>Attributes<a class="headerlink" href="#id3" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p>Primary dicts: data, patch, preprocess, init, spatial, temporal, merging, quality, online, motion
+Should all have default values for each specified key.</p></li>
+</ul>
+</section>
+<section id="id4">
+<h2>Methods<a class="headerlink" href="#id4" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p>set: add key-value pairs to a given dict (group)</p></li>
+<li><p>get: gets value from group.key</p></li>
+<li><p>get_group: gets full dict of given group</p></li>
+<li><p>change_params: given dict, set all new values</p></li>
+<li><p>to_dict: convert all dicts to single large dict</p></li>
+<li><p><em>eq</em>: define comparison for dicts
+(dict_compare method defined in .utilities)</p></li>
+</ul>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -454,6 +684,20 @@ It does not go in-depth into any particular topic - check out <a class="referenc
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="Building-your-own-actor-system.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Introduction</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="Data-Acquistion.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">From HDF5</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
 </div>
             </footer>
         </div>

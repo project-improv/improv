@@ -9,7 +9,7 @@ This video shows raw 2-photon calcium imaging data in zebrafish, with cells dete
 We also provide up-to-the-moment estimates of the functional connectivity by fitting linear-nonlinear-Poisson models online, as each new piece of data is acquired. Simple visualizations offer real-time insights, allowing for adaptive experiments that change in response to the current state of the brain.
 
 
-### How improv works
+### How does improv works
 
 <img src="https://github.com/project-improv/improv/raw/main/figures/improv_design.png" width=80%>
 <br />

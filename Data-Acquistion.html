@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Welcome to your Jupyter Book &#8212; Improv</title>
+    <title>From HDF5 &#8212; Improv</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -52,6 +52,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Data Store" href="Data-Store%3A-Online.html" />
+    <link rel="prev" title="OnACID" href="classes.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -111,7 +113,7 @@ const thebe_selector_output = ".output, .cell_output"
                 </a>
             </li>
         </ul>
-        <ul class="nav bd-sidenav">
+        <ul class="current nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="home.html">
    Table of Contents
@@ -137,8 +139,8 @@ const thebe_selector_output = ".output, .cell_output"
    OnACID
   </a>
  </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="Data-Acquistion.html">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
    From HDF5
   </a>
  </li>
@@ -329,7 +331,7 @@ title="Source repository"
       </li>
       
       <li>
-        <a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Fintro.html&body=Your%20issue%20content%20here."
+        <a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2FData-Acquistion.html&body=Your%20issue%20content%20here."
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -357,7 +359,7 @@ title="Open an issue"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="_sources/intro.md"
+        <a href="_sources/Data-Acquistion.md"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -394,23 +396,108 @@ title="Print to PDF"
     </ul>
   </div>
 </div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
 
     </div>
 </div>
 
 <!-- Table of contents -->
 <div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   From HDF5
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#from-scanbox">
+   From Scanbox
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#benchmark">
+     Benchmark
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#from-scanimage">
+   From ScanImage
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     Benchmark
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
 </div>
     </div>
     <div class="article row">
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Welcome to your Jupyter Book</h1>
+                <h1>From HDF5</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
                         
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   From HDF5
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#from-scanbox">
+   From Scanbox
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#benchmark">
+     Benchmark
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#from-scanimage">
+   From ScanImage
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     Benchmark
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -418,13 +505,50 @@ title="Print to PDF"
                 
               <div>
                 
-  <section class="tex2jax_ignore mathjax_ignore" id="welcome-to-your-jupyter-book">
-<h1>Welcome to your Jupyter Book<a class="headerlink" href="#welcome-to-your-jupyter-book" title="Permalink to this headline">#</a></h1>
-<p>This is a small sample book to give you a feel for how book content is
-structured.
-It shows off a few of the major file types, as well as some sample content.
-It does not go in-depth into any particular topic - check out <a class="reference external" href="https://jupyterbook.org">the Jupyter Book documentation</a> for more information.</p>
-<p>Check out the content pages bundled with this sample book to see more.</p>
+  <p>Raw image frames can be sent into the system using a HDF5 file and MATLAB.</p>
+<section id="from-hdf5">
+<h1>From HDF5<a class="headerlink" href="#from-hdf5" title="Permalink to this headline">#</a></h1>
+<p>Using the demo file from CaImAn, <code class="docutils literal notranslate"><span class="pre">Tolias_mesoscope_1.h5</span></code>, the system gets the image stack in a NumPy array and sends out images every <code class="docutils literal notranslate"><span class="pre">1/framerate</span></code> second.</p>
+</section>
+<section id="from-scanbox">
+<h1>From Scanbox<a class="headerlink" href="#from-scanbox" title="Permalink to this headline">#</a></h1>
+<p>Scanbox offers real-time frame sharing via a memory-mapped file (<a class="reference external" href="https://scanbox.org/2016/02/11/memory-mapped-data-sharing-for-real-time-processing/">more details</a>). However, these could only be accessed quickly within the MATLAB infrastructure. Therefore, we need to create another MATLAB instance in order to access the memory-mapped data.</p>
+<p>To demonstrate data transfer from a memory-mapped file, we create a test system with two files: <code class="docutils literal notranslate"><span class="pre">header</span></code> and <code class="docutils literal notranslate"><span class="pre">img</span></code> (check the comments in <code class="docutils literal notranslate"><span class="pre">generator.m</span></code>). The header is an <code class="docutils literal notranslate"><span class="pre">int16</span></code> array that contains status information (ex: clear to start, new data available). The img is an <code class="docutils literal notranslate"><span class="pre">struct</span> <span class="pre">int16</span></code> with dimensions of a single image frame. Make sure to run <code class="docutils literal notranslate"><span class="pre">generator.m</span></code> before running <code class="docutils literal notranslate"><span class="pre">improv</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">img</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">memmapfile</span><span class="p">(</span><span class="s">&#39;scanbox.mmap&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Format&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;int16&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">512</span><span class="p">,</span><span class="w"> </span><span class="mi">512</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;data&#39;</span><span class="p">},</span><span class="w"> </span><span class="s">&#39;Writable&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Note that the parameters that are used to load the memmapfile must exactly match the parameters of the array(s) that creates the memmapfile. Otherwise, MATLAB will throw this error.</p>
+<blockquote>
+<div><p>A subscripting operation on the Data field attempted to create a comma-separated list. The memmapfile class does not support the use of comma-separated lists when subscripting.</p>
+</div></blockquote>
+<p><br />
+In <code class="docutils literal notranslate"><span class="pre">acquirer_matlab.py</span></code>, we start a MATLAB instance using the MATLAB Engine API for Python and create a <code class="docutils literal notranslate"><span class="pre">memmapfile</span></code> object. MATLAB commands can be executed using the <code class="docutils literal notranslate"><span class="pre">eng.eval</span></code> function. <strong>Important: note that running any MATLAB commands that do not have a return value requires the keyword</strong> <code class="docutils literal notranslate"><span class="pre">nargout=0</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">eng</span> <span class="o">=</span> <span class="n">matlab</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">start_matlab</span><span class="p">()</span>
+<span class="n">eng</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s1">&#39;a = 2&#39;</span><span class="p">,</span> <span class="n">nargout</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When the module receives the <code class="docutils literal notranslate"><span class="pre">run</span></code> signal, it changes a value in the <code class="docutils literal notranslate"><span class="pre">header</span></code> array to start data generation by <code class="docutils literal notranslate"><span class="pre">generator.m</span></code>. To receive data, the system runs a MATLAB snippet that holds the execution until the image is updated by <code class="docutils literal notranslate"><span class="pre">generator.m</span></code>. Afterwards, the new image is retrieved and converted into a NumPy array.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">raw</span><span class="p">:</span> <span class="n">matlab</span><span class="o">.</span><span class="n">mlarray</span><span class="o">.</span><span class="n">int16</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eng</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s1">&#39;img.Data.data&#39;</span><span class="p">)</span>
+<span class="n">frame</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">size</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+</pre></div>
+</div>
+<section id="benchmark">
+<h2>Benchmark<a class="headerlink" href="#benchmark" title="Permalink to this headline">#</a></h2>
+<p align="center"><img width="600" alt="Time per cycle of MATLAB acquisition" src="https://user-images.githubusercontent.com/34997334/63043443-40a05080-be9a-11e9-9a68-82331616b30e.png"></p>
+Time per cycle of MATLAB acquisition (440x256 int16) measured in `improv`. This is the time it takes to finish one cycle of acquiring less the wait time (1/15 s).
+</section>
+</section>
+<section id="from-scanimage">
+<h1>From ScanImage<a class="headerlink" href="#from-scanimage" title="Permalink to this headline">#</a></h1>
+<p>ScanImage offers the ability user-defined functions upon a <a class="reference external" href="http://scanimage.vidriotechnologies.com/display/SI2019/User+Functions">pre-defined event</a>. An example code to grab frames is available at the bottom of <a class="reference external" href="http://scanimage.vidriotechnologies.com/display/SI2019/ScanImage+API">this page</a>. Like in the case of Scanbox, we can write this data down into a memory-mapped file, which is being monitored by <code class="docutils literal notranslate"><span class="pre">improv</span></code>.</p>
+<p>Example:
+This example was run using MATLAB 2018b, ScanImage 5.5 with a <a class="reference external" href="http://scanimage.vidriotechnologies.com/display/SI2019/How+to+Run+a+ScanImage+Simulation">simulated DAQ</a> using NI DAQmx 15.5. Tha machine file is <code class="docutils literal notranslate"><span class="pre">Machine_Data_File.m</span></code>. Copy everything in the <code class="docutils literal notranslate"><span class="pre">scanimage</span></code> folder into the current working folder. Run <code class="docutils literal notranslate"><span class="pre">initMemMap.m</span></code>, which creates 2 memory-mapped files.</p>
+<p align="center"><img width="500" alt="User Functions panel" src="https://user-images.githubusercontent.com/34997334/63535845-68b63200-c4e0-11e9-9e77-fd1970336761.png"></p>
+<p>Open the <code class="docutils literal notranslate"><span class="pre">User</span> <span class="pre">Functions</span></code> panel and load <code class="docutils literal notranslate"><span class="pre">usr_funcs.cfg</span></code>. ScanImage will call <code class="docutils literal notranslate"><span class="pre">initMemMap</span></code> upon the acquisition start and call <code class="docutils literal notranslate"><span class="pre">grabFrame</span></code> after every frame. Once we have a functioning system, we can use the MATLAB Engine API for Python to read the memmapfile as described above.</p>
+<section id="id1">
+<h2>Benchmark<a class="headerlink" href="#id1" title="Permalink to this headline">#</a></h2>
+<p align="center"><img width="600" alt="" src="https://user-images.githubusercontent.com/34997334/63537159-23473400-c4e3-11e9-8d13-7cdf1ab33c76.png"></p>
+Time from `grabFrame` to NumPy array (512x512 int16). Core i7-4750HQ (Crystalwell, 3.1 GHz at the time of benchmark). Time scales linearly with data size.</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -454,6 +578,20 @@ It does not go in-depth into any particular topic - check out <a class="referenc
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="classes.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">OnACID</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="Data-Store%3A-Online.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Data Store</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
 </div>
             </footer>
         </div>

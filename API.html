@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>API DOC &#8212; My sample book</title>
+    <title>API DOC &#8212; Improv</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -52,8 +52,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="WSL INSTALL" href="WSL%20INSTALL.html" />
-    <link rel="prev" title="IMPROV" href="landing.html" />
+    <link rel="next" title="Installation guide" href="markdown.html" />
+    <link rel="prev" title="WSL INSTALL" href="WSL%20INSTALL.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -97,7 +97,7 @@ const thebe_selector_output = ".output, .cell_output"
       <img src="_static/logo.png" class="logo" alt="logo">
       
       
-      <h1 class="site-logo" id="site-title">My sample book</h1>
+      <h1 class="site-logo" id="site-title">Improv</h1>
       
     </a>
 </div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
@@ -114,14 +114,121 @@ const thebe_selector_output = ".output, .cell_output"
             </li>
         </ul>
         <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="home.html">
+   Table of Contents
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Analysis%3A-Julia.html">
+   Calling Julia functions from Python
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Building-and-Packaging.html">
+   With pip:
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Building-your-own-actor-system.html">
+   Introduction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="classes.html">
+   OnACID
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Data-Acquistion.html">
+   From HDF5
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Data-Store%3A-Online.html">
+   Data Store
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Data-Store%3A-Offline.html">
+   Parameters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="design.html">
+   <span class="xref myst">
+    Master Server
+   </span>
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Docker.html">
+   Requirements
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Installation.html">
+   Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Installation-for-Windows.html">
+   improv in Windows Subsystem for Linux
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="interfaces.html">
+   Flexible pipeline for neural experimentation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Minimal-working-example.html">
+   Introduction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Modules%3A-Asynchronous.html">
+   Initialization
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Modules%3A-Configuration-and-Architecture.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Process-Raw-Frames.html">
+   Pipeline for online processing using CaImAn
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Pytest-Testing.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Stimulation.html">
+   Using ScanImage
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="store.html">
+   Data Store
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="WSL%20INSTALL.html">
+   WSL INSTALL
+  </a>
+ </li>
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
    API DOC
   </a>
  </li>
  <li class="toctree-l1">
-  <a class="reference internal" href="WSL%20INSTALL.html">
-   WSL INSTALL
+  <a class="reference internal" href="markdown.html">
+   Installation guide
   </a>
  </li>
  <li class="toctree-l1">
@@ -132,11 +239,6 @@ const thebe_selector_output = ".output, .cell_output"
  <li class="toctree-l1">
   <a class="reference internal" href="markdown-notebooks.html">
    Notebooks with MyST Markdown
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="markdown.html">
-   Installation guide
   </a>
  </li>
 </ul>
@@ -317,8 +419,8 @@ title="Print to PDF"
     <nav id="bd-toc-nav" aria-label="Page">
         <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#here-is-my-first-section">
-   here is my first section
+  <a class="reference internal nav-link" href="#here-is-my-first-section-in-the-doc">
+   here is my first section in the doc
   </a>
  </li>
 </ul>
@@ -341,8 +443,8 @@ title="Print to PDF"
                         <nav aria-label="Page">
                             <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#here-is-my-first-section">
-   here is my first section
+  <a class="reference internal nav-link" href="#here-is-my-first-section-in-the-doc">
+   here is my first section in the doc
   </a>
  </li>
 </ul>
@@ -358,9 +460,9 @@ title="Print to PDF"
   <section class="tex2jax_ignore mathjax_ignore" id="api-doc">
 <h1>API DOC<a class="headerlink" href="#api-doc" title="Permalink to this headline">#</a></h1>
 <p>This is my sample API link <a class="reference external" href="https://github.com/project-improv/improv">repo</a></p>
-<section id="here-is-my-first-section">
-<span id="section-label-1"></span><h2>here is my first section<a class="headerlink" href="#here-is-my-first-section" title="Permalink to this headline">#</a></h2>
-<p>here I’m referencing <a class="reference internal" href="#section-label-1"><span class="std std-ref">this title</span></a>. Try a reference <a class="reference internal" href="#section-label-1"><span class="std std-ref">here is my first section</span></a></p>
+<section id="here-is-my-first-section-in-the-doc">
+<span id="section-label-1"></span><h2>here is my first section in the doc<a class="headerlink" href="#here-is-my-first-section-in-the-doc" title="Permalink to this headline">#</a></h2>
+<p>here I’m referencing <a class="reference internal" href="#section-label-1"><span class="std std-ref">this title</span></a>. Try a reference <a class="reference internal" href="#section-label-1"><span class="std std-ref">here is my first section in the doc</span></a></p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>text as tips use
@@ -400,17 +502,17 @@ git token new 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</p>
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="landing.html" title="previous page">
+    <a class='left-prev' id="prev-link" href="WSL%20INSTALL.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">IMPROV</p>
+            <p class="prev-next-title">WSL INSTALL</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="WSL%20INSTALL.html" title="next page">
+    <a class='right-next' id="next-link" href="markdown.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">WSL INSTALL</p>
+        <p class="prev-next-title">Installation guide</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>
@@ -421,7 +523,7 @@ git token new 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</p>
     <div class="footer-content row">
         <footer class="col footer"><p>
   
-    By The Jupyter Book Community<br/>
+    By John m Person<br/>
   
       &copy; Copyright 2022.<br/>
 </p>

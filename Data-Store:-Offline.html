@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Welcome to your Jupyter Book &#8212; Improv</title>
+    <title>Parameters &#8212; Improv</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -52,6 +52,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Master Server" href="design.html" />
+    <link rel="prev" title="Data Store" href="Data-Store%3A-Online.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -111,7 +113,7 @@ const thebe_selector_output = ".output, .cell_output"
                 </a>
             </li>
         </ul>
-        <ul class="nav bd-sidenav">
+        <ul class="current nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="home.html">
    Table of Contents
@@ -147,8 +149,8 @@ const thebe_selector_output = ".output, .cell_output"
    Data Store
   </a>
  </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="Data-Store%3A-Offline.html">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
    Parameters
   </a>
  </li>
@@ -329,7 +331,7 @@ title="Source repository"
       </li>
       
       <li>
-        <a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Fintro.html&body=Your%20issue%20content%20here."
+        <a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2FData-Store:-Offline.html&body=Your%20issue%20content%20here."
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -357,7 +359,7 @@ title="Open an issue"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="_sources/intro.md"
+        <a href="_sources/Data-Store:-Offline.md"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -394,23 +396,80 @@ title="Print to PDF"
     </ul>
   </div>
 </div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
 
     </div>
 </div>
 
 <!-- Table of contents -->
 <div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   Parameters
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#description">
+   Description
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#offline-access">
+   Offline Access
+  </a>
+ </li>
+</ul>
+
+    </nav>
 </div>
     </div>
     <div class="article row">
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Welcome to your Jupyter Book</h1>
+                <h1>Parameters</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
                         
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   Parameters
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#description">
+   Description
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#offline-access">
+   Offline Access
+  </a>
+ </li>
+</ul>
+
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -418,13 +477,68 @@ title="Print to PDF"
                 
               <div>
                 
-  <section class="tex2jax_ignore mathjax_ignore" id="welcome-to-your-jupyter-book">
-<h1>Welcome to your Jupyter Book<a class="headerlink" href="#welcome-to-your-jupyter-book" title="Permalink to this headline">#</a></h1>
-<p>This is a small sample book to give you a feel for how book content is
-structured.
-It shows off a few of the major file types, as well as some sample content.
-It does not go in-depth into any particular topic - check out <a class="reference external" href="https://jupyterbook.org">the Jupyter Book documentation</a> for more information.</p>
-<p>Check out the content pages bundled with this sample book to see more.</p>
+  <p>Offline store is implemented using the <a class="reference external" href="https://lmdb.readthedocs.io/en/release/">LMDB</a> key-value database. This system serves as an storage extension to the online store while allowing data to be accessed after the experiment.
+This is located in <code class="docutils literal notranslate"><span class="pre">nexus.store.LMDBStore</span></code>.</p>
+<section id="parameters">
+<h1>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">use_hdd=False</span></code> Enable/Disable LMDB functionality</p>
+<p><code class="docutils literal notranslate"><span class="pre">hdd_maxstore=1e12</span></code> Maximum database size. There is no penalty in setting this as big as possible.</p>
+<p><code class="docutils literal notranslate"><span class="pre">hdd_path='output/'</span></code> Path to database output.</p>
+<p><code class="docutils literal notranslate"><span class="pre">flush_immediately=False,</span></code> Write information to disk immediately. Big performance penalty. For critical experiments.</p>
+<p><code class="docutils literal notranslate"><span class="pre">commit_freq=20</span></code> Get the data into a writing queue every _ frames.</p>
+</section>
+<section id="description">
+<h1>Description<a class="headerlink" href="#description" title="Permalink to this headline">#</a></h1>
+<p>When <code class="docutils literal notranslate"><span class="pre">use_hdd</span></code> is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, all objects that are put in to the <code class="docutils literal notranslate"><span class="pre">Store</span></code> is captured and saved on to the LMDB database with the following key <code class="docutils literal notranslate"><span class="pre">{originating</span> <span class="pre">module}{frame</span> <span class="pre">number}{time.time()}</span></code>. Once a module requests an object that is not available in the <code class="docutils literal notranslate"><span class="pre">PlasmaStore</span></code>, the object ID gets translated into the LMDB key, and the object is retrieved.</p>
+</section>
+<section id="offline-access">
+<h1>Offline Access<a class="headerlink" href="#offline-access" title="Permalink to this headline">#</a></h1>
+<p>Once the experiment is finished, the data remain available and can be analyzed using <code class="docutils literal notranslate"><span class="pre">utils.reader.LMDBReader</span></code>. The API is as followed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Constructor for the LMDB reader.</span>
+<span class="sd">    :param path: Path to LMDB folder</span>
+<span class="sd">    :type path: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="k">def</span> <span class="nf">get_all_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load all data from LMDB into a dictionary.</span>
+<span class="sd">    Make sure that the LMDB is small enough to fit in RAM.</span>
+<span class="sd">    :return: All data in a dictionary.</span>
+<span class="sd">    :rtype: Dict[str: object]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="k">def</span> <span class="nf">get_data_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return all data types defined as {object_name}, but without number.</span>
+<span class="sd">    :rtype: Set[str]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="k">def</span> <span class="nf">get_data_by_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return data at a specific frame number.</span>
+<span class="sd">    :param t: Frame number</span>
+<span class="sd">    :type t: int</span>
+<span class="sd">    :return:</span>
+<span class="sd">    :rtype: Dict[str: object]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="k">def</span> <span class="nf">get_data_by_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return data with key that starts with {t}.</span>
+<span class="sd">    :param t: Data prefix</span>
+<span class="sd">    :type t: str</span>
+<span class="sd">    :rtype: Dict[str: object]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return parameters in a dictionary.</span>
+<span class="sd">    :rtype: Dict[str: object]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
 </section>
 
     <script type="text/x-thebe-config">
@@ -454,6 +568,20 @@ It does not go in-depth into any particular topic - check out <a class="referenc
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="Data-Store%3A-Online.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Data Store</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="design.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><span class="xref myst">Master Server</span></p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
 </div>
             </footer>
         </div>

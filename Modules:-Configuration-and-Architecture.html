@@ -1,0 +1,734 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Overview &#8212; Improv</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script src="_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="_static/sphinx-thebe.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Pipeline for online processing using CaImAn" href="Process-Raw-Frames.html" />
+    <link rel="prev" title="Initialization" href="Modules%3A-Asynchronous.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="_static/logo.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Improv</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="landing.html">
+                    IMPROV
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="home.html">
+   Table of Contents
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Analysis%3A-Julia.html">
+   Calling Julia functions from Python
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Building-and-Packaging.html">
+   With pip:
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Building-your-own-actor-system.html">
+   Introduction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="classes.html">
+   OnACID
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Data-Acquistion.html">
+   From HDF5
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Data-Store%3A-Online.html">
+   Data Store
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Data-Store%3A-Offline.html">
+   Parameters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="design.html">
+   <span class="xref myst">
+    Master Server
+   </span>
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Docker.html">
+   Requirements
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Installation.html">
+   Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Installation-for-Windows.html">
+   improv in Windows Subsystem for Linux
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="interfaces.html">
+   Flexible pipeline for neural experimentation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Minimal-working-example.html">
+   Introduction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Modules%3A-Asynchronous.html">
+   Initialization
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Process-Raw-Frames.html">
+   Pipeline for online processing using CaImAn
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Pytest-Testing.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Stimulation.html">
+   Using ScanImage
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="store.html">
+   Data Store
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="WSL%20INSTALL.html">
+   WSL INSTALL
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="API.html">
+   API DOC
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="markdown.html">
+   Installation guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks.html">
+   Content with notebooks
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="markdown-notebooks.html">
+   Notebooks with MyST Markdown
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Powered by <a href="https://jupyterbook.org">Jupyter Book</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/executablebooks/jupyter-book"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2FModules:-Configuration-and-Architecture.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="_sources/Modules:-Configuration-and-Architecture.md"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.md</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   Overview
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#configuration-file">
+   Configuration File
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#tweak">
+   Tweak
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#tweak-modules">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       Tweak.modules
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#tweak-connections">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       Tweak.connections
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#dynamic-tweak-update">
+     Dynamic Tweak Update
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#nexus">
+   Nexus
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#modules">
+     Modules
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#connections">
+     Connections
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#link">
+       Link
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Overview</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   Overview
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#configuration-file">
+   Configuration File
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#tweak">
+   Tweak
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#tweak-modules">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       Tweak.modules
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#tweak-connections">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       Tweak.connections
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#dynamic-tweak-update">
+     Dynamic Tweak Update
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#nexus">
+   Nexus
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#modules">
+     Modules
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#connections">
+     Connections
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#link">
+       Link
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">Nexus</span></code> is the central controller of <code class="docutils literal notranslate"><span class="pre">improv</span></code>. It performs the following:</p>
+<ol class="simple">
+<li><p>Start all modules in its own process (based on <code class="docutils literal notranslate"><span class="pre">Tweak</span></code>).</p></li>
+<li><p>Creates bidirectional communication links between itself and each module.</p></li>
+</ol>
+</section>
+<section id="configuration-file">
+<h1>Configuration File<a class="headerlink" href="#configuration-file" title="Permalink to this headline">#</a></h1>
+<p>Nexus configuration is stored in the <code class="docutils literal notranslate"><span class="pre">Tweak</span></code> class, which is parsed from a YAML file (specified at <code class="docutils literal notranslate"><span class="pre">createNexus</span></code>). The file must be structured as in the example below.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">modules</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">Acquirer</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">package</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">acquire.acquire</span><span class="w"></span>
+<span class="w">    </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FileAcquirer</span><span class="w"></span>
+<span class="w">    </span><span class="nt">filename</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../data/Tolias_mesoscope_2.hdf5</span><span class="w"></span>
+<span class="w">    </span><span class="nt">framerate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15</span><span class="w"></span>
+
+<span class="w">  </span><span class="nt">Processor</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">package</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">process.process</span><span class="w"></span>
+<span class="w">    </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CaimanProcessor</span><span class="w"></span>
+<span class="w">    </span><span class="nt">config_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../caiman_config.yml</span><span class="w"></span>
+
+<span class="nt">connections</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">Acquirer.q_out</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">Processor.q_in</span><span class="p p-Indicator">]</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Here, there are two modules named <code class="docutils literal notranslate"><span class="pre">Acquirer</span></code> and <code class="docutils literal notranslate"><span class="pre">Processor</span></code>. <code class="docutils literal notranslate"><span class="pre">package</span></code> and <code class="docutils literal notranslate"><span class="pre">class</span></code> are required. <code class="docutils literal notranslate"><span class="pre">class</span></code> refers to the class name of the module and <code class="docutils literal notranslate"><span class="pre">package</span></code> refers to the package that contains that class. <code class="docutils literal notranslate"><span class="pre">config_file</span></code> is an optional keyword for a path to an extra YAML configuration file. This file is parsed automatically into a <code class="docutils literal notranslate"><span class="pre">dict</span></code> and passed into <code class="docutils literal notranslate"><span class="pre">__init__</span></code> as a <code class="docutils literal notranslate"><span class="pre">config</span></code> keyword argument. All remaining key-value pairs are passed as keyword arguments to the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> method of each class.</p>
+<p>This is how Nexus instantiates a class based on the YAML file above.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">FileAcquirer</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>  <span class="c1"># in src/acquire/acquire.py</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;../data/Tolias_mesoscope_2.hdf5&#39;</span><span class="p">,</span> <span class="n">framerate</span><span class="o">=</span><span class="mi">15</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">connections</span></code> specifies communication links based on <code class="docutils literal notranslate"><span class="pre">multiprocessing.Queue</span></code>. The format is <code class="docutils literal notranslate"><span class="pre">input:</span> <span class="pre">output</span></code>. Note that the output needs to be a <code class="docutils literal notranslate"><span class="pre">list</span></code>, which also means that links with multiple destinations are allowed. In this case, <code class="docutils literal notranslate"><span class="pre">Acquirer</span></code> has a link to <code class="docutils literal notranslate"><span class="pre">Processor</span></code>. In addition to this, all modules have two-way links to/from <code class="docutils literal notranslate"><span class="pre">Nexus</span></code> (<code class="docutils literal notranslate"><span class="pre">q_comm</span></code> and <code class="docutils literal notranslate"><span class="pre">q_sig</span></code>, respectively).</p>
+</section>
+<section id="tweak">
+<h1>Tweak<a class="headerlink" href="#tweak" title="Permalink to this headline">#</a></h1>
+<p>The Tweak class is an internal representation of the configuration file. It is parsed from the YAML configuration file. Like the YAML, it has two main attributes: <code class="docutils literal notranslate"><span class="pre">modules</span></code> and <code class="docutils literal notranslate"><span class="pre">connections</span></code>, both of which are <code class="docutils literal notranslate"><span class="pre">dict</span></code>.</p>
+<section id="tweak-modules">
+<h2><code class="docutils literal notranslate"><span class="pre">Tweak.modules</span></code><a class="headerlink" href="#tweak-modules" title="Permalink to this headline">#</a></h2>
+<p>A <code class="docutils literal notranslate"><span class="pre">dict</span></code> that contains the configuration of all modules in a <code class="docutils literal notranslate"><span class="pre">name:</span> <span class="pre">TweakModule</span></code> format. The TweakModule class signature is shown below.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TweakModule</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">packagename</span> <span class="o">=</span> <span class="n">packagename</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">classname</span> <span class="o">=</span> <span class="n">classname</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">package</span></code> and <code class="docutils literal notranslate"><span class="pre">class</span></code> key from the YAML is passed into <code class="docutils literal notranslate"><span class="pre">self.packagename</span></code> and <code class="docutils literal notranslate"><span class="pre">self.classname</span></code>, respectively. <code class="docutils literal notranslate"><span class="pre">self.config</span></code> is a parsed YAML file from <code class="docutils literal notranslate"><span class="pre">config_file</span></code> (if specified). All other keyword arguments are stored in <code class="docutils literal notranslate"><span class="pre">self.options</span></code>.</p>
+</section>
+<section id="tweak-connections">
+<h2><code class="docutils literal notranslate"><span class="pre">Tweak.connections</span></code><a class="headerlink" href="#tweak-connections" title="Permalink to this headline">#</a></h2>
+<p>This <code class="docutils literal notranslate"><span class="pre">dict</span></code> is the exact <code class="docutils literal notranslate"><span class="pre">dict</span></code> representation of the <code class="docutils literal notranslate"><span class="pre">connections</span></code> segment in the YAML file.</p>
+</section>
+<section id="dynamic-tweak-update">
+<h2>Dynamic Tweak Update<a class="headerlink" href="#dynamic-tweak-update" title="Permalink to this headline">#</a></h2>
+<p>pass</p>
+<hr class="docutils" />
+</section>
+</section>
+<section id="nexus">
+<h1>Nexus<a class="headerlink" href="#nexus" title="Permalink to this headline">#</a></h1>
+<p>The Nexus controller also has information about modules and connections, loaded from Tweak.</p>
+<section id="modules">
+<h2>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">#</a></h2>
+<p>First, Nexus gets <code class="docutils literal notranslate"><span class="pre">self.tweak.modules</span></code> from Tweak and instantiates each item based on the TweakModule.classname, etc. It ensures each modules gets a store connection and signal and communication Links (<code class="docutils literal notranslate"><span class="pre">q_comm,</span> <span class="pre">q_sig</span></code>).
+It then only stores the name and instance in the dictionary self.modules: <code class="docutils literal notranslate"><span class="pre">self.modules.update({name:instance})</span></code>.
+It also stores the signal and communication Links in two other dictionaries <code class="docutils literal notranslate"><span class="pre">self.comm_queues</span></code> and <code class="docutils literal notranslate"><span class="pre">self.sig_queues</span></code>.</p>
+<p>This is not to be confused with the modules dictionary in Tweak, though they use the same <code class="docutils literal notranslate"><span class="pre">name</span></code> as a key. Tweak stores configuration information (options, user input) and Nexus stores runtime information. A Tweak object can be saved for later usage; Nexus cannot.</p>
+</section>
+<section id="connections">
+<h2>Connections<a class="headerlink" href="#connections" title="Permalink to this headline">#</a></h2>
+<p>For each source and drain (list) in <code class="docutils literal notranslate"><span class="pre">self.tweak.connections</span></code> is used to create new Links and assign them to the relevant modules.
+(If there are multiple drains, a MultiLink is used to replicate information from the single source to each drain.)
+The module <code class="docutils literal notranslate"><span class="pre">name</span></code> (again, consistent between Tweak.modules and Nexus.modules) is used as a part of each Link name. <a class="reference external" href="http://Link.name">Link.name</a> is typically <code class="docutils literal notranslate"><span class="pre">name+'_multi'</span></code> or <code class="docutils literal notranslate"><span class="pre">name+'_'+drain_name</span></code> to uniquely identify that Link and give a clue as to its purpose.</p>
+<section id="link">
+<h3>Link<a class="headerlink" href="#link" title="Permalink to this headline">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Link</span><span class="p">():</span> <span class="ow">or</span> <span class="n">MultiLink</span><span class="p">():</span>
+  <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+  <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
+  <span class="bp">self</span><span class="o">.</span><span class="n">end</span>
+</pre></div>
+</div>
+<p>For identification, each Link has a name, source (start), and drain (end). In the case of a MultiLink, <code class="docutils literal notranslate"><span class="pre">self.end</span></code> is a list.</p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            kernelName: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="Modules%3A-Asynchronous.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Initialization</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="Process-Raw-Frames.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Pipeline for online processing using CaImAn</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By John m Person<br/>
+  
+      &copy; Copyright 2022.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Content with notebooks &#8212; My sample book</title>
+    <title>Content with notebooks &#8212; Improv</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -55,7 +55,7 @@ const thebe_selector_output = ".output, .cell_output"
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Notebooks with MyST Markdown" href="markdown-notebooks.html" />
-    <link rel="prev" title="Markdown Files" href="markdown.html" />
+    <link rel="prev" title="Installation guide" href="markdown.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -99,7 +99,7 @@ const thebe_selector_output = ".output, .cell_output"
       <img src="_static/logo.png" class="logo" alt="logo">
       
       
-      <h1 class="site-logo" id="site-title">My sample book</h1>
+      <h1 class="site-logo" id="site-title">Improv</h1>
       
     </a>
 </div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
@@ -111,14 +111,126 @@ const thebe_selector_output = ".output, .cell_output"
         <ul class="nav bd-sidenav bd-sidenav__home-link">
             <li class="toctree-l1">
                 <a class="reference internal" href="landing.html">
-                    improv
+                    IMPROV
                 </a>
             </li>
         </ul>
         <ul class="current nav bd-sidenav">
  <li class="toctree-l1">
+  <a class="reference internal" href="home.html">
+   Table of Contents
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Analysis%3A-Julia.html">
+   Calling Julia functions from Python
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Building-and-Packaging.html">
+   With pip:
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Building-your-own-actor-system.html">
+   Introduction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="classes.html">
+   OnACID
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Data-Acquistion.html">
+   From HDF5
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Data-Store%3A-Online.html">
+   Data Store
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Data-Store%3A-Offline.html">
+   Parameters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="design.html">
+   <span class="xref myst">
+    Master Server
+   </span>
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Docker.html">
+   Requirements
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Installation.html">
+   Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Installation-for-Windows.html">
+   improv in Windows Subsystem for Linux
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="interfaces.html">
+   Flexible pipeline for neural experimentation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Minimal-working-example.html">
+   Introduction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Modules%3A-Asynchronous.html">
+   Initialization
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Modules%3A-Configuration-and-Architecture.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Process-Raw-Frames.html">
+   Pipeline for online processing using CaImAn
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Pytest-Testing.html">
+   Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="Stimulation.html">
+   Using ScanImage
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="store.html">
+   Data Store
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="WSL%20INSTALL.html">
+   WSL INSTALL
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="API.html">
+   API DOC
+  </a>
+ </li>
+ <li class="toctree-l1">
   <a class="reference internal" href="markdown.html">
-   Markdown Files
+   Installation guide
   </a>
  </li>
  <li class="toctree-l1 current active">
@@ -129,11 +241,6 @@ const thebe_selector_output = ".output, .cell_output"
  <li class="toctree-l1">
   <a class="reference internal" href="markdown-notebooks.html">
    Notebooks with MyST Markdown
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="newtext.html">
-   here is my new text
   </a>
  </li>
 </ul>
@@ -444,7 +551,7 @@ For example, here’s some sample Matplotlib code:</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.pyplot._IonContext at 0x7f3c003fd550&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.pyplot._IonContext at 0x7fe02b5ae850&gt;
 </pre></div>
 </div>
 </div>
@@ -512,7 +619,7 @@ with your book. For more information about this, see <a class="reference externa
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Markdown Files</p>
+            <p class="prev-next-title">Installation guide</p>
         </div>
     </a>
     <a class='right-next' id="next-link" href="markdown-notebooks.html" title="next page">
@@ -529,7 +636,7 @@ with your book. For more information about this, see <a class="reference externa
     <div class="footer-content row">
         <footer class="col footer"><p>
   
-    By The Jupyter Book Community<br/>
+    By John m Person<br/>
   
       &copy; Copyright 2022.<br/>
 </p>

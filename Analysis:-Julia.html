@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Welcome to your Jupyter Book &#8212; Improv</title>
+    <title>Calling Julia functions from Python &#8212; Improv</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -52,6 +52,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="With pip:" href="Building-and-Packaging.html" />
+    <link rel="prev" title="Table of Contents" href="home.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -111,14 +113,14 @@ const thebe_selector_output = ".output, .cell_output"
                 </a>
             </li>
         </ul>
-        <ul class="nav bd-sidenav">
+        <ul class="current nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="home.html">
    Table of Contents
   </a>
  </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="Analysis%3A-Julia.html">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
    Calling Julia functions from Python
   </a>
  </li>
@@ -329,7 +331,7 @@ title="Source repository"
       </li>
       
       <li>
-        <a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Fintro.html&body=Your%20issue%20content%20here."
+        <a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2FAnalysis:-Julia.html&body=Your%20issue%20content%20here."
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -357,7 +359,7 @@ title="Open an issue"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="_sources/intro.md"
+        <a href="_sources/Analysis:-Julia.md"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -394,23 +396,80 @@ title="Print to PDF"
     </ul>
   </div>
 </div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
 
     </div>
 </div>
 
 <!-- Table of contents -->
 <div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   Calling Julia functions from Python
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#using-numpy-array-as-a-function-input">
+   Using NumPy array as a function input
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#benchmark">
+   Benchmark
+  </a>
+ </li>
+</ul>
+
+    </nav>
 </div>
     </div>
     <div class="article row">
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Welcome to your Jupyter Book</h1>
+                <h1>Calling Julia functions from Python</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
                         
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   Calling Julia functions from Python
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#using-numpy-array-as-a-function-input">
+   Using NumPy array as a function input
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#benchmark">
+   Benchmark
+  </a>
+ </li>
+</ul>
+
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -418,13 +477,28 @@ title="Print to PDF"
                 
               <div>
                 
-  <section class="tex2jax_ignore mathjax_ignore" id="welcome-to-your-jupyter-book">
-<h1>Welcome to your Jupyter Book<a class="headerlink" href="#welcome-to-your-jupyter-book" title="Permalink to this headline">#</a></h1>
-<p>This is a small sample book to give you a feel for how book content is
-structured.
-It shows off a few of the major file types, as well as some sample content.
-It does not go in-depth into any particular topic - check out <a class="reference external" href="https://jupyterbook.org">the Jupyter Book documentation</a> for more information.</p>
-<p>Check out the content pages bundled with this sample book to see more.</p>
+  <p>Using <a class="reference external" href="https://pyjulia.readthedocs.io/en/latest/">PyJulia</a>, we could call functions and scripts in Julia directly from Python as shown in <code class="docutils literal notranslate"><span class="pre">analysis_julia.py</span></code>.</p>
+<section id="calling-julia-functions-from-python">
+<h1>Calling Julia functions from Python<a class="headerlink" href="#calling-julia-functions-from-python" title="Permalink to this headline">#</a></h1>
+<p>Initialization of the Julia backend may take up to 30 seconds. Pre-defined Julia functions could be loaded at startup by specifying the <code class="docutils literal notranslate"><span class="pre">julia_file</span></code> keyword in the configuration file. Upon loading, Julia functions could be wrapped and used as if it’s a Python function in the following manner.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">j_func</span> <span class="o">=</span> <span class="n">julia</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s1">&#39;julia_function&#39;</span><span class="p">)</span>
+<span class="n">j_func</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="using-numpy-array-as-a-function-input">
+<h1>Using NumPy array as a function input<a class="headerlink" href="#using-numpy-array-as-a-function-input" title="Permalink to this headline">#</a></h1>
+<p>When sending a NumPy array to Julia, PyJulia copies the entire array by default. This is safer but comes at a speed cost. By specifying the conversion type to <code class="docutils literal notranslate"><span class="pre">PyArray</span></code>, however, a zero-copy transfer can be achieved. For more details, check the Python object interfaces section in the PyCall <a class="reference external" href="https://github.com/JuliaPy/PyCall.jl/blob/master/README.md">readme</a> (PyJulia is based on PyCall).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">j_func</span> <span class="o">=</span> <span class="n">julia</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s1">&#39;pyfunction(julia_function, PyArray)&#39;</span><span class="p">)</span>
+<span class="n">j_func</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Array transfers from Julia, on the other hand, is zero-copy by default.</p>
+</section>
+<section id="benchmark">
+<h1>Benchmark<a class="headerlink" href="#benchmark" title="Permalink to this headline">#</a></h1>
+<p align="center"><img width="600" alt="NumPy Transfer Benchmark" src="https://user-images.githubusercontent.com/34997334/63102946-1dcd7500-bf4a-11e9-8672-6b0f4948517e.png"></p>
+<p>Scaling of NumPy array transfer time from/to Julia. Error bar is 95% CI.</p>
 </section>
 
     <script type="text/x-thebe-config">
@@ -454,6 +528,20 @@ It does not go in-depth into any particular topic - check out <a class="referenc
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="home.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Table of Contents</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="Building-and-Packaging.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">With pip:</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
 </div>
             </footer>
         </div>
