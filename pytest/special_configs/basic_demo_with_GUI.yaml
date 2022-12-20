@@ -1,16 +1,21 @@
 actors:
+  GUI:
+    package: demos.basic.actors.visual
+    class: BasicVisual
+    visual: Visual
+
   Acquirer:
-    package: improv.actors.acquire
+    package: demos.sample_actors.acquire
     class: FileAcquirer
     filename: data/Tolias_mesoscope_2.hdf5
     framerate: 15
 
   Analysis:
-    package: improv.actors.analysis
+    package: demos.sample_actors.analysis
     class: MeanAnalysis
 
   InputStim:
-    package: improv.actors.acquire
+    package: demos.sample_actors.acquire
     class: BehaviorAcquirer
 
 connections:

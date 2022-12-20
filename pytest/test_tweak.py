@@ -25,7 +25,6 @@ def set_configdir():
 
 @pytest.mark.parametrize(
         "test_input",[
-            ("basic_demo.yaml"),
             ("good_config.yaml")
         ])
 
@@ -39,37 +38,31 @@ def test_init(test_input, set_configdir):
     twk = tweak(test_input)
     assert twk.configFile == os.getcwd() + "/" + test_input 
 
-def test_init_default(set_configdir):
-    """ Checks if the default config file is "basic_demo.yaml".
-    """
 
-    twk = tweak()
-    assert twk.configFile == os.getcwd() + "/basic_demo.yaml"
+# def test_init_attributes():
+#     """ Tests if tweak has correct default attributes on initialization.
 
-def test_init_attributes():
-    """ Tests if tweak has correct default attributes on initialization.
+#     Checks if actors, connection, and hasGUI are all empty or
+#     nonexistent. Detects errors by maintaining a list of errors, and
+#     then adding to it every time an unexpected behavior is encountered.
 
-    Checks if actors, connection, and hasGUI are all empty or
-    nonexistent. Detects errors by maintaining a list of errors, and
-    then adding to it every time an unexpected behavior is encountered.
+#     Asserts:
+#         If the default attributes are empty or nonexistent.
 
-    Asserts:
-        If the default attributes are empty or nonexistent.
+#     """
 
-    """
+#     twk = tweak()
+#     errors = []
 
-    twk = tweak()
-    errors = []
+#     if(twk.actors != {}):
+#         errors.append("tweak.actors is not empty! ")
+#     if(twk.connections != {}):
+#         errors.append("tweak.connections is not empty! ")
+#     if(twk.hasGUI):
+#         errors.append("tweak.hasGUI already exists! ")
 
-    if(twk.actors != {}):
-        errors.append("tweak.actors is not empty! ")
-    if(twk.connections != {}):
-        errors.append("tweak.connections is not empty! ")
-    if(twk.hasGUI):
-        errors.append("tweak.hasGUI already exists! ")
-
-    assert not errors, "The following errors occurred:\n{}".format(
-                                                            "\n".join(errors))
+#     assert not errors, "The following errors occurred:\n{}".format(
+#                                                             "\n".join(errors))
 
 def test_createConfig_settings(set_configdir):
     """ Check if the default way tweak creates tweak.settings is correct.

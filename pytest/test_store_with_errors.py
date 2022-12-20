@@ -1,5 +1,5 @@
 import pytest
-from improv.store import Limbo
+from improv.store import Store
 from multiprocessing import Process
 from pyarrow._plasma import PlasmaObjectExists
 from scipy.sparse import csc_matrix
@@ -26,6 +26,8 @@ import subprocess
 
 # store_loc = '/dev/shm'
 
+# FIXME: some commented out tests use Limbo --> need to be renamed Store if used
+
 @pytest.fixture
 # TODO: put in conftest.py
 def setup_store(store_loc='/tmp/store'):
@@ -44,25 +46,16 @@ def setup_store(store_loc='/tmp/store'):
         # print('Tearing down Plasma store.')
         p.kill()
 
-# UNNECESSARY?
-# # TODO: change name...
-# # def run_before_after?
-# set store_loc or check default path in Limbo works as store_loc?
-# @pytest.fixture
-# def init_limbo(store_loc='/tmp/store'):
-#     limbo = Limbo(store_loc)
-#     # limbo = Limbo(store_loc)
-#     yield limbo
 
 def test_connect(setup_store):
-    limbo = Limbo()
+    limbo = Store()
     assert isinstance(limbo.client, plasma.PlasmaClient)
 
 def test_connect_incorrect_path(setup_store):
     # TODO: shorter name???
     # TODO: passes, but refactor --- see comments
     store_loc = 'asdf'
-    limbo = Limbo(store_loc)
+    limbo = Store(store_loc)
     # Handle exception thrown - assert name == 'CannotConnectToStoreError' and message == 'Cannot connect to store at {}'.format(str(store_loc))
     # with pytest.raises(Exception, match='CannotConnectToStoreError') as cm:
     #     limbo.connect_store(store_loc)
@@ -76,7 +69,7 @@ def test_connect_incorrect_path(setup_store):
 def test_connect_none_path(setup_store):
     # BUT default should be store_loc = '/tmp/store' if not entered?
     store_loc = None
-    limbo = Limbo(store_loc)
+    limbo = Store(store_loc)
     # Handle exception thrown - assert name == 'CannotConnectToStoreError' and message == 'Cannot connect to store at {}'.format(str(store_loc))
     # with pytest.raises(Exception) as cm:
     #     limbo.connnect_store(store_loc)
@@ -96,7 +89,7 @@ def test_connect_none_path(setup_store):
     # TODO: @pytest.parameterize...limbo.get and limbo.getID for diff datatypes, pickleable and not, etc.
     # Check raises...CannotGetObjectError (object never stored)
 def test_init_empty(setup_store):
-    limbo = Limbo()
+    limbo = Store()
     assert limbo.get_all() == {}
 
 # class LimboGetID(self):
@@ -122,7 +115,7 @@ def test_init_empty(setup_store):
 def test_is_csc_matrix_and_put(setup_store):
     mat = csc_matrix((3, 4), dtype=np.int8)
     store_loc = '/tmp/store'
-    limbo = Limbo(store_loc)
+    limbo = Store(store_loc)
     x = limbo.put(mat, 'matrix' )
     assert isinstance(limbo.getID(x), csc_matrix)
 
@@ -148,7 +141,7 @@ def test_is_csc_matrix_and_put(setup_store):
 
 @pytest.mark.skip()
 def test_get_list_and_all(setup_store):
-    limbo = Limbo()
+    limbo = Store()
     id = limbo.put(1, 'one')
     id2 = limbo.put(2, 'two')
     id3 = limbo.put(3, 'three')
@@ -169,7 +162,7 @@ def test_get_list_and_all(setup_store):
 #     # TODO: assert info == 'Refreshing connection and continuing'
 
 def test_reset(setup_store):
-    limbo = Limbo()
+    limbo = Store()
     limbo.reset()
     id = limbo.put(1, 'one')
     assert limbo.get(id) == 1
@@ -177,13 +170,13 @@ def test_reset(setup_store):
 # class Limbo_Put(StoreDependentTestCase):
 
 def test_put_one(setup_store):
-    limbo = Limbo()
+    limbo = Store()
     id = limbo.put(1, 'one')
     assert 1 == limbo.get(id)
 
 @pytest.mark.skip(reason = 'Error not being raised')
 def test_put_twice(setup_store):
-    limbo = Limbo()
+    limbo = Store()
     with pytest.raises(PlasmaObjectExists) as e:
         id = limbo.put(2, 'two')
         id2 = limbo.put(2, 'two')
@@ -193,7 +186,7 @@ def test_put_twice(setup_store):
 # class Limbo_PutGet(StoreDependentTestCase):
 
 def test_getOne(setup_store):
-    limbo = Limbo()
+    limbo = Store()
     id = limbo.put(1, 'one')
     id2 = limbo.put(2, 'two')
     assert 1 == limbo.get(id)

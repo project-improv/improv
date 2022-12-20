@@ -11,7 +11,7 @@ from importlib import import_module
 from queue import Full
 from datetime import datetime
 
-from improv import store
+from improv.store import Store
 from improv.watcher import BasicWatcher
 from improv.actor import Signal
 from improv.tweak import Tweak
@@ -26,6 +26,8 @@ logging.basicConfig(level=logging.DEBUG,
 
 # TODO: Set up limbo.notify in async function (?)
 
+# TODO: Rename limbo variables here (not stricly necessary)
+
 class Nexus():
     ''' Main server class for handling objects in RASP
     '''
@@ -39,7 +41,7 @@ class Nexus():
         self._startStore(store_size) #default size should be system-dependent; this is 40 GB
 
         #connect to store and subscribe to notifications
-        self.limbo = store.Limbo()
+        self.limbo = Store()
         self.limbo.subscribe()
 
         # LMDB storage
@@ -59,13 +61,16 @@ class Nexus():
         self.p_watch = None
         if use_watcher: self.startWatcher()
 
-        self.loadTweak(file=file)
+        if file is None:
+            logger.exception('Need a config file!')
+            raise Exception #TODO
+        else: self.loadTweak(file=file)
 
         self.flags.update({'quit':False, 'run':False, 'load':False}) #TODO: only quit flag used atm
         self.allowStart = False
         self.stopped = False
 
-    def loadTweak(self, file=None):
+    def loadTweak(self, file):
         ''' For each connection:
             create a Link with a name (purpose), start, and end
             Start links to one actor's name, end to the other.
@@ -452,16 +457,18 @@ class Nexus():
         ''' Creates Limbo w/ or w/out LMDB functionality based on {self.use_hdd}. 
         '''
         if not self.use_hdd:
-            return store.Limbo(name)
+            return Store(name)
         else:
             if name not in self.limbo_dict:
-                self.limbo_dict[name] = store.Limbo(name, use_hdd=True, lmdb_name=self.lmdb_name)
+                self.limbo_dict[name] = Store(name, use_hdd=True, lmdb_name=self.lmdb_name)
             return self.limbo_dict[name]
 
     def _startStore(self, size):
         ''' Start a subprocess that runs the plasma store
             Raises a RuntimeError exception size is undefined
             Raises an Exception if the plasma store doesn't start
+
+            #TODO: Generalize this to non-plasma stores
         '''
         if size is None:
             raise RuntimeError('Server size needs to be specified')
@@ -582,7 +589,8 @@ class Nexus():
 
     # TODO: Store access here seems wrong, need to test
     def startWatcher(self):
-        self.watcher = store.Watcher('watcher', self.createLimbo('watcher'))
+        from improv.watcher import Watcher
+        self.watcher = Watcher('watcher', self.createLimbo('watcher'))
         limbo = self.createLimbo('watcher') if not self.use_hdd else None
         q_sig = Link('watcher_sig', self.name, 'watcher')
         self.watcher.setLinks(q_sig)

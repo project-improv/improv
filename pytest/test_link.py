@@ -10,8 +10,11 @@ from async_timeout import timeout
 
 from improv.actor import Actor
 from improv.link import AsyncQueue
-from improv.store import Limbo
+from improv.store import Store as Limbo
 from improv.link import Link
+
+# TODO: consider renaming limbo
+
 
 
 @pytest.fixture

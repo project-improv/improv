@@ -310,22 +310,6 @@ class PlasmaStore(StoreInterface):
             return res
 
     # TODO: Likely remove all this functionality for security.
-    # Delete deleteName
-    # def deleteName(self, object_name):
-    #     ''' Deletes an object from the store based on name
-    #         assumes we have id from name
-    #         This prevents us from deleting other portions of
-    #         the store that we don't have access to
-    #     '''
-
-    #     if self.stored.get(object_name) is None:
-    #         logger.error('Never recorded storing this object: '+object_name)
-    #         # Don't know anything about this object, treat as problematic
-    #         raise CannotGetObjectError
-    #     else:
-    #         retcode = self._delete(object_name)
-    #         self.stored.pop(object_name)
-
     # def delete(self, id):
     #     try:
     #         self.client.delete([id])
@@ -525,7 +509,7 @@ class LMDBStore(StoreInterface):
     def subscribe(self): pass # TODO
 
 ## Aliasing
-Limbo = PlasmaStore
+Store = PlasmaStore
 
 @dataclass
 class LMDBData:

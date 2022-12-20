@@ -1,5 +1,4 @@
 import time
-import cv2
 import numpy as np
 from queue import Empty
 import os
@@ -10,9 +9,8 @@ from improv.store import ObjectNotFoundError
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-class MeanAnalysis(Actor):
+class SimpleAnalysis(Actor):
     #TODO: Add additional error handling
-    # TODO: this is too complex for a sample actor?
     def __init__(self, *args):
         super().__init__(*args)
 
@@ -102,11 +100,6 @@ class MeanAnalysis(Actor):
             
             self.globalAvg = np.mean(self.estsAvg[:,:8], axis=0)
             self.tune = [self.estsAvg[:,:8], self.globalAvg]
-
-            # Compute coloring of neurons for processed frame
-            # Also rotate and stack as needed for plotting
-            # TODO: move to viz, but we don't need to compute this 30 times/sec
-            self.color = self.plotColorFrame()
 
             if self.frame >= self.window:
                 window = self.window
@@ -327,140 +320,3 @@ class MeanAnalysis(Actor):
         self.estsAvg[self.estsAvg == np.inf] = 0
         #self.estsAvg = np.clip(self.estsAvg*4, 0, 4)
         self.stimtime.append(time.time()-t)
-
-    def plotColorFrame(self):
-        ''' Computes colored nicer background+components frame
-        '''
-        t = time.time()
-        image = self.image
-        color = np.stack([image, image, image, image], axis=-1).astype(np.uint8).copy()
-        color[...,3] = 255
-            # color = self.color.copy() #TODO: don't stack image each time?
-        if self.coords is not None:
-            for i,c in enumerate(self.coords):
-                #c = np.array(c)
-                ind = c[~np.isnan(c).any(axis=1)].astype(int)
-                cv2.fillConvexPoly(color, ind, self._tuningColor(i, color[ind[:,1], ind[:,0]]))
-
-        # TODO: keep list of neural colors. Compute tuning colors and IF NEW, fill ConvexPoly. 
-
-        # if self.image.shape[0] < self.image.shape[1]:
-        #         self.flip = True
-        #         raw = raw.T
-        # else:
-        #     np.swapaxes(color,0,1)
-        #TODO: user input for rotating frame? See Visual class
-        #print('time plotColorFrame ', time.time()-t)
-        self.colortime.append(time.time()-t)
-        return color
-
-    def _tuningColor(self, ind, inten):
-        ''' ind identifies the neuron by number
-        '''
-        if self.estsAvg[ind] is not None: # and np.sum(np.abs(self.estsAvg[ind]))>2:
-            try:
-                # trying sort and compare
-                # rel = self.estsAvg[ind]/np.max(self.estsAvg[ind])
-                # order = np.argsort(rel)
-                # if rel[order[-1]] - rel[order[-2]] > 0.2: #ensure strongish tuning
-                    # r, g, b = self.manual_Color(order[-1])
-                    # return (r, g, b) + (255,)
-                # else:
-                #     # print(order, rel)
-                #     return (255, 255, 255, 50)
-
-                # trying summation coloring
-                return self.manual_Color_Sum(self.estsAvg[ind])
-                
-                # below is old method
-                # tc = np.nanargmax(self.estsAvg[ind])
-                # r, g, b = self.manual_Color(tc)
-                # # h = (np.nanargmax(self.estsAvg[ind])*45)/360
-                # # intensity = 1 - np.mean(inten[0][0])/255.0
-                # # r, g, b, = colorsys.hls_to_rgb(h, intensity, 1)
-                # # r, g, b = [x*255.0 for x in (r, g, b)]
-                # return (r, g, b) + (255,) #(intensity*255,)
-            except ValueError:
-                return (255,255,255,0)
-            # except Exception:
-                # print('inten is ', inten)
-                # print('estsAvg[i] is ', self.estsAvg[ind])
-        else:
-            return (255,255,255,50) #0)
-
-    def manual_Color(self, x):
-        if x==0:
-            return 240, 122, 5
-        elif x==1:
-            return 181, 240, 5
-        elif x==2:
-            return 5, 240, 5
-        elif x==3:
-            return 5, 240, 181
-        elif x==4:
-            return 5, 122, 240
-        elif x==5:
-            return 64, 5, 240
-        elif x==6:
-            return 240, 5, 240
-        elif x==7:
-            return 240, 5, 64
-        else:
-            logger.error('No idea what color!')    
-
-    def manual_Color_Sum(self, x):
-        ''' x should be length 12 array for coloring
-        '''
-        # r, g, b = 0, 0, 0
-        # r, g, b = r, g, b + x[0]*(1, 0.25, 0)
-        # r, g, b = r, g, b + x[1]*(0.75, 1, 0)
-        # r, g, b = r, g, b + x[2]*(0, 1, 0)
-        # r, g, b = r, g, b + x[3]*(0, 0.75, 1)
-        # r, g, b = r, g, b + x[4]*(0, 0.25, 1)
-        # r, g, b = r, g, b + x[5]*(0.25, 0, 1)
-        # r, g, b = r, g, b + x[6]*(1, 0, 1)
-        # r, g, b = r, g, b + x[7]*(1, 0, 0.25)
-
-        # r, g, b = r, g, b + x[8]*(1, 0, 0)
-        # r, g, b = r, g, b + x[9]*(0, 0, 1)
-        # r, g, b = r, g, b + x[10]*(0, 0, 1)
-        # r, g, b = r, g, b + x[11]*(1, 0, 0)
-
-        r = x[0]*1 + x[1]*0.75 + x[2]*0 + x[3]*0 + x[4]*0 + x[5]*0.25 + \
-            x[6]*1 + x[7]*1 + x[8]*1 + x[9]*0 + x[10]*0 + x[11]*1 
-
-        g = x[0]*0.25 + x[1]*1 + x[2]*1 + x[3]*0.75 + x[4]*0.25 + x[5]*0 + \
-            x[6]*0 + x[7]*0 + x[8]*0 + x[9]*0 + x[10]*0 + x[11]*0 
-
-        b = x[0]*0 + x[1]*0 + x[2]*0 + x[3]*1 + x[4]*1 + x[5]*1 + \
-            x[6]*1 + x[7]*0.25 + x[8]*0 + x[9]*1 + x[10]*1 + x[11]*0 
-
-        blend = 0.3
-        thresh = 0.1
-
-        maxVal = np.max(np.array([r, g, b]))
-
-        if maxVal > 0:
-            r /= maxVal
-            g /= maxVal
-            b /= maxVal
-        #     if r > blend*maxVal:
-        #         r = blend*maxVal
-        #     if g>blend*maxVal:
-        #         g = blend*maxVal
-        #     if b>blend*maxVal:
-        #         b = blend*maxVal
-        if r<thresh:
-            r=0
-        if g<thresh:
-            g=0
-        if b<thresh:
-            b=0
-        r*=255
-        g*=255
-        b*=255
-
-        if r>0 or g>0 or b>0:
-            return (r, g, b, 255)       
-        else:
-            return (255, 255, 255, 50)

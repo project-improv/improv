@@ -3,10 +3,11 @@ import psutil
 import pytest
 import subprocess
 from improv.link import Link, AsyncQueue
-from improv.actor import Actor as actor
-from improv.store import Limbo as limbo
+from improv.actor import AbstractActor as actor
+from improv.store import Store as limbo
 
 #set global_variables
+# TODO: consider renaming limbo
 
 pytest.example_string_links =  {}
 pytest.example_links = {}
@@ -60,7 +61,6 @@ def example_links(setup_store):
     ("q_watchout", None),
     ("name", "Test"),
     ("links", {}),
-    ("done", False),
     ("lower_priority", False),
     ("q_in", None),
     ("q_out", None)
@@ -254,15 +254,6 @@ def test_getLinks(init_actor, example_string_links):
     act.setLinks(links)
 
     assert act.getLinks() == {"1": "one", "2": "two", "3": "three"}
-
-
-def test_setup_unimplemented(init_actor, example_string_links):
-    """ Checks if actor.setup raises an error.
-    """ 
-
-    with pytest.raises(NotImplementedError):
-        act = init_actor
-        act.setup()
 
 
 @pytest.mark.skip(reason="this is something we\'ll do later because\

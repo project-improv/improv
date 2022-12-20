@@ -3,7 +3,7 @@ import asyncio
 import traceback
 from queue import Empty
 from typing import Awaitable, Callable
-from improv.store import Limbo
+from improv.store import Store
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -208,9 +208,7 @@ class AsyncActor(AbstractActor):
 
 ## Aliasing
 Actor = ManagedActor
-# class Actor(ManagedActor):
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
+
 
 class RunManager():
     '''

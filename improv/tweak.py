@@ -12,11 +12,11 @@ class Tweak():
         the entire server/processing pipeline.
     '''
 
-    def __init__(self, configFile=None):
+    def __init__(self, configFile):
         cwd = os.getcwd()
         if configFile is None:
-            # Going with default config
-            self.configFile = cwd+'/basic_demo.yaml'
+            logger.error('Need to specify a config file')
+            raise Exception
         else:
             # Reading config from other yaml file
             self.configFile = cwd+'/'+configFile
@@ -79,6 +79,7 @@ class Tweak():
                     params = params + ' ' + parameter.name
                 logger.warning('Expected Parameters:' + params)
             if "GUI" in name:
+                logger.info('Tweak detected a GUI actor: {}'.format(name))
                 self.hasGUI = True
                 self.gui = tweakModule
 
