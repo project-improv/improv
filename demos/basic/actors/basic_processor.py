@@ -5,7 +5,7 @@ import cv2
 import os
 import numpy as np
 import scipy.sparse
-from improv.store import Limbo, CannotGetObjectError, ObjectNotFoundError
+from improv.store import Store, CannotGetObjectError, ObjectNotFoundError
 from caiman.source_extraction.cnmf.online_cnmf import OnACID
 from caiman.source_extraction.cnmf.params import CNMFParams
 from caiman.motion_correction import motion_correct_iteration_fast, tile_and_correct

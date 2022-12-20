@@ -54,8 +54,8 @@ class AbstractActor():
     def _getStoreInterface(self):
         ## TODO: Where do we require this be run? Add a Signal and include in RM?
         if not self.client:
-            limbo = Limbo(self.name)
-            self.setStore(limbo)
+            store = Store(self.name)
+            self.setStore(store)
 
     def setLinks(self, links):
         ''' General full dict set for links

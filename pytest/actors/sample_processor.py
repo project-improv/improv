@@ -16,7 +16,7 @@ class Processor(Actor):
         """ Initializes all class variables.
         
         self.name (string): name of the actor.
-        self.frame (ObjectID): Limbo object id referencing data from the store.
+        self.frame (ObjectID): Store object id referencing data from the store.
         self.avg_list (list): list that contains averages of individual vectors.
         self.frame_num (int): index of current frame.
         """

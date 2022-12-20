@@ -9,7 +9,7 @@ from PyQt5 import QtGui, QtWidgets
 from scipy.spatial.distance import cdist
 
 from improv.actor import Actor, Spike
-from improv.store import Limbo, ObjectNotFoundError
+from improv.store import Store, ObjectNotFoundError
 from .front_end import BasicFrontEnd
 
 import logging; logger = logging.getLogger(__name__)

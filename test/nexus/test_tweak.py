@@ -4,7 +4,7 @@ import io
 import filecmp
 
 import logging; logger = logging.getLogger(__name__)
-from improv.tweak import Tweak, TweakModule
+from improv.config import Config, ConfigModule
 from unittest import TestCase
 from test.test_utils import StoreDependentTestCase
 #from test.visual import visual
@@ -17,23 +17,23 @@ class createConfBasic(StoreDependentTestCase):
 
     def setUp(self):
         super(createConfBasic, self).setUp()
-        self.tweak = Tweak(configFile= 'test/configs/good_config.yaml')
+        self.config = Config(configFile= 'test/configs/good_config.yaml')
 
     def test_actor(self):
-        self.tweak.createConfig()
-        self.assertEqual(self.tweak.actors['Processor'].packagename, 'improv.actors.process')
+        self.config.createConfig()
+        self.assertEqual(self.config.actors['Processor'].packagename, 'improv.actors.process')
 
     '''
     Commented out since we our moving visual testing to its own test directory as /test/visual
     def test_GUI(self):
-        self.tweak.createConfig()
-        self.assertEqual(self.tweak.gui.packagename, 'visual.visual')
-        self.assertEqual(self.tweak.gui.classname, 'DisplayVisual')
+        self.config.createConfig()
+        self.assertEqual(self.config.gui.packagename, 'visual.visual')
+        self.assertEqual(self.config.gui.classname, 'DisplayVisual')
     '''
     def test_connections(self):
-        self.tweak.createConfig()
-        self.assertEqual(self.tweak.connections['Acquirer.q_out'], ['Processor.q_in'])
-        self.assertEqual(self.tweak.connections['Processor.q_out'], ['Analysis.q_in'])
+        self.config.createConfig()
+        self.assertEqual(self.config.connections['Acquirer.q_out'], ['Processor.q_in'])
+        self.assertEqual(self.config.connections['Processor.q_out'], ['Analysis.q_in'])
 
     def tearDown(self):
         super(createConfBasic, self).tearDown()
@@ -42,25 +42,25 @@ class FailCreateConf(StoreDependentTestCase):
 
     def setUp(self):
         super(FailCreateConf, self).setUp()
-        self.tweak1 = Tweak(configFile= 'test/configs/repeated_actors.yaml')
-        self.tweak2 = Tweak(configFile= 'test/configs/no_actor.yaml')
-        self.tweak3 = Tweak(configFile= 'test/configs/repeated_actors')
+        self.config1 = Config(configFile= 'test/configs/repeated_actors.yaml')
+        self.config2 = Config(configFile= 'test/configs/no_actor.yaml')
+        self.config3 = Config(configFile= 'test/configs/repeated_actors')
 
     def MissingPackageorClass(self):
         cwd = os.getcwd()
-        self.tweak1.createConfig()
-        self.assertEqual(self.tweak.configFile, cwd+ 'test/configs/MissingPackage.yaml')
+        self.config1.createConfig()
+        self.assertEqual(self.config.configFile, cwd+ 'test/configs/MissingPackage.yaml')
         self.assertRaises(KeyError)
         #TODO: create repeated actor error
 
     def noactors(self):
         cwd = os.getcwd()
-        self.tweak2.createConfig()
+        self.config2.createConfig()
         self.assertRaises(AttributeError)
 
     def repeatedActor(self):
         cwd  = os.getcwd()
-        self.tweak3.createConfig()
+        self.config3.createConfig()
         self.assertRaises(RepeatedActorError)
 
 
@@ -72,17 +72,17 @@ class testPackageClass(StoreDependentTestCase):
 
     def setUp(self):
         super(testPackageClass, self).setUp()
-        self.tweak1 = Tweak(configFile= 'test/configs/bad_package.yaml')
-        self.tweak2= Tweak(configFile= 'test/configs/bad_class.yaml')
+        self.config1 = Config(configFile= 'test/configs/bad_package.yaml')
+        self.config2= Config(configFile= 'test/configs/bad_class.yaml')
 
     def badpackage(self):
         cwd = os.getcwd()
-        self.tweak1.createConfig()
+        self.config1.createConfig()
         self.assertRaises(ModuleNotFoundError)
 
     def badclass(self):
         cwd = os.getcwd()
-        self.tweak2.createConfig()
+        self.config2.createConfig()
         self.assertRaises(ImportError)
 
     def tearDown(self):
@@ -92,11 +92,11 @@ class testArgs(StoreDependentTestCase):
 
     def setUp(self):
         super(testArgs, self).setUp()
-        self.tweak= Tweak(configFile= 'test/configs/bad_args.yaml')
+        self.config= Config(configFile= 'test/configs/bad_args.yaml')
 
     def testArgs(self):
         cwd = os.getcwd()
-        self.tweak.createConfig()
+        self.config.createConfig()
         self.assertRaises(TypeError)
 
     def tearDown(self):
@@ -106,11 +106,11 @@ class testconnections(StoreDependentTestCase):
 
     def setUp(self):
         super(testconnections, self).setUp()
-        self.tweak= Tweak(configFile= 'test/configs/repeat_connection')
+        self.config= Config(configFile= 'test/configs/repeat_connection')
 
     def repeatConnection(self):
         cwd= os.getcwd()
-        self.tweak.createConfig()
+        self.config.createConfig()
         self.assertRaises(RepeatedConnectionsError)
 
     def tearDown(self):
@@ -120,18 +120,18 @@ class FailCreateConf(StoreDependentTestCase):
 
     def setUp(self):
         super(FailCreateConf, self).setUp()
-        self.tweak = Tweak()
+        self.config = Config()
 
     def MissingPackageorClass(self):
         cwd = os.getcwd()
-        self.tweak.createConfig(configFile= 'test/repeated_actors.yaml')
-        self.assertEqual(self.tweak.configFile, cwd+ 'test/MissingPackage.yaml')
+        self.config.createConfig(configFile= 'test/repeated_actors.yaml')
+        self.assertEqual(self.config.configFile, cwd+ 'test/MissingPackage.yaml')
         self.assertRaises(KeyError)
         #TODO: create repeated actor error
 
     def noactors(self):
         cwd = os.getcwd()
-        self.tweak.createConfig(configFile= 'test/no_actor.yaml')
+        self.config.createConfig(configFile= 'test/no_actor.yaml')
         self.assertRaises(AttributeError)
 
     def tearDown(self):

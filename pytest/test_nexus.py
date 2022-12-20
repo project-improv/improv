@@ -39,13 +39,13 @@ def sample_nex(setdir):
 #     p = subprocess.Popen(
 #         ['plasma_store', '-s', '/tmp/store/', '-m', str(10000000)],\
 #         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-#     lmb = Store(store_loc = "/tmp/store/")
-#     yield lmb
+#     store = Store(store_loc = "/tmp/store/")
+#     yield store
 #     p.kill()
 
 def test_init(setdir):
     setdir
-    # lmb = setup_store
+    # store = setup_store
     nex = Nexus("test")
     assert str(nex) == "test"
 
@@ -63,9 +63,9 @@ def test_createNexus(setdir):
     nex.destroyNexus()
     assert True
 
-def test_loadTweak(sample_nex):
+def test_loadConfig(sample_nex):
     nex = sample_nex 
-    nex.loadTweak('good_config.yaml')
+    nex.loadConfig('good_config.yaml')
     assert set(nex.comm_queues.keys()) == set(["Acquirer_comm", "Analysis_comm", "GUI_comm"])
 
 #delete this comment later
@@ -217,7 +217,7 @@ def test_closestore(caplog):
     # write to store
 
     with pytest.raises(AttributeError):
-        nex.p_Limbo.put("Message in", "Message in Label")
+        nex.p_Store.put("Message in", "Message in Label")
     
     assert True
 

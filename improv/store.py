@@ -53,7 +53,7 @@ class PlasmaStore(StoreInterface):
                  flush_immediately=False, commit_freq=1):
 
         """
-        Constructor for the Limbo
+        Constructor for the Store
 
         :param name:
         :param store_loc: Apache Arrow Plasma client location
@@ -323,17 +323,17 @@ class PlasmaStore(StoreInterface):
         '''
         raise NotImplementedError
 
-    def saveTweak(self, tweak_ids, fileName='data/tweak_dump'):
-        ''' Save current Tweak object containing parameters
+    def saveConfig(self, config_ids, fileName='data/config_dump'):
+        ''' Save current Config object containing parameters
             to run the experiment.
-            Tweak is pickleable
+            Config is pickleable
             TODO: move this to Nexus' domain?
         '''
-        tweak = self.client.get(tweak_ids)
-        #for object ID in list of items in tweak, get from store
+        config = self.client.get(config_ids)
+        #for object ID in list of items in config, get from store
         #and put into dict (?)
         with open(fileName, 'wb') as output:
-            pickle.dump(tweak, output, -1)
+            pickle.dump(config, output, -1)
 
     def saveSubstore(self, keys, fileName='data/substore_dump'):
         ''' Save portion of store based on keys
@@ -444,7 +444,7 @@ class LMDBStore(StoreInterface):
             self.commit_thread = Thread(target=self.commit_daemon, daemon=True)
             self.commit_thread.start()
 
-        if obj_name.startswith('q_') or obj_name.startswith('tweak'):  # Queue
+        if obj_name.startswith('q_') or obj_name.startswith('config'):  # Queue
             name = obj_name.encode()
             is_queue = True
         else:

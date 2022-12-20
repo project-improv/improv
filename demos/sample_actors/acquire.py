@@ -163,7 +163,7 @@ class BehaviorAcquirer(Actor):
         self.n = 0 #our fake frame number here
         #TODO: Consider global frame_number in store...or signal from Nexus
 
-        #TODO: Convert this to Tweak and load from there
+        #TODO: Convert this to Config and load from there
         if self.param_file is not None:
             try:
                 params_dict = None #self._load_params_from_file(param_file)

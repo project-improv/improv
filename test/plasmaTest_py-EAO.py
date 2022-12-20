@@ -1,5 +1,5 @@
 from test.plasmaTest_py import startStore
-from improv.store import Limbo
+from improv.store import Store
 
 import multiprocessing as mp
 
@@ -7,34 +7,34 @@ import pyarrow as pa
 
 from scipy.sparse import csc_matrix
 
-# For logging? Already included in Limbo class?
+# For logging? Already included in Store class?
 import logging; logger=logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 # Check if error occurs if connectStore before terminal command to start Plasma store?
 
-# Instantiate Limbo using all default attributes.
-limbo = Limbo()
+# Instantiate Store using all default attributes.
+store = Store()
 
 # Test connectStore method
-client = limbo.client
+client = store.client
 
 # Terminal command to start Plasma store.
 p1 = mp.Process(target=startStore)
 p1.start()
 p1.join()
 
-# Instantiate Limbo using all default attributes.
-limbo = Limbo()
+# Instantiate Store using all default attributes.
+store = Store()
 
 # Test connectStore method.
-client = limbo.client
+client = store.client
 
 # Test put method.
 # pa.array() handles 1D arrays
 # pa.Tensor.from_numpy() handles 2D+ arrays
 def test(data, object_name, use_pyarrow=False):
-    limbo = Limbo()
+    store = Store()
     
     if use_pyarrow:
         if data.ndim > 1:
@@ -44,9 +44,9 @@ def test(data, object_name, use_pyarrow=False):
     else:
         obj = data
 
-    objID1 = limbo.put(obj, object_name)
+    objID1 = store.put(obj, object_name)
     # Why??? Does this do the same??? Seems redundant/odd -> output of client.put() is objID, how could the input also be objID?
-    objID2 = limbo._put(obj, objID1)
+    objID2 = store._put(obj, objID1)
 
     # If creating buffer and sealing...
     # Necessary?
@@ -55,7 +55,7 @@ def test(data, object_name, use_pyarrow=False):
     # client.create_and_seal(objID, obj)
 
     # What was stored? Check data was stored.
-    # limbo.getStored()
+    # store.getStored()
     #   output: stored (dict)
     # get():
     #   input: object_name (str) from stored (dict)
@@ -68,7 +68,7 @@ def test(data, object_name, use_pyarrow=False):
     #   * uses getID()
     #   output: 
     
-    return limbo.getStored(), limbo.get(object_name), limbo.getID(objID1), limbo._get(object_name)
+    return store.getStored(), store.get(object_name), store.getID(objID1), store._get(object_name)
 
 # Test two at same time - meaning, put two objects in at the same time, or use two clients at the same time?
 

@@ -14,7 +14,7 @@ from datetime import datetime
 from improv.store import Store
 from improv.watcher import BasicWatcher
 from improv.actor import Signal
-from improv.tweak import Tweak
+from improv.config import Config
 from improv.link import Link, MultiLink
 
 logger = logging.getLogger(__name__)
@@ -24,9 +24,9 @@ logging.basicConfig(level=logging.DEBUG,
                     handlers=[logging.FileHandler("global.log"),
                               logging.StreamHandler()])
 
-# TODO: Set up limbo.notify in async function (?)
+# TODO: Set up store.notify in async function (?)
 
-# TODO: Rename limbo variables here (not stricly necessary)
+# TODO: Rename store variables here (not stricly necessary)
 
 class Nexus():
     ''' Main server class for handling objects in RASP
@@ -41,14 +41,14 @@ class Nexus():
         self._startStore(store_size) #default size should be system-dependent; this is 40 GB
 
         #connect to store and subscribe to notifications
-        self.limbo = Store()
-        self.limbo.subscribe()
+        self.store = Store()
+        self.store.subscribe()
 
         # LMDB storage
         self.use_hdd = use_hdd
         if self.use_hdd:
             self.lmdb_name = f'lmdb_{datetime.now().strftime("%Y%m%d_%H%M%S")}'
-            self.limbo_dict = dict()
+            self.store_dict = dict()
 
         self.comm_queues = {}
         self.sig_queues = {}
@@ -64,13 +64,13 @@ class Nexus():
         if file is None:
             logger.exception('Need a config file!')
             raise Exception #TODO
-        else: self.loadTweak(file=file)
+        else: self.loadConfig(file=file)
 
         self.flags.update({'quit':False, 'run':False, 'load':False}) #TODO: only quit flag used atm
         self.allowStart = False
         self.stopped = False
 
-    def loadTweak(self, file):
+    def loadConfig(self, file):
         ''' For each connection:
             create a Link with a name (purpose), start, and end
             Start links to one actor's name, end to the other.
@@ -84,21 +84,21 @@ class Nexus():
         '''
         #TODO load from file or user input, as in dialogue through FrontEnd?
 
-        self.tweak = Tweak(configFile = file)
-        self.tweak.createConfig()
+        self.config = Config(configFile = file)
+        self.config.createConfig()
 
-        # create all data links requested from Tweak config
+        # create all data links requested from Config config
         self.createConnections()
 
-        if self.tweak.hasGUI:
+        if self.config.hasGUI:
             # Have to load GUI first (at least with Caiman)
-            name = self.tweak.gui.name
-            m = self.tweak.gui # m is TweakModule
+            name = self.config.gui.name
+            m = self.config.gui # m is ConfigModule
             # treat GUI uniquely since user communication comes from here
             try:
                 visualClass = m.options['visual']
                 # need to instantiate this actor
-                visualActor = self.tweak.actors[visualClass]
+                visualActor = self.config.actors[visualClass]
                 self.createActor(visualClass, visualActor)
                 # then add links for visual
                 for k,l in {key:self.data_queues[key] for key in self.data_queues.keys() if visualClass in key}.items():
@@ -121,7 +121,7 @@ class Nexus():
             self.comm_queues.update({q_comm.name:q_comm})
 
         # First set up each class/actor
-        for name,actor in self.tweak.actors.items():
+        for name,actor in self.config.actors.items():
             if name not in self.actors.keys():
                 #Check for actors being instantiated twice
                 self.createActor(name, actor)
@@ -130,11 +130,11 @@ class Nexus():
         for name,link in self.data_queues.items():
             self.assignLink(name, link)
 
-        if self.tweak.settings['use_watcher'] is not None:
+        if self.config.settings['use_watcher'] is not None:
 
             watchin = []
 
-            for name in self.tweak.settings['use_watcher']:
+            for name in self.config.settings['use_watcher']:
                 watch_link= Link(name+'_watch', name, 'Watcher')
                 self.assignLink(name+'.watchout', watch_link)
                 watchin.append(watch_link)
@@ -151,8 +151,8 @@ class Nexus():
         '''
         for name,m in self.actors.items(): # m accesses the specific actor class instance
             if 'GUI' not in name: #GUI already started
-                if 'method' in self.tweak.actors[name].options:
-                    meth = self.tweak.actors[name].options['method']
+                if 'method' in self.config.actors[name].options:
+                    meth = self.config.actors[name].options['method']
                     logger.info('This actor wants: {}'.format(meth))
                     ctx = get_context(meth)
                     p = ctx.Process(target=m.run, name=name) #, args=(m,))
@@ -160,8 +160,8 @@ class Nexus():
                     ctx = get_context('fork')
                     p = ctx.Process(target=self.runActor, name=name, args=(m,))
                     if 'Watcher' not in name:
-                        if 'daemon' in self.tweak.actors[name].options: # e.g. suite2p creates child processes.
-                            p.daemon = self.tweak.actors[name].options['daemon']
+                        if 'daemon' in self.config.actors[name].options: # e.g. suite2p creates child processes.
+                            p.daemon = self.config.actors[name].options['daemon']
                             logger.info('Setting daemon to {} for {}'.format(p.daemon,name))
                         else: 
                             p.daemon = True #default behavior
@@ -169,7 +169,7 @@ class Nexus():
 
         self.start()
 
-        # if self.tweak.hasGUI:
+        # if self.config.hasGUI:
         loop = asyncio.get_event_loop()
 
         signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
@@ -225,7 +225,7 @@ class Nexus():
         """
 
         self.actorStates = dict.fromkeys(self.actors.keys())
-        if not self.tweak.hasGUI:  # Since Visual is not started, it cannot send a ready signal.
+        if not self.config.hasGUI:  # Since Visual is not started, it cannot send a ready signal.
             try:
                 del self.actorStates['Visual']
             except:
@@ -289,8 +289,8 @@ class Nexus():
                 self.flags['quit'] = True
                 self.quit()
             elif flag[0] == Signal.load():
-                logger.info('Loading Tweak config from file '+flag[1])
-                self.loadTweak(flag[1])
+                logger.info('Loading Config config from file '+flag[1])
+                self.loadConfig(flag[1])
             elif flag[0] == Signal.pause():
                 logger.info('Pausing processes')
                 # TODO. Alsoresume, reset
@@ -305,8 +305,8 @@ class Nexus():
                     name = pro.name
                     m = self.actors[pro.name]
                     if 'GUI' not in name: #GUI hard to revive independently
-                        if 'method' in self.tweak.actors[name].options:
-                            meth = self.tweak.actors[name].options['method']
+                        if 'method' in self.config.actors[name].options:
+                            meth = self.config.actors[name].options['method']
                             logger.info('This actor wants: {}'.format(meth))
                             ctx = get_context(meth)
                             p = ctx.Process(target=m.run, name=name) 
@@ -314,8 +314,8 @@ class Nexus():
                             ctx = get_context('fork')
                             p = ctx.Process(target=self.runActor, name=name, args=(m,))
                             if 'Watcher' not in name:
-                                if 'daemon' in self.tweak.actors[name].options:
-                                    p.daemon = self.tweak.actors[name].options['daemon']
+                                if 'daemon' in self.config.actors[name].options:
+                                    p.daemon = self.config.actors[name].options['daemon']
                                     logger.info('Setting daemon to {} for {}'.format(p.daemon,name))
                                 else: 
                                     p.daemon = True 
@@ -349,7 +349,7 @@ class Nexus():
                     logger.info('Allowing start')
 
                     #TODO: Maybe have flag for auto-start, else require explict command
-                    # if not self.tweak.hasGUI:
+                    # if not self.config.hasGUI:
                     #     self.run()
 
             elif self.stopped and sig[0] == Signal.stop_success():
@@ -385,7 +385,7 @@ class Nexus():
             except Full as f:
                 logger.warning('Signal queue '+q.name+' full, cannot tell it to quit: {}'.format(f))
 
-        if self.tweak.hasGUI:
+        if self.config.hasGUI:
             self.processes.append(self.p_GUI)
         
         if self.p_watch: self.processes.append(self.p_watch)
@@ -453,15 +453,15 @@ class Nexus():
         
         logging.info('Polling has stopped.')
 
-    def createLimbo(self, name):
-        ''' Creates Limbo w/ or w/out LMDB functionality based on {self.use_hdd}. 
+    def createStore(self, name):
+        ''' Creates Store w/ or w/out LMDB functionality based on {self.use_hdd}. 
         '''
         if not self.use_hdd:
             return Store(name)
         else:
-            if name not in self.limbo_dict:
-                self.limbo_dict[name] = Store(name, use_hdd=True, lmdb_name=self.lmdb_name)
-            return self.limbo_dict[name]
+            if name not in self.store_dict:
+                self.store_dict[name] = Store(name, use_hdd=True, lmdb_name=self.lmdb_name)
+            return self.store_dict[name]
 
     def _startStore(self, size):
         ''' Start a subprocess that runs the plasma store
@@ -473,7 +473,7 @@ class Nexus():
         if size is None:
             raise RuntimeError('Server size needs to be specified')
         try:
-            self.p_Limbo = subprocess.Popen(['plasma_store',
+            self.p_Store = subprocess.Popen(['plasma_store',
                               '-s', '/tmp/store',
                               '-m', str(size),
                               '-e', 'hashtable://test'],
@@ -488,7 +488,7 @@ class Nexus():
             running the store (plasma sever)
         '''
         try:
-            self.p_Limbo.kill()
+            self.p_Store.kill()
             logger.info('Store closed successfully')
         except Exception as e:
             logger.exception('Cannot close store {0}'.format(e))
@@ -505,21 +505,21 @@ class Nexus():
         if 'method' in actor.options.keys():
             ## check for spawn
             if 'fork' == actor.options['method']:
-                # Add link to Limbo store
-                limbo = self.createLimbo(actor.name)
-                instance.setStore(limbo)
+                # Add link to Store store
+                store = self.createStore(actor.name)
+                instance.setStore(store)
             else:
                 ## spawn or forkserver; can't pickle plasma store  
                 logger.info('No store for this actor yet {}'.format(name))
         else:
-            # Add link to Limbo store
-            limbo = self.createLimbo(actor.name)
-            instance.setStore(limbo)
+            # Add link to Store store
+            store = self.createStore(actor.name)
+            instance.setStore(store)
 
         # Add signal and communication links
-        limbo_arg = [None, None]
+        store_arg = [None, None]
         if self.use_hdd:
-            limbo_arg = [limbo, self.createLimbo('default')]
+            store_arg = [store, self.createStore('default')]
 
         q_comm = Link(actor.name+'_comm', actor.name, self.name)
         q_sig = Link(actor.name+'_sig', self.name, actor.name)
@@ -540,7 +540,7 @@ class Nexus():
         ''' Assemble links (multi or other)
             for later assignment
         '''
-        for source,drain in self.tweak.connections.items():
+        for source,drain in self.config.connections.items():
             name = source.split('.')[0]
             #current assumption is connection goes from q_out to something(s) else
             if len(drain) > 1: #we need multiasyncqueue 
@@ -578,7 +578,7 @@ class Nexus():
     ## Appears depricated? FIXME
     # def createWatcher(self, watchin):
     #     watcher= BasicWatcher('Watcher', inputs=watchin)
-    #     watcher.setStore(store.Limbo(watcher.name))
+    #     watcher.setStore(store.Store(watcher.name))
     #     q_comm = Link('Watcher_comm', watcher.name, self.name)
     #     q_sig = Link('Watcher_sig', self.name, watcher.name)
     #     self.comm_queues.update({q_comm.name:q_comm})
@@ -590,8 +590,8 @@ class Nexus():
     # TODO: Store access here seems wrong, need to test
     def startWatcher(self):
         from improv.watcher import Watcher
-        self.watcher = Watcher('watcher', self.createLimbo('watcher'))
-        limbo = self.createLimbo('watcher') if not self.use_hdd else None
+        self.watcher = Watcher('watcher', self.createStore('watcher'))
+        store = self.createStore('watcher') if not self.use_hdd else None
         q_sig = Link('watcher_sig', self.name, 'watcher')
         self.watcher.setLinks(q_sig)
         self.sig_queues.update({q_sig.name:q_sig})
