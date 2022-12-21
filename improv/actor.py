@@ -154,14 +154,14 @@ class ManagedActor(AbstractActor):
     def __init__(self, *args, **kwargs):
         super().__init__(*args)
 
-        # Define dictionary of functions for the RunManager
-        self.functions = {}
-        self.functions['setup'] = self.setup
-        self.functions['run'] = self.runStep
-        self.functions['stop'] = self.stop
+        # Define dictionary of actions for the RunManager
+        self.actions = {}
+        self.actions['setup'] = self.setup
+        self.actions['run'] = self.runStep
+        self.actions['stop'] = self.stop
 
     def run(self):
-        with RunManager(self.name, self.functions, self.links) as rm:
+        with RunManager(self.name, self.actions, self.links) as rm:
             pass
 
     def setup(self):
@@ -182,14 +182,14 @@ class AsyncActor(AbstractActor):
     def __init__(self, *args, **kwargs):
         super().__init__(*args)
 
-        # Define dictionary of functions for the RunManager
-        self.functions = {}
-        self.functions['setup'] = self.setup
-        self.functions['run'] = self.runStep
-        self.functions['stop'] = self.stop
+        # Define dictionary of actions for the RunManager
+        self.actions = {}
+        self.actions['setup'] = self.setup
+        self.actions['run'] = self.runStep
+        self.actions['stop'] = self.stop
 
     def run(self):
-        with AsyncRunManager(self.name, self.functions, self.links) as rm:
+        with AsyncRunManager(self.name, self.actions, self.links) as rm:
             pass
 
     async def setup(self):
@@ -213,7 +213,7 @@ Actor = ManagedActor
 class RunManager():
     '''
     '''
-    def __init__(self, name, functions, links, runStore=None, timeout=1e-6):
+    def __init__(self, name, actions, links, runStore=None, timeout=1e-6):
         self.run = False
         self.stop = False
         self.config = False
@@ -221,7 +221,7 @@ class RunManager():
         self.actorName = name
         logger.debug('RunManager for {} created'.format(self.actorName))
 
-        self.functions = functions
+        self.actions = actions
         self.links = links
         self.q_sig = self.links['q_sig']
         self.q_comm = self.links['q_comm']
@@ -233,17 +233,17 @@ class RunManager():
         self.start = time.time()
 
         while True:
-            # Run any functions given a received Signal
+            # Run any actions given a received Signal
             if self.run:
                 try:
-                    self.functions['run']()
+                    self.actions['run']()
                 except Exception as e:
                     logger.error('Actor '+self.actorName+' exception during run: {}'.format(e))
                     print(traceback.format_exc())
             elif self.stop:
                     #Read stop codes
                 try:
-                    self.functions['run']()
+                    self.actions['run']()
                     self.q_comm.put([Signal.ready()])
                 except Exception as e:
                     logger.error(f'Actor {self.actorName} exception during stop: {e}')
@@ -252,7 +252,7 @@ class RunManager():
                 try:
                     if self.runStore:
                         self.runStore()
-                    self.functions['setup']()
+                    self.actions['setup']()
                     self.q_comm.put([Signal.ready()])
                 except Exception as e:
                     logger.error('Actor '+self.actorName+' exception during setup: {}'.format(e))  
@@ -260,7 +260,7 @@ class RunManager():
                 self.config = False 
             elif self.stop:
                 try:
-                    self.functions['stop']()
+                    self.actions['stop']()
                 except Exception as e:
                     logger.error('Actor '+self.actorName+' exception during stop: {}'.format(e))
                     print(traceback.format_exc())
