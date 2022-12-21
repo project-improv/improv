@@ -5,18 +5,18 @@ from inspect import signature
 from importlib import import_module
 import logging; logger = logging.getLogger(__name__)
 
-#TODO: Write a save function for Tweak objects output as YAML configFile but using TweakModule objects
+#TODO: Write a save function for Config objects output as YAML configFile but using ConfigModule objects
 
-class Tweak():
+class Config():
     ''' Handles configuration and logs of configs for
         the entire server/processing pipeline.
     '''
 
-    def __init__(self, configFile=None):
+    def __init__(self, configFile):
         cwd = os.getcwd()
         if configFile is None:
-            # Going with default config
-            self.configFile = cwd+'/basic_demo.yaml'
+            logger.error('Need to specify a config file')
+            raise Exception
         else:
             # Reading config from other yaml file
             self.configFile = cwd+'/'+configFile
@@ -47,7 +47,7 @@ class Tweak():
             raise TypeError
 
         for name,actor in cfg['actors'].items():
-            # put import/name info in TweakModule object TODO: make ordered?
+            # put import/name info in ConfigModule object TODO: make ordered?
 
             if name in self.actors.keys():
                 # Should be actor.keys() - self.actors.keys() is empty until update?
@@ -69,9 +69,9 @@ class Tweak():
 
             clss = getattr(mod, classname)
             sig= signature(clss)
-            tweakModule = TweakModule(name, packagename, classname, options=actor)
+            configModule = ConfigModule(name, packagename, classname, options=actor)
             try:
-                sig.bind(tweakModule.options)
+                sig.bind(configModule.options)
             except TypeError as e:
                 logger.error('Error: Invalid arguments passed')
                 params= ''
@@ -79,11 +79,12 @@ class Tweak():
                     params = params + ' ' + parameter.name
                 logger.warning('Expected Parameters:' + params)
             if "GUI" in name:
+                logger.info('Config detected a GUI actor: {}'.format(name))
                 self.hasGUI = True
-                self.gui = tweakModule
+                self.gui = configModule
 
             else:
-                self.actors.update({name:tweakModule})
+                self.actors.update({name:configModule})
 
         for name,conn in cfg['connections'].items():
             #TODO check for correctness  TODO: make more generic (not just q_out)
@@ -112,7 +113,7 @@ class Tweak():
             wflag = a.saveConfigModules(pathName, wflag)
 
 
-class TweakModule():
+class ConfigModule():
     def __init__(self, name, packagename, classname, options=None):
         self.name = name
         self.packagename = packagename
@@ -172,11 +173,11 @@ class RepeatedConnectionsError(Exception):
 
 
 if __name__ == '__main__':
-    tweak = Tweak(configFile='pytest/configs/good_config.yaml')
-    tweak.createConfig()
-    tweak.saveActors()
-    # for actor in tweak.actors:
+    config = Config(configFile='pytest/configs/good_config.yaml')
+    config.createConfig()
+    config.saveActors()
+    # for actor in config.actors:
     #     print(actor)
 
-    # for connection in tweak.connections:
+    # for connection in config.connections:
     #     print(connection)

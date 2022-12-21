@@ -3,7 +3,7 @@ from PyQt5.QtGui import QColor, QPixmap
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 from . import improv_fit
-from improv.store import Limbo
+from improv.store import Store
 from improv.actor import Spike
 import numpy as np
 from math import floor
@@ -50,7 +50,7 @@ class FrontEnd(QtGui.QMainWindow, improv_fit.Ui_MainWindow):
         self.pushButton_3.clicked.connect(_call(self._runProcess)) #Tell Nexus to start
         self.pushButton_3.clicked.connect(_call(self.update)) #Update front-end graphics
         self.pushButton_2.clicked.connect(_call(self._setup))
-        self.pushButton.clicked.connect(_call(self._loadParams)) #File Dialog, then tell Nexus to load tweak
+        self.pushButton.clicked.connect(_call(self._loadParams)) #File Dialog, then tell Nexus to load config
         self.checkBox.stateChanged.connect(self.update) #Show live front-end updates
         
         self.rawplot_2.getImageItem().mouseClickEvent = self.mouseClick #Select a neuron
@@ -168,7 +168,7 @@ class FrontEnd(QtGui.QMainWindow, improv_fit.Ui_MainWindow):
         fname = QFileDialog.getOpenFileName(self, 'Open file', 'demos/')
             #TODO: make default home folder system-independent
         try:
-            self._loadTweak(fname[0])
+            self._loadConfig(fname[0])
         except FileNotFoundError as e:
             logger.error('File not found {}'.format(e))
             #raise FileNotFoundError
@@ -184,7 +184,7 @@ class FrontEnd(QtGui.QMainWindow, improv_fit.Ui_MainWindow):
         self.comm.put([Spike.setup()])
         self.visual.setup()
 
-    def _loadTweak(self, file):
+    def _loadConfig(self, file):
         self.comm.put(['load', file])
     
     def updateVideo(self):

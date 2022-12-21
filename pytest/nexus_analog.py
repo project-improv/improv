@@ -4,7 +4,7 @@ import asyncio
 import math
 
 from improv.link import Link
-from improv.store import Limbo
+from improv.store import Store
 import subprocess
 
 def clean_list_print(lst):
@@ -22,7 +22,7 @@ def setup_store():
     location of the store socket.
 
     Yields:
-        Limbo: An instance of the store.
+        Store: An instance of the store.
 
     TODO:
         Figure out the scope.
@@ -31,8 +31,8 @@ def setup_store():
     p = subprocess.Popen(
         ['plasma_store', '-s', '/tmp/store', '-m', str(10000000)],\
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    lmb = Limbo(store_loc = "/tmp/store")
-    return lmb
+    store = Store(store_loc = "/tmp/store")
+    return store
 
 async def pollQueues(links):
     tasks = []

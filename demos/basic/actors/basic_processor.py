@@ -5,16 +5,16 @@ import cv2
 import os
 import numpy as np
 import scipy.sparse
-from improv.store import Limbo, CannotGetObjectError, ObjectNotFoundError
+from improv.store import Store, CannotGetObjectError, ObjectNotFoundError
 from caiman.source_extraction.cnmf.online_cnmf import OnACID
 from caiman.source_extraction.cnmf.params import CNMFParams
 from caiman.motion_correction import motion_correct_iteration_fast, tile_and_correct
 from caiman.utils.visualization import get_contours
 from os.path import expanduser
 from queue import Empty
-import pyarrow.plasma as plasma
-from improv.actor import Actor, Spike, RunManager
-from improv.actors.process import CaimanProcessor
+
+from improv.actor import RunManager
+from demos.sample_actors.process import CaimanProcessor
 import traceback
 
 import logging; logger = logging.getLogger(__name__)
@@ -29,9 +29,9 @@ class BasicProcessor(CaimanProcessor):
     def __init__(self, *args, init_filename='data/Tolias_mesoscope_2.hdf5', config_file=None):
         super().__init__(*args, init_filename=init_filename, config_file=config_file)
     
-    def run(self):
-        ''' Run the processor continually on input frames
-        '''
+    def setup(self):
+        super().setup()
+
         self.fitframe_time = []
         self.putAnalysis_time = []
         self.procFrame_time = [] #aka t_motion
@@ -41,9 +41,9 @@ class BasicProcessor(CaimanProcessor):
         self.total_times = []
         self.timestamp = []
         self.counter = 0
+        
 
-        with RunManager(self.name, self.runProcess, self.setup, self.q_sig, self.q_comm) as rm:
-            logger.info(rm)
+    def stop(self):
 
         print('Processor broke, avg time per frame: ', np.mean(self.total_times, axis=0))
         print('Processor got through ', self.frame_number, ' frames')
@@ -70,7 +70,7 @@ class BasicProcessor(CaimanProcessor):
         np.savetxt('output/timing/shape_time.txt', self.shape_time)
         np.savetxt('output/timing/detect_time.txt', self.detect_time)
 
-    def runProcess(self):
+    def runStep(self):
         ''' Run process. Runs once per frame.
             Output is a location in the DS to continually
             place the Estimates results, with ref number that

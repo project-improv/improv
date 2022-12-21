@@ -1,28 +1,26 @@
-import asyncio
-from queue import Empty
 import time
-from typing import Awaitable, Callable
+import asyncio
 import traceback
-from improv.store import Limbo  ## This is default, needs to be chaneable?
-
+from queue import Empty
+from typing import Awaitable, Callable
+from improv.store import Store
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-class Actor():
-    ''' Abstract class for an actor that Nexus
+class AbstractActor():
+    ''' Base class for an actor that Nexus
         controls and interacts with.
         Needs to have a store and links for communication
-        Also needs at least a setup and run function
+        Also needs to be responsive to sent Signals (e.g. run, setup, etc)
     '''
-    def __init__(self, name, method='fork', links={}, **kwargs):
+    def __init__(self, name, method='fork'):
         ''' Require a name for multiple instances of the same actor/class
             Create initial empty dict of Links for easier referencing
         '''
         self.q_watchout = None
         self.name = name
-        self.links = links
-        self.done = False # TODO: obsolete, remove
+        self.links = {} 
         self.method = method
         self.client = None
 
@@ -54,10 +52,10 @@ class Actor():
         self.client = client
 
     def _getStoreInterface(self):
-        ## TODO: Where do we require this be run? Add a Spike and include in RM?
+        ## TODO: Where do we require this be run? Add a Signal and include in RM?
         if not self.client:
-            limbo = Limbo(self.name)
-            self.setStore(limbo)
+            store = Store(self.name)
+            self.setStore(store)
 
     def setLinks(self, links):
         ''' General full dict set for links
@@ -86,7 +84,8 @@ class Actor():
         self.links.update({'q_out':self.q_out})
 
     def setLinkWatch(self,  q_watch):
-
+        '''
+        '''
         self.q_watchout= q_watch
         self.links.update({'q_watchout':self.q_watchout})
 
@@ -103,13 +102,6 @@ class Actor():
         ''' Returns dictionary of links
         '''
         return self.links
-
-    def setup(self):
-        ''' Essenitally the registration process
-            Can also be an initialization for the actor
-            options is a list of options, can be empty
-        '''
-        raise NotImplementedError
 
     def put(self, idnames, q_out= None, save=None):
     
@@ -129,7 +121,6 @@ class Actor():
                 if self.q_watchout:
                     self.q_watchout.put(idnames[i])
 
-
     def run(self):
         ''' Must run in continuous mode
             Also must check q_sig either at top of a run-loop
@@ -142,11 +133,8 @@ class Actor():
 
     def stop():
         """ Specify method for momentarily stopping the run and saving data.
-        
-        Returns 0 for exit success, Returns 1 for exit failure
         """
-
-        return 0
+        pass
     
     def changePriority(self):
         ''' Try to lower this process' priority
@@ -161,134 +149,148 @@ class Actor():
             print('Lowered ', os.getpid(), ' for ', self.name)
 
 
-class Spike():
-    ''' Class containing definition of signals Nexus uses
-        to communicate with its actors
-        TODO: doc each of these with expected handling behavior
-        NOTE: add functionality as class objects..? Any advantage to this?
-    '''
-    @staticmethod
-    def run():
-        return 'run'
+class ManagedActor(AbstractActor):
 
-    @staticmethod
-    def quit():
-        return 'quit'
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args)
 
-    @staticmethod
-    def pause():
-        return 'pause'
+        # Define dictionary of actions for the RunManager
+        self.actions = {}
+        self.actions['setup'] = self.setup
+        self.actions['run'] = self.runStep
+        self.actions['stop'] = self.stop
 
-    @staticmethod
-    def resume():
-        return 'resume'
+    def run(self):
+        with RunManager(self.name, self.actions, self.links) as rm:
+            pass
 
-    @staticmethod
-    def reset(): #TODO: implement in Nexus
-        return 'reset'
-    
-    @staticmethod
-    def load():
-        return 'load'
+    def setup(self):
+        ''' Essenitally the registration process
+            Can also be an initialization for the actor
+            options is a list of options, can be empty
+        '''
+        pass
 
-    @staticmethod
-    def setup():
-        return 'setup'
+    def runStep(self):
+        raise NotImplementedError
 
-    @staticmethod
-    def ready():
-        return 'ready'
-    
-    @staticmethod
-    def kill():
-        return 'kill'
+    def stop(self):
+        pass
 
-    @staticmethod
-    def revive():
-        return 'revive'
+class AsyncActor(AbstractActor):
 
-    @staticmethod
-    def stop():
-        return 'stop'
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args)
 
-    @staticmethod
-    def stop_success():
-        return 'stop success'
+        # Define dictionary of actions for the RunManager
+        self.actions = {}
+        self.actions['setup'] = self.setup
+        self.actions['run'] = self.runStep
+        self.actions['stop'] = self.stop
+
+    def run(self):
+        with AsyncRunManager(self.name, self.actions, self.links) as rm:
+            pass
+
+    async def setup(self):
+        ''' Essenitally the registration process
+            Can also be an initialization for the actor
+            options is a list of options, can be empty
+        '''
+        pass
+
+    async def runStep(self):
+        raise NotImplementedError
+
+    async def stop(self):
+        pass
+
+
+## Aliasing
+Actor = ManagedActor
+
 
 class RunManager():
     '''
     '''
-    def __init__(self, name, runMethod, setup, q_sig, q_comm, stopMethod, runStore=None):
+    def __init__(self, name, actions, links, runStore=None, timeout=1e-6):
         self.run = False
         self.stop = False
         self.config = False
-        self.runMethod = runMethod
-        self.stopMethod = stopMethod
-        self.setup = setup
-        self.q_sig = q_sig
-        self.q_comm = q_comm
-        self.actorName = name
-        self.runStore = runStore
 
-        #TODO make this tunable
-        self.timeout = 0.000001
+        self.actorName = name
+        logger.debug('RunManager for {} created'.format(self.actorName))
+
+        self.actions = actions
+        self.links = links
+        self.q_sig = self.links['q_sig']
+        self.q_comm = self.links['q_comm']
+        
+        self.runStore = runStore
+        self.timeout = timeout
 
     def __enter__(self):
         self.start = time.time()
 
         while True:
+            # Run any actions given a received Signal
             if self.run:
                 try:
-                    self.runMethod() #subfunction for running singly
+                    self.actions['run']()
                 except Exception as e:
                     logger.error('Actor '+self.actorName+' exception during run: {}'.format(e))
                     print(traceback.format_exc())
             elif self.stop:
                     #Read stop codes
                 try:
-                    exit_code = self.stopMethod()
-                    #Read stop codes
-                    if exit_code == 0: 
-                        self.q_comm.put([Spike.ready()])
-                    else:
-                        #Maybe send ready signal anyway?
-                        logger.error(f"Actor {self.actorName} was unable to stop")
+                    self.actions['run']()
+                    self.q_comm.put([Signal.ready()])
                 except Exception as e:
-                    logger.error(f'Actor {self.actorName} exception during run: {e}')
+                    logger.error(f'Actor {self.actorName} exception during stop: {e}')
                 self.stop = False #Run once
             elif self.config:
                 try:
                     if self.runStore:
                         self.runStore()
-                    self.setup() #subfunction for setting up the actor
-                    self.q_comm.put([Spike.ready()])
+                    self.actions['setup']()
+                    self.q_comm.put([Signal.ready()])
                 except Exception as e:
                     logger.error('Actor '+self.actorName+' exception during setup: {}'.format(e))  
-                    raise Exception
-                self.config = False #Run once
+                    print(traceback.format_exc())
+                self.config = False 
+            elif self.stop:
+                try:
+                    self.actions['stop']()
+                except Exception as e:
+                    logger.error('Actor '+self.actorName+' exception during stop: {}'.format(e))
+                    print(traceback.format_exc())
+
+            # Check for new Signals received from Nexus
             try: 
                 signal = self.q_sig.get(timeout=self.timeout)
-                if signal == Spike.run(): 
+                logger.debug('{} received Signal {}'.format(self.actorName, signal))
+                if signal == Signal.run(): 
                     self.run = True
                     logger.warning('Received run signal, begin running')
-                elif signal == Spike.setup():
+                elif signal == Signal.setup():
                     self.config = True
-                elif signal == Spike.stop():
+                elif signal == Signal.stop():
                     self.run = False
                     self.stop = True
                     logger.warning(f"actor {self.actorName} received stop signal")
-                elif signal == Spike.quit():
+                elif signal == Signal.quit():
                     logger.warning('Received quit signal, aborting')
                     break
-                elif signal == Spike.pause():
+                elif signal == Signal.pause():
                     logger.warning('Received pause signal, pending...')
                     self.run = False
-                elif signal == Spike.resume(): #currently treat as same as run
+                elif signal == Signal.resume(): #currently treat as same as run
                     logger.warning('Received resume signal, resuming')
                     self.run = True
             except Empty as e:
-                pass #no signal from Nexus
-        return None #Status...?
+                pass # No signal from Nexus
+            
+        return None
 
 
     def __exit__(self, type, value, traceback):
@@ -321,23 +323,77 @@ class AsyncRunManager:
     async def __aenter__(self):
         while True:
             signal = await self.q_sig.get_async()
-            if signal == Spike.run() or signal == Spike.resume():
+            if signal == Signal.run() or signal == Signal.resume():
                 if not self.run:
                     self.run = True
                     asyncio.ensure_future(self.run_method(), loop=self.loop)
                     print('Received run signal, begin running')
-            elif signal == Spike.setup():
+            elif signal == Signal.setup():
                 self.setup()
-                await self.q_comm.put_async([Spike.ready()])
-            elif signal == Spike.quit():
+                await self.q_comm.put_async([Signal.ready()])
+            elif signal == Signal.quit():
                 logger.warning('Received quit signal, aborting')
                 self.loop.stop()
                 break
-            elif signal == Spike.pause():
+            elif signal == Signal.pause():
                 logger.warning('Received pause signal, pending...')
-                while self.q_sig.get() != Spike.resume():  # Intentionally blocking
+                while self.q_sig.get() != Signal.resume():  # Intentionally blocking
                     time.sleep(1e-3)
 
     async def __aexit__(self, type, value, traceback):
         logger.info('Ran for {} seconds'.format(time.time() - self.start))
         logger.warning('Exiting AsyncRunManager')
+
+
+class Signal():
+    ''' Class containing definition of signals Nexus uses
+        to communicate with its actors
+        TODO: doc each of these with expected handling behavior
+    '''
+    @staticmethod
+    def run():
+        return 'run'
+
+    @staticmethod
+    def quit():
+        return 'quit'
+
+    @staticmethod
+    def pause():
+        return 'pause'
+
+    @staticmethod
+    def resume():
+        return 'resume'
+
+    @staticmethod
+    def reset(): #TODO: implement in Nexus
+        return 'reset'
+    
+    @staticmethod
+    def load():
+        return 'load'
+
+    @staticmethod
+    def setup():
+        return 'setup'
+
+    @staticmethod
+    def ready():
+        return 'ready'
+
+    @staticmethod
+    def kill():
+        return 'kill'
+
+    @staticmethod
+    def revive():
+        return 'revive'
+
+    @staticmethod
+    def stop():
+        return 'stop'
+
+    @staticmethod
+    def stop_success():
+        return 'stop success'

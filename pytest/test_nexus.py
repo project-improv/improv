@@ -1,15 +1,11 @@
-import sys
 import time
 import os
 import pytest
-import subprocess
 import logging
 
 from improv.nexus import Nexus
-from improv.link import Link
 from improv.actor import Actor
-from improv.actor import Spike
-from improv.store import Limbo
+from improv.store import Store
 
 @pytest.fixture
 def setdir():
@@ -21,7 +17,7 @@ def setdir():
 def sample_nex(setdir):
     setdir
     nex = Nexus("test")
-    nex.createNexus(store_size=4000)
+    nex.createNexus(file='good_config.yaml', store_size=4000)
     yield nex
     nex.destroyNexus()
 
@@ -34,7 +30,7 @@ def sample_nex(setdir):
 #     location of the store socket.
 
 #     Yields:
-#         Limbo: An instance of the store.
+#         Store: An instance of the store.
 
 #     TODO:
 #         Figure out the scope.
@@ -43,44 +39,44 @@ def sample_nex(setdir):
 #     p = subprocess.Popen(
 #         ['plasma_store', '-s', '/tmp/store/', '-m', str(10000000)],\
 #         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-#     lmb = Limbo(store_loc = "/tmp/store/")
-#     yield lmb
+#     store = Store(store_loc = "/tmp/store/")
+#     yield store
 #     p.kill()
 
 def test_init(setdir):
     setdir
-    # lmb = setup_store
+    # store = setup_store
     nex = Nexus("test")
     assert str(nex) == "test"
+
 
 def test_createNexus(setdir):
     setdir
     nex = Nexus("test")
-    nex.createNexus(file = "basic_demo.yaml")
-    assert list(nex.comm_queues.keys()) == ["GUI_comm", "Acquirer_comm", "Analysis_comm", "InputStim_comm"]
-    assert list(nex.sig_queues.keys()) == ["Acquirer_sig", "Analysis_sig", "InputStim_sig"]
-    assert list(nex.data_queues.keys()) == ["Acquirer.q_out", "Analysis.q_in", "InputStim.q_out", "Analysis.input_stim_queue"]
-    assert list(nex.actors.keys()) == ["Acquirer", "Analysis", "InputStim"]
+    nex.createNexus(file = "good_config.yaml")
+    assert list(nex.comm_queues.keys()) == ["GUI_comm", "Acquirer_comm", "Analysis_comm"]
+    assert list(nex.sig_queues.keys()) == ["Acquirer_sig", "Analysis_sig"]
+    assert list(nex.data_queues.keys()) == ["Acquirer.q_out", "Analysis.q_in"]
+    assert list(nex.actors.keys()) == ["Acquirer", "Analysis"]
     assert list(nex.flags.keys()) == ["quit", "run", "load"] 
     assert nex.processes == []
     nex.destroyNexus()
     assert True
 
-def test_loadTweak(sample_nex):
+def test_loadConfig(sample_nex):
     nex = sample_nex 
-    nex.loadTweak()
-    assert set(nex.comm_queues.keys()) == set(["Acquirer_comm", "Analysis_comm", "GUI_comm", "InputStim_comm"])
+    nex.loadConfig('good_config.yaml')
+    assert set(nex.comm_queues.keys()) == set(["Acquirer_comm", "Analysis_comm", "GUI_comm"])
 
 #delete this comment later
 @pytest.mark.skip(reason="unfinished")
 def test_startNexus(sample_nex):
     nex = sample_nex
     nex.startNexus()
-    assert [p.name for p in nex.processes] == ["Acquirer", "Analysis", "InputStim"]
+    assert [p.name for p in nex.processes] == ["Acquirer", "Analysis"]
 
 # @pytest.mark.skip(reason="This test is unfinished")
 @pytest.mark.parametrize("cfg_name, actor_list, link_list", [
-    ("basic_demo.yaml", ["Acquirer", "Analysis", "InputStim"], ["Acquirer_sig", "Analysis_sig", "InputStim_sig"]),
     ("good_config.yaml", ["Acquirer", "Analysis"], ["Acquirer_sig", "Analysis_sig"]),
     ("simple_graph.yaml", ["Acquirer", "Analysis"], ["Acquirer_sig", "Analysis_sig"]),
     ("complex_graph.yaml", ["Acquirer", "Analysis", "InputStim"], ["Acquirer_sig", "Analysis_sig", "InputStim_sig"])
@@ -135,13 +131,13 @@ def test_blank_cfg(setdir, caplog):
     assert any(["The config file is empty" in record.msg for record in list(caplog.records)])
     nex.destroyNexus()
 
-def test_hasGUI_True(setdir):
-    setdir
-    nex = Nexus("test")
-    nex.createNexus(file="basic_demo_with_GUI.yaml")
+# def test_hasGUI_True(setdir):
+#     setdir
+#     nex = Nexus("test")
+#     nex.createNexus(file="basic_demo_with_GUI.yaml")
 
-    assert True
-    nex.destroyNexus()
+#     assert True
+#     nex.destroyNexus()
 
 # @pytest.mark.skip(reason="This test is unfinished.")
 # def test_hasGUI_False():
@@ -221,7 +217,7 @@ def test_closestore(caplog):
     # write to store
 
     with pytest.raises(AttributeError):
-        nex.p_Limbo.put("Message in", "Message in Label")
+        nex.p_Store.put("Message in", "Message in Label")
     
     assert True
 

@@ -3,8 +3,8 @@ import psutil
 import pytest
 import subprocess
 from improv.link import Link, AsyncQueue
-from improv.actor import Actor as actor
-from improv.store import Limbo as limbo
+from improv.actor import AbstractActor as Actor
+from improv.store import Store 
 
 #set global_variables
 
@@ -28,7 +28,7 @@ def init_actor():
     """ Fixture to initialize and teardown an instance of actor.
     """
 
-    act = actor("Test")
+    act = Actor("Test")
     yield act
     act = None
 
@@ -46,9 +46,9 @@ def example_string_links():
 def example_links(setup_store):
     """ Fixture to provide link objects as test input and setup store.
     """
-    lmb = limbo(store_loc="/tmp/store")
+    store = Store(store_loc="/tmp/store")
 
-    acts = [actor("act" + str(i)) for i in range(1, 5)] #range must be even
+    acts = [Actor("act" + str(i)) for i in range(1, 5)] #range must be even
 
     links = [Link("L" + str(i + 1), acts[i], acts[i + 1]) for i in range(len(acts) // 2)]
     link_dict = {links[i].name: links[i] for i, l in enumerate(links)}
@@ -60,7 +60,6 @@ def example_links(setup_store):
     ("q_watchout", None),
     ("name", "Test"),
     ("links", {}),
-    ("done", False),
     ("lower_priority", False),
     ("q_in", None),
     ("q_out", None)
@@ -89,7 +88,7 @@ def test_repr(example_string_links):
     """ Test if the actor representation has the right, nonempty, dict.
     """
 
-    act = actor("Test")
+    act = Actor("Test")
     act.setLinks(example_string_links)
     assert act.__repr__() == "Test: dict_keys([\'1\', \'2\', \'3\'])"
 
@@ -98,10 +97,10 @@ def test_setStore(setup_store):
     """ Tests if the store is started and linked with the actor.
     """
 
-    act = actor("Acquirer")
-    lmb = limbo(store_loc="/tmp/store")
-    act.setStore(lmb.client)
-    assert act.client is lmb.client
+    act = Actor("Acquirer")
+    store = Store(store_loc="/tmp/store")
+    act.setStore(store.client)
+    assert act.client is store.client
 
 
 @pytest.mark.parametrize("links", [
@@ -116,7 +115,7 @@ def test_setLinks(links):
     """ Tests if the actors links can be set to certain values.
     """
 
-    act = actor("test")
+    act = Actor("test")
     act.setLinks(links)
     assert act.links == links 
 
@@ -132,8 +131,8 @@ def test_setCommLinks(example_links, qc, qs, init_actor, setup_store):
     """
 
     if (qc == "LINK" and qs == "LINK"):
-        qc = Link("L1", actor("1"), actor("2"))
-        qs = Link("L2", actor("3"), actor("4"))
+        qc = Link("L1", Actor("1"), Actor("2"))
+        qs = Link("L2", Actor("3"), Actor("4"))
     act = init_actor
     act.setLinks(example_links)
     act.setCommLinks(qc, qs)
@@ -211,7 +210,7 @@ def test_addLink(setup_store):
     """ Tests if a link can be added to the dictionary of links.
     """
 
-    act = actor("test")
+    act = Actor("test")
     links = {"1": "one", "2": "two"}
     act.setLinks(links)
     newName = "3"
@@ -254,15 +253,6 @@ def test_getLinks(init_actor, example_string_links):
     act.setLinks(links)
 
     assert act.getLinks() == {"1": "one", "2": "two", "3": "three"}
-
-
-def test_setup_unimplemented(init_actor, example_string_links):
-    """ Checks if actor.setup raises an error.
-    """ 
-
-    with pytest.raises(NotImplementedError):
-        act = init_actor
-        act.setup()
 
 
 @pytest.mark.skip(reason="this is something we\'ll do later because\
@@ -308,10 +298,10 @@ def test_actor_connection(setup_store):
     checked to verify it matches the original message.
     """
 
-    act1 = actor("a1")
-    act2 = actor("a2")
+    act1 = Actor("a1")
+    act2 = Actor("a2")
 
-    lmb = limbo(store_loc="/tmp/store")
+    store = Store(store_loc="/tmp/store")
     link = Link("L12", act1, act2)
     act1.setLinkIn(link)
     act2.setLinkOut(link)

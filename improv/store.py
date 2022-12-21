@@ -42,7 +42,7 @@ class StoreInterface():
         raise NotImplementedError
 
 
-class Limbo(StoreInterface):
+class PlasmaStore(StoreInterface):
     ''' Basic interface for our specific data store implemented with apache arrow plasma
     Objects are stored with object_ids
     References to objects are contained in a dict where key is shortname, value is object_id
@@ -53,7 +53,7 @@ class Limbo(StoreInterface):
                  flush_immediately=False, commit_freq=1):
 
         """
-        Constructor for the Limbo
+        Constructor for the Store
 
         :param name:
         :param store_loc: Apache Arrow Plasma client location
@@ -310,22 +310,6 @@ class Limbo(StoreInterface):
             return res
 
     # TODO: Likely remove all this functionality for security.
-    # Delete deleteName
-    # def deleteName(self, object_name):
-    #     ''' Deletes an object from the store based on name
-    #         assumes we have id from name
-    #         This prevents us from deleting other portions of
-    #         the store that we don't have access to
-    #     '''
-
-    #     if self.stored.get(object_name) is None:
-    #         logger.error('Never recorded storing this object: '+object_name)
-    #         # Don't know anything about this object, treat as problematic
-    #         raise CannotGetObjectError
-    #     else:
-    #         retcode = self._delete(object_name)
-    #         self.stored.pop(object_name)
-
     # def delete(self, id):
     #     try:
     #         self.client.delete([id])
@@ -339,17 +323,17 @@ class Limbo(StoreInterface):
         '''
         raise NotImplementedError
 
-    def saveTweak(self, tweak_ids, fileName='data/tweak_dump'):
-        ''' Save current Tweak object containing parameters
+    def saveConfig(self, config_ids, fileName='data/config_dump'):
+        ''' Save current Config object containing parameters
             to run the experiment.
-            Tweak is pickleable
+            Config is pickleable
             TODO: move this to Nexus' domain?
         '''
-        tweak = self.client.get(tweak_ids)
-        #for object ID in list of items in tweak, get from store
+        config = self.client.get(config_ids)
+        #for object ID in list of items in config, get from store
         #and put into dict (?)
         with open(fileName, 'wb') as output:
-            pickle.dump(tweak, output, -1)
+            pickle.dump(config, output, -1)
 
     def saveSubstore(self, keys, fileName='data/substore_dump'):
         ''' Save portion of store based on keys
@@ -460,7 +444,7 @@ class LMDBStore(StoreInterface):
             self.commit_thread = Thread(target=self.commit_daemon, daemon=True)
             self.commit_thread.start()
 
-        if obj_name.startswith('q_') or obj_name.startswith('tweak'):  # Queue
+        if obj_name.startswith('q_') or obj_name.startswith('config'):  # Queue
             name = obj_name.encode()
             is_queue = True
         else:
@@ -524,6 +508,8 @@ class LMDBStore(StoreInterface):
 
     def subscribe(self): pass # TODO
 
+## Aliasing
+Store = PlasmaStore
 
 @dataclass
 class LMDBData:

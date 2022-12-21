@@ -12,7 +12,7 @@ logger.setLevel(logging.INFO)
 import asyncio
 import concurrent
 from pyarrow.plasma import ObjectNotAvailable
-from improv.actor import Actor, Spike, RunManager, AsyncRunManager
+from improv.actor import Actor, Signal, RunManager, AsyncRunManager
 from improv.store import ObjectNotFoundError
 from pyarrow.plasma import ObjectNotAvailable
 import pickle
@@ -112,16 +112,16 @@ class Watcher():
                     #break
             try:
                 signal = self.q_sig.get(timeout=0.005)
-                if signal == Spike.run():
+                if signal == Signal.run():
                     self.flag = True
                     logger.warning('Received run signal, begin running')
-                elif signal == Spike.quit():
+                elif signal == Signal.quit():
                     logger.warning('Received quit signal, aborting')
                     break
-                elif signal == Spike.pause():
+                elif signal == Signal.pause():
                     logger.warning('Received pause signal, pending...')
                     self.flag = False
-                elif signal == Spike.resume(): #currently treat as same as run
+                elif signal == Signal.resume(): #currently treat as same as run
                     logger.warning('Received resume signal, resuming')
                     self.flag = True
             except Empty as e:

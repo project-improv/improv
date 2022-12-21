@@ -35,11 +35,11 @@ class TestLMDBStore(unittest.TestCase):
             os.removedirs('./test_lmdb_exists')
 
     def test_standalone(self):
-        self.lmdb_store = LMDBStore(path='./', name=self.LMDB_NAME, commit_freq=self.commit_freq, from_limbo=False)
+        self.lmdb_store = LMDBStore(path='./', name=self.LMDB_NAME, commit_freq=self.commit_freq, from_store=False)
         self.lmdb_helper(rand_id=None)
 
-    def test_from_limbo(self):
-        self.lmdb_store = LMDBStore(path='./', name=self.LMDB_NAME, commit_freq=self.commit_freq, from_limbo=True)
+    def test_from_store(self):
+        self.lmdb_store = LMDBStore(path='./', name=self.LMDB_NAME, commit_freq=self.commit_freq, from_store=True)
         self.lmdb_helper(rand_id=plasma.ObjectID.from_random)
 
     @staticmethod

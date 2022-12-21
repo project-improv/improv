@@ -4,7 +4,7 @@ import json
 import cv2
 import numpy as np
 import scipy.sparse
-from improv.store import Limbo, CannotGetObjectError, ObjectNotFoundError
+from improv.store import Store, CannotGetObjectError, ObjectNotFoundError
 from caiman.source_extraction import cnmf
 from caiman.source_extraction.cnmf.utilities import detrend_df_f
 from caiman.source_extraction.cnmf.online_cnmf import OnACID
@@ -126,7 +126,7 @@ class CaimanProcessor(Actor):
             corresponds to the frame number (TODO)
         '''
         #TODO: Error handling for if these parameters don't work
-            #should implement in Tweak (?) or getting too complicated for users..
+            #should implement in Config (?) or getting too complicated for users..
 
         #proc_params = self.client.get('params_dict')
         init = self.params['init_batch']
@@ -178,7 +178,7 @@ class CaimanProcessor(Actor):
         else:
             # defaults from demo scripts; CNMFParams does not set
             # each parameter needed by default (TODO change that?)
-            # TODO add parameter validation inside Tweak
+            # TODO add parameter validation inside Config
             params_dict = {'fnames': [cwd+self.init_filename],
                    'fr': 2,
                    'decay_time': 0.8,

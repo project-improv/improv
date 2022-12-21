@@ -1,20 +1,20 @@
 actors:
   Acquirer:
-    package: improv.actors.acquire
+    package: demos.sample_actors.acquire
     class: FileAcquirer
     filename: data/Tolias_mesoscope_2.hdf5
     framerate: 30
 
   Processor:
-    package: improv.actors.process
+    package: demos.sample_actors.process
     class: CaimanProcessor
 
   Analysis:
-    package: improv.actors.analysis
+    package: demos.sample_actors.analysis
     class: MeanAnalysis
 
   InputStim:
-    package: improv.actors.acquire
+    package: demos.sample_actors.acquire
     class: BehaviorAcquirer
 
 

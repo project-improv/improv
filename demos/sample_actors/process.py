@@ -1,22 +1,20 @@
+import os
 import time
-import pickle
 import json
 import cv2
+import traceback
+
 import numpy as np
-import scipy.sparse
-from improv.store import Limbo, CannotGetObjectError, ObjectNotFoundError
+
 from caiman.source_extraction import cnmf
-from caiman.source_extraction.cnmf.utilities import detrend_df_f
 from caiman.source_extraction.cnmf.online_cnmf import OnACID
 from caiman.source_extraction.cnmf.params import CNMFParams
 from caiman.motion_correction import motion_correct_iteration_fast, tile_and_correct
 from caiman.utils.visualization import get_contours
-import caiman as cm
-from os.path import expanduser
-import os
+
 from queue import Empty
-from improv.actor import Actor, Spike, RunManager
-import traceback
+from improv.actor import Actor
+from improv.store import ObjectNotFoundError
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -28,9 +26,8 @@ class CaimanProcessor(Actor):
     '''
     def __init__(self, *args, init_filename='data/Tolias_mesoscope_2.hdf5', config_file=None):
         super().__init__(*args)
-        print('initfile ', init_filename, 'config file ', config_file)
+        logger.info('initfile {}, config file {}'.format(init_filename, config_file))
         self.param_file = config_file
-        print(init_filename)
         self.init_filename = init_filename
         self.frame_number = 0
 
@@ -44,14 +41,14 @@ class CaimanProcessor(Actor):
         self.coords = None
         self.ests = None
         self.A = None
-        self.saving= True
+        self.saving = True
 
-        self.loadParams(param_file=self.param_file)
-        self.params = self.client.get('params_dict')
+        self.params = self.loadParams(param_file=self.param_file)
+        # self.params = self.client.get('params_dict')
 
         # MUST include inital set of frames
         # TODO: Institute check here as requirement to Nexus
-        print(self.params['fnames'])
+        logger.info(self.params['fnames'])
 
         self.opts = CNMFParams(params_dict=self.params)
         self.onAc = OnACID(params = self.opts)
@@ -59,10 +56,6 @@ class CaimanProcessor(Actor):
         self.onAc.initialize_online()
         self.max_shifts_online = self.onAc.params.get('online', 'max_shifts_online')
 
-
-    def run(self):
-        '''Run the processor continually on input frames
-        '''
         self.fitframe_time = []
         self.putAnalysis_time = []
         self.procFrame_time = [] #aka t_motion
@@ -73,8 +66,8 @@ class CaimanProcessor(Actor):
         self.timestamp = []
         self.counter = 0
 
-        with RunManager(self.name, self.runProcess, self.setup, self.q_sig, self.q_comm) as rm:
-            logger.info(rm)
+
+    def stop(self):
 
         print('Processor broke, avg time per frame: ', np.mean(self.total_times, axis=0))
         print('Processor got through ', self.frame_number, ' frames')
@@ -91,22 +84,7 @@ class CaimanProcessor(Actor):
         np.savetxt('output/timing/putAnalysis_time.txt', np.array(self.putAnalysis_time))
         np.savetxt('output/timing/procFrame_time.txt', np.array(self.procFrame_time))
 
-        # before = self.params['init_batch']
-        # nb = self.onAc.params.get('init', 'nb')
-        # np.savetxt('raw_C.txt', np.array(self.onAc.estimates.C_on[nb:self.onAc.M, before:self.frame_number+before]))
-
         print('Number of times coords updated ', self.counter)
-
-        # with open('../S.pk', 'wb') as f:
-        #     init = self.params['init_batch']
-        #     S = np.stack([osi.s[init:] for osi in self.onAc.estimates.OASISinstances])
-        #     print('--------Final S shape: ', S.shape)
-        #     pickle.dump(S, f)
-        # with open('../A.pk', 'wb') as f:
-        #     nb = self.onAc.params.get('init', 'nb')
-        #     A = self.onAc.estimates.Ab[:, nb:]
-        #     print(type(A))
-        #     pickle.dump(A, f)
 
         if self.onAc.estimates.OASISinstances is not None:
             try:
@@ -123,14 +101,14 @@ class CaimanProcessor(Actor):
         print('type ', type(self.coords1[0]))
         np.savetxt('output/contours.txt', np.array(self.coords1))
 
-    def runProcess(self):
+    def runStep(self):
         ''' Run process. Runs once per frame.
             Output is a location in the DS to continually
             place the Estimates results, with ref number that
             corresponds to the frame number (TODO)
         '''
         #TODO: Error handling for if these parameters don't work
-            #should implement in Tweak (?) or getting too complicated for users..
+            #should implement in Config (?) or getting too complicated for users..
 
         #proc_params = self.client.get('params_dict')
         init = self.params['init_batch']
@@ -182,7 +160,7 @@ class CaimanProcessor(Actor):
         else:
             # defaults from demo scripts; CNMFParams does not set
             # each parameter needed by default (TODO change that?)
-            # TODO add parameter validation inside Tweak
+            # TODO add parameter validation inside Config
             params_dict = {'fnames': [cwd+self.init_filename],
                    'fr': 2,
                    'decay_time': 0.8,
@@ -205,6 +183,8 @@ class CaimanProcessor(Actor):
                    'show_movie': False,
                    'minibatch_shape': 100}
         self.client.put(params_dict, 'params_dict')
+
+        return params_dict
 
     def _load_params_from_file(self, param_file):
         '''Filehandler for loading caiman parameters

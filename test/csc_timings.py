@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 from unittest import TestCase
-from nexus.store import Limbo
+from nexus.store import Store
 from multiprocessing import Process
 from scipy.sparse import csc_matrix
 import numpy as np
@@ -26,7 +26,7 @@ def time_putget(n, type = "normal"):
                       '-m', str(10000000000)],
                       stdout=subprocess.DEVNULL,
                       stderr=subprocess.DEVNULL)
-    limbo = Limbo()
+    store = Store()
 
     # Make an array of random integers in range [0,100) of size (n x n)
     data = np.random.randint(0,100,(n,n),dtype=np.int8)
@@ -45,7 +45,7 @@ def time_putget(n, type = "normal"):
     # Time putting and getting to store
     print("Putting {type} matrix of size {n} by {n}".format(type = type, n = n))
     t = timeit.default_timer()
-    limbo.put(matrix, "matrix")
+    store.put(matrix, "matrix")
     putTime = timeit.default_timer() - t
     print('\tTime', putTime)
 
@@ -53,7 +53,7 @@ def time_putget(n, type = "normal"):
 
     print("Getting {type} matrix of size {n} by {n}".format(type = type, n = n))
     t = timeit.default_timer()
-    limbo.get("matrix")
+    store.get("matrix")
     getTime = timeit.default_timer() - t
     print('\tTime', getTime)
 

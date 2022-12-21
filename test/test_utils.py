@@ -5,7 +5,7 @@ from improv.actor import RunManager, AsyncRunManager
 from multiprocessing import Process
 
 class StoreDependentTestCase(TestCase):
-    ''' Unit test base class that starts the Limbo plasma server
+    ''' Unit test base class that starts the Store plasma server
         for the tests in this case.
     '''
 

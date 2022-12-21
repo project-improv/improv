@@ -10,8 +10,9 @@ from async_timeout import timeout
 
 from improv.actor import Actor
 from improv.link import AsyncQueue
-from improv.store import Limbo
+from improv.store import Store 
 from improv.link import Link
+
 
 
 @pytest.fixture
@@ -23,7 +24,7 @@ def setup_store():
     location of the store socket.
 
     Yields:
-        Limbo: An instance of the store.
+        store: An instance of the store.
 
     TODO:
         Figure out the scope.
@@ -32,8 +33,8 @@ def setup_store():
     p = subprocess.Popen(
         ['plasma_store', '-s', '/tmp/store', '-m', str(10000000)],\
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    lmb = Limbo(store_loc = "/tmp/store")
-    yield lmb
+    store = Store(store_loc = "/tmp/store")
+    yield store
     p.kill()
 
 
@@ -66,7 +67,7 @@ def example_actor_system(setup_store):
     """ Fixture to provide a list of 4 connected actors.
     """
 
-    lmb = setup_store
+    store = setup_store
     acts = init_actors(4)
 
     L01 = Link("L01", acts[0].name, acts[1].name)
@@ -130,10 +131,10 @@ def test_getstate(example_link):
     """ Tests if __getstate__ has the right values on initialization.
 
     Gets the dictionary of the link, then compares them against known
-    default values. Does not compare limbo and actors.
+    default values. Does not compare store and actors.
 
     TODO:
-        Compare limbo and actors.
+        Compare store and actors.
     """
 
     res = example_link.__getstate__()
@@ -201,7 +202,7 @@ def test_put_unserializable(example_link, caplog, setup_store):
     Raises:
         SerializationCallbackError: Actor objects are unserializable.
     """
-    lmb = setup_store
+    store = setup_store
     act = Actor("test")
     lnk = example_link
     sentinel = True
@@ -218,9 +219,9 @@ def test_put_irreducible(example_link, setup_store):
     """
     
     lnk = example_link
-    lmb = setup_store
+    store = setup_store
     with pytest.raises(TypeError):
-       lnk.put(lmb) 
+       lnk.put(store) 
 
 def test_put_nowait(example_link):
     """ Tests if messages can be put into the link without blocking.
@@ -298,7 +299,7 @@ def test_put_overflow(setup_store, caplog):
     p = subprocess.Popen(
         ['plasma_store', '-s', '/tmp/store', '-m', str(1000)],\
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    lmb = Limbo(store_loc = "/tmp/store")
+    store = Store(store_loc = "/tmp/store")
     
     acts = init_actors(2)
     lnk = Link("L1", acts[0], acts[1])    

@@ -1,7 +1,7 @@
 from unittest import TestCase
 from test.test_utils import StoreDependentTestCase, ActorDependentTestCase
 from improv.actor import Actor, RunManager, AsyncRunManager, Spike
-from improv.store import Limbo
+from improv.store import Store
 from improv.nexus import AsyncQueue, Link
 from multiprocessing import Process
 import numpy as np
@@ -31,13 +31,13 @@ class Actor_setStore(ActorDependentTestCase):
     def setUp(self):
         super(Actor_setStore, self).setUp()
         self.actor = Actor('test')
-        self.limbo = Limbo()
+        self.store = Store()
 
     def test_setStore(self):
-        limbo = self.limbo
+        store = self.store
         actor = self.actor
-        actor.setStore(limbo.client)
-        self.assertEqual(actor.client, limbo.client)
+        actor.setStore(store.client)
+        self.assertEqual(actor.client, store.client)
 
     def tearDown(self):
         super(Actor_setStore, self).tearDown()
@@ -232,7 +232,7 @@ class Actor_setLinks(ActorDependentTestCase):
     def setUp(self):
         super(Actor_setLinks, self).setUp()
         self.actor = Actor('test')
-        self.limbo=Limbo()
+        self.store=Store()
 
     def test_setLinks(self):
         links = {'1': 'one'}
