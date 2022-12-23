@@ -36,7 +36,7 @@ def test_init(test_input, set_configdir):
     """
 
     cfg = config(test_input)
-    assert cfg.configFile == os.getcwd() + "/" + test_input 
+    assert cfg.configFile == test_input 
 
 
 # def test_init_attributes():

@@ -19,7 +19,7 @@ class Config():
             raise Exception
         else:
             # Reading config from other yaml file
-            self.configFile = cwd+'/'+configFile
+            self.configFile = configFile
 
         self.actors = {}
         self.connections = {}
