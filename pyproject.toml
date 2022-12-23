@@ -20,7 +20,8 @@ dependencies = [
     "pyarrow==9.0.0",
     "PyQt5",
     "lmdb",
-    "pyyaml"
+    "pyyaml",
+    "click"
 ]
 classifiers = ['Development Status :: 1 - Planning']
 

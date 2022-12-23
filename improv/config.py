@@ -13,7 +13,6 @@ class Config():
     '''
 
     def __init__(self, configFile):
-        cwd = os.getcwd()
         if configFile is None:
             logger.error('Need to specify a config file')
             raise Exception

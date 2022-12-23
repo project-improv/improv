@@ -64,7 +64,8 @@ class Nexus():
         if file is None:
             logger.exception('Need a config file!')
             raise Exception #TODO
-        else: self.loadConfig(file=file)
+        else: 
+            self.loadConfig(file=file)
 
         self.flags.update({'quit':False, 'run':False, 'load':False}) #TODO: only quit flag used atm
         self.allowStart = False

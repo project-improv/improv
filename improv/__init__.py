@@ -1,28 +1,25 @@
-import argparse
 import logging
 import sys
 import os.path
+import click
 from improv.nexus import Nexus
 
-def default_invocation():
+@click.command()
+@click.argument('configfile', type=click.Path(exists=True, dir_okay=False, resolve_path=True))
+@click.option('--actor-path', type=click.Path(exists=True, resolve_path=True), default='', help="search path to add to sys.path when looking for actors; defaults to the directory containing CONFIGFILE")
+def default_invocation(configfile, actor_path):
     """
     Function provided as an entry point for command-line usage. Invoke using
-    ``improv <config file>``.
+    improv <YAML config file>
     """
     logging.getLogger("matplotlib").setLevel(logging.WARNING)
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("config", help="name of a YAML configuration file")
-    parser.add_argument("--actor-path", help="search path to add to sys.path when looking for actors; defaults to the directory containing <config>")
-    args = parser.parse_args()
-
-    if not args.actor_path:
-        sys.path.append(os.path.dirname(args.config))
+    if not actor_path:
+        sys.path.append(os.path.dirname(configfile))
     else:
-        sys.path.append(os.path.abspath(args.actor_path))
-
-    loadfile = args.config
+        sys.path.append(actor_path)
+    click.echo(configfile)
 
     nexus = Nexus("Sample")
-    nexus.createNexus(file=loadfile)
+    nexus.createNexus(file=configfile)
     nexus.startNexus()
