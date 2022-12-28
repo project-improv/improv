@@ -26,7 +26,7 @@ dependencies = [
 classifiers = ['Development Status :: 1 - Planning']
 
 [project.optional-dependencies]
-tests = ["async-timeout"]
+tests = ["async-timeout", "pytest-asyncio"]
 docs = []
 caiman = []
 
