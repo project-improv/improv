@@ -25,6 +25,11 @@ dependencies = [
 ]
 classifiers = ['Development Status :: 1 - Planning']
 
+[project.optional-dependencies]
+tests = ["async-timeout"]
+docs = []
+caiman = []
+
 [project.scripts]
 improv = "improv:default_invocation"
 
