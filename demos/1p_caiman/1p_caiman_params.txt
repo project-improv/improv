@@ -1,1 +1,0 @@
-{"fr": 20, "gSig": [6, 6], "p": 1, "min_SNR": 1, "rval_thr": 0.75, "ds_factor": 1, "nb": 0, "motion_correct": True, "init_batch": 200, "init_method": "cnmf", "normalize": True, "use_cnn": False, "K": None, "epochs": 1, "max_shifts_online": 10, "pw_rigid": False, "dist_shape_update": True, "show_movie": False, "minibatch_shape": 200, "ssub":1, "tsub":1, "p_ssub":1, "p_tsub":1}

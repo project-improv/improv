@@ -1,5 +1,0 @@
-<RCC>
-  <qresource prefix="newPrefix">
-    <file>rainbow_dir.png</file>
-  </qresource>
-</RCC>
