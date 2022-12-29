@@ -21,7 +21,8 @@ dependencies = [
     "PyQt5",
     "lmdb",
     "pyyaml",
-    "click"
+    "click",
+    "textual"
 ]
 classifiers = ['Development Status :: 1 - Planning']
 
