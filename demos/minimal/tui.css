@@ -1,0 +1,5 @@
+Screen {
+    layout: grid;
+    grid-size: 3 1;
+    grid-columns: 1fr;
+}
