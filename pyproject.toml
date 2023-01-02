@@ -22,7 +22,8 @@ dependencies = [
     "lmdb",
     "pyyaml",
     "click",
-    "textual"
+    "textual",
+    "pyzmq"
 ]
 classifiers = ['Development Status :: 1 - Planning']
 
