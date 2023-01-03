@@ -5,6 +5,8 @@ import sys
 import time
 import subprocess
 import logging
+import zmq.asyncio as zmq
+from zmq import PUB, REP
 
 from multiprocessing import Process, get_context
 from importlib import import_module
@@ -19,10 +21,10 @@ from improv.link import Link, MultiLink
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(name)s %(message)s',
-                    handlers=[logging.FileHandler("global.log"),
-                              logging.StreamHandler()])
+# logging.basicConfig(level=logging.DEBUG,
+#                     format='%(name)s %(message)s',
+#                     handlers=[logging.FileHandler("global.log"),
+#                               ])
 
 # TODO: Set up store.notify in async function (?)
 
@@ -31,14 +33,24 @@ logging.basicConfig(level=logging.DEBUG,
 class Nexus():
     ''' Main server class for handling objects in RASP
     '''
-    def __init__(self, name):
+    def __init__(self, name="Server"):
         self.name = name
 
     def __str__(self):
         return self.name
     
-    def createNexus(self, file=None, use_hdd=False, use_watcher=False, store_size=10000000):
+    def createNexus(self, file=None, use_hdd=False, use_watcher=False, store_size=10000000, 
+                    comm_queues={}, sig_queues={}, control_port=5555, output_port=5557):
+        # set up socket in lieu of printing to stdout
+        context = zmq.Context()
+        self.out_socket = context.socket(PUB)
+        self.out_socket.bind("tcp://*:%s" % output_port)
+
+        self.in_socket = context.socket(REP)
+        self.in_socket.bind("tcp://*:%s" % control_port)
+
         self._startStore(store_size) #default size should be system-dependent; this is 40 GB
+        self.out_socket.send_string("Store started")
 
         #connect to store and subscribe to notifications
         self.store = Store()
@@ -50,8 +62,8 @@ class Nexus():
             self.lmdb_name = f'lmdb_{datetime.now().strftime("%Y%m%d_%H%M%S")}'
             self.store_dict = dict()
 
-        self.comm_queues = {}
-        self.sig_queues = {}
+        self.comm_queues = comm_queues
+        self.sig_queues = sig_queues
         self.data_queues = {}
         self.actors = {}
         self.flags = {}
@@ -180,14 +192,14 @@ class Nexus():
         try:
             res = loop.run_until_complete(self.pollQueues()) #TODO: in Link executor, complete all tasks
         except asyncio.CancelledError:
-            logging.info("Loop is cancelled")
+            logger.info("Loop is cancelled")
         
         try:
-            logging.info(f"Result of run_until_complete: {res}") 
+            logger.info(f"Result of run_until_complete: {res}") 
         except:
-            logging.info("Res failed to await")
+            logger.info("Res failed to await")
 
-        logging.info(f"Current loop: {asyncio.get_event_loop()}") 
+        logger.info(f"Current loop: {asyncio.get_event_loop()}") 
         
         loop.stop()
         loop.close()
@@ -199,8 +211,10 @@ class Nexus():
         self.t = time.time()
 
         for p in self.processes:
-            logger.info(p)
+            logger.info(str(p))
             p.start()
+        
+        logger.info('All processes started')
 
 
     def destroyNexus(self):
@@ -224,7 +238,6 @@ class Nexus():
         Returns:
             "Shutting down" (string): Notifies start() that pollQueues has completed.
         """
-
         self.actorStates = dict.fromkeys(self.actors.keys())
         if not self.config.hasGUI:  # Since Visual is not started, it cannot send a ready signal.
             try:
@@ -235,9 +248,10 @@ class Nexus():
         pollingNames = list(self.comm_queues.keys())
         self.tasks = []
         for q in polling:
-            self.tasks.append(asyncio.ensure_future(q.get_async()))
+            self.tasks.append(asyncio.create_task(q.get_async()))
 
-        self.tasks.append(asyncio.ensure_future(self.ainput('Awaiting input ')))
+        self.tasks.append(asyncio.create_task(self.remote_input()))
+        # self.tasks.append(asyncio.ensure_future(self.ainput('Awaiting input \n')))
 
         while not self.flags['quit']:
             done, pending = await asyncio.wait(self.tasks, return_when=concurrent.futures.FIRST_COMPLETED)
@@ -250,22 +264,31 @@ class Nexus():
                         else:
                             self.processActorSignal(r, pollingNames[i])
                         self.tasks[i] = (asyncio.ensure_future(polling[i].get_async()))
+                # TODO: get rid of this if no longer taking command line input; just need to re-up on polling input socket
                 elif t in done: ##cmd line
-                    res = t.result()
-                    self.processGuiSignal([res.rstrip('\n')], 'commandLine_Nexus')
-                    self.tasks[i] = (asyncio.ensure_future(self.ainput('Awaiting input \n')))
+                    # res = t.result()
+                    # self.processGuiSignal([res.rstrip('\n')], 'commandLine_Nexus')
+                    self.tasks[i] = asyncio.create_task(self.remote_input())
+                    # self.tasks[i] = (asyncio.ensure_future(self.ainput('Awaiting input \n')))
 
         self.stop_polling("quit", asyncio.get_running_loop(), polling)
         logger.warning('Shutting down polling')
         return "Shutting Down"
 
+    async def remote_input(self):
+        msg = await self.in_socket.recv_multipart()
+        self.processGuiSignal([msg[0].decode('utf-8')], 'TUI_Nexus')
+        if not self.flags['quit']:
+            await self.in_socket.send_string("Awaiting input:")
+        else:
+            await self.in_socket.send_string("QUIT")
 
-    # https://stackoverflow.com/questions/58454190/python-async-waiting-for-stdin-input-while-doing-other-stuff
-    async def ainput(self, string: str) -> str:
-        await asyncio.get_event_loop().run_in_executor(
-                None, lambda s=string: sys.stdout.write(s))
-        return await asyncio.get_event_loop().run_in_executor(
-                None, sys.stdin.readline)
+    # # https://stackoverflow.com/questions/58454190/python-async-waiting-for-stdin-input-while-doing-other-stuff
+    # async def ainput(self, string: str) -> str:
+    #     await asyncio.get_event_loop().run_in_executor(
+    #             None, lambda s=string: sys.stdout.write(s))
+    #     return await asyncio.get_event_loop().run_in_executor(
+    #             None, sys.stdin.readline)
 
 
     def processGuiSignal(self, flag, name):
@@ -273,7 +296,7 @@ class Nexus():
             TODO: Not all needed
         '''
         name = name.split('_')[0]
-        logger.info('Received signal from user: '+flag[0])
+        logger.info('Received signal from user: ' + flag[0])
         if flag[0]:
             if flag[0] == Signal.run():
                 logger.info('Begin run!')
@@ -363,7 +386,7 @@ class Nexus():
     def setup(self):
         for q in self.sig_queues.values():
             try:
-                print('telling to setup:', q)
+                logger.info('Starting setup: ' +  str(q))
                 q.put_nowait(Signal.setup())
             except Full:
                 logger.warning('Signal queue'+q.name+'is full')
