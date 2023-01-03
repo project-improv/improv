@@ -11,11 +11,11 @@ from zmq.log.handlers import PUBHandler
 logger.setLevel(logging.INFO)  
 
 class SocketLog(TextLog):
-    def __init__(self, port, *args, **kwargs):
+    def __init__(self, address, *args, **kwargs):
         super().__init__(*args, **kwargs)
         context = zmq.Context()
         self.socket = context.socket(SUB)
-        self.socket.connect("tcp://localhost:%s" % str(port))
+        self.socket.connect("tcp://%s" % address)
         self.socket.setsockopt_string(SUBSCRIBE, "")
 
     async def poll(self):
@@ -64,7 +64,7 @@ class TUI(App, inherit_bindings=False):
 
         context = zmq.Context()
         self.control_socket = context.socket(REQ)
-        self.control_socket.connect("tcp://localhost:%s" % control_port)
+        self.control_socket.connect("tcp://%s" % control_port)
 
         logger.info('Text interface initialized')
 
@@ -118,9 +118,10 @@ class TUI(App, inherit_bindings=False):
     
             
 if __name__ == '__main__':
-    CONTROL_PORT = 5555
-    OUTPUT_PORT = 5556 
-    LOGGING_PORT = 5557 
+    prefix = "127.0.0.1:"
+    CONTROL_PORT = "5555"
+    OUTPUT_PORT = "5556"
+    LOGGING_PORT = "5557" 
 
     zmq_log_handler = PUBHandler('tcp://*:%s' % LOGGING_PORT)
     logger.addHandler(zmq_log_handler)
@@ -154,7 +155,7 @@ if __name__ == '__main__':
             counter += 1
     
     async def main_loop():
-        app = TUI(CONTROL_PORT, OUTPUT_PORT, LOGGING_PORT)
+        app = TUI(prefix + CONTROL_PORT, prefix + OUTPUT_PORT, prefix + LOGGING_PORT)
 
         # the following construct ensures both the (infinite) fake servers are killed once the tui finishes
         finished, unfinished = await asyncio.wait([app.run_async(), publish(), backend()], return_when=asyncio.FIRST_COMPLETED)
