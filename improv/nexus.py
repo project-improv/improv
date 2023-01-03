@@ -187,6 +187,7 @@ class Nexus():
             loop.add_signal_handler(
                 s, lambda s=s: self.stop_polling(s, loop)) #TODO
         try:
+            self.out_socket.send_string("Awaiting input:")
             res = loop.run_until_complete(self.pollQueues()) #TODO: in Link executor, complete all tasks
         except asyncio.CancelledError:
             logger.info("Loop is cancelled")
