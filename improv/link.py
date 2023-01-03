@@ -2,6 +2,7 @@ import asyncio
 import logging
 from multiprocessing import Manager, cpu_count, set_start_method
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from concurrent.futures._base import CancelledError
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -200,6 +201,8 @@ class AsyncQueue(object):
             self.result = await loop.run_in_executor(self._executor, self.get)
             self.status = 'done'
             return self.result
+        except CancelledError:
+            logger.info('Task {} Canceled'.format(self.name))
         except Exception as e:
             logger.exception('Error in get_async: {}'.format(e))
             pass

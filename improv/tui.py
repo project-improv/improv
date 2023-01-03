@@ -34,9 +34,9 @@ class TUI(App, inherit_bindings=False):
     """
     View class for the text user interface. Implemented as a Textual app.
     """
-    def __init__(self, console_port=5555, logging_port=5556, output_port=5557):
+    def __init__(self, control_port=5555, logging_port=5556, output_port=5557):
         super().__init__()
-        self.console_port = console_port
+        self.control_port = control_port
         self.logging_port = logging_port
 
         context = zmq.Context()
@@ -53,7 +53,7 @@ class TUI(App, inherit_bindings=False):
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
         yield Header()
-        yield SocketLog(self.console_port, id="console")
+        yield SocketLog(self.control_port, id="console")
         yield Input()
         yield SocketLog(self.logging_port, id="log")
         yield Footer()

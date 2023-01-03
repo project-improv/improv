@@ -326,7 +326,7 @@ class AsyncRunManager:
             if signal == Signal.run() or signal == Signal.resume():
                 if not self.run:
                     self.run = True
-                    asyncio.ensure_future(self.run_method(), loop=self.loop)
+                    asyncio.create_task(self.run_method(), loop=self.loop)
                     print('Received run signal, begin running')
             elif signal == Signal.setup():
                 self.setup()
