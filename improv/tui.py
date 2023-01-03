@@ -2,7 +2,9 @@ import asyncio
 import zmq.asyncio as zmq
 from zmq import PUB, SUB, SUBSCRIBE, REQ, REP
 from textual.app import App, ComposeResult
-from textual.widgets import Header, Footer, TextLog, Input
+from textual.containers import Grid
+from textual.screen import Screen
+from textual.widgets import Header, Footer, TextLog, Input, Button, Static
 from improv.link import Link
 import logging; logger = logging.getLogger(__name__)
 from zmq.log.handlers import PUBHandler
@@ -29,6 +31,27 @@ class SocketLog(TextLog):
         """Event handler called when widget is added to the app."""
         self.set_interval(1/60, self.poll)
 
+class QuitScreen(Screen):
+    def compose(self) -> ComposeResult:
+        quit_str = ("Are you sure you want to quit? "
+        "The server has not been stopped, and the process "
+        "may continue to run in the background. "
+        "To exit safely, enter 'quit' into the command console. "
+        )
+
+        yield Grid(
+            Static(quit_str, id="question"),
+            Button("Quit", variant="error", id="quit"),
+            Button("Cancel", variant="primary", id="cancel"),
+            id="dialog",
+        )
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "quit":
+            self.app.exit()
+        else:
+            self.app.pop_screen()
+
 class TUI(App, inherit_bindings=False):
     """
     View class for the text user interface. Implemented as a Textual app.
@@ -47,16 +70,20 @@ class TUI(App, inherit_bindings=False):
 
     CSS_PATH = "tui.css"
     BINDINGS = [
-               ("tab", "focus_next", "Focus Next")
+               ("tab", "focus_next", "Focus Next"),
+               ("ctrl+c", "request_quit", "Emergency Quit")
     ]
 
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
-        yield Header()
-        yield SocketLog(self.output_port, id="console")
-        yield Input()
-        yield SocketLog(self.logging_port, id="log")
-        yield Footer()
+        yield Grid(
+            Header(),
+            SocketLog(self.output_port, id="console"),
+            Input(),
+            SocketLog(self.logging_port, id="log"),
+            Footer(),
+            id="main"
+        )
 
     async def poll_controller(self):
         try:
@@ -84,6 +111,9 @@ class TUI(App, inherit_bindings=False):
         self.query_one(Input).value = ""
         self.query_one("#console").write(message.value)
         await self.control_socket.send_string(message.value)
+
+    def action_request_quit(self) -> None:
+        self.push_screen(QuitScreen())
         
     
             
