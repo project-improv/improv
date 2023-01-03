@@ -21,10 +21,6 @@ from improv.link import Link, MultiLink
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-# logging.basicConfig(level=logging.DEBUG,
-#                     format='%(name)s %(message)s',
-#                     handlers=[logging.FileHandler("global.log"),
-#                               ])
 
 # TODO: Set up store.notify in async function (?)
 
@@ -40,7 +36,8 @@ class Nexus():
         return self.name
     
     def createNexus(self, file=None, use_hdd=False, use_watcher=False, store_size=10000000, 
-                    comm_queues={}, sig_queues={}, control_port=5555, output_port=5557):
+                    control_port=5557, output_port=5555):
+
         # set up socket in lieu of printing to stdout
         context = zmq.Context()
         self.out_socket = context.socket(PUB)
@@ -62,8 +59,8 @@ class Nexus():
             self.lmdb_name = f'lmdb_{datetime.now().strftime("%Y%m%d_%H%M%S")}'
             self.store_dict = dict()
 
-        self.comm_queues = comm_queues
-        self.sig_queues = sig_queues
+        self.comm_queues = {}
+        self.sig_queues = {}
         self.data_queues = {}
         self.actors = {}
         self.flags = {}

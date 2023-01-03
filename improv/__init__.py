@@ -13,9 +13,9 @@ from improv.tui import TUI
 from multiprocessing import Process, get_context
 from improv.nexus import Nexus
 
-DEFAULT_OUTPUT_PORT = 5555
-DEFAULT_LOGGING_PORT = 5556 
-DEFAULT_CONTROL_PORT = 5557
+DEFAULT_CONTROL_PORT = 5555
+DEFAULT_OUTPUT_PORT = 5556
+DEFAULT_LOGGING_PORT = 5557 
 
 @click.command()
 @click.option('-a', '--actor-path', type=click.Path(exists=True, resolve_path=True), multiple=True, default=[''], help="search path to add to sys.path when looking for actors; defaults to the directory containing CONFIGFILE")
@@ -39,7 +39,7 @@ def default_invocation(configfile, control_port, output_port, logging_port, acto
     else:
         sys.path.extend(actor_path)
     
-    app = TUI(DEFAULT_CONTROL_PORT, DEFAULT_LOGGING_PORT, DEFAULT_CONTROL_PORT)
+    app = TUI(DEFAULT_CONTROL_PORT, DEFAULT_OUTPUT_PORT, DEFAULT_LOGGING_PORT)
 
     server = subprocess.Popen(['improv-server', configfile], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
