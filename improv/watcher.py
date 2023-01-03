@@ -67,7 +67,7 @@ class BasicWatcher(Actor):
 
         if self.setUp== False:
             for q in self.polling:
-                self.tasks.append(asyncio.ensure_future(q.get_async()))
+                self.tasks.append(asyncio.create_task(q.get_async()))
             self.setUp = True
 
         done, pending= await asyncio.wait(self.tasks, return_when= concurrent.futures.FIRST_COMPLETED)
@@ -82,7 +82,7 @@ class BasicWatcher(Actor):
                 except ObjectNotFoundError as e:
                     logger.info(e.message)
                     pass
-                self.tasks[i] = (asyncio.ensure_future(self.polling[i].get_async()))
+                self.tasks[i] = (asyncio.create_task(self.polling[i].get_async()))
 
 
 class Watcher():

@@ -251,7 +251,7 @@ class Nexus():
             self.tasks.append(asyncio.create_task(q.get_async()))
 
         self.tasks.append(asyncio.create_task(self.remote_input()))
-        # self.tasks.append(asyncio.ensure_future(self.ainput('Awaiting input \n')))
+        # self.tasks.append(asyncio.create_task(self.ainput('Awaiting input \n')))
 
         while not self.flags['quit']:
             done, pending = await asyncio.wait(self.tasks, return_when=concurrent.futures.FIRST_COMPLETED)
@@ -263,13 +263,13 @@ class Nexus():
                             self.processGuiSignal(r, pollingNames[i])
                         else:
                             self.processActorSignal(r, pollingNames[i])
-                        self.tasks[i] = (asyncio.ensure_future(polling[i].get_async()))
+                        self.tasks[i] = (asyncio.create_task(polling[i].get_async()))
                 # TODO: get rid of this if no longer taking command line input; just need to re-up on polling input socket
                 elif t in done: ##cmd line
                     # res = t.result()
                     # self.processGuiSignal([res.rstrip('\n')], 'commandLine_Nexus')
                     self.tasks[i] = asyncio.create_task(self.remote_input())
-                    # self.tasks[i] = (asyncio.ensure_future(self.ainput('Awaiting input \n')))
+                    # self.tasks[i] = (asyncio.create_task(self.ainput('Awaiting input \n')))
 
         self.stop_polling("quit", asyncio.get_running_loop(), polling)
         logger.warning('Shutting down polling')

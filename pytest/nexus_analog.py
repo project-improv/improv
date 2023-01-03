@@ -37,7 +37,7 @@ def setup_store():
 async def pollQueues(links):
     tasks = []
     for link in links:
-        tasks.append(asyncio.ensure_future(link.get_async()))
+        tasks.append(asyncio.create_task(link.get_async()))
     
     links_cpy = links
     t_0 = time.perf_counter()
@@ -53,7 +53,7 @@ async def pollQueues(links):
         for i, t in enumerate(tasks):
             if t in done:
                 pass
-                tasks[i] = asyncio.ensure_future(links_cpy[i].get_async())
+                tasks[i] = asyncio.create_task(links_cpy[i].get_async())
 
         t_1 = time.perf_counter()
         
