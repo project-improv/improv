@@ -6,10 +6,6 @@ from concurrent.futures._base import CancelledError
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-# logging.basicConfig(level=logging.DEBUG,
-#                     format='%(name)s %(message)s',
-#                     handlers=[logging.FileHandler("global.log"),
-#                               logging.StreamHandler()])
 
 def Link(name, start, end):
     """ Function to construct a queue that Nexus uses for

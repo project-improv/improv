@@ -3,7 +3,6 @@ import zmq.asyncio as zmq
 from zmq import PUB, SUB, SUBSCRIBE, REQ, REP
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer, TextLog, Input
-# from improv.actor import Actor, Signal
 from improv.link import Link
 import logging; logger = logging.getLogger(__name__)
 from zmq.log.handlers import PUBHandler
@@ -15,7 +14,7 @@ class SocketLog(TextLog):
         context = zmq.Context()
         self.socket = context.socket(SUB)
         self.socket.connect("tcp://localhost:%s" % str(port))
-        self.socket.setsockopt(SUBSCRIBE, b"")
+        self.socket.setsockopt_string(SUBSCRIBE, "")
 
     async def poll(self):
         try:
@@ -34,14 +33,15 @@ class TUI(App, inherit_bindings=False):
     """
     View class for the text user interface. Implemented as a Textual app.
     """
-    def __init__(self, control_port=5555, logging_port=5556, output_port=5557):
+    def __init__(self, control_port, output_port, logging_port):
         super().__init__()
         self.control_port = control_port
         self.logging_port = logging_port
+        self.output_port = output_port
 
         context = zmq.Context()
-        self.out_socket = context.socket(REQ)
-        self.out_socket.connect("tcp://localhost:%s" % output_port)
+        self.control_socket = context.socket(REQ)
+        self.control_socket.connect("tcp://localhost:%s" % control_port)
 
         logger.info('Text interface initialized')
 
@@ -53,16 +53,16 @@ class TUI(App, inherit_bindings=False):
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
         yield Header()
-        yield SocketLog(self.control_port, id="console")
+        yield SocketLog(self.output_port, id="console")
         yield Input()
         yield SocketLog(self.logging_port, id="log")
         yield Footer()
 
     async def poll_controller(self):
         try:
-            ready = await self.out_socket.poll(10)
+            ready = await self.control_socket.poll(10)
             if ready:
-                reply = await self.out_socket.recv_multipart()
+                reply = await self.control_socket.recv_multipart()
                 msg = reply[0].decode('utf-8')
                 if msg == 'QUIT':
                     self.exit()
@@ -83,22 +83,23 @@ class TUI(App, inherit_bindings=False):
     async def on_input_submitted(self, message):
         self.query_one(Input).value = ""
         self.query_one("#console").write(message.value)
-        await self.out_socket.send_string(message.value)
+        await self.control_socket.send_string(message.value)
         
     
             
 if __name__ == '__main__':
-    CONSOLE_PORT = 5555
-    LOGGING_PORT = 5556 
-    OUTPUT_PORT = 5557 
+    CONTROL_PORT = 5555
+    OUTPUT_PORT = 5556 
+    LOGGING_PORT = 5557 
+
     zmq_log_handler = PUBHandler('tcp://*:%s' % LOGGING_PORT)
     logger.addHandler(zmq_log_handler)
 
     context = zmq.Context()
     socket = context.socket(REP)
-    socket.bind("tcp://*:%s" % OUTPUT_PORT)
+    socket.bind("tcp://*:%s" % CONTROL_PORT)
     pubsocket = context.socket(PUB)
-    pubsocket.bind("tcp://*:%s" % CONSOLE_PORT)
+    pubsocket.bind("tcp://*:%s" % OUTPUT_PORT)
 
     async def backend():
         """
@@ -106,7 +107,11 @@ if __name__ == '__main__':
         """
         while True:
             msg = await socket.recv_multipart()
-            await socket.send_string("Awaiting input:")
+            if msg[0].decode('utf-8') == 'quit':
+                await socket.send_string("QUIT")
+            else:
+                await socket.send_string("Awaiting input:")
+
 
     async def publish():
         """
@@ -119,7 +124,7 @@ if __name__ == '__main__':
             counter += 1
     
     async def main_loop():
-        app = TUI(CONSOLE_PORT, LOGGING_PORT, OUTPUT_PORT)
+        app = TUI(CONTROL_PORT, OUTPUT_PORT, LOGGING_PORT)
 
         # the following construct ensures both the (infinite) fake servers are killed once the tui finishes
         finished, unfinished = await asyncio.wait([app.run_async(), publish(), backend()], return_when=asyncio.FIRST_COMPLETED)
