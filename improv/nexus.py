@@ -39,11 +39,11 @@ class Nexus():
                     control_port=5555, output_port=5556):
 
         # set up socket in lieu of printing to stdout
-        context = zmq.Context()
-        self.out_socket = context.socket(PUB)
+        self.zmq_context = zmq.Context()
+        self.out_socket = self.zmq_context.socket(PUB)
         self.out_socket.bind("tcp://*:%s" % output_port)
 
-        self.in_socket = context.socket(REP)
+        self.in_socket = self.zmq_context.socket(REP)
         self.in_socket.bind("tcp://*:%s" % control_port)
 
         self._startStore(store_size) #default size should be system-dependent; this is 40 GB
@@ -219,6 +219,7 @@ class Nexus():
         ''' Method that calls the internal method
             to kill the process running the store (plasma server)
         '''
+        self.zmq_context.destroy()
         logger.warning('Destroying Nexus')
         self._closeStore()
         logger.warning('Killed the central store')
@@ -249,7 +250,6 @@ class Nexus():
             self.tasks.append(asyncio.create_task(q.get_async()))
 
         self.tasks.append(asyncio.create_task(self.remote_input()))
-        # self.tasks.append(asyncio.create_task(self.ainput('Awaiting input \n')))
 
         while not self.flags['quit']:
             done, pending = await asyncio.wait(self.tasks, return_when=concurrent.futures.FIRST_COMPLETED)
@@ -264,10 +264,7 @@ class Nexus():
                         self.tasks[i] = (asyncio.create_task(polling[i].get_async()))
                 # TODO: get rid of this if no longer taking command line input; just need to re-up on polling input socket
                 elif t in done: ##cmd line
-                    # res = t.result()
-                    # self.processGuiSignal([res.rstrip('\n')], 'commandLine_Nexus')
                     self.tasks[i] = asyncio.create_task(self.remote_input())
-                    # self.tasks[i] = (asyncio.create_task(self.ainput('Awaiting input \n')))
 
         self.stop_polling("quit", asyncio.get_running_loop(), polling)
         logger.warning('Shutting down polling')
@@ -275,19 +272,12 @@ class Nexus():
 
     async def remote_input(self):
         msg = await self.in_socket.recv_multipart()
-        self.processGuiSignal([msg[0].decode('utf-8')], 'TUI_Nexus')
-        if not self.flags['quit']:
+        command = msg[0].decode('utf-8')
+        if not command == Signal.quit():
             await self.in_socket.send_string("Awaiting input:")
         else:
             await self.in_socket.send_string("QUIT")
-
-    # # https://stackoverflow.com/questions/58454190/python-async-waiting-for-stdin-input-while-doing-other-stuff
-    # async def ainput(self, string: str) -> str:
-    #     await asyncio.get_event_loop().run_in_executor(
-    #             None, lambda s=string: sys.stdout.write(s))
-    #     return await asyncio.get_event_loop().run_in_executor(
-    #             None, sys.stdin.readline)
-
+        self.processGuiSignal([command], 'TUI_Nexus')
 
     def processGuiSignal(self, flag, name):
         '''Receive flags from the Front End as user input
@@ -498,7 +488,7 @@ class Nexus():
             self.p_Store = subprocess.Popen(['plasma_store',
                               '-s', '/tmp/store',
                               '-m', str(size),
-                              '-e', 'hashtable://test'],
+                              '-e', 'hashtable://test'], 
                               stdout=subprocess.DEVNULL,
                               stderr=subprocess.DEVNULL)
             logger.info('Store started successfully')
@@ -511,6 +501,7 @@ class Nexus():
         '''
         try:
             self.p_Store.kill()
+            self.p_Store.wait()
             logger.info('Store closed successfully')
         except Exception as e:
             logger.exception('Cannot close store {0}'.format(e))
