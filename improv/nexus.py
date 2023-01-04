@@ -36,12 +36,12 @@ class Nexus():
         return self.name
     
     def createNexus(self, file=None, use_hdd=False, use_watcher=False, store_size=10000000, 
-                    control_port="*:5555", output_port="*:5556"):
+                    control_port=5555, output_port=5556):
 
         # set up socket in lieu of printing to stdout
         context = zmq.Context()
         self.out_socket = context.socket(PUB)
-        self.out_socket.bind("tcp://%s" % output_port)
+        self.out_socket.bind("tcp://*:%s" % output_port)
 
         self.in_socket = context.socket(REP)
         self.in_socket.bind("tcp://*:%s" % control_port)

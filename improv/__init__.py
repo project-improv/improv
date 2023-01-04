@@ -39,7 +39,8 @@ class IPAddressParamType(click.types.ParamType):
     def __repr__(self):
         return "TCP"
 
-IPTYPE = IPAddressParamType()
+IP = IPAddressParamType()
+PORT = click.IntRange(0, 2**16)
 DEFAULT_CONTROL_PORT = "5555"
 DEFAULT_OUTPUT_PORT = "5556"
 DEFAULT_LOGGING_PORT = "5557"
@@ -47,9 +48,9 @@ DEFAULT_LOGGING_PORT = "5557"
 @click.command()
 @click.option('-a', '--actor-path', type=click.Path(exists=True, resolve_path=True), multiple=True, default=[''], help="search path to add to sys.path when looking for actors; defaults to the directory containing CONFIGFILE")
 @click.argument('configfile', type=click.Path(exists=True, dir_okay=False, resolve_path=True))
-@click.argument('control_port', type=IPTYPE, default=DEFAULT_CONTROL_PORT)
-@click.argument('output_port', type=IPTYPE, default=DEFAULT_OUTPUT_PORT)
-@click.argument('logging_port', type=IPTYPE, default=DEFAULT_LOGGING_PORT)
+@click.argument('control_port', type=PORT, default=DEFAULT_CONTROL_PORT)
+@click.argument('output_port', type=PORT, default=DEFAULT_OUTPUT_PORT)
+@click.argument('logging_port', type=PORT, default=DEFAULT_LOGGING_PORT)
 def default_invocation(configfile, control_port, output_port, logging_port, actor_path):
     """
     Function provided as an entry point for command-line usage. 
@@ -64,7 +65,6 @@ def default_invocation(configfile, control_port, output_port, logging_port, acto
         sys.path.append(os.path.dirname(configfile))
     else:
         sys.path.extend(actor_path)
-    
     app = TUI(control_port, output_port, logging_port)
 
     server = subprocess.Popen(['improv-server', configfile], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -78,9 +78,9 @@ def default_invocation(configfile, control_port, output_port, logging_port, acto
 
 @click.command()
 @click.argument('configfile', type=click.Path(exists=True, dir_okay=False, resolve_path=True))
-@click.argument('control_port', type=IPTYPE, default=DEFAULT_CONTROL_PORT)
-@click.argument('output_port', type=IPTYPE, default=DEFAULT_OUTPUT_PORT)
-@click.argument('logging_port', type=IPTYPE, default=DEFAULT_LOGGING_PORT)
+@click.argument('control_port', type=PORT, default=DEFAULT_CONTROL_PORT)
+@click.argument('output_port', type=PORT, default=DEFAULT_OUTPUT_PORT)
+@click.argument('logging_port', type=PORT, default=DEFAULT_LOGGING_PORT)
 def run_server(configfile, control_port, output_port, logging_port):
     """
     Function provided as an entry point for command line usage. Runs the improv
@@ -92,7 +92,7 @@ def run_server(configfile, control_port, output_port, logging_port):
     OUTPUT_PORT   port on which messages from server are broadcast
     LOGGING_PORT  port on which logging messages are broadcast
     """
-    zmq_log_handler = PUBHandler('tcp://%s' % logging_port)
+    zmq_log_handler = PUBHandler('tcp://*:%s' % logging_port)
     logging.basicConfig(level=logging.DEBUG,
                         format='%(name)s %(message)s',
                         handlers=[logging.FileHandler("global.log"),
