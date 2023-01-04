@@ -34,7 +34,6 @@ caiman = []
 
 [project.scripts]
 improv = "improv:default_invocation"
-improv-server = "improv:run_server"
 
 [tool.setuptools.packages.find]
 include = ["improv"]
