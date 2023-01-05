@@ -15,7 +15,7 @@ class SocketLog(TextLog):
         super().__init__(*args, **kwargs)
         context = zmq.Context()
         self.socket = context.socket(SUB)
-        self.socket.connect("tcp://localhost:%s" % str(port))
+        self.socket.connect("tcp://%s" % str(port))
         self.socket.setsockopt_string(SUBSCRIBE, "")
 
     async def poll(self):
@@ -64,7 +64,7 @@ class TUI(App, inherit_bindings=False):
 
         context = zmq.Context()
         self.control_socket = context.socket(REQ)
-        self.control_socket.connect("tcp://localhost:%s" % control_port)
+        self.control_socket.connect("tcp://%s" % control_port)
 
         logger.info('Text interface initialized')
 

@@ -7,35 +7,6 @@ from zmq.log.handlers import PUBHandler
 from improv.tui import TUI
 from improv.nexus import Nexus
 
-# class IPAddressParamType(click.types.ParamType):
-#     name = "IP address"
-
-#     def convert(self, value, param, ctx):
-#         # first check if it's a full IP address
-#         regex = r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"
-#         if ':' in value:
-#             [address, port] = value.split(':')
-#             match = re.match(regex, address)
-#             if not match or not all([0 <= part < 256 for part in address.split('.')]):
-#                 self.fail("{address!r} is not a valid address.".format(address=address), param, ctx)
-#             else:
-#                 ip = address
-            
-#         else:  # assume it's just a port
-#             ip = "127.0.0.1"  # localhost
-#             port = value
-
-#         # validate port number
-#         if 0 <= int(value) < 2**16:  # valid port numbers are [0, 2**16)
-#             return(ip + ":" + port)
-#         else:
-#             self.fail("{value!r} is not a valid port number.".format(value=value), param, ctx)
-        
-#     def __repr__(self):
-#         return "TCP"
-
-# IP = IPAddressParamType()
-# PORT = click.IntRange(0, 2**16)
 MAX_PORT = 2**16 - 1
 DEFAULT_CONTROL_PORT = "5555"
 DEFAULT_OUTPUT_PORT = "5556"
@@ -58,30 +29,49 @@ def is_valid_port(port):
     else:
         raise argparse.ArgumentTypeError("Port {} invalid. Ports must be in [0, {}).".format(p, MAX_PORT))
 
+def is_valid_ip_addr(addr):
+        regex = r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"
+        if ':' in addr:
+            [address, port] = addr.split(':')
+            match = re.match(regex, address)
+            part_list = address.split('.')
+            if not match or len(part_list) != 4 or not all([0 <= int(part) < 256 for part in part_list]):
+                raise argparse.ArgumentTypeError("{address!r} is not a valid address.".format(address=address))
+            else:
+                ip = address
+        
+        else:  # assume it's just a port
+            ip = "127.0.0.1"  # localhost
+            port = addr
+        
+        port = str(is_valid_port(port))
+
+        return(ip + ":" + port)
+
 def parse_cli_args(args):
     parser = argparse.ArgumentParser(description='Command line tool for improv.')
 
     subparsers = parser.add_subparsers(title="subcommands", help="for launching individual components", required=False)
 
     run_parser = subparsers.add_parser('run', description="Start the improv client and server together")
-    run_parser.add_argument('-c', '--control-port', type=int, default=DEFAULT_CONTROL_PORT, help="local port on which control are sent to/from server")
-    run_parser.add_argument('-o', '--output-port', type=int, default=DEFAULT_OUTPUT_PORT, help="local port on which server output messages are broadcast")
-    run_parser.add_argument('-l', '--logging-port', type=int, default=DEFAULT_LOGGING_PORT, help="local port on which logging messages are broadcast")
+    run_parser.add_argument('-c', '--control-port', type=is_valid_port, default=DEFAULT_CONTROL_PORT, help="local port on which control are sent to/from server")
+    run_parser.add_argument('-o', '--output-port', type=is_valid_port, default=DEFAULT_OUTPUT_PORT, help="local port on which server output messages are broadcast")
+    run_parser.add_argument('-l', '--logging-port', type=is_valid_port, default=DEFAULT_LOGGING_PORT, help="local port on which logging messages are broadcast")
     run_parser.add_argument('-f', '--logfile', default="global.log", help="name of log file")
     run_parser.add_argument('-a', '--actor-path', type=path_exists, action='append', default=[], help="search path to add to sys.path when looking for actors; defaults to the directory containing configfile")
     run_parser.add_argument('configfile', type=file_exists, help="YAML file specifying improv pipeline")
     run_parser.set_defaults(func=run)
 
     client_parser = subparsers.add_parser('client', description="Start the improv client")
-    client_parser.add_argument('-c', '--control-port', type=int, default=DEFAULT_CONTROL_PORT, help="address on which control signals are sent to the server")
-    client_parser.add_argument('-s', '--server-port', type=int, default=DEFAULT_OUTPUT_PORT, help="address on which messages from the server are received")
-    client_parser.add_argument('-l', '--logging-port', type=int, default=DEFAULT_LOGGING_PORT, help="address on which logging messages are broadcast")
+    client_parser.add_argument('-c', '--control-port', type=is_valid_ip_addr, default=DEFAULT_CONTROL_PORT, help="address on which control signals are sent to the server")
+    client_parser.add_argument('-s', '--server-port', type=is_valid_ip_addr, default=DEFAULT_OUTPUT_PORT, help="address on which messages from the server are received")
+    client_parser.add_argument('-l', '--logging-port', type=is_valid_ip_addr, default=DEFAULT_LOGGING_PORT, help="address on which logging messages are broadcast")
     client_parser.set_defaults(func=run_client)
 
     server_parser = subparsers.add_parser('server', description="Start the improv server")
-    server_parser.add_argument('-c', '--control-port', type=int, default=DEFAULT_CONTROL_PORT, help="local port on which control signals are received")
-    server_parser.add_argument('-o', '--output-port', type=int, default=DEFAULT_OUTPUT_PORT, help="local port on which output messages are broadcast")
-    server_parser.add_argument('-l', '--logging-port', type=int, default=DEFAULT_LOGGING_PORT, help="local port on which logging messages are broadcast")
+    server_parser.add_argument('-c', '--control-port', type=is_valid_port, default=DEFAULT_CONTROL_PORT, help="local port on which control signals are received")
+    server_parser.add_argument('-o', '--output-port', type=is_valid_port, default=DEFAULT_OUTPUT_PORT, help="local port on which output messages are broadcast")
+    server_parser.add_argument('-l', '--logging-port', type=is_valid_port, default=DEFAULT_LOGGING_PORT, help="local port on which logging messages are broadcast")
     server_parser.add_argument('-f', '--logfile', default="global.log", help="name of log file")
     server_parser.add_argument('-a', '--actor-path', type=path_exists, action='append', default=[], help="search path to add to sys.path when looking for actors; defaults to the directory containing configfile")
     server_parser.add_argument('configfile', type=file_exists, help="YAML file specifying improv pipeline")
