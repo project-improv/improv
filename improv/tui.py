@@ -118,9 +118,6 @@ class TUI(App, inherit_bindings=False):
         self.set_interval(1/60, self.poll_controller)
         self.set_focus(self.query_one(Input))
     
-    async def on_key(self, event) -> None:
-        logger.info(str(event))
-
     async def on_input_submitted(self, message):
         self.query_one(Input).value = ""
         self.query_one("#console").write(message.value)
