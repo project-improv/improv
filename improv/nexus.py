@@ -273,10 +273,9 @@ class Nexus():
     async def remote_input(self):
         msg = await self.in_socket.recv_multipart()
         command = msg[0].decode('utf-8')
-        if not command == Signal.quit():
-            await self.in_socket.send_string("Awaiting input:")
-        else:
-            await self.in_socket.send_string("QUIT")
+        await self.in_socket.send_string("Awaiting input:")
+        if command == Signal.quit():
+            await self.out_socket.send_string("QUIT")
         self.processGuiSignal([command], 'TUI_Nexus')
 
     def processGuiSignal(self, flag, name):
