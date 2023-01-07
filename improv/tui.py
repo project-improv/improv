@@ -66,9 +66,9 @@ class TUI(App, inherit_bindings=False):
     """
     def __init__(self, control_port, output_port, logging_port):
         super().__init__()
-        self.control_port = self._sanitize_addr(control_port)
-        self.output_port = self._sanitize_addr(output_port)
-        self.logging_port = self._sanitize_addr(logging_port)
+        self.control_port = TUI._sanitize_addr(control_port)
+        self.output_port = TUI._sanitize_addr(output_port)
+        self.logging_port = TUI._sanitize_addr(logging_port)
 
         context = zmq.Context()
         self.control_socket = context.socket(REQ)
@@ -82,7 +82,8 @@ class TUI(App, inherit_bindings=False):
                ("ctrl+c", "request_quit", "Emergency Quit")
     ]
 
-    def _sanitize_addr(self, input):
+    @staticmethod
+    def _sanitize_addr(input):
         if isinstance(input, int):
             return "localhost:%s" % str(input)
         elif ':' in input:
@@ -174,7 +175,7 @@ if __name__ == '__main__':
         app = TUI(CONTROL_PORT, OUTPUT_PORT, LOGGING_PORT)
 
         # the following construct ensures both the (infinite) fake servers are killed once the tui finishes
-        finished, unfinished = await asyncio.wait([app.run_async(headless=True), publish(), backend()], return_when=asyncio.FIRST_COMPLETED)
+        finished, unfinished = await asyncio.wait([app.run_async(), publish(), backend()], return_when=asyncio.FIRST_COMPLETED)
 
         for task in unfinished:
             task.cancel()
