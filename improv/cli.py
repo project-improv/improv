@@ -3,6 +3,7 @@ import os.path
 import re
 import argparse
 import subprocess
+import sys
 from zmq.log.handlers import PUBHandler
 from improv.tui import TUI
 from improv.nexus import Nexus

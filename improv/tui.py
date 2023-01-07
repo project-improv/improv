@@ -5,6 +5,7 @@ from textual.app import App, ComposeResult
 from textual.containers import Grid
 from textual.screen import Screen
 from textual.widgets import Header, Footer, TextLog, Input, Button, Static
+from textual.message import Message, MessageTarget
 from improv.link import Link
 import logging; logger = logging.getLogger(__name__)
 from zmq.log.handlers import PUBHandler
@@ -18,12 +19,19 @@ class SocketLog(TextLog):
         self.socket.connect("tcp://%s" % str(port))
         self.socket.setsockopt_string(SUBSCRIBE, "")
 
+    class Echo(Message):
+        def __init__(self, sender, value) -> None:
+            super().__init__(sender)
+            self.value = value
+
     async def poll(self):
         try:
             ready = await self.socket.poll(10)
             if ready:
-                msg = await self.socket.recv()
-                self.write(msg.decode('utf-8'))
+                payload = await self.socket.recv()
+                msg = payload.decode('utf-8')
+                self.write(msg)
+                await self.emit(self.Echo(self, msg))
         except asyncio.CancelledError:
             pass
 
@@ -58,13 +66,13 @@ class TUI(App, inherit_bindings=False):
     """
     def __init__(self, control_port, output_port, logging_port):
         super().__init__()
-        self.control_port = control_port
-        self.output_port = output_port
-        self.logging_port = logging_port
+        self.control_port = self._sanitize_addr(control_port)
+        self.output_port = self._sanitize_addr(output_port)
+        self.logging_port = self._sanitize_addr(logging_port)
 
         context = zmq.Context()
         self.control_socket = context.socket(REQ)
-        self.control_socket.connect("tcp://%s" % control_port)
+        self.control_socket.connect("tcp://%s" % self.control_port)
 
         logger.info('Text interface initialized')
 
@@ -73,6 +81,14 @@ class TUI(App, inherit_bindings=False):
                ("tab", "focus_next", "Focus Next"),
                ("ctrl+c", "request_quit", "Emergency Quit")
     ]
+
+    def _sanitize_addr(self, input):
+        if isinstance(input, int):
+            return "localhost:%s" % str(input)
+        elif ':' in input:
+            return input
+        else:
+            return "localhost:%s" % input
 
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
@@ -91,10 +107,7 @@ class TUI(App, inherit_bindings=False):
             if ready:
                 reply = await self.control_socket.recv_multipart()
                 msg = reply[0].decode('utf-8')
-                if msg == 'QUIT':
-                    self.exit()
-                else:
-                    self.query_one("#console").write(msg)
+                self.query_one("#console").write(msg)
 
         except asyncio.CancelledError:
             pass
@@ -111,6 +124,10 @@ class TUI(App, inherit_bindings=False):
         self.query_one(Input).value = ""
         self.query_one("#console").write(message.value)
         await self.control_socket.send_string(message.value)
+    
+    async def on_socket_log_echo(self, message):
+        if message.sender.id == 'console' and message.value == 'QUIT':
+                self.exit()
 
     def action_request_quit(self) -> None:
         self.push_screen(QuitScreen())
@@ -157,7 +174,7 @@ if __name__ == '__main__':
         app = TUI(CONTROL_PORT, OUTPUT_PORT, LOGGING_PORT)
 
         # the following construct ensures both the (infinite) fake servers are killed once the tui finishes
-        finished, unfinished = await asyncio.wait([app.run_async(), publish(), backend()], return_when=asyncio.FIRST_COMPLETED)
+        finished, unfinished = await asyncio.wait([app.run_async(headless=True), publish(), backend()], return_when=asyncio.FIRST_COMPLETED)
 
         for task in unfinished:
             task.cancel()
