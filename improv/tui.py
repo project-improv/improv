@@ -37,7 +37,7 @@ class SocketLog(TextLog):
 
     async def on_mount(self) -> None:
         """Event handler called when widget is added to the app."""
-        self.set_interval(1/60, self.poll)
+        self.poller = self.set_interval(1/60, self.poll)
 
 class QuitScreen(Screen):
     def compose(self) -> ComposeResult:
@@ -115,7 +115,7 @@ class TUI(App, inherit_bindings=False):
 
 
     async def on_mount(self):
-        self.set_interval(1/60, self.poll_controller)
+        self.poller = self.set_interval(1/60, self.poll_controller)
         self.set_focus(self.query_one(Input))
     
     async def on_input_submitted(self, message):
@@ -125,8 +125,8 @@ class TUI(App, inherit_bindings=False):
     
     async def on_socket_log_echo(self, message):
         if message.sender.id == 'console' and message.value == 'QUIT':
-                self.exit()
-
+            self.exit()
+    
     def action_request_quit(self) -> None:
         self.push_screen(QuitScreen())
         

@@ -37,3 +37,7 @@ improv = "improv.cli:default_invocation"
 [tool.setuptools.packages.find]
 include = ["improv"]
 exclude = ["test", "pytest", "env", "demos", "figures"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+filterwarnings = [ ]
