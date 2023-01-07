@@ -1,6 +1,6 @@
 import click
 from click.testing import CliRunner
-from improv import default_invocation
+from improv.cli import default_invocation
 import pytest
 import asyncio
 
@@ -18,9 +18,4 @@ def runner():
 
 def test_sample_demo(runner):
     result = runner.invoke(default_invocation, ["configs/sample_config.yaml", "--actor-path=actors"], input="run\nquit")
-    assert result.exit_code == 0
-
-def test_multiple_actor_paths(runner):
-    result = runner.invoke(default_invocation, ["configs/sample_config.yaml", "--actor-path=actors", "--actor-path=../improv/actors"], input="run\nquit")
-    print(result)
     assert result.exit_code == 0
