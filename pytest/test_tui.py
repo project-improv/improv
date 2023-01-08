@@ -79,7 +79,7 @@ async def test_console_panel_receives_broadcast(app, publish, logger):
 async def test_quit_from_socket(app, quitter):
     async with app.run_test() as pilot:
         await asyncio.wait([quitter])
-        pilot.pause(0.1)
+        await pilot.pause(0.5)
         print(pilot.app._running)
         assert False
 
@@ -92,5 +92,8 @@ async def test_log_panel_receives_logging(app, logger):
         assert log_window.history[1].rstrip() == 'test'
 
 
-# async def test_input_box_echoed_to_console(app):
-#     pass
+async def test_input_box_echoed_to_console(app):
+    async with app.run_test() as pilot:
+        await pilot.press(*'foo', 'enter')
+        console = pilot.app.get_widget_by_id("console")
+        assert console.history[0] == 'foo'
