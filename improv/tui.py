@@ -18,18 +18,26 @@ class SocketLog(TextLog):
         self.socket = context.socket(SUB)
         self.socket.connect("tcp://%s" % str(port))
         self.socket.setsockopt_string(SUBSCRIBE, "")
+        self.history = []
 
     class Echo(Message):
         def __init__(self, sender, value) -> None:
             super().__init__(sender)
             self.value = value
+    
+    def write(self, content, width=None, expand=False, shrink=True):
+        logger.info('inside write function. content = ' + content)
+        TextLog.write(self, content, width, expand, shrink)
+        self.history.append(content)
+        logger.info(self.history)
+
 
     async def poll(self):
         try:
             ready = await self.socket.poll(10)
             if ready:
-                payload = await self.socket.recv()
-                msg = payload.decode('utf-8')
+                msg = await self.socket.recv_string()
+                logger.info("msg = " + msg)
                 self.write(msg)
                 await self.emit(self.Echo(self, msg))
         except asyncio.CancelledError:
