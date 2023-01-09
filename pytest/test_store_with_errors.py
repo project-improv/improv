@@ -45,6 +45,7 @@ def setup_store(store_loc='/tmp/store'):
         # '''
         # print('Tearing down Plasma store.')
         p.kill()
+        p.wait()
 
 
 def test_connect(setup_store):

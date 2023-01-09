@@ -1,7 +1,15 @@
 import pytest
+import os
 import improv.cli as cli
 
-def test_configfile_required():
+@pytest.fixture
+def setdir():
+    prev = os.getcwd()
+    os.chdir(os.path.dirname(__file__))
+    yield None
+    os.chdir(prev)
+
+def test_configfile_required(setdir):
     with pytest.raises(SystemExit):
         cli.parse_cli_args(['run'])
 
@@ -12,7 +20,7 @@ def test_configfile_required():
         cli.parse_cli_args(['server', 'does_not_exist.yaml'])
 
 
-def test_multiple_actor_path():
+def test_multiple_actor_path(setdir):
     args = cli.parse_cli_args(['run', '-a', 'actors', '-a', 'configs', 'configs/blank_file.yaml'])
     assert len(args.actor_path) == 2
 
@@ -29,7 +37,7 @@ def test_multiple_actor_path():
                                                 ('client', '-s', "6000"),
                                                 ('client', '-l', "6000"),
                                                 ])
-def test_can_override_ports(mode, flag, expected):
+def test_can_override_ports(mode, flag, expected, setdir):
     file = 'configs/blank_file.yaml'
     localhost = "127.0.0.1:"
     params = {'-c': 'control_port',
