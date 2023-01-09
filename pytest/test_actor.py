@@ -21,6 +21,7 @@ def setup_store(scope="module"):
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     yield p
     p.kill()
+    p.wait()
 
 
 @pytest.fixture

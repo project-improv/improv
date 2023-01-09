@@ -1,4 +1,5 @@
 import pytest
+import time
 from improv.store import Store
 from multiprocessing import Process
 from pyarrow._plasma import PlasmaObjectExists

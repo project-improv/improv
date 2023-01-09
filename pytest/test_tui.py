@@ -24,22 +24,21 @@ def logger(ports):
     zmq_log_handler = PUBHandler('tcp://*:%s' % ports[2])
     logger.addHandler(zmq_log_handler)
     yield logger
+    logger.removeHandler(zmq_log_handler)
 
 @pytest.fixture
 async def sockets(ports):
-    context = zmq.Context()
-    ctrl_socket = context.socket(REP)
-    ctrl_socket.bind("tcp://*:%s" % ports[0])
-    out_socket = context.socket(PUB)
-    out_socket.bind("tcp://*:%s" % ports[1])
-    yield (ctrl_socket, out_socket)
+    with zmq.Context() as context:
+        ctrl_socket = context.socket(REP)
+        ctrl_socket.bind("tcp://*:%s" % ports[0])
+        out_socket = context.socket(PUB)
+        out_socket.bind("tcp://*:%s" % ports[1])
+        yield (ctrl_socket, out_socket)
 
 @pytest.fixture
 async def app(ports):
     mock = tui.TUI(*ports)
     yield mock
-    await asyncio.sleep(.2)  # give pending tasks a chance to cancel
-
 
 async def test_console_panel_receives_broadcast(app, sockets, logger):
     async with app.run_test() as pilot:
@@ -71,9 +70,11 @@ async def test_input_box_echoed_to_console(app):
 async def test_quit_screen(app):
     async with app.run_test() as pilot:
         await pilot.press('ctrl+c', 'tab', 'tab', 'enter')
+        # await pilot.pause(0.5)
         assert pilot.app._running
 
         await pilot.press('ctrl+c', 'tab', 'enter')
+        await pilot.pause(1)
         assert not pilot.app._running
-        await asyncio.sleep(0.2)
+        # await asyncio.sleep(0.2)
 

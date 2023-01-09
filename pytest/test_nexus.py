@@ -31,6 +31,7 @@ def sample_nex(setdir, ports):
     nex.createNexus(file='good_config.yaml', store_size=4000, control_port=ports[0], output_port=ports[1])
     yield nex
     nex.destroyNexus()
+    time.sleep(0.2)  # give the os a chance to shut everything down
 
 # @pytest.fixture
 # def setup_store(setdir):
@@ -59,6 +60,7 @@ def test_init(setdir):
     # store = setup_store
     nex = Nexus("test")
     assert str(nex) == "test"
+    nex.destroyNexus()
 
 
 def test_createNexus(setdir, ports):
@@ -85,6 +87,7 @@ def test_startNexus(sample_nex):
     nex = sample_nex
     nex.startNexus()
     assert [p.name for p in nex.processes] == ["Acquirer", "Analysis"]
+    nex.destroyNexus()
 
 # @pytest.mark.skip(reason="This test is unfinished")
 @pytest.mark.parametrize("cfg_name, actor_list, link_list", [

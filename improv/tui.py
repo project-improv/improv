@@ -12,9 +12,8 @@ from zmq.log.handlers import PUBHandler
 logger.setLevel(logging.INFO)  
 
 class SocketLog(TextLog):
-    def __init__(self, port, *args, **kwargs):
+    def __init__(self, port, context, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        context = zmq.Context()
         self.socket = context.socket(SUB)
         self.socket.connect("tcp://%s" % str(port))
         self.socket.setsockopt_string(SUBSCRIBE, "")
@@ -75,8 +74,8 @@ class TUI(App, inherit_bindings=False):
         self.output_port = TUI._sanitize_addr(output_port)
         self.logging_port = TUI._sanitize_addr(logging_port)
 
-        context = zmq.Context()
-        self.control_socket = context.socket(REQ)
+        self.context = zmq.Context()
+        self.control_socket = self.context.socket(REQ)
         self.control_socket.connect("tcp://%s" % self.control_port)
 
         logger.info('Text interface initialized')
@@ -100,9 +99,9 @@ class TUI(App, inherit_bindings=False):
         """Create child widgets for the app."""
         yield Grid(
             Header(),
-            SocketLog(self.output_port, id="console"),
+            SocketLog(self.output_port, self.context, id="console"),
             Input(),
-            SocketLog(self.logging_port, id="log"),
+            SocketLog(self.logging_port, self.context, id="log"),
             Footer(),
             id="main"
         )

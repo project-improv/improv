@@ -219,7 +219,6 @@ class Nexus():
         ''' Method that calls the internal method
             to kill the process running the store (plasma server)
         '''
-        self.zmq_context.destroy()
         logger.warning('Destroying Nexus')
         self._closeStore()
         logger.warning('Killed the central store')
