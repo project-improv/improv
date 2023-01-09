@@ -89,6 +89,3 @@ def test_can_override_ip(mode, flag, expected):
     args = cli.parse_cli_args([mode, flag, expected])
     assert vars(args)[params[flag]] == expected
 
-
-# TODO: test individual functions
-# TODO: convert tests in tui.py to pytest

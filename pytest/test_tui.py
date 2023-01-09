@@ -3,7 +3,7 @@ import asyncio
 import improv.tui as tui
 import logging 
 import zmq.asyncio as zmq
-from zmq import PUB, SUB, SUBSCRIBE, REQ, REP
+from zmq import PUB, REP
 from zmq.log.handlers import PUBHandler
 
 CONTROL_PORT = 5555
