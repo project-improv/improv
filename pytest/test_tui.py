@@ -6,9 +6,9 @@ import zmq.asyncio as zmq
 from zmq import PUB, REP
 from zmq.log.handlers import PUBHandler
 
-CONTROL_PORT = 5555
-OUTPUT_PORT = 5556
-LOGGING_PORT = 5557 
+CONTROL_PORT = 6555
+OUTPUT_PORT = 6556
+LOGGING_PORT = 6557 
 SERVER_COUNTER = 0
 
 @pytest.fixture
@@ -70,11 +70,9 @@ async def test_input_box_echoed_to_console(app):
 async def test_quit_screen(app):
     async with app.run_test() as pilot:
         await pilot.press('ctrl+c', 'tab', 'tab', 'enter')
-        # await pilot.pause(0.5)
         assert pilot.app._running
 
         await pilot.press('ctrl+c', 'tab', 'enter')
-        await pilot.pause(1)
+        await pilot.pause(0.5)
         assert not pilot.app._running
-        # await asyncio.sleep(0.2)
 

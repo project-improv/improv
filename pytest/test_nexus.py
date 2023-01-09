@@ -31,7 +31,6 @@ def sample_nex(setdir, ports):
     nex.createNexus(file='good_config.yaml', store_size=4000, control_port=ports[0], output_port=ports[1])
     yield nex
     nex.destroyNexus()
-    time.sleep(0.2)  # give the os a chance to shut everything down
 
 # @pytest.fixture
 # def setup_store(setdir):
@@ -61,7 +60,6 @@ def test_init(setdir):
     nex = Nexus("test")
     assert str(nex) == "test"
     nex.destroyNexus()
-
 
 def test_createNexus(setdir, ports):
     setdir
@@ -218,6 +216,7 @@ def test_startstore(caplog):
     assert any(["Store started successfully" in record.msg for record in caplog.records])
     
     nex._closeStore()
+    nex.destroyNexus()
     assert True
 
 def test_closestore(caplog):
@@ -233,6 +232,7 @@ def test_closestore(caplog):
     with pytest.raises(AttributeError):
         nex.p_Store.put("Message in", "Message in Label")
     
+    nex.destroyNexus()
     assert True
 
 @pytest.mark.skip(reason="unfinished")
