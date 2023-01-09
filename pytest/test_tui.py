@@ -62,9 +62,18 @@ async def test_log_panel_receives_logging(app, logger):
         assert log_window.history[0] == 'INFO'
         assert log_window.history[1].rstrip() == 'test'
 
-
 async def test_input_box_echoed_to_console(app):
     async with app.run_test() as pilot:
         await pilot.press(*'foo', 'enter')
         console = pilot.app.get_widget_by_id("console")
         assert console.history[0] == 'foo'
+
+async def test_quit_screen(app):
+    async with app.run_test() as pilot:
+        await pilot.press('ctrl+c', 'tab', 'tab', 'enter')
+        assert pilot.app._running
+
+        await pilot.press('ctrl+c', 'tab', 'enter')
+        assert not pilot.app._running
+        await asyncio.sleep(0.2)
+

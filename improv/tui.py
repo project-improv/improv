@@ -26,10 +26,8 @@ class SocketLog(TextLog):
             self.value = value
     
     def write(self, content, width=None, expand=False, shrink=True):
-        logger.info('inside write function. content = ' + content)
         TextLog.write(self, content, width, expand, shrink)
         self.history.append(content)
-        logger.info(self.history)
 
 
     async def poll(self):
@@ -37,7 +35,6 @@ class SocketLog(TextLog):
             ready = await self.socket.poll(10)
             if ready:
                 msg = await self.socket.recv_string()
-                logger.info("msg = " + msg)
                 self.write(msg)
                 await self.emit(self.Echo(self, msg))
         except asyncio.CancelledError:
@@ -176,11 +173,21 @@ if __name__ == '__main__':
             await asyncio.sleep(1)
             counter += 1
     
+    async def log():
+        """
+        Send fake logging events for testing.
+        """
+        counter = 0
+        while True:
+            logger.info("log message " + str(counter))
+            await asyncio.sleep(1)
+            counter += 1
+    
     async def main_loop():
         app = TUI(CONTROL_PORT, OUTPUT_PORT, LOGGING_PORT)
 
         # the following construct ensures both the (infinite) fake servers are killed once the tui finishes
-        finished, unfinished = await asyncio.wait([app.run_async(), publish(), backend()], return_when=asyncio.FIRST_COMPLETED)
+        finished, unfinished = await asyncio.wait([app.run_async(), publish(), backend(), log()], return_when=asyncio.FIRST_COMPLETED)
 
         for task in unfinished:
             task.cancel()
