@@ -2,6 +2,8 @@ import time
 import os
 import pytest
 import logging
+import subprocess
+import signal
 
 from improv.nexus import Nexus
 from improv.actor import Actor
@@ -260,4 +262,18 @@ def test_actor_sub(setdir, capsys, monkeypatch, ports):
 
 
     nex.destroyNexus()
+    assert True
+
+def test_sigint_exits_cleanly(ports, tmp_path):
+    server_opts = ['improv', 'server', 
+                            '-c', str(ports[0]), 
+                            '-o', str(ports[1]),
+                            '-f', tmp_path / "global.log",
+    ]
+
+    server = subprocess.Popen(server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    
+    server.send_signal(signal.SIGINT)
+
+    server.wait()
     assert True
