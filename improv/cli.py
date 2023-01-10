@@ -106,7 +106,7 @@ def run_server(args):
 
     server = Nexus()
     server.createNexus(file=args.configfile, control_port=args.control_port, output_port=args.output_port)
-    print("Server running on (control, output, log) ports ({}, {}, {})...".format(args.control_port, args.output_port, args.logging_port))
+    print("Server running on (control, output, log) ports ({}, {}, {}).\nPress Ctrl-C to quit.".format(args.control_port, args.output_port, args.logging_port))
     server.startNexus()
 
 

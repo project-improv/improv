@@ -252,26 +252,32 @@ class Nexus():
         signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
         for s in signals:
             loop.add_signal_handler(
-                # s, lambda s=s: self.stop_polling(s, polling)) 
                 s, lambda s=s: self.stop_polling_and_quit(s, polling)) 
         
         while not self.flags['quit']:
-            done, pending = await asyncio.wait(self.tasks, return_when=concurrent.futures.FIRST_COMPLETED)
+            try:
+                done, pending = await asyncio.wait(self.tasks, return_when=concurrent.futures.FIRST_COMPLETED)
+            except asyncio.CancelledError:
+                pass
+            
+            # sort through tasks to see where we got input from (so we can choose a handler)
             for i,t in enumerate(self.tasks):
                 if i < len(polling):
                     if t in done or polling[i].status == 'done': #catch tasks that complete await wait/gather
                         r = polling[i].result
-                        if 'GUI' in pollingNames[i]:
-                            self.processGuiSignal(r, pollingNames[i])
-                        else:
-                            self.processActorSignal(r, pollingNames[i])
-                        self.tasks[i] = (asyncio.create_task(polling[i].get_async()))
-                elif t in done: ## input from text interface
+                        if r:
+                            if 'GUI' in pollingNames[i]:
+                                self.processGuiSignal(r, pollingNames[i])
+                            else:
+                                self.processActorSignal(r, pollingNames[i])
+                            self.tasks[i] = (asyncio.create_task(polling[i].get_async()))
+                elif t in done: 
+                    logger.info("t.result = " + str(t.result()))
                     self.tasks[i] = asyncio.create_task(self.remote_input())
 
         if not self.early_exit:  # don't run this again if we already have
             self.stop_polling("quit", polling)
-        logger.warning('Shutting down polling')
+            logger.warning('Shutting down polling')
         return "Shutting Down"
     
     def stop_polling_and_quit(self, signal, queues):
@@ -462,25 +468,9 @@ class Nexus():
                 logger.info("Unable to send shutdown message to {}.".format(q.name))
 
         logging.info('Canceling outstanding tasks')
-        try:
-            asyncio.gather(*self.tasks)
-        except asyncio.CancelledError: 
-            logging.info("Gather is cancelled")
 
         [task.cancel() for task in self.tasks]
 
-        cur_task = asyncio.current_task()
-        if cur_task:
-            tasks = [task for task in self.tasks if not task.done()]
-            [t.cancel() for t in tasks]
-            [t.cancel() for t in tasks] #necessary in order to start cancelling tasks other than the first one
-
-            try:
-                cur_task.cancel() 
-            except asyncio.CancelledError:
-                logging.info("Current task canceled")
-
-        self.flags['quit'] = True
         logging.info('Polling has stopped.')
 
     def createStore(self, name):
