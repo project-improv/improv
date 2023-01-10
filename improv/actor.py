@@ -287,6 +287,8 @@ class RunManager():
                 elif signal == Signal.resume(): #currently treat as same as run
                     logger.warning('Received resume signal, resuming')
                     self.run = True
+            except KeyboardInterrupt:
+                break
             except Empty as e:
                 pass # No signal from Nexus
             
@@ -319,6 +321,10 @@ class AsyncRunManager:
         self.module_name = name
         self.loop = asyncio.get_event_loop()
         self.start = time.time()
+
+        signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
+        for s in signals:
+            self.loop.add_signal_handler(s, lambda s=s: self.loop.stop()) 
 
     async def __aenter__(self):
         while True:

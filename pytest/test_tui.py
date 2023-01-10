@@ -57,7 +57,7 @@ async def test_quit_from_socket(app, sockets):
 async def test_log_panel_receives_logging(app, logger):
     async with app.run_test() as pilot:
         logger.info('test')
-        await pilot.pause(0.05)
+        await pilot.pause(0.1)
         log_window = pilot.app.get_widget_by_id("log")
         assert log_window.history[0] == 'INFO'
         assert log_window.history[1].rstrip() == 'test'

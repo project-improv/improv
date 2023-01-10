@@ -182,10 +182,6 @@ class Nexus():
         # if self.config.hasGUI:
         loop = asyncio.get_event_loop()
 
-        signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
-        for s in signals:
-            loop.add_signal_handler(
-                s, lambda s=s: self.stop_polling(s, loop)) #TODO
         try:
             self.out_socket.send_string("Awaiting input:")
             res = loop.run_until_complete(self.pollQueues()) #TODO: in Link executor, complete all tasks
@@ -202,6 +198,7 @@ class Nexus():
         loop.stop()
         loop.close()
         logger.info('Shutdown loop')
+        self.zmq_context.destroy()
 
 
     def start(self):
@@ -221,7 +218,6 @@ class Nexus():
         '''
         logger.warning('Destroying Nexus')
         self._closeStore()
-        logger.warning('Killed the central store')
 
 
     async def pollQueues(self):
@@ -249,7 +245,16 @@ class Nexus():
             self.tasks.append(asyncio.create_task(q.get_async()))
 
         self.tasks.append(asyncio.create_task(self.remote_input()))
+        self.early_exit = False
 
+        # add signal handlers
+        loop = asyncio.get_event_loop()
+        signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
+        for s in signals:
+            loop.add_signal_handler(
+                # s, lambda s=s: self.stop_polling(s, polling)) 
+                s, lambda s=s: self.stop_polling_and_quit(s, polling)) 
+        
         while not self.flags['quit']:
             done, pending = await asyncio.wait(self.tasks, return_when=concurrent.futures.FIRST_COMPLETED)
             for i,t in enumerate(self.tasks):
@@ -261,13 +266,20 @@ class Nexus():
                         else:
                             self.processActorSignal(r, pollingNames[i])
                         self.tasks[i] = (asyncio.create_task(polling[i].get_async()))
-                # TODO: get rid of this if no longer taking command line input; just need to re-up on polling input socket
-                elif t in done: ##cmd line
+                elif t in done: ## input from text interface
                     self.tasks[i] = asyncio.create_task(self.remote_input())
 
-        self.stop_polling("quit", asyncio.get_running_loop(), polling)
+        if not self.early_exit:  # don't run this again if we already have
+            self.stop_polling("quit", polling)
         logger.warning('Shutting down polling')
         return "Shutting Down"
+    
+    def stop_polling_and_quit(self, signal, queues):
+        logger.warn('Shutting down via signal handler for {}. Steps may be out of order or dirty.'.format(signal))
+        self.stop_polling(signal, queues)
+        self.flags['quit'] = True
+        self.early_exit = True
+        self.quit()
 
     async def remote_input(self):
         msg = await self.in_socket.recv_multipart()
@@ -281,9 +293,10 @@ class Nexus():
         '''Receive flags from the Front End as user input
             TODO: Not all needed
         '''
+        # import pdb; pdb.set_trace()
         name = name.split('_')[0]
-        logger.info('Received signal from user: ' + flag[0])
-        if flag[0]:
+        if flag:
+            logger.info('Received signal from user: ' + flag[0])
             if flag[0] == Signal.run():
                 logger.info('Begin run!')
                 #self.flags['run'] = True
@@ -303,7 +316,7 @@ class Nexus():
                 self.loadConfig(flag[1])
             elif flag[0] == Signal.pause():
                 logger.info('Pausing processes')
-                # TODO. Alsoresume, reset
+                # TODO. Also resume, reset
 
             # temporary WiP
             elif flag[0] == Signal.kill():
@@ -346,7 +359,7 @@ class Nexus():
             elif flag[0] == Signal.stop():
                 logger.info('Nexus received stop signal')
                 self.stop()
-        else:
+        elif flag:
             logger.error('Signal received from Nexus but cannot identify {}'.format(flag))
 
     def processActorSignal(self, sig, name):
@@ -358,7 +371,7 @@ class Nexus():
                     self.allowStart = True      #TODO: replace with q_sig to FE/Visual
                     logger.info('Allowing start')
 
-                    #TODO: Maybe have flag for auto-start, else require explict command
+                    #TODO: Maybe have flag for auto-start, else require explicit command
                     # if not self.config.hasGUI:
                     #     self.run()
 
@@ -394,6 +407,8 @@ class Nexus():
                 q.put_nowait(Signal.quit())
             except Full as f:
                 logger.warning('Signal queue '+q.name+' full, cannot tell it to quit: {}'.format(f))
+            except FileNotFoundError:
+                logger.warning('Queue {} corrupted.'.format(q.name))
 
         if self.config.hasGUI:
             self.processes.append(self.p_GUI)
@@ -424,7 +439,7 @@ class Nexus():
         logger.warning('Starting revive')
 
 
-    def stop_polling(self, stop_signal, loop, queues):
+    def stop_polling(self, stop_signal, queues):
         """ Cancels outstanding tasks and fills their last request.
 
         Puts a string into all active queues, then cancels their 
@@ -433,7 +448,6 @@ class Nexus():
 
         Args:
             stop_signal (signal.signal): Signal for signal handler.
-            loop (loop): Event loop for signal handler.
             queues (AsyncQueue): Comm queues for links.
         """ 
 
@@ -441,7 +455,12 @@ class Nexus():
 
         logging.info(f"Stop signal: {stop_signal}")
         shutdown_message = "SHUTDOWN"
-        [q.put(shutdown_message) for q in queues]
+        for q in queues:
+            try:
+                q.put(shutdown_message)
+            except Exception as e:
+                logger.info("Unable to send shutdown message to {}.".format(q.name))
+
         logging.info('Canceling outstanding tasks')
         try:
             asyncio.gather(*self.tasks)
@@ -451,16 +470,17 @@ class Nexus():
         [task.cancel() for task in self.tasks]
 
         cur_task = asyncio.current_task()
-        cur_task.cancel()
-        tasks = [task for task in self.tasks if not task.done()]
-        [t.cancel() for t in tasks]
-        [t.cancel() for t in tasks] #necessary in order to start cancelling tasks other than the first one
+        if cur_task:
+            tasks = [task for task in self.tasks if not task.done()]
+            [t.cancel() for t in tasks]
+            [t.cancel() for t in tasks] #necessary in order to start cancelling tasks other than the first one
 
-        try:
-            cur_task.cancel() 
-        except asyncio.CancelledError:
-            logging.info("cur_task cancelled")
-        
+            try:
+                cur_task.cancel() 
+            except asyncio.CancelledError:
+                logging.info("Current task canceled")
+
+        self.flags['quit'] = True
         logging.info('Polling has stopped.')
 
     def createStore(self, name):

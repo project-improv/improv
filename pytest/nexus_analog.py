@@ -65,7 +65,7 @@ async def pollQueues(links):
     clean_list_print([task for task in tasks])
 
     loop = asyncio.get_running_loop()
-    return stop_polling(tasks, loop, links)
+    return stop_polling(tasks, links)
 
 
 
@@ -83,7 +83,7 @@ def start():
     loop.close()
     print(f"Loop: {loop}")
 
-def stop_polling(tasks, loop, links):
+def stop_polling(tasks, links):
     #asyncio.gather(*tasks)
     print("Cancelling")
 
