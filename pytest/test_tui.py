@@ -1,5 +1,5 @@
 import pytest
-import asyncio
+import time
 import improv.tui as tui
 import logging 
 import zmq.asyncio as zmq
@@ -39,6 +39,7 @@ async def sockets(ports):
 async def app(ports):
     mock = tui.TUI(*ports)
     yield mock
+    time.sleep(0.5)
 
 async def test_console_panel_receives_broadcast(app, sockets, logger):
     async with app.run_test() as pilot:

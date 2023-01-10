@@ -37,7 +37,6 @@ def setup_store():
     yield store
     p.kill()
     p.wait()
-    time.sleep(0.1)
 
 
 def init_actors(n = 1):
