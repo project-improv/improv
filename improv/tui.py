@@ -79,7 +79,7 @@ class HelpScreen(Screen):
 
         yield Container(
             Static(cmd_table, id="help_table"),
-            Button("OK", id="ok"),
+            Container(Button("OK", id="ok_btn"), id="ok"),
             id="help_screen",
         )
 

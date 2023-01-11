@@ -10,9 +10,7 @@
 }
 
 #help_screen {
-    /* grid-size: 3;
-    grid-gutter: 1 2;
-    margin: 1 2; */
+    align: center middle;
 }
 
 SocketLog {
@@ -38,7 +36,6 @@ Label {
 }
 
 #help_table {
-    /* column-span: 3; */
     content-align: center middle;
     width: 100%;
     height: 70%;
@@ -49,7 +46,10 @@ Button {
 }
 
 #ok {
-    /* column-span: 1;  */
-    width: 10;
+    width: 100%;
     align-horizontal: center;
+}
+
+#ok_btn {
+    width: 10;
 }
