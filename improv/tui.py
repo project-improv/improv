@@ -1,12 +1,12 @@
 import asyncio
 import zmq.asyncio as zmq
 from zmq import PUB, SUB, SUBSCRIBE, REQ, REP
+from rich.table import Table
 from textual.app import App, ComposeResult
-from textual.containers import Grid
+from textual.containers import Grid, Container
 from textual.screen import Screen
-from textual.widgets import Header, Footer, TextLog, Input, Button, Static
-from textual.message import Message, MessageTarget
-from improv.link import Link
+from textual.widgets import Header, Footer, TextLog, Input, Button, Static, Label, Placeholder
+from textual.message import Message
 import logging; logger = logging.getLogger(__name__)
 from zmq.log.handlers import PUBHandler
 logger.setLevel(logging.INFO)  
@@ -33,7 +33,8 @@ class SocketLog(TextLog):
         try:
             ready = await self.socket.poll(10)
             if ready:
-                msg = await self.socket.recv_string()
+                parts = await self.socket.recv_multipart()
+                msg = ' '.join([p.decode('utf-8').replace('\n', ' ') for p in parts])
                 self.write(msg)
                 await self.emit(self.Echo(self, msg))
         except asyncio.CancelledError:
@@ -64,12 +65,34 @@ class QuitScreen(Screen):
         else:
             self.app.pop_screen()
 
+class HelpScreen(Screen):
+    def compose(self):
+        cmd_table = Table()
+        cmd_table.add_column('Command', justify='left')
+        cmd_table.add_column('Function', justify='left')
+        cmd_table.add_row('setup', 'Prepare all actors to run')
+        cmd_table.add_row('run', 'Start the experiment')
+        cmd_table.add_row('pause', '???')
+        cmd_table.add_row('stop', '???')
+        cmd_table.add_row('quit', 'Stop everything and terminate this client and the server.')
+
+
+        yield Container(
+            Static(cmd_table, id="help_table"),
+            Button("OK", id="ok"),
+            id="help_screen",
+        )
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        self.app.pop_screen()
+
 class TUI(App, inherit_bindings=False):
     """
     View class for the text user interface. Implemented as a Textual app.
     """
     def __init__(self, control_port, output_port, logging_port):
         super().__init__()
+        self.title = "improv console"
         self.control_port = TUI._sanitize_addr(control_port)
         self.output_port = TUI._sanitize_addr(output_port)
         self.logging_port = TUI._sanitize_addr(logging_port)
@@ -83,7 +106,8 @@ class TUI(App, inherit_bindings=False):
     CSS_PATH = "tui.css"
     BINDINGS = [
                ("tab", "focus_next", "Focus Next"),
-               ("ctrl+c", "request_quit", "Emergency Quit")
+               ("ctrl+c", "request_quit", "Emergency Quit"),
+               ("question_mark", "help", "Help")
     ]
 
     @staticmethod
@@ -98,10 +122,12 @@ class TUI(App, inherit_bindings=False):
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
         yield Grid(
-            Header(),
-            SocketLog(self.output_port, self.context, id="console"),
-            Input(),
+            Header("improv console"),
+            Label("[white]Log Messages[/]"),
             SocketLog(self.logging_port, self.context, id="log"),
+            Label("Command History"),
+            SocketLog(self.output_port, self.context, id="console"),
+            Input(id='input'),
             Footer(),
             id="main"
         )
@@ -131,8 +157,11 @@ class TUI(App, inherit_bindings=False):
         if message.sender.id == 'console' and message.value == 'QUIT':
             self.exit()
     
-    def action_request_quit(self) -> None:
+    def action_request_quit(self):
         self.push_screen(QuitScreen())
+    
+    def action_help(self):
+        self.push_screen(HelpScreen())
         
     
             
@@ -179,7 +208,7 @@ if __name__ == '__main__':
         counter = 0
         while True:
             logger.info("log message " + str(counter))
-            await asyncio.sleep(1)
+            await asyncio.sleep(1.2)
             counter += 1
     
     async def main_loop():

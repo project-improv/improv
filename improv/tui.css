@@ -1,12 +1,22 @@
 #main {
-    grid-size: 3 1;
-    grid-columns: 1fr;
+    grid-size: 1 5;
+    grid-rows: 1 1fr 1 1fr 5;
 }
 
 #dialog {
     grid-size: 2;
     grid-gutter: 1 2;
     margin: 1 2;
+}
+
+#help_screen {
+    /* grid-size: 3;
+    grid-gutter: 1 2;
+    margin: 1 2; */
+}
+
+SocketLog {
+    content-align: left top;
 }
 
 #question {
@@ -16,6 +26,30 @@
     height: 100%;
 }
 
+Label {
+    background: $primary;
+    width: 100%;
+}
+
+#input {
+    height: 1;
+    align-vertical: bottom;
+    margin: 1 0;
+}
+
+#help_table {
+    /* column-span: 3; */
+    content-align: center middle;
+    width: 100%;
+    height: 70%;
+}
+
 Button {
     width: 100%;
+}
+
+#ok {
+    /* column-span: 1;  */
+    width: 10;
+    align-horizontal: center;
 }
