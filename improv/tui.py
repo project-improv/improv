@@ -13,11 +13,18 @@ logger.setLevel(logging.INFO)
 
 class SocketLog(TextLog):
     def __init__(self, port, context, *args, **kwargs):
+        if 'formatter' in kwargs:
+            self.format = kwargs['formatter']
+            kwargs.pop('formatter')
+        else:
+            self.format = self._simple_formatter
+
         super().__init__(*args, **kwargs)
         self.socket = context.socket(SUB)
         self.socket.connect("tcp://%s" % str(port))
         self.socket.setsockopt_string(SUBSCRIBE, "")
         self.history = []
+
 
     class Echo(Message):
         def __init__(self, sender, value) -> None:
@@ -28,13 +35,22 @@ class SocketLog(TextLog):
         TextLog.write(self, content, width, expand, shrink)
         self.history.append(content)
 
+    @staticmethod
+    def _simple_formatter(parts):
+        """
+        format messages from zmq
+        message is a list of message parts
+        """
+        return ' '.join([p.decode('utf-8').replace('\n', ' ') for p in parts])
+
+
 
     async def poll(self):
         try:
             ready = await self.socket.poll(10)
             if ready:
                 parts = await self.socket.recv_multipart()
-                msg = ' '.join([p.decode('utf-8').replace('\n', ' ') for p in parts])
+                msg = self.format(parts)
                 self.write(msg)
                 await self.emit(self.Echo(self, msg))
         except asyncio.CancelledError:
@@ -118,13 +134,33 @@ class TUI(App, inherit_bindings=False):
             return input
         else:
             return "localhost:%s" % input
+    
+    @staticmethod
+    def format_log_messages(parts):
+        type_list = ['debug', 'info', 'warning', 'error', 'critical', 'exception']
+        msg_type = parts[0].decode('utf-8')
+        msg = SocketLog._simple_formatter(parts[1:])
+        if msg_type == 'DEBUG':
+            msg = '[bold black on white]' + msg + '[/]'
+        elif msg_type == 'INFO':
+            msg = '[italic white]' + msg + '[/]'
+        elif msg_type == 'WARNING': 
+            msg = ':warning-emoji:  [yellow]' + msg + '[/]'
+        elif msg_type == 'ERROR': 
+            msg = ':heavy_exclamation_mark: [#e40000]' + msg + '[/]'
+        elif msg_type == 'CRITICAL': 
+            msg = ':collision::scream: [bold red]' + msg + '[/]'
+
+        return msg
 
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
         yield Grid(
             Header("improv console"),
             Label("[white]Log Messages[/]"),
-            SocketLog(self.logging_port, self.context, id="log"),
+            SocketLog(self.logging_port, self.context, 
+                formatter=self.format_log_messages, 
+                markup=True, id="log"),
             Label("Command History"),
             SocketLog(self.output_port, self.context, id="console"),
             Input(id='input'),
@@ -170,8 +206,11 @@ if __name__ == '__main__':
     OUTPUT_PORT = "5556"
     LOGGING_PORT = "5557" 
 
+    import random
+
     zmq_log_handler = PUBHandler('tcp://*:%s' % LOGGING_PORT)
     logger.addHandler(zmq_log_handler)
+    logger.setLevel(logging.DEBUG)
 
     context = zmq.Context()
     socket = context.socket(REP)
@@ -206,8 +245,11 @@ if __name__ == '__main__':
         Send fake logging events for testing.
         """
         counter = 0
+        type_list = ['debug', 'info', 'warning', 'error', 'critical', 'exception']
         while True:
-            logger.info("log message " + str(counter))
+            this_type = random.choice(type_list)
+            getattr(logger, this_type)("log message " + str(counter))
+            # logger.info("log message " + str(counter))
             await asyncio.sleep(1.2)
             counter += 1
     
