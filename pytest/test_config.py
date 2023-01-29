@@ -12,16 +12,14 @@ import logging; logger = logging.getLogger(__name__)
 
 #set global variables
 
-pytest.config_dir = os.getcwd() + "/./configs"
-
 @pytest.fixture
 def set_configdir():
     """ Sets the current working directory to the configs file.
     """
-
-    os.chdir(pytest.config_dir)
+    prev = os.getcwd()
+    os.chdir(os.path.dirname(__file__) + '/configs')
     yield None
-    os.chdir(os.getcwd() + "/../")
+    os.chdir(prev)
 
 @pytest.mark.parametrize(
         "test_input",[
