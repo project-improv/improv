@@ -1,5 +1,6 @@
 from improv.actor import Actor, RunManager
 import numpy as np
+from queue import Empty
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -26,6 +27,8 @@ class Processor(Actor):
         self.avg_list = []
         self.frame_num = 1
         logger.info('Completed setup for Processor')
+
+        self._getStoreInterface()
 
     def stop(self):
         """ Trivial stop function for testing purposes.
@@ -57,7 +60,8 @@ class Processor(Actor):
         frame = None
         try:
             frame = self.q_in.get(timeout=0.05)
-
+        except Empty:
+            pass
         except:
             logger.error("Could not get frame!")
             pass
@@ -66,10 +70,9 @@ class Processor(Actor):
             self.done = False
             self.frame = self.client.getID(frame[0][0])
             avg = np.mean(self.frame[0])
-
-            # print(f"Average: {avg}") 
+            print(f"Average: {avg}") 
             self.avg_list.append(avg)
-            # print(f"Overall Average: {np.mean(self.avg_list)}")
-            # print(f"Frame number: {self.frame_num}")
+            print(f"Overall Average: {np.mean(self.avg_list)}")
+            print(f"Frame number: {self.frame_num}")
             self.frame_num += 1
         
