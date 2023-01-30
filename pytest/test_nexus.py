@@ -9,9 +9,10 @@ from improv.store import Store
 
 @pytest.fixture
 def setdir():
-    os.chdir(os.getcwd() + '/./configs')
+    prev = os.getcwd()
+    os.chdir(os.path.dirname(__file__) + '/configs')
     yield None
-    os.chdir(os.getcwd() + "/../")
+    os.chdir(prev)
 
 @pytest.fixture
 def sample_nex(setdir):

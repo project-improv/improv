@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "improv"
+version = "0.0.2"
+description = "Platform for adaptive neuroscience experiments"
+authors = [{name = "Anne Draelos", email = "amw73@duke.edu"}, 
+            {name = "John Pearson", email = "john.pearson@duke.edu"}]
+
+license = {file = "LICENSE"}
+readme = "README.md"
+requires-python = ">=3.6"
+keywords = ["neuroscience", "adaptive", "closed loop"]
+dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "pyarrow==9.0.0",
+    "PyQt5",
+    "lmdb",
+    "pyyaml",
+    "click"
+]
+classifiers = ['Development Status :: 1 - Planning']
+
+[project.optional-dependencies]
+tests = ["async-timeout", "pytest-asyncio"]
+docs = ["jupyter-book"]
+caiman = []
+
+[project.scripts]
+improv = "improv:default_invocation"
+
+[tool.setuptools.packages.find]
+include = ["improv"]
+exclude = ["test", "pytest", "env", "demos", "figures"]
