@@ -272,7 +272,7 @@ class Nexus():
                                 self.processActorSignal(r, pollingNames[i])
                             self.tasks[i] = (asyncio.create_task(polling[i].get_async()))
                 elif t in done: 
-                    logger.info("t.result = " + str(t.result()))
+                    logger.debug("t.result = " + str(t.result()))
                     self.tasks[i] = asyncio.create_task(self.remote_input())
 
         if not self.early_exit:  # don't run this again if we already have
