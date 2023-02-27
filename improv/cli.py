@@ -4,6 +4,7 @@ import re
 import argparse
 import subprocess
 import sys
+import psutil
 from zmq.log.handlers import PUBHandler
 from improv.tui import TUI
 from improv.nexus import Nexus
@@ -78,6 +79,12 @@ def parse_cli_args(args):
     server_parser.add_argument('configfile', type=file_exists, help="YAML file specifying improv pipeline")
     server_parser.set_defaults(func=run_server)
 
+    list_parser = subparsers.add_parser('list', description="List running improv processes")
+    list_parser.set_defaults(func=run_list)
+
+    cleanup_parser = subparsers.add_parser('cleanup', description="Kill all processes returned by 'improv list'")
+    cleanup_parser.set_defaults(func=run_cleanup)
+
     return parser.parse_args(args)
 
 
@@ -104,11 +111,53 @@ def run_server(args):
                         handlers=[logging.FileHandler(args.logfile),
                                   zmq_log_handler])
 
+    if not args.actor_path:
+        sys.path.append(os.path.dirname(args.configfile))
+    else:
+        sys.path.extend(args.actor_path)
+
     server = Nexus()
     server.createNexus(file=args.configfile, control_port=args.control_port, output_port=args.output_port)
     print("Server running on (control, output, log) ports ({}, {}, {}).\nPress Ctrl-C to quit.".format(args.control_port, args.output_port, args.logging_port))
     server.startNexus()
 
+    if args.actor_path:
+        for p in args.actor_path:
+            sys.path.remove(p)
+    else:
+        sys.path.remove(os.path.dirname(args.configfile))
+
+def run_list(args, printit=True):
+    out_list = []
+    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+        if proc.info['cmdline']: 
+            cmdline = ' '.join(proc.info['cmdline'])
+            if 'improv' in cmdline: 
+                if not ('improv list' in cmdline or 'improv cleanup' in cmdline):
+                    out_list.append(proc)
+                    if printit:
+                        print(f"{proc.pid} {proc.name()} {cmdline}")
+    
+    return out_list
+
+def run_cleanup(args, headless=False):
+    proc_list = run_list(args, printit=False)
+    if proc_list:
+        if not headless:
+            print(f"The following {len(proc_list)} processes will be killed:")
+            for proc in proc_list:
+                cmdline = ' '.join(proc.info['cmdline'])
+                print(f"{proc.pid} {proc.name()} {cmdline}")
+            res = input("Is that okay [y/N]? ")
+        else:
+            res = 'y'
+
+        if res.lower() == 'y':
+            for proc in proc_list:
+                proc.kill()
+    else:
+        if not headless:
+            print("No running processes found.")
 
 def run(args):
     apath_opts = []
@@ -132,4 +181,6 @@ def run(args):
     run_client(args)
 
     server.wait()
+
+        
 
