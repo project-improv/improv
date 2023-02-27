@@ -34,7 +34,7 @@ async def server(setdir):
                             '-f', 'testlog', 'minimal.yaml',
     ]
     server = subprocess.Popen(server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    await asyncio.sleep(1)
+    await asyncio.sleep(1.5)
     yield server
     server.wait()
     os.remove('testlog')
