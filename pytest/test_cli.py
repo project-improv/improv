@@ -134,3 +134,23 @@ async def test_improv_kill_empties_list(server):
     cli.run_cleanup('', headless=True)
     proc_list = cli.run_list('', printit=False)
     assert len(proc_list) == 0
+
+async def test_improv_run_writes_stderr_to_log(setdir):
+    os.chdir('configs')
+    #start server
+    server_opts = ['improv', 'run', 
+                            '-c', str(CONTROL_PORT), 
+                            '-o', str(OUTPUT_PORT),
+                            '-l', str(LOGGING_PORT),
+                            '-a', '..',
+                            '-f', 'testlog', 'blank_file.yaml',
+    ]
+    server = subprocess.Popen(server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    await asyncio.sleep(1.5)
+    server.kill()
+    server.wait()
+    with open('testlog') as log:
+        contents = log.read()
+    assert 'Traceback' in contents
+    os.remove('testlog')
+    cli.run_cleanup('', headless=True)

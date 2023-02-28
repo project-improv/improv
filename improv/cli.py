@@ -175,7 +175,8 @@ def run(args):
     server_opts.extend(apath_opts)
     server_opts.append(args.configfile)
 
-    server = subprocess.Popen(server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    with open(args.logfile, mode='a+') as logfile:
+        server = subprocess.Popen(server_opts, stdout=logfile, stderr=logfile)
 
     args.server_port = args.output_port
     run_client(args)
