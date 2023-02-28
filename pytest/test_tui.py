@@ -20,7 +20,7 @@ def ports():
 @pytest.fixture
 def logger(ports):
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)  
+    logger.setLevel(logging.DEBUG)  
     zmq_log_handler = PUBHandler('tcp://*:%s' % ports[2])
     logger.addHandler(zmq_log_handler)
     yield logger
@@ -76,3 +76,16 @@ async def test_quit_screen(app):
         await pilot.pause(0.5)
         assert not pilot.app._running
 
+async def test_turn_on_print_debug_msg(app, logger):
+    async with app.run_test() as pilot:
+        logger.debug('test debug message')
+        await pilot.pause(0.1)
+        log_window = pilot.app.get_widget_by_id("log")
+        assert len(log_window.history) == 0
+
+        await pilot.press('ctrl+p')
+        await pilot.pause(0.1)
+        logger.debug('test debug message')
+        await pilot.pause(0.1)
+        log_window = pilot.app.get_widget_by_id("log")
+        assert 'debug' in log_window.history[0]

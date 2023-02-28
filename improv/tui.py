@@ -24,6 +24,7 @@ class SocketLog(TextLog):
         self.socket.connect("tcp://%s" % str(port))
         self.socket.setsockopt_string(SUBSCRIBE, "")
         self.history = []
+        self.print_debug = False
 
 
     class Echo(Message):
@@ -50,9 +51,11 @@ class SocketLog(TextLog):
             ready = await self.socket.poll(10)
             if ready:
                 parts = await self.socket.recv_multipart()
-                msg = self.format(parts)
-                self.write(msg)
-                await self.emit(self.Echo(self, msg))
+                msg_type = parts[0].decode('utf-8')
+                if msg_type != 'DEBUG' or self.print_debug:
+                    msg = self.format(parts)
+                    self.write(msg)
+                    await self.emit(self.Echo(self, msg))
         except asyncio.CancelledError:
             pass
 
@@ -123,8 +126,13 @@ class TUI(App, inherit_bindings=False):
     BINDINGS = [
                ("tab", "focus_next", "Focus Next"),
                ("ctrl+c", "request_quit", "Emergency Quit"),
+               ("ctrl+p", "set_debug", "Toggle Debug Info"),
                ("question_mark", "help", "Help")
     ]
+
+    def action_set_debug(self):
+        log_window = self.get_widget_by_id("log")
+        log_window.print_debug = not log_window.print_debug
 
     @staticmethod
     def _sanitize_addr(input):
