@@ -5,14 +5,17 @@ import argparse
 import subprocess
 import sys
 import psutil
+import time
+import re
+from zmq import SocketOption
 from zmq.log.handlers import PUBHandler
 from improv.tui import TUI
 from improv.nexus import Nexus
 
 MAX_PORT = 2**16 - 1
-DEFAULT_CONTROL_PORT = "5555"
-DEFAULT_OUTPUT_PORT = "5556"
-DEFAULT_LOGGING_PORT = "5557"
+DEFAULT_CONTROL_PORT = "0"
+DEFAULT_OUTPUT_PORT = "0"
+DEFAULT_LOGGING_PORT = "0"
 
 def file_exists(fname):
     if not os.path.isfile(fname):
@@ -106,6 +109,9 @@ def run_server(args):
     Runs the improv server in headless mode.
     """
     zmq_log_handler = PUBHandler('tcp://*:%s' % args.logging_port)
+    
+    # in case we bound to a random port (default), get port number
+    logging_port = int(zmq_log_handler.socket.getsockopt_string(SocketOption.LAST_ENDPOINT).split(':')[-1])
     logging.basicConfig(level=logging.DEBUG,
                         format='%(name)s %(message)s',
                         handlers=[logging.FileHandler(args.logfile),
@@ -117,8 +123,8 @@ def run_server(args):
         sys.path.extend(args.actor_path)
 
     server = Nexus()
-    server.createNexus(file=args.configfile, control_port=args.control_port, output_port=args.output_port)
-    print("Server running on (control, output, log) ports ({}, {}, {}).\nPress Ctrl-C to quit.".format(args.control_port, args.output_port, args.logging_port))
+    control_port, output_port = server.createNexus(file=args.configfile, control_port=args.control_port, output_port=args.output_port)
+    print("Server running on (control, output, log) ports ({}, {}, {}).\nPress Ctrl-C to quit.".format(control_port, output_port, logging_port))
     server.startNexus()
 
     if args.actor_path:
@@ -178,10 +184,27 @@ def run(args):
     with open(args.logfile, mode='a+') as logfile:
         server = subprocess.Popen(server_opts, stdout=logfile, stderr=logfile)
 
-    args.server_port = args.output_port
+    # # wait for server to start up
+    time.sleep(1)  
+
+    control_port, output_port, logging_port = _get_ports(args.logfile)
+
+    args.logging_port = logging_port
+    args.control_port = control_port
+    args.server_port = output_port
     run_client(args)
 
     server.wait()
 
+def _get_ports(logfile):
+    # read logfile to get ports
+    with open(logfile, mode='r') as logfile:
+        contents = logfile.read()
+
+        pattern = re.compile('(?<=\(control, output, log\) ports \()\d*, \d*, \d*')
         
+        # get most recent match (log file may contain old runs)
+        port_str = pattern.findall(contents)[-1]
+        return (int(p) for p in port_str.split(', '))
+
 

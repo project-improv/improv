@@ -6,7 +6,7 @@ import time
 import subprocess
 import logging
 import zmq.asyncio as zmq
-from zmq import PUB, REP
+from zmq import PUB, REP, SocketOption
 
 from multiprocessing import Process, get_context
 from importlib import import_module
@@ -36,15 +36,17 @@ class Nexus():
         return self.name
     
     def createNexus(self, file=None, use_hdd=False, use_watcher=False, store_size=10000000, 
-                    control_port=5555, output_port=5556):
+                    control_port=0, output_port=0):
 
         # set up socket in lieu of printing to stdout
         self.zmq_context = zmq.Context()
         self.out_socket = self.zmq_context.socket(PUB)
         self.out_socket.bind("tcp://*:%s" % output_port)
+        output_port = int(self.out_socket.getsockopt_string(SocketOption.LAST_ENDPOINT).split(':')[-1])
 
         self.in_socket = self.zmq_context.socket(REP)
         self.in_socket.bind("tcp://*:%s" % control_port)
+        control_port = int(self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT).split(':')[-1])
 
         self._startStore(store_size) #default size should be system-dependent; this is 40 GB
         self.out_socket.send_string("Store started")
@@ -79,6 +81,8 @@ class Nexus():
         self.flags.update({'quit':False, 'run':False, 'load':False}) #TODO: only quit flag used atm
         self.allowStart = False
         self.stopped = False
+
+        return (control_port, output_port)
 
     def loadConfig(self, file):
         ''' For each connection:
