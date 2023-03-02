@@ -135,14 +135,14 @@ def run_server(args):
 
 def run_list(args, printit=True):
     out_list = []
+    pattern = re.compile(r'(improv (run|client|server)|plasma_store)')
     for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
         if proc.info['cmdline']: 
             cmdline = ' '.join(proc.info['cmdline'])
-            if 'improv' in cmdline: 
-                if not ('improv list' in cmdline or 'improv cleanup' in cmdline):
-                    out_list.append(proc)
-                    if printit:
-                        print(f"{proc.pid} {proc.name()} {cmdline}")
+            if re.search(pattern, cmdline): 
+                out_list.append(proc)
+                if printit:
+                    print(f"{proc.pid} {proc.name()} {cmdline}")
     
     return out_list
 
@@ -201,7 +201,7 @@ def _get_ports(logfile):
     with open(logfile, mode='r') as logfile:
         contents = logfile.read()
 
-        pattern = re.compile('(?<=\(control, output, log\) ports \()\d*, \d*, \d*')
+        pattern = re.compile(r'(?<=\(control, output, log\) ports \()\d*, \d*, \d*')
         
         # get most recent match (log file may contain old runs)
         port_str = pattern.findall(contents)[-1]
