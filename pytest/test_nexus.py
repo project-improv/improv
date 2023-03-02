@@ -9,15 +9,16 @@ from improv.nexus import Nexus
 from improv.actor import Actor
 from improv.store import Store
 
-CONTROL_PORT = 5555
-OUTPUT_PORT = 5556
 SERVER_COUNTER = 0
 
 @pytest.fixture
 def ports():
     global SERVER_COUNTER
-    yield (CONTROL_PORT + SERVER_COUNTER, OUTPUT_PORT + SERVER_COUNTER)
-    SERVER_COUNTER += 2
+    CONTROL_PORT = 5555
+    OUTPUT_PORT = 5556
+    LOGGING_PORT = 5557
+    yield (CONTROL_PORT + SERVER_COUNTER, OUTPUT_PORT + SERVER_COUNTER, LOGGING_PORT + SERVER_COUNTER)
+    SERVER_COUNTER += 3
 
 @pytest.fixture
 def setdir():

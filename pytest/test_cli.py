@@ -6,9 +6,7 @@ import asyncio
 import signal
 import improv.cli as cli
 
-CONTROL_PORT = 7555
-OUTPUT_PORT = 7556
-LOGGING_PORT = 7557 
+from test_nexus import ports
 
 @pytest.fixture
 def setdir():
@@ -18,18 +16,21 @@ def setdir():
     os.chdir(prev)
 
 @pytest.fixture
-async def server(setdir):
+async def server(setdir, ports):
     """
     Sets up a server using minimal.yaml in the configs folder. 
     Requires the actor path command line argument and so implicitly 
     tests that as well.
     """
     os.chdir('configs')
+
+    control_port, output_port, logging_port = ports
+
     #start server
     server_opts = ['improv', 'server', 
-                            '-c', str(CONTROL_PORT), 
-                            '-o', str(OUTPUT_PORT),
-                            '-l', str(LOGGING_PORT),
+                            '-c', str(control_port), 
+                            '-o', str(output_port),
+                            '-l', str(logging_port),
                             '-a', '..',
                             '-f', 'testlog', 'minimal.yaml',
     ]
@@ -135,13 +136,15 @@ async def test_improv_kill_empties_list(server):
     proc_list = cli.run_list('', printit=False)
     assert len(proc_list) == 0
 
-async def test_improv_run_writes_stderr_to_log(setdir):
+async def test_improv_run_writes_stderr_to_log(setdir, ports):
     os.chdir('configs')
+    control_port, output_port, logging_port = ports
+
     #start server
     server_opts = ['improv', 'run', 
-                            '-c', str(CONTROL_PORT), 
-                            '-o', str(OUTPUT_PORT),
-                            '-l', str(LOGGING_PORT),
+                            '-c', str(control_port), 
+                            '-o', str(output_port),
+                            '-l', str(logging_port),
                             '-a', '..',
                             '-f', 'testlog', 'blank_file.yaml',
     ]

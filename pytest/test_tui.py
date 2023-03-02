@@ -6,16 +6,7 @@ import zmq.asyncio as zmq
 from zmq import PUB, REP
 from zmq.log.handlers import PUBHandler
 
-CONTROL_PORT = 8555
-OUTPUT_PORT = 8556
-LOGGING_PORT = 8557 
-SERVER_COUNTER = 0
-
-@pytest.fixture
-def ports():
-    global SERVER_COUNTER
-    yield (CONTROL_PORT + SERVER_COUNTER, OUTPUT_PORT + SERVER_COUNTER, LOGGING_PORT + SERVER_COUNTER)
-    SERVER_COUNTER += 3
+from test_nexus import ports
 
 @pytest.fixture
 def logger(ports):

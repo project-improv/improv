@@ -4,9 +4,7 @@ import asyncio
 import subprocess
 import improv.tui as tui
 
-CONTROL_PORT = 6555
-OUTPUT_PORT = 6556
-LOGGING_PORT = 6557 
+from test_nexus import ports
 
 @pytest.fixture()
 def setdir():
@@ -17,20 +15,22 @@ def setdir():
     os.chdir(prev)
 
 @pytest.mark.parametrize("dir,configfile,logfile", [('minimal','minimal.yaml', 'testlog')])
-async def test_simple_boot_and_quit(dir, configfile, logfile, setdir):
+async def test_simple_boot_and_quit(dir, configfile, logfile, setdir, ports):
     os.chdir(dir)
+
+    control_port, output_port, logging_port = ports
 
     #start server
     server_opts = ['improv', 'server', 
-                            '-c', str(CONTROL_PORT), 
-                            '-o', str(OUTPUT_PORT),
-                            '-l', str(LOGGING_PORT),
+                            '-c', str(control_port), 
+                            '-o', str(output_port),
+                            '-l', str(logging_port),
                             '-f', logfile, configfile,
     ]
     server = subprocess.Popen(server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     # initialize client
-    app = tui.TUI(CONTROL_PORT, OUTPUT_PORT, LOGGING_PORT)
+    app = tui.TUI(control_port, output_port, logging_port)
 
     # run client
     async with app.run_test() as pilot:
