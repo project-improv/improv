@@ -154,3 +154,22 @@ async def test_improv_run_writes_stderr_to_log(setdir):
     assert 'Traceback' in contents
     os.remove('testlog')
     cli.run_cleanup('', headless=True)
+
+async def test_get_ports_from_logfile(setdir):
+    test_control_port = 53349
+    test_output_port = 53350
+    test_logging_port = 53351
+
+    logfile = 'tmp.log'
+
+    with open(logfile, 'w') as log:
+        log.write("Server running on (control, output, log) ports (53345, 53344, 53343).")
+        log.write(f"Server running on (control, output, log) ports ({test_control_port}, {test_output_port}, {test_logging_port}).")
+    
+    control_port, output_port, logging_port = cli._get_ports(logfile)
+    
+    os.remove(logfile)
+
+    assert control_port == test_control_port 
+    assert output_port == test_output_port 
+    assert logging_port == test_logging_port 
