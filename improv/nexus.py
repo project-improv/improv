@@ -37,6 +37,9 @@ class Nexus():
     
     def createNexus(self, file=None, use_hdd=False, use_watcher=False, store_size=10000000, 
                     control_port=0, output_port=0):
+        
+        curr_dt = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        logger.info(f"************ new improv server session {curr_dt} ************")
 
         # set up socket in lieu of printing to stdout
         self.zmq_context = zmq.Context()
@@ -461,9 +464,9 @@ class Nexus():
             queues (AsyncQueue): Comm queues for links.
         """ 
 
-        logging.info("Received shutdown order")
+        logger.info("Received shutdown order")
 
-        logging.info(f"Stop signal: {stop_signal}")
+        logger.info(f"Stop signal: {stop_signal}")
         shutdown_message = "SHUTDOWN"
         for q in queues:
             try:
@@ -471,11 +474,11 @@ class Nexus():
             except Exception as e:
                 logger.info("Unable to send shutdown message to {}.".format(q.name))
 
-        logging.info('Canceling outstanding tasks')
+        logger.info('Canceling outstanding tasks')
 
         [task.cancel() for task in self.tasks]
 
-        logging.info('Polling has stopped.')
+        logger.info('Polling has stopped.')
 
     def createStore(self, name):
         ''' Creates Store w/ or w/out LMDB functionality based on {self.use_hdd}. 
