@@ -6,9 +6,9 @@ import zmq.asyncio as zmq
 from zmq import PUB, REP
 from zmq.log.handlers import PUBHandler
 
-CONTROL_PORT = 6555
-OUTPUT_PORT = 6556
-LOGGING_PORT = 6557 
+CONTROL_PORT = 8555
+OUTPUT_PORT = 8556
+LOGGING_PORT = 8557 
 SERVER_COUNTER = 0
 
 @pytest.fixture
