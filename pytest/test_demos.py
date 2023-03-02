@@ -4,9 +4,9 @@ import asyncio
 import subprocess
 import improv.tui as tui
 
-CONTROL_PORT = 5555
-OUTPUT_PORT = 5556
-LOGGING_PORT = 5557 
+CONTROL_PORT = 6555
+OUTPUT_PORT = 6556
+LOGGING_PORT = 6557 
 
 @pytest.fixture()
 def setdir():

@@ -6,9 +6,9 @@ import asyncio
 import signal
 import improv.cli as cli
 
-CONTROL_PORT = 5555
-OUTPUT_PORT = 5556
-LOGGING_PORT = 5557 
+CONTROL_PORT = 7555
+OUTPUT_PORT = 7556
+LOGGING_PORT = 7557 
 
 @pytest.fixture
 def setdir():

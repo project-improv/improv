@@ -28,7 +28,6 @@ def setdir():
 
 @pytest.fixture
 def sample_nex(setdir, ports):
-    setdir
     nex = Nexus("test")
     nex.createNexus(file='good_config.yaml', store_size=4000, control_port=ports[0], output_port=ports[1])
     yield nex
@@ -57,14 +56,12 @@ def sample_nex(setdir, ports):
 #     p.kill()
 
 def test_init(setdir):
-    setdir
     # store = setup_store
     nex = Nexus("test")
     assert str(nex) == "test"
     nex.destroyNexus()
 
 def test_createNexus(setdir, ports):
-    setdir
     nex = Nexus("test")
     nex.createNexus(file = "good_config.yaml", control_port=ports[0], output_port=ports[1])
     assert list(nex.comm_queues.keys()) == ["GUI_comm", "Acquirer_comm", "Analysis_comm"]
@@ -103,8 +100,6 @@ def test_config_construction(cfg_name, actor_list, link_list, setdir, ports):
     links between them are constructed correctly. 
     """
 
-    setdir
-
     nex = Nexus("test")
     nex.createNexus(file = cfg_name, control_port=ports[0], output_port=ports[1])
     logging.info(cfg_name)
@@ -123,7 +118,6 @@ def test_config_construction(cfg_name, actor_list, link_list, setdir, ports):
     assert True
 
 def test_single_actor(setdir, ports):
-    setdir
     nex = Nexus("test")
     with pytest.raises(AttributeError):
         nex.createNexus(file="single_actor.yaml", control_port=ports[0], output_port=ports[1])
@@ -131,14 +125,12 @@ def test_single_actor(setdir, ports):
     nex.destroyNexus()
 
 def test_cyclic_graph(setdir, ports):
-    setdir
     nex = Nexus("test")
     nex.createNexus(file="cyclic_config.yaml", control_port=ports[0], output_port=ports[1])
     assert True
     nex.destroyNexus()
 
 def test_blank_cfg(setdir, caplog, ports):
-    setdir
     nex = Nexus("test")
     with pytest.raises(TypeError):
         nex.createNexus(file="blank_file.yaml", control_port=ports[0], output_port=ports[1])
@@ -159,7 +151,6 @@ def test_blank_cfg(setdir, caplog, ports):
 
 @pytest.mark.skip(reason="unfinished")
 def test_queue_message(setdir, sample_nex):
-    setdir
     nex = sample_nex
     nex.startNexus()
     time.sleep(20)
@@ -239,9 +230,6 @@ def test_closestore(caplog):
 
 @pytest.mark.skip(reason="unfinished")
 def test_actor_sub(setdir, capsys, monkeypatch, ports):
-
-    
-    setdir
     monkeypatch.setattr("improv.nexus.input", lambda: "setup\n")
     cfg_file = "sample_config.yaml"
     nex = Nexus("test")
