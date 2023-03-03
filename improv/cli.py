@@ -160,7 +160,11 @@ def run_cleanup(args, headless=False):
 
         if res.lower() == 'y':
             for proc in proc_list:
-                proc.kill()
+                if not proc.status == 'terminated':
+                    proc.terminate()
+            gone, alive = psutil.wait_procs(proc_list, timeout=3)
+            for p in alive:
+                p.kill()
     else:
         if not headless:
             print("No running processes found.")
@@ -185,7 +189,7 @@ def run(args):
         server = subprocess.Popen(server_opts, stdout=logfile, stderr=logfile)
 
     # # wait for server to start up
-    time.sleep(1)  
+    time.sleep(1.5)  
 
     control_port, output_port, logging_port = _get_ports(args.logfile)
 
@@ -194,7 +198,14 @@ def run(args):
     args.server_port = output_port
     run_client(args)
 
-    server.wait()
+    try:
+        server.wait(timeout=2)
+    except subprocess.TimeoutExpired:
+        print("Cleaning up the hard way. May have exited dirty.")
+        server.terminate() 
+        server.wait()
+        run_cleanup(args, headless=True)
+
 
 def _get_ports(logfile):
     # read logfile to get ports
