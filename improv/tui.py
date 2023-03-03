@@ -55,7 +55,7 @@ class SocketLog(TextLog):
                 if msg_type != 'DEBUG' or self.print_debug:
                     msg = self.format(parts)
                     self.write(msg)
-                    await self.emit(self.Echo(self, msg))
+                    await self.post_message(self.Echo(self, msg))
         except asyncio.CancelledError:
             pass
 
@@ -189,7 +189,6 @@ class TUI(App, inherit_bindings=False):
         """
         REQUEST_TIMEOUT = 2500
         REQUEST_RETRIES = 3
-        SERVER_ENDPOINT = "tcp://localhost:5555"
 
         retries_left = REQUEST_RETRIES
 
