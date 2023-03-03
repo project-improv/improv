@@ -1,6 +1,6 @@
 import asyncio
 import zmq.asyncio as zmq
-from zmq import PUB, SUB, SUBSCRIBE, REQ, REP
+from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER
 from rich.table import Table
 from textual.app import App, ComposeResult
 from textual.containers import Grid, Container
@@ -77,12 +77,18 @@ class QuitScreen(Screen):
             Button("Cancel", variant="primary", id="cancel"),
             id="dialog",
         )
+    
+    async def on_key(self, event) -> None:
+        # make sure button-related key presses don't bubble up to main window
+        if event.key == "enter":
+            event.stop()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "quit":
             self.app.exit()
         else:
             self.app.pop_screen()
+    
 
 class HelpScreen(Screen):
     def compose(self):
@@ -176,26 +182,63 @@ class TUI(App, inherit_bindings=False):
             id="main"
         )
 
-    async def poll_controller(self):
+    async def send_to_controller(self, msg):
+        """
+        Safe version of send/receive with controller.
+        Based on the Lazy Pirate pattern [here](https://zguide.zeromq.org/docs/chapter4/#Client-Side-Reliability-Lazy-Pirate-Pattern)
+        """
+        REQUEST_TIMEOUT = 2500
+        REQUEST_RETRIES = 3
+        SERVER_ENDPOINT = "tcp://localhost:5555"
+
+        retries_left = REQUEST_RETRIES
+
         try:
-            ready = await self.control_socket.poll(10)
-            if ready:
-                reply = await self.control_socket.recv_multipart()
-                msg = reply[0].decode('utf-8')
-                self.query_one("#console").write(msg)
+            logger.info(f"Sending {msg} to controller.")
+            await self.control_socket.send_string(msg)
+            reply = None
+
+            while True:
+                ready = await self.control_socket.poll(REQUEST_TIMEOUT)
+
+                if ready:
+                    reply = await self.control_socket.recv_multipart()
+                    reply = reply[0].decode('utf-8')
+                    logger.info(f"Received {reply} from controller.")
+                    break
+                else: 
+                    retries_left -= 1
+                    logger.warning("No response from server.")
+                
+                # try to close and reconnect
+                self.control_socket.setsockopt(LINGER, 0)
+                self.control_socket.close()
+                if retries_left == 0:
+                    logger.error("Server seems to be offline. Giving up.")
+                    break
+                
+                logger.info("Attempting to reconnect to server...")
+
+                self.control_socket = self.context.socket(REQ)
+                self.control_socket.connect("tcp://%s" % self.control_port)
+
+                logger.info(f"Resending {msg} to controller.")
+                await self.control_socket.send_string(msg)
 
         except asyncio.CancelledError:
             pass
+        
+        return reply
 
 
     async def on_mount(self):
-        self.poller = self.set_interval(1/60, self.poll_controller)
         self.set_focus(self.query_one(Input))
     
     async def on_input_submitted(self, message):
         self.query_one(Input).value = ""
         self.query_one("#console").write(message.value)
-        await self.control_socket.send_string(message.value)
+        reply = await self.send_to_controller(message.value)
+        self.query_one("#console").write(reply)
     
     async def on_socket_log_echo(self, message):
         if message.sender.id == 'console' and message.value == 'QUIT':
