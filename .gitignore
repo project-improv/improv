@@ -136,3 +136,34 @@ arrow
 
 *.code-workspace
 
+demos/ava/affinewarp
+demos/ava/autoencoded_vocal_analysis
+demos/ava/data
+demos/ava/models
+demos/ava/output*
+demos/ava/spec_ex
+demos/ava/window_mwe
+
+demos/ava/dangling_blobs
+demos/ava/debug_spec.py
+demos/ava/MM_mtng.py
+demos/ava/*.mp4
+demos/ava/*.txt
+demos/ava/*.wav
+demos/ava/*.jpg
+demos/ava/**/.wav
+demos/ava/02*
+demos/ava/011723_ex.py
+demos/ava/012323_segments.py
+demos/ava/ex_stft.pdf
+demos/ava/mwe_ex.ipynb
+demos/ava/mwe_offline_embedding
+demos/ava/mwe.py
+demos/ava/actors/filter_silence.py
+demos/ava/scripts/gen_movie_0123.py
+demos/ava/scripts/gen_movie_0223.py
+demos/ava/scripts/gen_movie.py
+demos/ava/scripts/plotting.py
+demos/ava/scripts/segment_wav.py
+demos/ava/scripts/shotgun_movie.py
+demos/ava/scripts/utils.py
