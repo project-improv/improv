@@ -1,8 +1,6 @@
-from random import randint
 import time
 import os
-# import h5py
-import random
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -28,6 +26,12 @@ class AudioAcquirer(Actor):
     def __init__(self, *args, n_segs=None, folder=None, time_opt=True, timing=None, out_path=None, **kwargs):
     # def __init__(self, *args, folder=None, n_data=None, n_segs=None, window_len=None, prof_time=True, timing=None, out_path=None, **kwargs):
         super().__init__(*args, **kwargs)
+        # TODO: Add params set in .yaml or input = file to load params after tuning offline
+        # TODO: Add tuning online
+        # with open(params, 'r') as p:
+        #     self.params = params
+        #     params.close()
+        
         self.done = False
 
         self.seg_num = 0
@@ -47,7 +51,8 @@ class AudioAcquirer(Actor):
         self.n_segs = n_segs
 
     def setup(self):
-        os.makedirs(self.out_path, exist_ok=True)
+        if self.time_opt is True:
+            os.makedirs(self.out_path, exist_ok=True)
 
         # .wav files in specified dir
         self.files = [f.as_posix() for f in self.path.iterdir() if f.suffix == '.wav']
@@ -64,7 +69,9 @@ class AudioAcquirer(Actor):
         #     """Is the given filename a wave file?"""
         #     return len(filename) > 4 and filename[-4:] == '.wav'
 
-        random.seed(12345)
+        # In Visual Actor as well:
+        # self.audio_dir = os.path.join(self.out_path, 'audio')
+        # os.makedirs(self.audio_dir, exist_ok=True)
 
     def run(self):
         ''' Triggered at Run
@@ -75,19 +82,24 @@ class AudioAcquirer(Actor):
         self.put_wav_time = []
         self.put_out_time = []
 
-        with RunManager(self.name, self.runAcquirer, self.setup, self.q_sig, self.q_comm) as rm:
+        with RunManager(self.name, self.runAcquirer, self.setup, self.q_sig, self.q_comm, self.stop) as rm:
             print(rm)
 
         print('Acquire broke, avg time per segment:', np.mean(self.acq_total_times))
         print('Acquire got through', self.seg_num, ' segments')
 
+    def stop(self):
+        '''
+        '''
         if self.time_opt is True:
             keys = self.timing
             values = [self.acq_total_times, self.acq_timestamps, self.get_wav_time, self.put_wav_time, self.put_out_time]
             timing_dict = dict(zip(keys, values))
             df = pd.DataFrame.from_dict(timing_dict, orient='index').transpose()
             df.to_csv(os.path.join(self.out_path, 'acq_timing_' + str(self.n_segs) + '.csv'), index=False, header=True)
-        
+
+        return 0
+
     def runAcquirer(self):
         '''
         '''
@@ -103,10 +115,12 @@ class AudioAcquirer(Actor):
                 t1 = time.time()
                 fs, audio = self.get_audio(self.files[self.seg_num])
                 t2 = time.time()
-                seg_obj_id = self.client.put(audio, 'seg_num_' + str(self.seg_num))
+                # self.plot_audio(audio, self.files[self.seg_num])
+                audio_obj_id = self.client.put(audio, 'seg_num_' + str(self.seg_num))
                 fs_obj_id = self.client.put(fs, 'seg_num_' + str(self.seg_num))
+                fname_obj_id = self.client.put(self.files[self.seg_num], 'seg_num_' + str(self.seg_num))
                 t3 = time.time()
-                self.q_out.put([seg_obj_id, fs_obj_id, str(self.seg_num)])
+                self.q_out.put([audio_obj_id, fs_obj_id, fname_obj_id, str(self.seg_num)])
                 self.put_out_time.append((time.time() - t3)*1000.0)
 
                 self.seg_num += 1
@@ -128,8 +142,19 @@ class AudioAcquirer(Actor):
 
     def get_audio(self, file):
         '''
-        '''	
+        '''
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=WavFileWarning)
             fs, audio = wavfile.read(file)
         return fs, audio
+
+    def plot_audio(self, audio, fname):
+        try:
+            plt.plot(audio)
+            plt.imsave(os.path.join(self.audio_dir + fname + str(self.seg_num) + '.png'))
+            plt.close()
+        except Empty as e:
+            pass
+        except Exception as e:
+            # logger.error('Visual: Exception in get data: {}'.format(e))
+            pass
