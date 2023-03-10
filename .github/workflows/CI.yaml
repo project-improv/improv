@@ -30,7 +30,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip build
           pip install flake8 pytest
+      - name: Install package
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
           pip install -e .[tests] --no-binary pyzmq
+        if: startsWith(matrix.os, 'macos')
+          pip install -e .[tests] 
           
       - name: Test with pytest
         run: |
