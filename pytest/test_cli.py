@@ -38,7 +38,10 @@ async def server(setdir, ports):
     await asyncio.sleep(1.5)
     yield server
     server.wait()
-    os.remove('testlog')
+    try:
+        os.remove('testlog')
+    except FileNotFoundError:
+        pass
 
 def test_configfile_required(setdir):
     with pytest.raises(SystemExit):
