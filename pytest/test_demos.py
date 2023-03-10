@@ -27,7 +27,9 @@ async def test_simple_boot_and_quit(dir, configfile, logfile, setdir, ports):
                             '-l', str(logging_port),
                             '-f', logfile, configfile,
     ]
-    server = subprocess.Popen(server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    with open(logfile, mode='a+') as log:
+        server = subprocess.Popen(server_opts, stdout=log, stderr=log)
 
     # initialize client
     app = tui.TUI(control_port, output_port, logging_port)

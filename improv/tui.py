@@ -29,7 +29,7 @@ class SocketLog(TextLog):
 
     class Echo(Message):
         def __init__(self, sender, value) -> None:
-            super().__init__(sender)
+            super().__init__()
             self.value = value
     
     def write(self, content, width=None, expand=False, shrink=True):
@@ -55,7 +55,7 @@ class SocketLog(TextLog):
                 if msg_type != 'DEBUG' or self.print_debug:
                     msg = self.format(parts)
                     self.write(msg)
-                    await self.post_message(self.Echo(self, msg))
+                    self.post_message(self.Echo(self, msg))
         except asyncio.CancelledError:
             pass
 
@@ -157,7 +157,7 @@ class TUI(App, inherit_bindings=False):
         if msg_type == 'DEBUG':
             msg = '[bold black on white]' + msg + '[/]'
         elif msg_type == 'INFO':
-            msg = '[italic white]' + msg + '[/]'
+            msg = '[white]' + msg + '[/]'
         elif msg_type == 'WARNING': 
             msg = ':warning-emoji:  [yellow]' + msg + '[/]'
         elif msg_type == 'ERROR': 
@@ -241,6 +241,7 @@ class TUI(App, inherit_bindings=False):
     
     async def on_socket_log_echo(self, message):
         if message.sender.id == 'console' and message.value == 'QUIT':
+            logger.info("Got QUIT; will try to exit")
             self.exit()
     
     def action_request_quit(self):
