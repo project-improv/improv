@@ -164,7 +164,10 @@ def run_cleanup(args, headless=False):
         if res.lower() == 'y':
             for proc in proc_list:
                 if not proc.status == 'terminated':
-                    proc.terminate()
+                    try:
+                        proc.terminate()
+                    except psutil.NoSuchProcess:
+                        pass
             gone, alive = psutil.wait_procs(proc_list, timeout=3)
             for p in alive:
                 p.kill()
