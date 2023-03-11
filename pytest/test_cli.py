@@ -8,6 +8,8 @@ import improv.cli as cli
 
 from test_nexus import ports
 
+SERVER_WARMUP = 6
+
 @pytest.fixture
 def setdir():
     prev = os.getcwd()
@@ -36,7 +38,7 @@ async def server(setdir, ports):
     ]
 
     server = subprocess.Popen(server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    await asyncio.sleep(3.5)
+    await asyncio.sleep(SERVER_WARMUP)
     yield server
     server.wait()
     try:
@@ -153,7 +155,7 @@ async def test_improv_run_writes_stderr_to_log(setdir, ports):
                             '-f', 'testlog', 'blank_file.yaml',
     ]
     server = subprocess.Popen(server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    await asyncio.sleep(1.5)
+    await asyncio.sleep(SERVER_WARMUP)
     server.kill()
     server.wait()
     with open('testlog') as log:
