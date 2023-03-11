@@ -30,7 +30,7 @@ async def test_simple_boot_and_quit(dir, configfile, logfile, setdir, ports):
 
     with open(logfile, mode='a+') as log:
         server = subprocess.Popen(server_opts, stdout=log, stderr=log)
-        await asyncio.sleep(1.5)
+        await asyncio.sleep(2.5)
 
     # initialize client
     app = tui.TUI(control_port, output_port, logging_port)
