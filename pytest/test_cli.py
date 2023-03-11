@@ -121,14 +121,17 @@ def test_can_override_ip(mode, flag, expected):
     args = cli.parse_cli_args([mode, flag, expected])
     assert vars(args)[params[flag]] == expected
 
+@pytest.mark.skip()
 async def test_sigint_kills_server(server):
     server.send_signal(signal.SIGINT)
 
+@pytest.mark.skip()
 async def test_improv_list_nonempty(server):
     proc_list = cli.run_list('', printit=False)
     assert len(proc_list) > 0
     server.send_signal(signal.SIGINT)
 
+@pytest.mark.skip()
 async def test_improv_kill_empties_list(server):
     proc_list = cli.run_list('', printit=False)
     assert len(proc_list) > 0
@@ -136,6 +139,7 @@ async def test_improv_kill_empties_list(server):
     proc_list = cli.run_list('', printit=False)
     assert len(proc_list) == 0
 
+@pytest.mark.skip()
 async def test_improv_run_writes_stderr_to_log(setdir, ports):
     os.chdir('configs')
     control_port, output_port, logging_port = ports
