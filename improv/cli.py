@@ -6,6 +6,7 @@ import subprocess
 import sys
 import psutil
 import time
+import datetime
 import re
 from zmq import SocketOption
 from zmq.log.handlers import PUBHandler
@@ -124,7 +125,8 @@ def run_server(args):
 
     server = Nexus()
     control_port, output_port = server.createNexus(file=args.configfile, control_port=args.control_port, output_port=args.output_port)
-    print("Server running on (control, output, log) ports ({}, {}, {}).\nPress Ctrl-C to quit.".format(control_port, output_port, logging_port))
+    curr_dt = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print(f"{curr_dt} Server running on (control, output, log) ports ({control_port}, {output_port}, {logging_port}).\nPress Ctrl-C to quit.")
     server.startNexus()
 
     if args.actor_path:
@@ -136,10 +138,11 @@ def run_server(args):
 def run_list(args, printit=True):
     out_list = []
     pattern = re.compile(r'(improv (run|client|server)|plasma_store)')
+    mp_pattern = re.compile(r'-c from multiprocessing')
     for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
         if proc.info['cmdline']: 
             cmdline = ' '.join(proc.info['cmdline'])
-            if re.search(pattern, cmdline): 
+            if re.search(pattern, cmdline) or re.search(mp_pattern, cmdline): 
                 out_list.append(proc)
                 if printit:
                     print(f"{proc.pid} {proc.name()} {cmdline}")
@@ -185,13 +188,24 @@ def run(args):
     server_opts.extend(apath_opts)
     server_opts.append(args.configfile)
 
+    # save current datetime so we can see when server has started up
+    curr_dt = datetime.datetime.now().replace(microsecond=0) 
+
     with open(args.logfile, mode='a+') as logfile:
         server = subprocess.Popen(server_opts, stdout=logfile, stderr=logfile)
 
-    # # wait for server to start up
-    time.sleep(1.5)  
-
-    control_port, output_port, logging_port = _get_ports(args.logfile)
+    # wait for server to start up
+    timeout = 10
+    increment = 0.05
+    time_now = 0
+    while time_now < timeout:
+        server_start_time = _server_start_logged(args.logfile)
+        if server_start_time and server_start_time >= curr_dt:
+            control_port, output_port, logging_port = _get_ports(args.logfile)
+            break
+        else:
+            time.sleep(increment)
+            time_now += increment
 
     args.logging_port = logging_port
     args.control_port = control_port
@@ -206,6 +220,16 @@ def run(args):
         server.wait()
         run_cleanup(args, headless=True)
 
+def _server_start_logged(logfile):
+    # read logfile to make sure new session and ports are logged
+    with open(logfile, mode='r') as logfile:
+        contents = logfile.read()
+        pattern = re.compile(r'\d{4}-\d{2}-\d{2} \d{2}\:\d{2}\:\d{2}(?= Server running on)')
+        matches = pattern.findall(contents)
+        if matches:
+            return datetime.datetime.strptime(matches[-1],'%Y-%m-%d %H:%M:%S')
+        else:
+            return None
 
 def _get_ports(logfile):
     # read logfile to get ports
@@ -215,7 +239,11 @@ def _get_ports(logfile):
         pattern = re.compile(r'(?<=\(control, output, log\) ports \()\d*, \d*, \d*')
         
         # get most recent match (log file may contain old runs)
-        port_str = pattern.findall(contents)[-1]
-        return (int(p) for p in port_str.split(', '))
+        port_str_list = pattern.findall(contents)
+        if port_str_list:
+            port_str = port_str_list[-1]
+            return (int(p) for p in port_str.split(', '))
+        else:
+            return None
 
 
