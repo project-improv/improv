@@ -8,7 +8,7 @@ import improv.cli as cli
 
 from test_nexus import ports
 
-SERVER_WARMUP = 6
+SERVER_WARMUP = 8
 
 @pytest.fixture
 def setdir():
@@ -40,7 +40,7 @@ async def server(setdir, ports):
     server = subprocess.Popen(server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     await asyncio.sleep(SERVER_WARMUP)
     yield server
-    server.wait()
+    server.wait(5)
     try:
         os.remove('testlog')
     except FileNotFoundError:
