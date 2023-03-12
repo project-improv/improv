@@ -29,7 +29,7 @@ dependencies = [
 classifiers = ['Development Status :: 1 - Planning']
 
 [project.optional-dependencies]
-tests = ["pytest", "async-timeout", "pytest-asyncio", "scikit-image",]
+tests = ["pytest", "async-timeout", "pytest-asyncio", "pytest-cov", "scikit-image",]
 docs = ["jupyter-book"]
 caiman = []
 
