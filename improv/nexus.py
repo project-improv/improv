@@ -27,8 +27,8 @@ logger.setLevel(logging.DEBUG)
 # TODO: Rename store variables here (not stricly necessary)
 
 class Nexus():
-    ''' Main server class for handling objects in RASP
-    '''
+    """ Main server class for handling objects in RASP
+    """
     def __init__(self, name="Server"):
         self.name = name
 
@@ -88,7 +88,7 @@ class Nexus():
         return (control_port, output_port)
 
     def loadConfig(self, file):
-        ''' For each connection:
+        """ For each connection:
             create a Link with a name (purpose), start, and end
             Start links to one actor's name, end to the other.
             Nexus gives start_actor the Link as a q_in,
@@ -98,7 +98,7 @@ class Nexus():
               for communication purposes.
             OR
             For each connection, create 2 Links. Nexus acts as intermediary.
-        '''
+        """
         #TODO load from file or user input, as in dialogue through FrontEnd?
 
         self.config = Config(configFile = file)
@@ -163,9 +163,9 @@ class Nexus():
 
     def startNexus(self):
 
-        ''' Puts all actors in separate processes and begins polling
+        """ Puts all actors in separate processes and begins polling
             to listen to comm queues
-        '''
+        """
         for name,m in self.actors.items(): # m accesses the specific actor class instance
             if 'GUI' not in name: #GUI already started
                 if 'method' in self.config.actors[name].options:
@@ -220,9 +220,9 @@ class Nexus():
 
 
     def destroyNexus(self):
-        ''' Method that calls the internal method
+        """ Method that calls the internal method
             to kill the process running the store (plasma server)
-        '''
+        """
         logger.warning('Destroying Nexus')
         self._closeStore()
 
@@ -303,9 +303,9 @@ class Nexus():
         self.processGuiSignal([command], 'TUI_Nexus')
 
     def processGuiSignal(self, flag, name):
-        '''Receive flags from the Front End as user input
+        """Receive flags from the Front End as user input
             TODO: Not all needed
-        '''
+        """
         # import pdb; pdb.set_trace()
         name = name.split('_')[0]
         if flag:
@@ -481,8 +481,8 @@ class Nexus():
         logger.info('Polling has stopped.')
 
     def createStore(self, name):
-        ''' Creates Store w/ or w/out LMDB functionality based on {self.use_hdd}. 
-        '''
+        """ Creates Store w/ or w/out LMDB functionality based on {self.use_hdd}. 
+        """
         if not self.use_hdd:
             return Store(name)
         else:
@@ -491,12 +491,12 @@ class Nexus():
             return self.store_dict[name]
 
     def _startStore(self, size):
-        ''' Start a subprocess that runs the plasma store
+        """ Start a subprocess that runs the plasma store
             Raises a RuntimeError exception size is undefined
             Raises an Exception if the plasma store doesn't start
 
             #TODO: Generalize this to non-plasma stores
-        '''
+        """
         if size is None:
             raise RuntimeError('Server size needs to be specified')
         try:
@@ -511,9 +511,9 @@ class Nexus():
             logger.exception('Store cannot be started: {0}'.format(e))
 
     def _closeStore(self):
-        ''' Internal method to kill the subprocess
+        """ Internal method to kill the subprocess
             running the store (plasma sever)
-        '''
+        """
         try:
             self.p_Store.kill()
             self.p_Store.wait()
@@ -522,9 +522,9 @@ class Nexus():
             logger.exception('Cannot close store {0}'.format(e))
 
     def createActor(self, name, actor):
-        ''' Function to instantiate actor, add signal and comm Links,
+        """ Function to instantiate actor, add signal and comm Links,
             and update self.actors dictionary
-        '''
+        """
         # Instantiate selected class
         mod = import_module(actor.packagename)
         clss = getattr(mod, actor.classname)
@@ -559,15 +559,15 @@ class Nexus():
         self.actors.update({name:instance})
 
     def runActor(self, actor):
-        '''Run the actor continually; used for separate processes
+        """Run the actor continually; used for separate processes
             #TODO: hook into monitoring here?
-        '''
+        """
         actor.run()
 
     def createConnections(self):
-        ''' Assemble links (multi or other)
+        """ Assemble links (multi or other)
             for later assignment
-        '''
+        """
         for source,drain in self.config.connections.items():
             name = source.split('.')[0]
             #current assumption is connection goes from q_out to something(s) else
@@ -584,13 +584,13 @@ class Nexus():
                 self.data_queues.update({d:link})
 
     def assignLink(self, name, link):
-        ''' Function to set up Links between actors
+        """ Function to set up Links between actors
             for data location passing
             Actor must already be instantiated
 
             #NOTE: Could use this for reassigning links if actors crash?
             #TODO: Adjust to use default q_out and q_in vs being specified
-        '''
+        """
         classname = name.split('.')[0]
         linktype = name.split('.')[1]
         if linktype == 'q_out':

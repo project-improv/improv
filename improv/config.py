@@ -8,9 +8,9 @@ import logging; logger = logging.getLogger(__name__)
 #TODO: Write a save function for Config objects output as YAML configFile but using ConfigModule objects
 
 class Config():
-    ''' Handles configuration and logs of configs for
+    """ Handles configuration and logs of configs for
         the entire server/processing pipeline.
-    '''
+    """
 
     def __init__(self, configFile):
         if configFile is None:
@@ -25,9 +25,9 @@ class Config():
         self.hasGUI = False
 
     def createConfig(self):
-        ''' Read yaml config file and create config for Nexus
+        """ Read yaml config file and create config for Nexus
             TODO: check for config file compliance, error handle it
-        '''
+        """
         with open(self.configFile, 'r') as ymlfile:
             cfg = yaml.safe_load(ymlfile)
 
@@ -94,12 +94,12 @@ class Config():
 
 
     def addParams(self, type, param):
-        ''' Function to add paramter param of type type
-        '''
+        """ Function to add paramter param of type type
+        """
 
     def saveActors(self):
-        ''' Saves the config to a specific file.
-        '''
+        """ Saves the config to a specific file.
+        """
         
         wflag = True
         
@@ -120,8 +120,8 @@ class ConfigModule():
         self.options = options
 
     def saveConfigModules(self, pathName, wflag):
-        ''' Loops through each actor to save the modules to the config file.
-        '''
+        """ Loops through each actor to save the modules to the config file.
+        """
 
         if wflag: 
             writeOption = 'w'

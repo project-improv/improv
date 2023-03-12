@@ -1,7 +1,7 @@
 from functools import wraps
 
 # def coroutine(func): #FIXME who uses this and why?
-#     ''' Decorator that primes 'func' by calling first {yield}. '''
+#     """ Decorator that primes 'func' by calling first {yield}. """
 
 #     @wraps(func)
 #     def primer(*args, **kwargs):
@@ -12,7 +12,7 @@ from functools import wraps
 
 @coroutine
 def get_num_length_from_key():
-    '''
+    """
     Coroutine that gets the length of digits in LMDB key.
     Assumes that object name does not have any digits.
 
@@ -25,7 +25,7 @@ def get_num_length_from_key():
         >>> num_idx.send(b'acq_raw1\x80\x03GA\xd7L\x1b\x8f\xb0\x1b\xb0.')
         1
 
-    '''
+    """
     max_num_len = 1  # Keep track of largest digit for performance.
 
     def worker():
