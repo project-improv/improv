@@ -220,7 +220,7 @@ def run(args):
     except subprocess.TimeoutExpired:
         print("Cleaning up the hard way. May have exited dirty.")
         server.terminate() 
-        server.wait()
+        server.wait(10)
         run_cleanup(args, headless=True)
 
 def _server_start_logged(logfile):

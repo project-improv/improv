@@ -157,7 +157,7 @@ async def test_improv_run_writes_stderr_to_log(setdir, ports):
     server = subprocess.Popen(server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     await asyncio.sleep(SERVER_WARMUP)
     server.kill()
-    server.wait()
+    server.wait(10)
     with open('testlog') as log:
         contents = log.read()
     assert 'Traceback' in contents

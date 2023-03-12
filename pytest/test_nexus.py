@@ -264,5 +264,5 @@ def test_sigint_exits_cleanly(ports, tmp_path):
     
     server.send_signal(signal.SIGINT)
 
-    server.wait()
+    server.wait(10)
     assert True

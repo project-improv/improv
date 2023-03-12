@@ -44,5 +44,5 @@ async def test_simple_boot_and_quit(dir, configfile, logfile, setdir, ports):
         assert not pilot.app._running
 
     # wait on server to fully shut down
-    server.wait()
+    server.wait(10)
     os.remove(logfile)  # later, might want to read this file and check for messages
