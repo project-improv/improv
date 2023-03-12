@@ -162,8 +162,8 @@ class Nexus():
 
 
     def startNexus(self):
-
-        """ Puts all actors in separate processes and begins polling
+        """ 
+        Puts all actors in separate processes and begins polling
             to listen to comm queues
         """
         for name,m in self.actors.items(): # m accesses the specific actor class instance
@@ -228,7 +228,8 @@ class Nexus():
 
 
     async def pollQueues(self):
-        """ Listens to links and processes their signals.
+        """ 
+        Listens to links and processes their signals.
         
         For every communications queue connected to Nexus, a task is
         created that gets from the queue. Throughout runtime, when these

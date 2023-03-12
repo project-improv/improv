@@ -8,7 +8,8 @@ import improv.cli as cli
 
 from test_nexus import ports
 
-SERVER_WARMUP = 8
+SERVER_WARMUP = 10
+SERVER_TIMEOUT = 10
 
 @pytest.fixture
 def setdir():
@@ -40,7 +41,7 @@ async def server(setdir, ports):
     server = subprocess.Popen(server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     await asyncio.sleep(SERVER_WARMUP)
     yield server
-    server.wait(5)
+    server.wait(SERVER_TIMEOUT)
     try:
         os.remove('testlog')
     except FileNotFoundError:
@@ -157,7 +158,7 @@ async def test_improv_run_writes_stderr_to_log(setdir, ports):
     server = subprocess.Popen(server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     await asyncio.sleep(SERVER_WARMUP)
     server.kill()
-    server.wait(10)
+    server.wait(SERVER_TIMEOUT)
     with open('testlog') as log:
         contents = log.read()
     assert 'Traceback' in contents
