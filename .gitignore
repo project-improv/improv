@@ -151,7 +151,7 @@ demos/ava/*.mp4
 demos/ava/*.txt
 demos/ava/*.wav
 demos/ava/*.jpg
-demos/ava/**/.wav
+demos/ava/**/*.wav
 demos/ava/02*
 demos/ava/011723_ex.py
 demos/ava/012323_segments.py
