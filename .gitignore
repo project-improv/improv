@@ -156,13 +156,9 @@ demos/ava/02*
 demos/ava/011723_ex.py
 demos/ava/012323_segments.py
 demos/ava/ex_stft.pdf
-demos/ava/mwe_ex.ipynb
-demos/ava/mwe_offline_embedding
-demos/ava/mwe.py
+demos/ava/mwe*
 demos/ava/actors/filter_silence.py
-demos/ava/scripts/gen_movie_0123.py
-demos/ava/scripts/gen_movie_0223.py
-demos/ava/scripts/gen_movie.py
+demos/ava/scripts/gen_movie*
 demos/ava/scripts/plotting.py
 demos/ava/scripts/segment_wav.py
 demos/ava/scripts/shotgun_movie.py
