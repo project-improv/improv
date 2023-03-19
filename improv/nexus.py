@@ -412,9 +412,12 @@ class Nexus():
                 except Full:
                     logger.warning('Signal queue'+q.name+'is full')
                         #queue full, keep going anyway TODO: add repeat trying as async task
+        else:
+            logger.error('-- Not all actors are ready yet, please wait and then try again.')
 
     def quit(self):
         logger.warning('Killing child processes')
+        self.out_socket.send_string("QUIT")
 
         for q in self.sig_queues.values():
             try:

@@ -26,6 +26,7 @@ class Generator(Actor):
         integers from 1-99, inclusive. 
         """
 
+        logger.info('Beginning setup for Generator')
         self.data = np.asmatrix(np.random.randint(100, size = (100, 5)))
         logger.info('Completed setup for Generator')
 
@@ -44,7 +45,7 @@ class Generator(Actor):
         """ Save current randint vector to a file.
         """ 
 
-        print("Generator stopping")
+        logger.info("Generator stopping")
         np.save(f"sample_generator_data_{date.today()}", self.data) #This is not the best example of a save function, will overwrite previous files with the same name.
         return 0
 
@@ -59,10 +60,12 @@ class Generator(Actor):
 
         if(self.frame_num < np.shape(self.data)[0]):
             data_id = self.client.put(self.data[self.frame_num], str(f"Gen_raw: {self.frame_num}"))
+            # logger.info('Put data in store')
             try:
                 self.q_out.put([[data_id, str(self.frame_num)]])
+                logger.info('Sent message on')
                 self.frame_num += 1
             except Exception as e:
-                logger.error(f"Generator Exception: {e}")
+                logger.error(f"--------------------------------Generator Exception: {e}")
         else:
             self.data = np.concatenate((self.data, np.asmatrix(np.random.randint(10, size=(1, 5)))), axis=0)

@@ -131,7 +131,7 @@ class AbstractActor():
         """ Suggested implementation for synchronous running: see RunManager class below
         """
 
-    def stop():
+    def stop(self):
         """ Specify method for momentarily stopping the run and saving data.
         """
         pass
@@ -241,12 +241,11 @@ class RunManager():
                     logger.error('Actor '+self.actorName+' exception during run: {}'.format(e))
                     print(traceback.format_exc())
             elif self.stop:
-                    #Read stop codes
                 try:
-                    self.actions['run']()
-                    self.q_comm.put([Signal.ready()])
+                    self.actions['stop']()
                 except Exception as e:
-                    logger.error(f'Actor {self.actorName} exception during stop: {e}')
+                    logger.error('Actor '+self.actorName+' exception during stop: {}'.format(e))
+                    print(traceback.format_exc())
                 self.stop = False #Run once
             elif self.config:
                 try:
@@ -258,12 +257,6 @@ class RunManager():
                     logger.error('Actor '+self.actorName+' exception during setup: {}'.format(e))  
                     print(traceback.format_exc())
                 self.config = False 
-            elif self.stop:
-                try:
-                    self.actions['stop']()
-                except Exception as e:
-                    logger.error('Actor '+self.actorName+' exception during stop: {}'.format(e))
-                    print(traceback.format_exc())
 
             # Check for new Signals received from Nexus
             try: 

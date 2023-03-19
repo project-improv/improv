@@ -77,7 +77,6 @@ class MeanAnalysis(Actor):
         t = time.time()
         ids = None
         try: 
-            print(self.links)
             sig = self.links['input_stim_queue'].get(timeout=0.0001)
             self.updateStim_start(sig)
         except Empty as e:

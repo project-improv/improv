@@ -56,7 +56,7 @@ class Processor(Actor):
 
         frame = None
         try:
-            frame = self.q_in.get(timeout=0.05)
+            frame = self.q_in.get(timeout=0.001)
 
         except:
             logger.error("Could not get frame!")

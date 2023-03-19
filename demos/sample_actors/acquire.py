@@ -68,8 +68,8 @@ class FileAcquirer(Actor):
 
         if self.done:
             pass
-        elif(self.frame_num < len(self.data)):
-            frame = self.getFrame(self.frame_num)
+        elif(self.frame_num < len(self.data)*5):
+            frame = self.getFrame(self.frame_num % len(self.data))
             ## simulate frame-dropping
             # if self.frame_num > 1500 and self.frame_num < 1800:
             #     frame = None
