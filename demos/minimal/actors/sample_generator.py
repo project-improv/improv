@@ -16,8 +16,10 @@ class Generator(Actor):
         self.name = "Generator"
         self.frame_num = 0
     
+
     def __str__(self):
         return f"Name: {self.name}, Data: {self.data}"
+
 
     def setup(self):
         """ Generates an array that serves as an initial source of data.
@@ -30,24 +32,15 @@ class Generator(Actor):
         self.data = np.asmatrix(np.random.randint(100, size = (100, 5)))
         logger.info('Completed setup for Generator')
 
-    # def run(self):
-    #     """ Send array into the store.
-    #     """
-    #     self.fcns = {}
-    #     self.fcns['setup'] = self.setup
-    #     self.fcns['run'] = self.runStep
-    #     self.fcns['stop'] = self.stop
-
-    #     with RunManager(self.name, self.fcns, self.links) as rm:
-    #         logger.info(rm)
 
     def stop(self):
         """ Save current randint vector to a file.
         """ 
 
         logger.info("Generator stopping")
-        np.save(f"sample_generator_data_{date.today()}", self.data) #This is not the best example of a save function, will overwrite previous files with the same name.
+        np.save("sample_generator_data.npy", self.data)
         return 0
+
 
     def runStep(self):
         """ Generates additional data after initial setup data is exhausted.

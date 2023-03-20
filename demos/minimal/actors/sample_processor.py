@@ -1,4 +1,4 @@
-from improv.actor import Actor, RunManager
+from improv.actor import Actor
 import numpy as np
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -27,23 +27,12 @@ class Processor(Actor):
         self.frame_num = 1
         logger.info('Completed setup for Processor')
 
+
     def stop(self):
         """ Trivial stop function for testing purposes.
         """
 
         logger.info("Processor stopping")
-        return 0
-
-    # def run(self):
-    #     """ Send array into the store.
-    #     """
-    #     self.fcns = {}
-    #     self.fcns['setup'] = self.setup
-    #     self.fcns['run'] = self.runStep
-    #     self.fcns['stop'] = self.stop
-
-    #     with RunManager(self.name, self.fcns, self.links) as rm:
-    #         logger.info(rm)
 
 
     def runStep(self):
