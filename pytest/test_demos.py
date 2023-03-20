@@ -5,6 +5,7 @@ import subprocess
 import improv.tui as tui
 
 from test_nexus import ports
+SERVER_WARMUP = 8 
 
 @pytest.fixture()
 def setdir():
@@ -30,6 +31,7 @@ async def test_simple_boot_and_quit(dir, configfile, logfile, setdir, ports):
 
     with open(logfile, mode='a+') as log:
         server = subprocess.Popen(server_opts, stdout=log, stderr=log)
+    await asyncio.sleep(SERVER_WARMUP)
 
     # initialize client
     app = tui.TUI(control_port, output_port, logging_port)
@@ -40,7 +42,7 @@ async def test_simple_boot_and_quit(dir, configfile, logfile, setdir, ports):
         await pilot.press(*'setup', 'enter')
         await pilot.pause(.5)
         await pilot.press(*'quit', 'enter')
-        await pilot.pause(10)
+        await pilot.pause(2)
         assert not pilot.app._running
 
     # wait on server to fully shut down
@@ -63,6 +65,8 @@ async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
 
     with open(logfile, mode='a+') as log:
         server = subprocess.Popen(server_opts, stdout=log, stderr=log)
+    await asyncio.sleep(SERVER_WARMUP)
+    
 
     # initialize client
     app = tui.TUI(control_port, output_port, logging_port)
@@ -77,7 +81,7 @@ async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
         await pilot.press(*'stop', 'enter')
         await pilot.pause(2)
         await pilot.press(*'quit', 'enter')
-        await pilot.pause(10)
+        await pilot.pause(2)
         assert not pilot.app._running
 
     # wait on server to fully shut down
