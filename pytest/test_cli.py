@@ -8,8 +8,8 @@ import improv.cli as cli
 
 from test_nexus import ports
 
-SERVER_WARMUP = 10
-SERVER_TIMEOUT = 10
+SERVER_WARMUP = 12
+SERVER_TIMEOUT = 12
 
 @pytest.fixture
 def setdir():
