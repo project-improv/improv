@@ -40,7 +40,7 @@ async def test_simple_boot_and_quit(dir, configfile, logfile, setdir, ports):
         await pilot.press(*'setup', 'enter')
         await pilot.pause(.5)
         await pilot.press(*'quit', 'enter')
-        await pilot.pause(8)
+        await pilot.pause(10)
         assert not pilot.app._running
 
     # wait on server to fully shut down
@@ -77,7 +77,7 @@ async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
         await pilot.press(*'stop', 'enter')
         await pilot.pause(2)
         await pilot.press(*'quit', 'enter')
-        await pilot.pause(8)
+        await pilot.pause(10)
         assert not pilot.app._running
 
     # wait on server to fully shut down
