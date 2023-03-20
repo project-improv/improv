@@ -13,6 +13,8 @@ from improv.store import CannotConnectToStoreError
 import pickle
 import subprocess
 
+WAIT_TIMEOUT = 10
+
 # TODO: add docstrings!!!
 # TODO: clean up syntax - consistent capitalization, function names, etc.
 # TODO: decide to keep classes
@@ -46,7 +48,7 @@ def setup_store(store_loc='/tmp/store'):
         # '''
         # print('Tearing down Plasma store.')
         p.kill()
-        p.wait()
+        p.wait(WAIT_TIMEOUT)
 
 
 def test_connect(setup_store):
