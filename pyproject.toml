@@ -21,7 +21,7 @@ dependencies = [
     "PyQt5",
     "lmdb",
     "pyyaml",
-    "textual",
+    "textual==0.15.0",
     "pyzmq",
     "psutil",
     "h5py",
