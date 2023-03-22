@@ -24,8 +24,8 @@ logger.setLevel(logging.DEBUG)
 
 
 class StoreInterface():
-    '''General interface for a store
-    '''
+    """General interface for a store
+    """
     def get(self):
         raise NotImplementedError
 
@@ -43,10 +43,10 @@ class StoreInterface():
 
 
 class PlasmaStore(StoreInterface):
-    ''' Basic interface for our specific data store implemented with apache arrow plasma
+    """ Basic interface for our specific data store implemented with apache arrow plasma
     Objects are stored with object_ids
     References to objects are contained in a dict where key is shortname, value is object_id
-    '''
+    """
 
     def __init__(self, name='default', store_loc='/tmp/store',
                  use_lmdb=False, lmdb_path='../outputs/', lmdb_name=None, hdd_maxstore=1e12,
@@ -85,11 +85,11 @@ class PlasmaStore(StoreInterface):
                                         commit_freq=commit_freq)
 
     def connect_store(self, store_loc):
-        ''' Connect to the store at store_loc
+        """ Connect to the store at store_loc
             Raises exception if can't connect
             Returns the plasmaclient if successful
             Updates the client internal
-        '''
+        """
         try:
             self.client = plasma.connect(store_loc, 20)
             # Is plasma.PlasmaClient necessary?
@@ -183,12 +183,12 @@ class PlasmaStore(StoreInterface):
 
     # Before get or getID - check if object is present and sealed (client.contains(obj_id))
     def get(self, object_name):
-        ''' Get a single object from the store
+        """ Get a single object from the store
             Checks to see if it knows the object first
             Otherwise throw CannotGetObject to request dict update
             TODO: update for lists of objects
             TODO: replace with getID
-        '''
+        """
         #print('trying to get ', object_name)
         # if self.stored.get(object_name) is None:
         #     logger.error('Never recorded storing this object: '+object_name)
@@ -225,19 +225,19 @@ class PlasmaStore(StoreInterface):
         raise ObjectNotFoundError
 
     def getList(self, ids):
-        ''' Get multiple objects from the store
-        '''
+        """ Get multiple objects from the store
+        """
         # self._get()
         return self.client.get(ids)
 
     def get_all(self):
-        ''' Get a listing of all objects in the store
-        '''
+        """ Get a listing of all objects in the store
+        """
         return self.client.list()
 
     def reset(self):
-        ''' Reset client connection
-        '''
+        """ Reset client connection
+        """
         self.client = self.connect_store(self.store_loc)
         logger.debug('Reset local connection to store')
 
@@ -246,9 +246,9 @@ class PlasmaStore(StoreInterface):
 
     # Necessary? How to fix for functionality? Subscribe to notifications about sealed objects?
     def subscribe(self):
-        ''' Subscribe to a section? of the ds for singals
+        """ Subscribe to a section? of the ds for singals
             Throws unknown errors
-        '''
+        """
         try:
             self.client.subscribe()
         except Exception as e:
@@ -276,27 +276,27 @@ class PlasmaStore(StoreInterface):
         return ids
 
     def updateStored(self, object_name, object_id):
-        ''' Update local dict with info we need locally
+        """ Update local dict with info we need locally
             Report to Nexus that we updated the store
                 (did a put or delete/replace)
-        '''
+        """
         self.stored.update({object_name:object_id})
 
     def getStored(self):
-        ''' returns its info about what it has stored
-        '''
+        """ returns its info about what it has stored
+        """
         return self.stored
 
     def _put(self, obj, id):
-        ''' Internal put
-        '''
+        """ Internal put
+        """
         return self.client.put(obj, id)
 
     def _get(self, object_name):
-        ''' Get an object from the store using its name
+        """ Get an object from the store using its name
             Assumes we know the id for the object_name
             Raises ObjectNotFound if object_id returns no object from the store
-        '''
+        """
         # Most errors not shown to user.
         # Maintain separation between external and internal function calls.
         res = self.getID(self.stored.get(object_name))
@@ -318,17 +318,17 @@ class PlasmaStore(StoreInterface):
 
     # Delete below!
     def saveStore(self, fileName='data/store_dump'):
-        ''' Save the entire store to disk
+        """ Save the entire store to disk
             Uses pickle, should extend to mmap, hd5f, ...
-        '''
+        """
         raise NotImplementedError
 
     def saveConfig(self, config_ids, fileName='data/config_dump'):
-        ''' Save current Config object containing parameters
+        """ Save current Config object containing parameters
             to run the experiment.
             Config is pickleable
             TODO: move this to Nexus' domain?
-        '''
+        """
         config = self.client.get(config_ids)
         #for object ID in list of items in config, get from store
         #and put into dict (?)
@@ -336,9 +336,9 @@ class PlasmaStore(StoreInterface):
             pickle.dump(config, output, -1)
 
     def saveSubstore(self, keys, fileName='data/substore_dump'):
-        ''' Save portion of store based on keys
+        """ Save portion of store based on keys
             to disk
-        '''
+        """
         raise NotImplementedError
 
     def saveObj(obj, name):
@@ -564,8 +564,8 @@ class CannotGetObjectError(Exception):
         return self.message
 
 class CannotConnectToStoreError(Exception):
-    '''Raised when failing to connect to store.
-    '''
+    """Raised when failing to connect to store.
+    """
     def __init__(self, store_loc):
 
         super().__init__()

@@ -5,6 +5,8 @@ import sys
 import time
 import subprocess
 import logging
+import zmq.asyncio as zmq
+from zmq import PUB, REP, SocketOption
 
 from multiprocessing import Process, get_context
 from importlib import import_module
@@ -19,26 +21,38 @@ from improv.link import Link, MultiLink
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(name)s %(message)s',
-                    handlers=[logging.FileHandler("global.log"),
-                              logging.StreamHandler()])
 
 # TODO: Set up store.notify in async function (?)
 
 # TODO: Rename store variables here (not stricly necessary)
 
 class Nexus():
-    ''' Main server class for handling objects in RASP
-    '''
-    def __init__(self, name):
+    """ Main server class for handling objects in RASP
+    """
+    def __init__(self, name="Server"):
         self.name = name
 
     def __str__(self):
         return self.name
     
-    def createNexus(self, file=None, use_hdd=False, use_watcher=False, store_size=10000000):
+    def createNexus(self, file=None, use_hdd=False, use_watcher=False, store_size=10000000, 
+                    control_port=0, output_port=0):
+        
+        curr_dt = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        logger.info(f"************ new improv server session {curr_dt} ************")
+
+        # set up socket in lieu of printing to stdout
+        self.zmq_context = zmq.Context()
+        self.out_socket = self.zmq_context.socket(PUB)
+        self.out_socket.bind("tcp://*:%s" % output_port)
+        output_port = int(self.out_socket.getsockopt_string(SocketOption.LAST_ENDPOINT).split(':')[-1])
+
+        self.in_socket = self.zmq_context.socket(REP)
+        self.in_socket.bind("tcp://*:%s" % control_port)
+        control_port = int(self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT).split(':')[-1])
+
         self._startStore(store_size) #default size should be system-dependent; this is 40 GB
+        self.out_socket.send_string("Store started")
 
         #connect to store and subscribe to notifications
         self.store = Store()
@@ -71,8 +85,10 @@ class Nexus():
         self.allowStart = False
         self.stopped = False
 
+        return (control_port, output_port)
+
     def loadConfig(self, file):
-        ''' For each connection:
+        """ For each connection:
             create a Link with a name (purpose), start, and end
             Start links to one actor's name, end to the other.
             Nexus gives start_actor the Link as a q_in,
@@ -82,7 +98,7 @@ class Nexus():
               for communication purposes.
             OR
             For each connection, create 2 Links. Nexus acts as intermediary.
-        '''
+        """
         #TODO load from file or user input, as in dialogue through FrontEnd?
 
         self.config = Config(configFile = file)
@@ -146,10 +162,10 @@ class Nexus():
 
 
     def startNexus(self):
-
-        ''' Puts all actors in separate processes and begins polling
+        """ 
+        Puts all actors in separate processes and begins polling
             to listen to comm queues
-        '''
+        """
         for name,m in self.actors.items(): # m accesses the specific actor class instance
             if 'GUI' not in name: #GUI already started
                 if 'method' in self.config.actors[name].options:
@@ -173,25 +189,23 @@ class Nexus():
         # if self.config.hasGUI:
         loop = asyncio.get_event_loop()
 
-        signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
-        for s in signals:
-            loop.add_signal_handler(
-                s, lambda s=s: self.stop_polling(s, loop)) #TODO
         try:
+            self.out_socket.send_string("Awaiting input:")
             res = loop.run_until_complete(self.pollQueues()) #TODO: in Link executor, complete all tasks
         except asyncio.CancelledError:
-            logging.info("Loop is cancelled")
+            logger.info("Loop is cancelled")
         
         try:
-            logging.info(f"Result of run_until_complete: {res}") 
+            logger.info(f"Result of run_until_complete: {res}") 
         except:
-            logging.info("Res failed to await")
+            logger.info("Res failed to await")
 
-        logging.info(f"Current loop: {asyncio.get_event_loop()}") 
+        logger.info(f"Current loop: {asyncio.get_event_loop()}") 
         
         loop.stop()
         loop.close()
         logger.info('Shutdown loop')
+        self.zmq_context.destroy()
 
 
     def start(self):
@@ -199,21 +213,23 @@ class Nexus():
         self.t = time.time()
 
         for p in self.processes:
-            logger.info(p)
+            logger.info(str(p))
             p.start()
+        
+        logger.info('All processes started')
 
 
     def destroyNexus(self):
-        ''' Method that calls the internal method
+        """ Method that calls the internal method
             to kill the process running the store (plasma server)
-        '''
+        """
         logger.warning('Destroying Nexus')
         self._closeStore()
-        logger.warning('Killed the central store')
 
 
     async def pollQueues(self):
-        """ Listens to links and processes their signals.
+        """ 
+        Listens to links and processes their signals.
         
         For every communications queue connected to Nexus, a task is
         created that gets from the queue. Throughout runtime, when these
@@ -224,7 +240,6 @@ class Nexus():
         Returns:
             "Shutting down" (string): Notifies start() that pollQueues has completed.
         """
-
         self.actorStates = dict.fromkeys(self.actors.keys())
         if not self.config.hasGUI:  # Since Visual is not started, it cannot send a ready signal.
             try:
@@ -235,46 +250,67 @@ class Nexus():
         pollingNames = list(self.comm_queues.keys())
         self.tasks = []
         for q in polling:
-            self.tasks.append(asyncio.ensure_future(q.get_async()))
+            self.tasks.append(asyncio.create_task(q.get_async()))
 
-        self.tasks.append(asyncio.ensure_future(self.ainput('Awaiting input ')))
+        self.tasks.append(asyncio.create_task(self.remote_input()))
+        self.early_exit = False
 
+        # add signal handlers
+        loop = asyncio.get_event_loop()
+        signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
+        for s in signals:
+            loop.add_signal_handler(
+                s, lambda s=s: self.stop_polling_and_quit(s, polling)) 
+        
         while not self.flags['quit']:
-            done, pending = await asyncio.wait(self.tasks, return_when=concurrent.futures.FIRST_COMPLETED)
+            try:
+                done, pending = await asyncio.wait(self.tasks, return_when=concurrent.futures.FIRST_COMPLETED)
+            except asyncio.CancelledError:
+                pass
+            
+            # sort through tasks to see where we got input from (so we can choose a handler)
             for i,t in enumerate(self.tasks):
                 if i < len(polling):
                     if t in done or polling[i].status == 'done': #catch tasks that complete await wait/gather
                         r = polling[i].result
-                        if 'GUI' in pollingNames[i]:
-                            self.processGuiSignal(r, pollingNames[i])
-                        else:
-                            self.processActorSignal(r, pollingNames[i])
-                        self.tasks[i] = (asyncio.ensure_future(polling[i].get_async()))
-                elif t in done: ##cmd line
-                    res = t.result()
-                    self.processGuiSignal([res.rstrip('\n')], 'commandLine_Nexus')
-                    self.tasks[i] = (asyncio.ensure_future(self.ainput('Awaiting input \n')))
+                        if r:
+                            if 'GUI' in pollingNames[i]:
+                                self.processGuiSignal(r, pollingNames[i])
+                            else:
+                                self.processActorSignal(r, pollingNames[i])
+                            self.tasks[i] = (asyncio.create_task(polling[i].get_async()))
+                elif t in done: 
+                    logger.debug("t.result = " + str(t.result()))
+                    self.tasks[i] = asyncio.create_task(self.remote_input())
 
-        self.stop_polling("quit", asyncio.get_running_loop(), polling)
-        logger.warning('Shutting down polling')
+        if not self.early_exit:  # don't run this again if we already have
+            self.stop_polling("quit", polling)
+            logger.warning('Shutting down polling')
         return "Shutting Down"
+    
+    def stop_polling_and_quit(self, signal, queues):
+        logger.warn('Shutting down via signal handler for {}. Steps may be out of order or dirty.'.format(signal))
+        self.stop_polling(signal, queues)
+        self.flags['quit'] = True
+        self.early_exit = True
+        self.quit()
 
-
-    # https://stackoverflow.com/questions/58454190/python-async-waiting-for-stdin-input-while-doing-other-stuff
-    async def ainput(self, string: str) -> str:
-        await asyncio.get_event_loop().run_in_executor(
-                None, lambda s=string: sys.stdout.write(s))
-        return await asyncio.get_event_loop().run_in_executor(
-                None, sys.stdin.readline)
-
+    async def remote_input(self):
+        msg = await self.in_socket.recv_multipart()
+        command = msg[0].decode('utf-8')
+        await self.in_socket.send_string("Awaiting input:")
+        if command == Signal.quit():
+            await self.out_socket.send_string("QUIT")
+        self.processGuiSignal([command], 'TUI_Nexus')
 
     def processGuiSignal(self, flag, name):
-        '''Receive flags from the Front End as user input
+        """Receive flags from the Front End as user input
             TODO: Not all needed
-        '''
+        """
+        # import pdb; pdb.set_trace()
         name = name.split('_')[0]
-        logger.info('Received signal from user: '+flag[0])
-        if flag[0]:
+        if flag:
+            logger.info('Received signal from user: ' + flag[0])
             if flag[0] == Signal.run():
                 logger.info('Begin run!')
                 #self.flags['run'] = True
@@ -294,7 +330,7 @@ class Nexus():
                 self.loadConfig(flag[1])
             elif flag[0] == Signal.pause():
                 logger.info('Pausing processes')
-                # TODO. Alsoresume, reset
+                # TODO. Also resume, reset
 
             # temporary WiP
             elif flag[0] == Signal.kill():
@@ -337,7 +373,7 @@ class Nexus():
             elif flag[0] == Signal.stop():
                 logger.info('Nexus received stop signal')
                 self.stop()
-        else:
+        elif flag:
             logger.error('Signal received from Nexus but cannot identify {}'.format(flag))
 
     def processActorSignal(self, sig, name):
@@ -349,7 +385,7 @@ class Nexus():
                     self.allowStart = True      #TODO: replace with q_sig to FE/Visual
                     logger.info('Allowing start')
 
-                    #TODO: Maybe have flag for auto-start, else require explict command
+                    #TODO: Maybe have flag for auto-start, else require explicit command
                     # if not self.config.hasGUI:
                     #     self.run()
 
@@ -363,7 +399,7 @@ class Nexus():
     def setup(self):
         for q in self.sig_queues.values():
             try:
-                print('telling to setup:', q)
+                logger.info('Starting setup: ' +  str(q))
                 q.put_nowait(Signal.setup())
             except Full:
                 logger.warning('Signal queue'+q.name+'is full')
@@ -376,15 +412,20 @@ class Nexus():
                 except Full:
                     logger.warning('Signal queue'+q.name+'is full')
                         #queue full, keep going anyway TODO: add repeat trying as async task
+        else:
+            logger.error('-- Not all actors are ready yet, please wait and then try again.')
 
     def quit(self):
         logger.warning('Killing child processes')
+        self.out_socket.send_string("QUIT")
 
         for q in self.sig_queues.values():
             try:
                 q.put_nowait(Signal.quit())
             except Full as f:
                 logger.warning('Signal queue '+q.name+' full, cannot tell it to quit: {}'.format(f))
+            except FileNotFoundError:
+                logger.warning('Queue {} corrupted.'.format(q.name))
 
         if self.config.hasGUI:
             self.processes.append(self.p_GUI)
@@ -415,7 +456,7 @@ class Nexus():
         logger.warning('Starting revive')
 
 
-    def stop_polling(self, stop_signal, loop, queues):
+    def stop_polling(self, stop_signal, queues):
         """ Cancels outstanding tasks and fills their last request.
 
         Puts a string into all active queues, then cancels their 
@@ -424,39 +465,28 @@ class Nexus():
 
         Args:
             stop_signal (signal.signal): Signal for signal handler.
-            loop (loop): Event loop for signal handler.
             queues (AsyncQueue): Comm queues for links.
         """ 
 
-        logging.info("Received shutdown order")
+        logger.info("Received shutdown order")
 
-        logging.info(f"Stop signal: {stop_signal}")
+        logger.info(f"Stop signal: {stop_signal}")
         shutdown_message = "SHUTDOWN"
-        [q.put(shutdown_message) for q in queues]
-        logging.info('Canceling outstanding tasks')
-        try:
-            asyncio.gather(*self.tasks)
-        except asyncio.CancelledError: 
-            logging.info("Gather is cancelled")
+        for q in queues:
+            try:
+                q.put(shutdown_message)
+            except Exception as e:
+                logger.info("Unable to send shutdown message to {}.".format(q.name))
+
+        logger.info('Canceling outstanding tasks')
 
         [task.cancel() for task in self.tasks]
 
-        cur_task = asyncio.current_task()
-        cur_task.cancel()
-        tasks = [task for task in self.tasks if not task.done()]
-        [t.cancel() for t in tasks]
-        [t.cancel() for t in tasks] #necessary in order to start cancelling tasks other than the first one
-
-        try:
-            cur_task.cancel() 
-        except asyncio.CancelledError:
-            logging.info("cur_task cancelled")
-        
-        logging.info('Polling has stopped.')
+        logger.info('Polling has stopped.')
 
     def createStore(self, name):
-        ''' Creates Store w/ or w/out LMDB functionality based on {self.use_hdd}. 
-        '''
+        """ Creates Store w/ or w/out LMDB functionality based on {self.use_hdd}. 
+        """
         if not self.use_hdd:
             return Store(name)
         else:
@@ -465,19 +495,19 @@ class Nexus():
             return self.store_dict[name]
 
     def _startStore(self, size):
-        ''' Start a subprocess that runs the plasma store
+        """ Start a subprocess that runs the plasma store
             Raises a RuntimeError exception size is undefined
             Raises an Exception if the plasma store doesn't start
 
             #TODO: Generalize this to non-plasma stores
-        '''
+        """
         if size is None:
             raise RuntimeError('Server size needs to be specified')
         try:
             self.p_Store = subprocess.Popen(['plasma_store',
                               '-s', '/tmp/store',
                               '-m', str(size),
-                              '-e', 'hashtable://test'],
+                              '-e', 'hashtable://test'], 
                               stdout=subprocess.DEVNULL,
                               stderr=subprocess.DEVNULL)
             logger.info('Store started successfully')
@@ -485,19 +515,20 @@ class Nexus():
             logger.exception('Store cannot be started: {0}'.format(e))
 
     def _closeStore(self):
-        ''' Internal method to kill the subprocess
+        """ Internal method to kill the subprocess
             running the store (plasma sever)
-        '''
+        """
         try:
             self.p_Store.kill()
+            self.p_Store.wait()
             logger.info('Store closed successfully')
         except Exception as e:
             logger.exception('Cannot close store {0}'.format(e))
 
     def createActor(self, name, actor):
-        ''' Function to instantiate actor, add signal and comm Links,
+        """ Function to instantiate actor, add signal and comm Links,
             and update self.actors dictionary
-        '''
+        """
         # Instantiate selected class
         mod = import_module(actor.packagename)
         clss = getattr(mod, actor.classname)
@@ -532,15 +563,15 @@ class Nexus():
         self.actors.update({name:instance})
 
     def runActor(self, actor):
-        '''Run the actor continually; used for separate processes
+        """Run the actor continually; used for separate processes
             #TODO: hook into monitoring here?
-        '''
+        """
         actor.run()
 
     def createConnections(self):
-        ''' Assemble links (multi or other)
+        """ Assemble links (multi or other)
             for later assignment
-        '''
+        """
         for source,drain in self.config.connections.items():
             name = source.split('.')[0]
             #current assumption is connection goes from q_out to something(s) else
@@ -557,13 +588,13 @@ class Nexus():
                 self.data_queues.update({d:link})
 
     def assignLink(self, name, link):
-        ''' Function to set up Links between actors
+        """ Function to set up Links between actors
             for data location passing
             Actor must already be instantiated
 
             #NOTE: Could use this for reassigning links if actors crash?
             #TODO: Adjust to use default q_out and q_in vs being specified
-        '''
+        """
         classname = name.split('.')[0]
         linktype = name.split('.')[1]
         if linktype == 'q_out':

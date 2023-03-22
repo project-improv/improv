@@ -9,15 +9,15 @@ import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 class AbstractActor():
-    ''' Base class for an actor that Nexus
+    """ Base class for an actor that Nexus
         controls and interacts with.
         Needs to have a store and links for communication
         Also needs to be responsive to sent Signals (e.g. run, setup, etc)
-    '''
+    """
     def __init__(self, name, method='fork'):
-        ''' Require a name for multiple instances of the same actor/class
+        """ Require a name for multiple instances of the same actor/class
             Create initial empty dict of Links for easier referencing
-        '''
+        """
         self.q_watchout = None
         self.name = name
         self.links = {} 
@@ -37,8 +37,8 @@ class AbstractActor():
         Returns:
             [str]: _description_
         """
-        ''' Return this instance name and links dict
-        '''
+        """ Return this instance name and links dict
+        """
         return self.name+': '+str(self.links.keys())
 
     def setStore(self, client):
@@ -47,8 +47,8 @@ class AbstractActor():
         Args:
             client (improv.nexus.Link): _description_
         """
-        ''' Set client interface to the store
-        '''
+        """ Set client interface to the store
+        """
         self.client = client
 
     def _getStoreInterface(self):
@@ -58,49 +58,49 @@ class AbstractActor():
             self.setStore(store)
 
     def setLinks(self, links):
-        ''' General full dict set for links
-        '''
+        """ General full dict set for links
+        """
         self.links = links
 
     def setCommLinks(self, q_comm, q_sig):
-        ''' Set explicit communication links to/from Nexus (q_comm, q_sig)
+        """ Set explicit communication links to/from Nexus (q_comm, q_sig)
             q_comm is for messages from this actor to Nexus
             q_sig is signals from Nexus and must be checked first
-        '''
+        """
         self.q_comm = q_comm
         self.q_sig = q_sig
         self.links.update({'q_comm':self.q_comm, 'q_sig':self.q_sig})
 
     def setLinkIn(self, q_in):
-        ''' Set the dedicated input queue
-        '''
+        """ Set the dedicated input queue
+        """
         self.q_in = q_in
         self.links.update({'q_in':self.q_in})
 
     def setLinkOut(self, q_out):
-        ''' Set the dedicated output queue
-        '''
+        """ Set the dedicated output queue
+        """
         self.q_out = q_out
         self.links.update({'q_out':self.q_out})
 
     def setLinkWatch(self,  q_watch):
-        '''
-        '''
+        """
+        """
         self.q_watchout= q_watch
         self.links.update({'q_watchout':self.q_watchout})
 
     def addLink(self, name, link):
-        ''' Function provided to add additional data links by name
+        """ Function provided to add additional data links by name
             using same form as q_in or q_out
             Must be done during registration and not during run
-        '''
+        """
         self.links.update({name:link})
         # User can then use: self.my_queue = self.links['my_queue'] in a setup fcn,
         # or continue to reference it using self.links['my_queue']
 
     def getLinks(self):
-        ''' Returns dictionary of links
-        '''
+        """ Returns dictionary of links
+        """
         return self.links
 
     def put(self, idnames, q_out= None, save=None):
@@ -122,25 +122,25 @@ class AbstractActor():
                     self.q_watchout.put(idnames[i])
 
     def run(self):
-        ''' Must run in continuous mode
+        """ Must run in continuous mode
             Also must check q_sig either at top of a run-loop
             or as async with the primary function
-        '''
+        """
         raise NotImplementedError
 
-        ''' Suggested implementation for synchronous running: see RunManager class below
-        '''
+        """ Suggested implementation for synchronous running: see RunManager class below
+        """
 
-    def stop():
+    def stop(self):
         """ Specify method for momentarily stopping the run and saving data.
         """
         pass
     
     def changePriority(self):
-        ''' Try to lower this process' priority
+        """ Try to lower this process' priority
             Only changes priority if lower_priority is set
             TODO: Only works on unix machines. Add Windows functionality
-        '''
+        """
         if self.lower_priority is True:
             import os, psutil
             p = psutil.Process(os.getpid())
@@ -165,10 +165,10 @@ class ManagedActor(AbstractActor):
             pass
 
     def setup(self):
-        ''' Essenitally the registration process
+        """ Essenitally the registration process
             Can also be an initialization for the actor
             options is a list of options, can be empty
-        '''
+        """
         pass
 
     def runStep(self):
@@ -193,10 +193,10 @@ class AsyncActor(AbstractActor):
             pass
 
     async def setup(self):
-        ''' Essenitally the registration process
+        """ Essenitally the registration process
             Can also be an initialization for the actor
             options is a list of options, can be empty
-        '''
+        """
         pass
 
     async def runStep(self):
@@ -211,8 +211,8 @@ Actor = ManagedActor
 
 
 class RunManager():
-    '''
-    '''
+    """
+    """
     def __init__(self, name, actions, links, runStore=None, timeout=1e-6):
         self.run = False
         self.stop = False
@@ -241,12 +241,11 @@ class RunManager():
                     logger.error('Actor '+self.actorName+' exception during run: {}'.format(e))
                     print(traceback.format_exc())
             elif self.stop:
-                    #Read stop codes
                 try:
-                    self.actions['run']()
-                    self.q_comm.put([Signal.ready()])
+                    self.actions['stop']()
                 except Exception as e:
-                    logger.error(f'Actor {self.actorName} exception during stop: {e}')
+                    logger.error('Actor '+self.actorName+' exception during stop: {}'.format(e))
+                    print(traceback.format_exc())
                 self.stop = False #Run once
             elif self.config:
                 try:
@@ -258,12 +257,6 @@ class RunManager():
                     logger.error('Actor '+self.actorName+' exception during setup: {}'.format(e))  
                     print(traceback.format_exc())
                 self.config = False 
-            elif self.stop:
-                try:
-                    self.actions['stop']()
-                except Exception as e:
-                    logger.error('Actor '+self.actorName+' exception during stop: {}'.format(e))
-                    print(traceback.format_exc())
 
             # Check for new Signals received from Nexus
             try: 
@@ -287,6 +280,8 @@ class RunManager():
                 elif signal == Signal.resume(): #currently treat as same as run
                     logger.warning('Received resume signal, resuming')
                     self.run = True
+            except KeyboardInterrupt:
+                break
             except Empty as e:
                 pass # No signal from Nexus
             
@@ -320,13 +315,17 @@ class AsyncRunManager:
         self.loop = asyncio.get_event_loop()
         self.start = time.time()
 
+        signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
+        for s in signals:
+            self.loop.add_signal_handler(s, lambda s=s: self.loop.stop()) 
+
     async def __aenter__(self):
         while True:
             signal = await self.q_sig.get_async()
             if signal == Signal.run() or signal == Signal.resume():
                 if not self.run:
                     self.run = True
-                    asyncio.ensure_future(self.run_method(), loop=self.loop)
+                    asyncio.create_task(self.run_method(), loop=self.loop)
                     print('Received run signal, begin running')
             elif signal == Signal.setup():
                 self.setup()
@@ -346,10 +345,10 @@ class AsyncRunManager:
 
 
 class Signal():
-    ''' Class containing definition of signals Nexus uses
+    """ Class containing definition of signals Nexus uses
         to communicate with its actors
         TODO: doc each of these with expected handling behavior
-    '''
+    """
     @staticmethod
     def run():
         return 'run'

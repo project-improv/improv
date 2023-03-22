@@ -48,13 +48,14 @@ class BasicFrontEnd(QtWidgets.QMainWindow, improv_basic.Ui_MainWindow):
         self.rawplot_2.getImageItem().mouseClickEvent = self.mouseClick #Select a neuron
         self.slider.valueChanged.connect(_call(self.sliderMoved)) #Threshold for magnitude selection
 
+        self.update()
+
     def update(self):
         ''' Update visualization while running
         '''
         t = time.time()
         #start looking for data to display
         self.visual.getData()
-        #logger.info('Did I get something:', self.visual.Cx)
 
         if self.draw:
             #plot lines
@@ -116,10 +117,10 @@ class BasicFrontEnd(QtWidgets.QMainWindow, improv_basic.Ui_MainWindow):
             # Add polar grid lines
             polar.addLine(x=0, pen=0.2)
             polar.addLine(y=0, pen=0.2)
-            for r in range(0, 4, 1):
-                circle = pyqtgraph.QtGui.QGraphicsEllipseItem(-r, -r, r*2, r*2)
-                circle.setPen(pyqtgraph.mkPen(0.1))
-                polar.addItem(circle)
+            # for r in range(0, 4, 1):
+            #     circle = pyqtgraph.QtGui.QGraphicsEllipseItem(-r, -r, r*2, r*2)
+            #     circle.setPen(pyqtgraph.mkPen(0.1))
+            #     polar.addItem(circle)
             polar.hideAxis('bottom')
             polar.hideAxis('left')
 
@@ -128,10 +129,10 @@ class BasicFrontEnd(QtWidgets.QMainWindow, improv_basic.Ui_MainWindow):
         self.polar1.setData(x, y)
         self.polar2.setData(x, y)
 
-        for r in range(2, 12, 2):
-                circle = pyqtgraph.QtGui.QGraphicsEllipseItem(-r, -r, r*2, r*2)
-                circle.setPen(pyqtgraph.mkPen(0.1))
-                polars[2].addItem(circle)
+        # for r in range(2, 12, 2):
+        #         circle = pyqtgraph.QtGui.QGraphicsEllipseItem(-r, -r, r*2, r*2)
+        #         circle.setPen(pyqtgraph.mkPen(0.1))
+        #         polars[2].addItem(circle)
         self.polar3 = polars[2].plot()
 
         #sliders

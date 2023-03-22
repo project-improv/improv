@@ -18,10 +18,10 @@ from pyarrow.plasma import ObjectNotAvailable
 import pickle
 
 class BasicWatcher(Actor):
-    '''
+    """
     Actor that monitors stored objects from the other actors
     and saves objects that have been flagged by those actors
-    '''
+    """
 
     def __init__(self, *args, inputs= None):
         super().__init__(*args)
@@ -30,20 +30,20 @@ class BasicWatcher(Actor):
         
 
     def setup(self):
-        '''
+        """
         set up tasks and polling based on inputs which will
         be used for asynchronous polling of input queues
-        '''
+        """
         self.numSaved= 0
         self.tasks= []
         self.polling= self.watchin
         self.setUp= False
 
     def run(self):
-        '''
+        """
         continually run the watcher to check all of the 
         input queues for objects to save
-        '''
+        """
 
 
         with RunManager(self.name, self.watchrun, self.setup, self.q_sig, self.q_comm) as rm:
@@ -52,22 +52,22 @@ class BasicWatcher(Actor):
         print('watcher saved '+ str(self.numSaved)+ ' objects')
 
     def watchrun(self):
-        '''
+        """
         set up async loop for polling
-        '''
+        """
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.watch())
 
     async def watch(self):
-        '''
+        """
         function for asynchronous polling of input queues
         loops through each of the queues in watchin and checks
         if an object is present and then saves the object if found
-        '''
+        """
 
         if self.setUp== False:
             for q in self.polling:
-                self.tasks.append(asyncio.ensure_future(q.get_async()))
+                self.tasks.append(asyncio.create_task(q.get_async()))
             self.setUp = True
 
         done, pending= await asyncio.wait(self.tasks, return_when= concurrent.futures.FIRST_COMPLETED)
@@ -82,13 +82,13 @@ class BasicWatcher(Actor):
                 except ObjectNotFoundError as e:
                     logger.info(e.message)
                     pass
-                self.tasks[i] = (asyncio.ensure_future(self.polling[i].get_async()))
+                self.tasks[i] = (asyncio.create_task(self.polling[i].get_async()))
 
 
 class Watcher():
-    ''' Monitors the store as separate process
+    """ Monitors the store as separate process
         TODO: Facilitate Watcher being used in multiple processes (shared list)
-    '''
+    """
     # Related to subscribe - could be private, i.e., _subscribe
     def __init__(self, name, client):
         self.name = name

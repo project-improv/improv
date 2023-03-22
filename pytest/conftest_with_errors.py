@@ -28,6 +28,7 @@ class StoreDependentTestCase():
         '''
         print('Tearing down Plasma store.')
         self.p.kill()
+        self.p.wait()
 
 class ActorDependentTestCase():
     def set_up(self):
@@ -42,6 +43,7 @@ class ActorDependentTestCase():
         '''
         print('Tearing down Plasma store.')
         self.p.kill()
+        self.p.wait()
 
     def run_setup(self):
         print('Set up = True.')

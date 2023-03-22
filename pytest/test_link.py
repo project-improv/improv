@@ -36,6 +36,7 @@ def setup_store():
     store = Store(store_loc = "/tmp/store")
     yield store
     p.kill()
+    p.wait()
 
 
 def init_actors(n = 1):
@@ -309,6 +310,7 @@ def test_put_overflow(setup_store, caplog):
     lnk.put(message)
 
     p.kill()
+    p.wait()
     setup_store #restore the 10 mb store
 
     if caplog.records:

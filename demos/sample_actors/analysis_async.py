@@ -60,11 +60,11 @@ class AnalysisAsync(Analysis):
         If there's a pile-up in the queue, this spawns new [self.analysis] task.
 
         """
-        asyncio.ensure_future(self.analysis(), loop=self.loop)
+        asyncio.create_task(self.analysis(), loop=self.loop)
 
         while True:
             if self.aqueue.qsize() > 0:
-                asyncio.ensure_future(self.analysis(), loop=self.loop)
+                asyncio.create_task(self.analysis(), loop=self.loop)
 
             obj_id = await self.q_in.get_async()  # List
             if obj_id is not None:

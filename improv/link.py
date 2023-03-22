@@ -2,13 +2,10 @@ import asyncio
 import logging
 from multiprocessing import Manager, cpu_count, set_start_method
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from concurrent.futures._base import CancelledError
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(name)s %(message)s',
-                    handlers=[logging.FileHandler("global.log"),
-                              logging.StreamHandler()])
 
 def Link(name, start, end):
     """ Function to construct a queue that Nexus uses for
@@ -176,8 +173,13 @@ class AsyncQueue(object):
         """
 
         loop = asyncio.get_event_loop()
-        res = await loop.run_in_executor(self._executor, self.put, item)
-        return res
+        try:
+            res = await loop.run_in_executor(self._executor, self.put, item)
+            return res
+        except EOFError:
+            logger.warn('Link probably killed (EOF)')
+        except FileNotFoundError:
+            logger.warn('probably killed (file not found)')
 
     async def get_async(self):
         """ Coroutine for an asynchronous get
@@ -200,9 +202,14 @@ class AsyncQueue(object):
             self.result = await loop.run_in_executor(self._executor, self.get)
             self.status = 'done'
             return self.result
+        except CancelledError:
+            logger.info('Task {} Canceled'.format(self.name))
+        except EOFError:
+            logger.info('probably killed')
+        except FileNotFoundError:
+            logger.info('probably killed')
         except Exception as e:
             logger.exception('Error in get_async: {}'.format(e))
-            pass
 
     def cancel_join_thread(self):
         """ Function wrapper for cancel_join_thread.

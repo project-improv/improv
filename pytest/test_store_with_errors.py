@@ -1,4 +1,5 @@
 import pytest
+import time
 from improv.store import Store
 from multiprocessing import Process
 from pyarrow._plasma import PlasmaObjectExists
@@ -11,6 +12,8 @@ from improv.store import CannotGetObjectError
 from improv.store import CannotConnectToStoreError
 import pickle
 import subprocess
+
+WAIT_TIMEOUT = 10
 
 # TODO: add docstrings!!!
 # TODO: clean up syntax - consistent capitalization, function names, etc.
@@ -45,6 +48,7 @@ def setup_store(store_loc='/tmp/store'):
         # '''
         # print('Tearing down Plasma store.')
         p.kill()
+        p.wait(WAIT_TIMEOUT)
 
 
 def test_connect(setup_store):

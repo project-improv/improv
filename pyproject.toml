@@ -21,18 +21,26 @@ dependencies = [
     "PyQt5",
     "lmdb",
     "pyyaml",
-    "click"
+    "textual",
+    "pyzmq",
+    "psutil",
+    "h5py",
 ]
 classifiers = ['Development Status :: 1 - Planning']
 
 [project.optional-dependencies]
-tests = ["async-timeout", "pytest-asyncio"]
+tests = ["pytest", "async-timeout", "pytest-asyncio", "pytest-cov", "scikit-image",]
 docs = ["jupyter-book"]
 caiman = []
 
 [project.scripts]
-improv = "improv:default_invocation"
+improv = "improv.cli:default_invocation"
 
 [tool.setuptools.packages.find]
 include = ["improv"]
 exclude = ["test", "pytest", "env", "demos", "figures"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+filterwarnings = [ ]
+

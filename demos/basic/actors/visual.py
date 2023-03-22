@@ -75,7 +75,8 @@ class BasicCaimanVisual(Actor):
         self.window=500
 
     def run(self):
-        pass #NOTE: Special case here, tied to GUI
+        # #NOTE: Special case here, tied to GUI
+        pass
 
     def getData(self):
         t = time.time()
