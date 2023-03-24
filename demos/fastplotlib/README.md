@@ -9,11 +9,14 @@ Usage:
 cd .../improv/demos/fastplotlib
 
 # start improv
-improv ./fastplotlib.yaml
+improv run ./fastplotlib.yaml
 
-# call `setup` in the improv CLI
+# call `setup` in the improv TUI
 setup
 
-# Now run the jupyter notebook, once the plot is ready call `run`
+# Run the cells in the jupyter notebook until you receive
+# the dark blue square in the plot
+
+# once the plot is ready call `run` in the improv TUI
 run
 ```
