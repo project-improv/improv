@@ -53,7 +53,7 @@ class CaimanProcessor(Actor):
         self.opts = CNMFParams(params_dict=self.params)
         self.onAc = OnACID(params = self.opts)
         #TODO: Need to rewrite init online as well to receive individual frames.
-        self.onAc.initialize_online()
+        self.onAc.initialize_online(T=100000)
         self.max_shifts_online = self.onAc.params.get('online', 'max_shifts_online')
 
         self.fitframe_time = []

@@ -2,10 +2,23 @@ import time
 import os
 import pytest
 import logging
+import subprocess
+import signal
 
 from improv.nexus import Nexus
 from improv.actor import Actor
 from improv.store import Store
+
+SERVER_COUNTER = 0
+
+@pytest.fixture
+def ports():
+    global SERVER_COUNTER
+    CONTROL_PORT = 5555
+    OUTPUT_PORT = 5556
+    LOGGING_PORT = 5557
+    yield (CONTROL_PORT + SERVER_COUNTER, OUTPUT_PORT + SERVER_COUNTER, LOGGING_PORT + SERVER_COUNTER)
+    SERVER_COUNTER += 3
 
 @pytest.fixture
 def setdir():
@@ -15,10 +28,9 @@ def setdir():
     os.chdir(prev)
 
 @pytest.fixture
-def sample_nex(setdir):
-    setdir
+def sample_nex(setdir, ports):
     nex = Nexus("test")
-    nex.createNexus(file='good_config.yaml', store_size=4000)
+    nex.createNexus(file='good_config.yaml', store_size=4000, control_port=ports[0], output_port=ports[1])
     yield nex
     nex.destroyNexus()
 
@@ -45,16 +57,14 @@ def sample_nex(setdir):
 #     p.kill()
 
 def test_init(setdir):
-    setdir
     # store = setup_store
     nex = Nexus("test")
     assert str(nex) == "test"
+    nex.destroyNexus()
 
-
-def test_createNexus(setdir):
-    setdir
+def test_createNexus(setdir, ports):
     nex = Nexus("test")
-    nex.createNexus(file = "good_config.yaml")
+    nex.createNexus(file = "good_config.yaml", control_port=ports[0], output_port=ports[1])
     assert list(nex.comm_queues.keys()) == ["GUI_comm", "Acquirer_comm", "Analysis_comm"]
     assert list(nex.sig_queues.keys()) == ["Acquirer_sig", "Analysis_sig"]
     assert list(nex.data_queues.keys()) == ["Acquirer.q_out", "Analysis.q_in"]
@@ -75,6 +85,7 @@ def test_startNexus(sample_nex):
     nex = sample_nex
     nex.startNexus()
     assert [p.name for p in nex.processes] == ["Acquirer", "Analysis"]
+    nex.destroyNexus()
 
 # @pytest.mark.skip(reason="This test is unfinished")
 @pytest.mark.parametrize("cfg_name, actor_list, link_list", [
@@ -82,7 +93,7 @@ def test_startNexus(sample_nex):
     ("simple_graph.yaml", ["Acquirer", "Analysis"], ["Acquirer_sig", "Analysis_sig"]),
     ("complex_graph.yaml", ["Acquirer", "Analysis", "InputStim"], ["Acquirer_sig", "Analysis_sig", "InputStim_sig"])
 ])
-def test_config_construction(cfg_name, actor_list, link_list, setdir):
+def test_config_construction(cfg_name, actor_list, link_list, setdir, ports):
     """ Tests if constructing a nexus based on the provided config has the right structure.
     
     After construction based on the config, this 
@@ -90,10 +101,8 @@ def test_config_construction(cfg_name, actor_list, link_list, setdir):
     links between them are constructed correctly. 
     """
 
-    setdir
-
     nex = Nexus("test")
-    nex.createNexus(file = cfg_name)
+    nex.createNexus(file = cfg_name, control_port=ports[0], output_port=ports[1])
     logging.info(cfg_name)
 
     # Check for actors
@@ -109,26 +118,23 @@ def test_config_construction(cfg_name, actor_list, link_list, setdir):
     lnk_lst = []
     assert True
 
-def test_single_actor(setdir):
-    setdir
+def test_single_actor(setdir, ports):
     nex = Nexus("test")
     with pytest.raises(AttributeError):
-        nex.createNexus(file="single_actor.yaml")
+        nex.createNexus(file="single_actor.yaml", control_port=ports[0], output_port=ports[1])
 
     nex.destroyNexus()
 
-def test_cyclic_graph(setdir):
-    setdir
+def test_cyclic_graph(setdir, ports):
     nex = Nexus("test")
-    nex.createNexus(file="cyclic_config.yaml")
+    nex.createNexus(file="cyclic_config.yaml", control_port=ports[0], output_port=ports[1])
     assert True
     nex.destroyNexus()
 
-def test_blank_cfg(setdir, caplog):
-    setdir
+def test_blank_cfg(setdir, caplog, ports):
     nex = Nexus("test")
     with pytest.raises(TypeError):
-        nex.createNexus(file="blank_file.yaml")
+        nex.createNexus(file="blank_file.yaml", control_port=ports[0], output_port=ports[1])
     assert any(["The config file is empty" in record.msg for record in list(caplog.records)])
     nex.destroyNexus()
 
@@ -146,7 +152,6 @@ def test_blank_cfg(setdir, caplog):
 
 @pytest.mark.skip(reason="unfinished")
 def test_queue_message(setdir, sample_nex):
-    setdir
     nex = sample_nex
     nex.startNexus()
     time.sleep(20)
@@ -205,6 +210,7 @@ def test_startstore(caplog):
     assert any(["Store started successfully" in record.msg for record in caplog.records])
     
     nex._closeStore()
+    nex.destroyNexus()
     assert True
 
 def test_closestore(caplog):
@@ -220,19 +226,17 @@ def test_closestore(caplog):
     with pytest.raises(AttributeError):
         nex.p_Store.put("Message in", "Message in Label")
     
+    nex.destroyNexus()
     assert True
 
 @pytest.mark.skip(reason="unfinished")
-def test_actor_sub(setdir, capsys, monkeypatch):
-
-    
-    setdir
+def test_actor_sub(setdir, capsys, monkeypatch, ports):
     monkeypatch.setattr("improv.nexus.input", lambda: "setup\n")
     cfg_file = "sample_config.yaml"
     nex = Nexus("test")
 
     
-    nex.createNexus(file = cfg_file, store_size=4000)
+    nex.createNexus(file = cfg_file, store_size=4000, control_port=ports[0], output_port=ports[1])
     print("Nexus Created")
     
     nex.startNexus()
@@ -247,4 +251,18 @@ def test_actor_sub(setdir, capsys, monkeypatch):
 
 
     nex.destroyNexus()
+    assert True
+
+def test_sigint_exits_cleanly(ports, tmp_path):
+    server_opts = ['improv', 'server', 
+                            '-c', str(ports[0]), 
+                            '-o', str(ports[1]),
+                            '-f', tmp_path / "global.log",
+    ]
+
+    server = subprocess.Popen(server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    
+    server.send_signal(signal.SIGINT)
+
+    server.wait(10)
     assert True

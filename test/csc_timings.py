@@ -59,6 +59,7 @@ def time_putget(n, type = "normal"):
 
     # Kill the process
     p.kill()
+    p.wait()
 
     # Return timings
 

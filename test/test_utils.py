@@ -23,6 +23,7 @@ class StoreDependentTestCase(TestCase):
         '''
 
         self.p.kill()
+        self.p.wait()
 
 class ActorDependentTestCase(TestCase):
 
@@ -40,6 +41,7 @@ class ActorDependentTestCase(TestCase):
         '''
 
         self.p.kill()
+        self.p.wait()
 
     def run_setup(self):
         self.isSetUp= True
