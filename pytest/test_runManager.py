@@ -32,7 +32,7 @@ def test_RM_init(init_rm):
 
 @pytest.mark.skip(reason="unfinished")
 def test_RM_run(init_rm):
-    Actor act = Actor("test")
+    act = Actor("test")
     with init_rm as RM:
         logger.info(rm)
 
