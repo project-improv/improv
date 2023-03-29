@@ -311,3 +311,125 @@ def test_actor_connection(setup_store):
     act1.q_in.put(msg)
 
     assert act2.q_out.get() == msg
+
+
+#=========================================
+#
+#
+#
+#
+#           MANAGED ACTOR TESTS
+#
+#
+#
+#
+#=========================================
+@pytest.fixture
+def init_managed_actor(init_actor):
+    """ Fixture to create a managed actor.
+    """
+    mactor = ManagedActor(init_actor)
+    yield mactor
+    mactor = None
+
+
+@pytest.fixture
+def init_custom_managed_actor():
+    """ Fixture to create and yield a managed actor that has been predefined.
+    """
+    pass
+    #TODO: Implement this
+
+
+#---------- DEFAULT -----------#
+
+@pytest.mark.skip(reason="unfinished")
+def test_default_ManagedActor_init(init_actor):
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_default_ManagedActor_setup(init_actor):
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_default_ManagedActor_run(init_actor):
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_default_ManagedActor_run_step(init_actor):
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_default_ManagedActor_stop(init_actor):
+    pass
+
+#---------- CUSTOM -----------#
+
+@pytest.mark.skip(reason="unfinished")
+def test_custom_ManagedActor_init():
+
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_custom_ManagedActor_setup():
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_custom_ManagedActor_run():
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_custom_ManagedActor_run_step():
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_custom_ManagedActor_stop():
+    pass
+
+#=========================================
+#
+#
+#
+#
+#           ASYNC ACTOR TESTS
+#
+#
+#
+#
+#=========================================
+
+@pytest.mark.skip(reason="unfinished")
+def test_AsyncActor_init():
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_AsyncActor_run():
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_AsyncActor_setup():
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_AsyncActor_run_step():
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_AsyncActor_stop():
+    pass
+
+
+
+
