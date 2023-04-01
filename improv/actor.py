@@ -1,54 +1,70 @@
 import time
 import asyncio
 import traceback
-from queue import Empty
+from queue import Empty, Queue
 from typing import Awaitable, Callable
 from improv.store import Store
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+
 class AbstractActor():
-    """ Base class for an actor that Nexus
-        controls and interacts with.
-        Needs to have a store and links for communication
-        Also needs to be responsive to sent Signals (e.g. run, setup, etc)
+    """
+    Base class for an actor that ``Nexus`` controls and interacts with.
+    Requires a store and links for communication.
+    Must be responsive to ``Signals`` from ``Nexus`` (e.g. ``run``, ``setup``, etc)
     """
     def __init__(self, name, method='fork'):
-        """ Require a name for multiple instances of the same actor/class
-            Create initial empty dict of Links for easier referencing
         """
-        self.q_watchout = None
-        self.name = name
-        self.links = {} 
-        self.method = method
-        self.client = None
+        Create an actor instance with a unique name. Creates initial empty dict of Links for easier referencing
 
-        self.lower_priority = False 
+        Parameters
+        ----------
+        name: str
+            unique name for this ``Actor`` instance.
+
+        method: str, default "fork"
+            method for staring Actor ``process``, one of "fork" or "spawn", see python docs for more info:
+            https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods
+        """
+
+        self.q_watchout = None
+        self.name = name  #: unique instance name
+        self.links = {}  #: links to/from this actor
+        self.method = method  #: method for starting process
+        self.client = None  #: client store
+
+        self.lower_priority = False
 
         # start with no explicit data queues.             
         # q_in and q_out are for passing ID information to access data in the store
-        self.q_in = None
-        self.q_out = None
+        # TODO: thoughts: queues as properties? makes it easier to document and understand
+        self.q_in: Queue = None  #: multiprocessing queue sending data into this Actor instance
+        self.q_out: Queue = None  # multiprocessing queue sending data out of this Actor instance
 
     def __repr__(self):
-        """ Internal representation of the Actor mostly for printing purposes.
+        """
+        Internal representation of the Actor instance: instance name and its links.
 
-        Returns:
-            [str]: _description_
+        Returns
+        -------
+        str
+
         """
-        """ Return this instance name and links dict
-        """
+
         return self.name+': '+str(self.links.keys())
 
     def setStore(self, client):
-        """ Sets the client interface to the store
+        """
+        Set client interface to the store
 
-        Args:
-            client (improv.nexus.Link): _description_
+        Parameters
+        ----------
+        client
+
         """
-        """ Set client interface to the store
-        """
+
         self.client = client
 
     def _getStoreInterface(self):
@@ -58,53 +74,108 @@ class AbstractActor():
             self.setStore(store)
 
     def setLinks(self, links):
-        """ General full dict set for links
+        """
+        Connect links to this Actor instance
+
+        Parameters
+        ----------
+        links: dict
+            dict of links mapping
+
+        Returns
+        -------
+
         """
         self.links = links
 
     def setCommLinks(self, q_comm, q_sig):
-        """ Set explicit communication links to/from Nexus (q_comm, q_sig)
-            q_comm is for messages from this actor to Nexus
-            q_sig is signals from Nexus and must be checked first
         """
+        Set explicit communication links to/from Nexus
+
+        Parameters
+        ----------
+        q_comm: Link
+            messages from this actor to Nexus
+
+        q_sig: Link
+            signals from Nexus, has priority over ``q_comm``
+        """
+
         self.q_comm = q_comm
         self.q_sig = q_sig
         self.links.update({'q_comm':self.q_comm, 'q_sig':self.q_sig})
 
     def setLinkIn(self, q_in):
-        """ Set the dedicated input queue
         """
+        Set the dedicated input queue
+
+        Parameters
+        ----------
+        q_in: Queue
+            input data Queue
+
+        """
+
         self.q_in = q_in
         self.links.update({'q_in':self.q_in})
 
     def setLinkOut(self, q_out):
-        """ Set the dedicated output queue
+        """
+        Set the dedicated output queue
+
+        Parameters
+        ----------
+        q_out: Queue
+            output data queue
         """
         self.q_out = q_out
         self.links.update({'q_out':self.q_out})
 
     def setLinkWatch(self,  q_watch):
         """
+        Set the link queue watch
+
+        Parameters
+        ----------
+        q_watch
         """
+
         self.q_watchout= q_watch
         self.links.update({'q_watchout':self.q_watchout})
 
     def addLink(self, name, link):
-        """ Function provided to add additional data links by name
-            using same form as q_in or q_out
-            Must be done during registration and not during run
         """
+        Add additional data links by name using same form as q_in or q_out.
+        **Must be done during improv ``setup`` before ``run``.**
+
+        Parameters
+        ----------
+        name: str
+            a name for this link
+
+        link: Link
+            Link instance
+
+        """
+
         self.links.update({name:link})
         # User can then use: self.my_queue = self.links['my_queue'] in a setup fcn,
         # or continue to reference it using self.links['my_queue']
 
     def getLinks(self):
-        """ Returns dictionary of links
         """
+        get dictionary of links
+
+        Returns
+        -------
+        dict
+
+        """
+
         return self.links
 
     def put(self, idnames, q_out= None, save=None):
-    
+
         if save==None:
             save= [False]*len(idnames)
 
@@ -122,27 +193,33 @@ class AbstractActor():
                     self.q_watchout.put(idnames[i])
 
     def run(self):
-        """ Must run in continuous mode
-            Also must check q_sig either at top of a run-loop
-            or as async with the primary function
+        """
+        This is run continuously after an actor starts up.
+
+        **Must be implemented in subclass.**
+
+        For synchronous running see ``RunManager`` class.
+
+        Must run in continuous mode
+        Also must check q_sig either at top of a run-loop
+        or as async with the primary function
+
         """
         raise NotImplementedError
 
-        """ Suggested implementation for synchronous running: see RunManager class below
-        """
-
     def stop(self):
-        """ Specify method for momentarily stopping the run and saving data.
+        """
+        Option to implement momentarily stopping the run, might be useful for saving data, pausing runs, etc.
         """
         pass
     
     def changePriority(self):
-        """ Try to lower this process' priority
-            Only changes priority if lower_priority is set
-            TODO: Only works on unix machines. Add Windows functionality
+        """
+        If ``lower_priority is True``, reduce this Actor instance processs to a priority of -19.
+        TODO: Only works on unix machines. Add Windows functionality
         """
         if self.lower_priority is True:
-            import os, psutil
+            import os, psutil  # TODO: why is this imported here??
             p = psutil.Process(os.getpid())
             p.nice(19) #lowest as default
             logger.info('Lowered priority of this process: {}'.format(self.name))
@@ -150,7 +227,6 @@ class AbstractActor():
 
 
 class ManagedActor(AbstractActor):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args)
 
