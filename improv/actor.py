@@ -47,7 +47,7 @@ class AbstractActor:
             None  #: multiprocessing queue sending data into this Actor instance
         )
         self.q_out: Queue = (
-            None  # multiprocessing queue sending data out of this Actor instance
+            None  #: multiprocessing queue sending data out of this Actor instance
         )
 
     def __repr__(self):
