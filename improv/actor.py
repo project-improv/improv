@@ -239,13 +239,13 @@ class RunManager():
                     self.actions['run']()
                 except Exception as e:
                     logger.error('Actor '+self.actorName+' exception during run: {}'.format(e))
-                    print(traceback.format_exc())
+                    logger.error(traceback.format_exc())
             elif self.stop:
                 try:
                     self.actions['stop']()
                 except Exception as e:
                     logger.error('Actor '+self.actorName+' exception during stop: {}'.format(e))
-                    print(traceback.format_exc())
+                    logger.error(traceback.format_exc())
                 self.stop = False #Run once
             elif self.config:
                 try:
@@ -255,7 +255,7 @@ class RunManager():
                     self.q_comm.put([Signal.ready()])
                 except Exception as e:
                     logger.error('Actor '+self.actorName+' exception during setup: {}'.format(e))  
-                    print(traceback.format_exc())
+                    logger.error(traceback.format_exc())
                 self.config = False 
 
             # Check for new Signals received from Nexus
