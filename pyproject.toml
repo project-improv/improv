@@ -44,3 +44,5 @@ exclude = ["test", "pytest", "env", "demos", "figures"]
 asyncio_mode = "auto"
 filterwarnings = [ ]
 
+[tool.black]
+skip-string-normalization = true
