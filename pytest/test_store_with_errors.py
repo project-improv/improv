@@ -31,29 +31,33 @@ WAIT_TIMEOUT = 10
 
 # FIXME: some commented out tests use Store --> need to be renamed Store if used
 
+
 @pytest.fixture
 # TODO: put in conftest.py
 def setup_store(store_loc='/tmp/store'):
-        ''' Start the server
-        '''
-        print('Setting up Plasma store.')
-        p = subprocess.Popen(
-            ['plasma_store', '-s', store_loc, '-m', str(10000000)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    '''Start the server'''
+    print('Setting up Plasma store.')
+    p = subprocess.Popen(
+        ['plasma_store', '-s', store_loc, '-m', str(10000000)],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
 
-        # with plasma.start_plasma_store(10000000) as ps:
-            
-        yield p
+    # with plasma.start_plasma_store(10000000) as ps:
 
-        # ''' Kill the server
-        # '''
-        # print('Tearing down Plasma store.')
-        p.kill()
-        p.wait(WAIT_TIMEOUT)
+    yield p
+
+    # ''' Kill the server
+    # '''
+    # print('Tearing down Plasma store.')
+    p.kill()
+    p.wait(WAIT_TIMEOUT)
 
 
 def test_connect(setup_store):
     store = Store()
     assert isinstance(store.client, plasma.PlasmaClient)
+
 
 def test_connect_incorrect_path(setup_store):
     # TODO: shorter name???
@@ -69,6 +73,7 @@ def test_connect_incorrect_path(setup_store):
         store.connect_store(store_loc)
         # Check that the exception thrown is a CannotConnectToStoreError
     assert e.value.message == 'Cannot connect to store at {}'.format(str(store_loc))
+
 
 def test_connect_none_path(setup_store):
     # BUT default should be store_loc = '/tmp/store' if not entered?
@@ -88,13 +93,16 @@ def test_connect_none_path(setup_store):
         # Check that the exception thrown is a CannotConnectToStoreError
     assert e.value.message == 'Cannot connect to store at {}'.format(str(store_loc))
 
+
 # class StoreGet(self):
 
-    # TODO: @pytest.parameterize...store.get and store.getID for diff datatypes, pickleable and not, etc.
-    # Check raises...CannotGetObjectError (object never stored)
+
+# TODO: @pytest.parameterize...store.get and store.getID for diff datatypes, pickleable and not, etc.
+# Check raises...CannotGetObjectError (object never stored)
 def test_init_empty(setup_store):
     store = Store()
     assert store.get_all() == {}
+
 
 # class StoreGetID(self):
 # TODO:
@@ -104,7 +112,7 @@ def test_init_empty(setup_store):
 # Decide to test_getList and test_get_all
 
 # def test_is_picklable(self):
-    # Test if obj to put is picklable - if not raise error, handle/suggest how to fix
+# Test if obj to put is picklable - if not raise error, handle/suggest how to fix
 
 # TODO: TEST BELOW:
 # except PlasmaObjectExists:
@@ -115,13 +123,15 @@ def test_init_empty(setup_store):
 #     self.reset()
 # except Exception as e:
 #     logger.error('Could not store object '+object_name+': {} {}'.format(type(e).__name__, e))
-    
+
+
 def test_is_csc_matrix_and_put(setup_store):
     mat = csc_matrix((3, 4), dtype=np.int8)
     store_loc = '/tmp/store'
     store = Store(store_loc)
-    x = store.put(mat, 'matrix' )
+    x = store.put(mat, 'matrix')
     assert isinstance(store.getID(x), csc_matrix)
+
 
 # FAILED - ObjectNotFoundError NOT RAISED?
 # def test_not_put(setup_store):
@@ -143,6 +153,7 @@ def test_is_csc_matrix_and_put(setup_store):
 
 # class StoreGetListandAll(StoreDependentTestCase):
 
+
 @pytest.mark.skip()
 def test_get_list_and_all(setup_store):
     store = Store()
@@ -152,12 +163,13 @@ def test_get_list_and_all(setup_store):
     assert [1, 2] == store.getList(['one', 'two'])
     assert [1, 2, 3] == store.get_all()
 
+
 # class Store_ReleaseReset(StoreDependentTestCase):
 
 # FAILED - DID NOT RAISE <class 'OSError'>???
 # def test_release(setup_store):
 #     store_loc = '/tmp/store'
-#     store = Store(store_loc)    
+#     store = Store(store_loc)
 #     with pytest.raises(ArrowIOError) as e:
 #         store.release()
 #         store.put(1, 'one')
@@ -165,20 +177,24 @@ def test_get_list_and_all(setup_store):
 #     assert e.value.message == 'Could not store object ' + object_name + ': {} {}'.format(type(e).__name__, e)
 #     # TODO: assert info == 'Refreshing connection and continuing'
 
+
 def test_reset(setup_store):
     store = Store()
     store.reset()
     id = store.put(1, 'one')
     assert store.get(id) == 1
 
+
 # class Store_Put(StoreDependentTestCase):
+
 
 def test_put_one(setup_store):
     store = Store()
     id = store.put(1, 'one')
     assert 1 == store.get(id)
 
-@pytest.mark.skip(reason = 'Error not being raised')
+
+@pytest.mark.skip(reason='Error not being raised')
 def test_put_twice(setup_store):
     store = Store()
     with pytest.raises(PlasmaObjectExists) as e:
@@ -187,13 +203,16 @@ def test_put_twice(setup_store):
         # Check that the exception thrown is an PlasmaObjectExists
     assert e.value.message == 'Object already exists. Meant to call replace?'
 
+
 # class Store_PutGet(StoreDependentTestCase):
+
 
 def test_getOne(setup_store):
     store = Store()
     id = store.put(1, 'one')
     id2 = store.put(2, 'two')
     assert 1 == store.get(id)
+
 
 # def test_get_nonexistent(setup_store):
 #     store = Store()

@@ -47,11 +47,17 @@ class AnalysisAsync(Analysis):
         self.loop.run_until_complete(self.arun())
 
     async def arun(self):
-        async with AsyncRunManager(self.name, self.get_frame, self.setup, self.q_sig, self.q_comm) as rm:
+        async with AsyncRunManager(
+            self.name, self.get_frame, self.setup, self.q_sig, self.q_comm
+        ) as rm:
             logger.info(rm)
 
-        print(f'{type(self).__name__} broke, avg time per frame_number: {np.mean(self.t_per_frame)}.')
-        print(f'{type(self).__name__} broke, avg time per put analysis: {np.mean(self.t_per_put)}.')
+        print(
+            f'{type(self).__name__} broke, avg time per frame_number: {np.mean(self.t_per_frame)}.'
+        )
+        print(
+            f'{type(self).__name__} broke, avg time per put analysis: {np.mean(self.t_per_put)}.'
+        )
         print(f'{type(self).__name__} got through {self.frame_number} frames.')
 
     async def get_frame(self):
@@ -82,4 +88,8 @@ class AnalysisAsync(Analysis):
             frame = await self.aqueue.get()
             t = 0.15 * random() + 0.1
             await asyncio.sleep(t)
-            print(Fore.GREEN + f'Analyzed: {frame[1]} Delay: {time.time() - frame[2] - t:.3f}s' + Fore.RESET)
+            print(
+                Fore.GREEN
+                + f'Analyzed: {frame[1]} Delay: {time.time() - frame[2] - t:.3f}s'
+                + Fore.RESET
+            )

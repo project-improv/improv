@@ -1,4 +1,3 @@
-
 """
 The script checks the validity of the YAML configuration file.
 

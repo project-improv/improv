@@ -1,4 +1,3 @@
-
 from unittest import TestCase
 from test.test_utils import StoreDependentTestCase
 from improv.store import Store
@@ -15,18 +14,17 @@ import pickle
 
 
 class Store_Connect(StoreDependentTestCase):
-
     def setUp(self):
         super(Store_Connect, self).setUp()
         self.store = Store()
 
     def test_Connect(self):
-        store_loc='/tmp/store'
+        store_loc = '/tmp/store'
         self.store.connectStore(store_loc)
         self.assertIsInstance(self.store.client, plasma.PlasmaClient)
 
     def test_failToConnect(self):
-        store_loc= 'asdf'
+        store_loc = 'asdf'
 
         # Handle exception thrown
         with self.assertRaises(Exception) as cm:
@@ -38,8 +36,8 @@ class Store_Connect(StoreDependentTestCase):
     def tearDown(self):
         super(Store_Connect, self).tearDown()
 
-class Store_Get(StoreDependentTestCase):
 
+class Store_Get(StoreDependentTestCase):
     def setUp(self):
         super(Store_Get, self).setUp()
         self.store = Store()
@@ -50,17 +48,18 @@ class Store_Get(StoreDependentTestCase):
     def tearDown(self):
         super(Store_Get, self).tearDown()
 
+
 class Store_GetID(StoreDependentTestCase):
-    #Check both hdd_only=False/True
-    #Check isInstance type, isInstance bytes, else
+    # Check both hdd_only=False/True
+    # Check isInstance type, isInstance bytes, else
 
     def setUp(self):
         super(Store_GetID, self).setUp()
-        self.store=Store()
+        self.store = Store()
 
-    def test_isMatrix(self): #also tests put matrix
-        mat= csc_matrix((3, 4), dtype=np.int8)
-        x= self.store.put(mat, 'matrix' ) #returns object_id
+    def test_isMatrix(self):  # also tests put matrix
+        mat = csc_matrix((3, 4), dtype=np.int8)
+        x = self.store.put(mat, 'matrix')  # returns object_id
         self.assertIsInstance(self.store.getID(x), csc_matrix)
 
     def test_notPut(self):
@@ -74,10 +73,11 @@ class Store_GetID(StoreDependentTestCase):
     def tearDown(self):
         super(Store_GetID, self).tearDown()
 
+
 class Store_getListandAll(StoreDependentTestCase):
     def setUp(self):
         super(Store_getListandAll, self).setUp()
-        self.store=Store()
+        self.store = Store()
 
     def getListandAll(self):
         id = self.store.put(1, 'one')
@@ -89,11 +89,11 @@ class Store_getListandAll(StoreDependentTestCase):
     def tearDown(self):
         super(Store_getListandAll, self).tearDown()
 
-class Store_ReleaseReset(StoreDependentTestCase):
 
+class Store_ReleaseReset(StoreDependentTestCase):
     def setUp(self):
         super(Store_ReleaseReset, self).setUp()
-        self.store=Store()
+        self.store = Store()
 
     def test_release(self):
         self.store.release()
@@ -108,8 +108,8 @@ class Store_ReleaseReset(StoreDependentTestCase):
     def tearDown(self):
         super(Store_ReleaseReset, self).tearDown()
 
-class Store_Put(StoreDependentTestCase):
 
+class Store_Put(StoreDependentTestCase):
     def setUp(self):
         super(Store_Put, self).setUp()
         self.store = Store()
@@ -128,7 +128,6 @@ class Store_Put(StoreDependentTestCase):
 
 
 class Store_PutGet(StoreDependentTestCase):
-
     def setUp(self):
         super(Store_PutGet, self).setUp()
         self.store = Store()
@@ -140,7 +139,6 @@ class Store_PutGet(StoreDependentTestCase):
         self.assertEqual(id, self.store.stored['one'])
 
     def test_get_nonexistent(self):
-
         # Handle exception thrown
         with self.assertRaises(Exception) as cm:
             self.store.get('three')
@@ -166,7 +164,6 @@ class Store_PutGet(StoreDependentTestCase):
         super(Store_Notify, self).tearDown()"""
 
 
-
 class Store_UpdateStored(StoreDependentTestCase):
     def setUp(self):
         super(Store_UpdateStored, self).setUp()
@@ -176,10 +173,11 @@ class Store_UpdateStored(StoreDependentTestCase):
     def test_updateGet(self):
         self.store.put(1, 'one')
         self.store.updateStored('one', 3)
-        self.assertEqual(3,self.store.stored['one'])
+        self.assertEqual(3, self.store.stored['one'])
 
     def tearDown(self):
         super(Store_UpdateStored, self).tearDown()
+
 
 class Store_GetStored(StoreDependentTestCase):
     def setUp(self):
@@ -191,14 +189,15 @@ class Store_GetStored(StoreDependentTestCase):
 
     def test_putGetStored(self):
         self.store.put(1, 'one')
-        self.assertEqual(1, self.store.getID(self.store.getStored()['one'])) # returns ID
+        self.assertEqual(
+            1, self.store.getID(self.store.getStored()['one'])
+        )  # returns ID
 
     def tearDown(self):
         super(Store_GetStored, self).tearDown()
 
 
 class Store_internalPutGet(StoreDependentTestCase):
-
     def setUp(self):
         super(Store_internalPutGet, self).setUp()
         self.store = Store()
@@ -209,34 +208,34 @@ class Store_internalPutGet(StoreDependentTestCase):
         self.assertEqual(1, self.store.client.get(id[0]))
 
     def test_get(self):
-        id= self.store.put(1, 'one')
+        id = self.store.put(1, 'one')
         self.store.updateStored('one', id)
         self.assertEqual(self.store._get('one'), 1)
 
     def test__getNonexistent(self):
-
         # Handle exception thrown
         with self.assertRaises(Exception) as cm:
-        # Check that the exception thrown is a ObjectNotFoundError
+            # Check that the exception thrown is a ObjectNotFoundError
             self.store._get('three')
             self.assertEqual(cm.exception.name, 'ObjectNotFoundError')
-            self.assertEqual(cm.exception.message, 'Cannnot find object with ID/name "three"')
-
+            self.assertEqual(
+                cm.exception.message, 'Cannnot find object with ID/name "three"'
+            )
 
     def tearDown(self):
         super(Store_internalPutGet, self).tearDown()
 
-class Store_saveConfig(StoreDependentTestCase):
 
+class Store_saveConfig(StoreDependentTestCase):
     def setUp(self):
         super(Store_saveConfig, self).setUp()
         self.store = Store()
 
     def test_config(self):
-        fileName= 'data/config_dump'
-        id= self.store.put(1, 'one')
-        id2= self.store.put(2, 'two')
-        config_ids=[id, id2]
+        fileName = 'data/config_dump'
+        id = self.store.put(1, 'one')
+        id2 = self.store.put(2, 'two')
+        config_ids = [id, id2]
         self.store.saveConfig(config_ids)
         with open(fileName, 'rb') as output:
             self.assertEqual(pickle.load(output), [1, 2])
@@ -247,7 +246,6 @@ class Store_saveConfig(StoreDependentTestCase):
 
 # Test out CSC matrix format after updating to arrow 0.14.0
 class Store_sparseMatrix(StoreDependentTestCase):
-
     def setUp(self):
         super(Store_sparseMatrix, self).setUp()
         self.store = Store()

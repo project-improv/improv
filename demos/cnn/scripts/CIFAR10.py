@@ -8,11 +8,14 @@ from skimage.io import imsave
 import tarfile
 import urllib.request
 
+
 def unpickle(file):
     import pickle
+
     with open(file, 'rb') as fo:
         dict = pickle.load(fo, encoding='latin1')
     return dict
+
 
 cifar_link = 'https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz'
 
@@ -28,7 +31,7 @@ with tarfile.open(cifar_file) as tar:
     tar.close()
 
 batch_path = os.path.join(data_dir, 'cifar-10-batches-py')
-batch_names = ['data_batch_' + str(x) for x in range(1,6)]
+batch_names = ['data_batch_' + str(x) for x in range(1, 6)]
 
 file = os.path.join(batch_path, batch_names[0])
 
@@ -53,7 +56,7 @@ for i in range(300):
     img = np.dstack((R, G, B))
 
     imsave(os.path.join(data_dir, "images/{}.jpg".format(i)), img)
-    
+
     with open(os.path.join(data_dir, "labels/{}.txt".format(i)), "w") as text_file:
         text_file.write("%s" % labels[i])
         text_file.close()

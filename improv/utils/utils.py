@@ -10,6 +10,7 @@ from functools import wraps
 #         return gen
 #     return primer
 
+
 @coroutine
 def get_num_length_from_key():
     """
@@ -40,7 +41,7 @@ def get_num_length_from_key():
                 i -= 1
             return i
 
-        while name_num[-(max_num_len + 1):].isdigit():
+        while name_num[-(max_num_len + 1) :].isdigit():
             max_num_len += 1
         return max_num_len
 

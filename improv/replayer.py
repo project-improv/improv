@@ -8,7 +8,6 @@ from nexus.store import LMDBStore, LMDBData
 
 
 class Replayer(Actor):
-
     def __init__(self, *args, lmdb_path, replay: str, resave=False, **kwargs):
         """
         Class that outputs objects to queues based on a saved previous run.
@@ -25,7 +24,9 @@ class Replayer(Actor):
         self.lmdb_values: list = self.get_lmdb_values(replay)
         assert len(self.lmdb_values) > 0
 
-        self.gui_messages: dict = self.get_lmdb_values('GUI', func=lambda x: {lmdbdata.obj[0]: lmdbdata.time for lmdbdata in x})
+        self.gui_messages: dict = self.get_lmdb_values(
+            'GUI', func=lambda x: {lmdbdata.obj[0]: lmdbdata.time for lmdbdata in x}
+        )
 
         self.t_saved_start_run = self.gui_messages['run']  # TODO Add load GUI actions
         self.t_start_run = None
@@ -40,11 +41,18 @@ class Replayer(Actor):
         """
         # Get all out queue names
         replay = f'q__{replay}'
-        keys = [key.decode() for key in self.lmdb.get_keys() if key.startswith(replay.encode())]
+        keys = [
+            key.decode()
+            for key in self.lmdb.get_keys()
+            if key.startswith(replay.encode())
+        ]
 
         # Get relevant keys, convert to str, and sort. Then convert back to bytes.
         keys = [key.encode() for key in keys]
-        lmdb_values = sorted(self.lmdb.get(keys, include_metadata=True), key=lambda lmdb_value: lmdb_value.time)
+        lmdb_values = sorted(
+            self.lmdb.get(keys, include_metadata=True),
+            key=lambda lmdb_value: lmdb_value.time,
+        )
 
         if func is not None:
             return func(lmdb_values)
@@ -58,22 +66,28 @@ class Replayer(Actor):
         self.put_setup(self.lmdb_values)
 
     def move_to_plasma(self, lmdb_values):
-        """ Put objects into current plasma store and update object ID in saved queue. """
+        """Put objects into current plasma store and update object ID in saved queue."""
 
         # TODO Make async to enable queue-based fetch system to avoid loading everything at once.
         for lmdbdata in lmdb_values:
             try:
-                if len(lmdbdata.obj) == 1 and isinstance(lmdbdata.obj[0], dict):  # Raw frames
+                if len(lmdbdata.obj) == 1 and isinstance(
+                    lmdbdata.obj[0], dict
+                ):  # Raw frames
                     data = lmdbdata.obj[0]
                     for i, obj_id in data.items():
                         if isinstance(obj_id, ObjectID):
                             actual_obj = self.lmdb.get(obj_id, include_metadata=True)
-                            lmdbdata.obj = [{i: self.client.put(actual_obj.obj, actual_obj.name)}]
+                            lmdbdata.obj = [
+                                {i: self.client.put(actual_obj.obj, actual_obj.name)}
+                            ]
 
-                for i, obj in enumerate(lmdbdata.obj): # List
+                for i, obj in enumerate(lmdbdata.obj):  # List
                     if isinstance(obj, ObjectID):
                         actual_obj = self.lmdb.get(obj, include_metadata=True)
-                        lmdbdata.obj[i] = self.client.put(actual_obj.obj, actual_obj.name)
+                        lmdbdata.obj[i] = self.client.put(
+                            actual_obj.obj, actual_obj.name
+                        )
 
                 else:  # Not object ID, do nothing.
                     pass
@@ -82,14 +96,16 @@ class Replayer(Actor):
                 pass
 
     def put_setup(self, lmdb_values):
-        """ Put all objects created before Run into queue immediately. """
+        """Put all objects created before Run into queue immediately."""
         for lmdb_value in lmdb_values:
             if lmdb_value.time < self.t_saved_start_run:
                 getattr(self, lmdb_value.queue).put(lmdb_value.obj)
 
     def run(self):
         self.t_start_run = time.time()
-        with RunManager(self.name, self.runner, self.setup, self.q_sig, self.q_comm) as rm:
+        with RunManager(
+            self.name, self.runner, self.setup, self.q_sig, self.q_comm
+        ) as rm:
             print(rm)
 
     def runner(self):
@@ -99,7 +115,9 @@ class Replayer(Actor):
         """
         for lmdb_value in self.lmdb_values:
             if lmdb_value.time >= self.t_saved_start_run:
-                t_sleep = (lmdb_value.time + self.t_start_run - self.t_saved_start_run) - time.time()
+                t_sleep = (
+                    lmdb_value.time + self.t_start_run - self.t_saved_start_run
+                ) - time.time()
                 if t_sleep > 0:
                     time.sleep(t_sleep)
                 getattr(self, lmdb_value.queue).put(lmdb_value.obj)

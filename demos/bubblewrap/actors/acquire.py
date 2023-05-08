@@ -3,11 +3,13 @@ import os
 import numpy as np
 from scipy import io as sio
 import time
-import logging; logger = logging.getLogger(__name__)
+import logging
+
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-class Acquirer(Actor):
 
+class Acquirer(Actor):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.frame_num = 0
@@ -34,7 +36,9 @@ class Acquirer(Actor):
         print("run acquire")
         self.timestamp = []
         self.total_times = []
-        with RunManager(self.name, self.runAcquirer, self.setup, self.q_sig, self.q_comm) as rm:
+        with RunManager(
+            self.name, self.runAcquirer, self.setup, self.q_sig, self.q_comm
+        ) as rm:
             print(rm)
 
         print('Done running Acquire, avg time per frame: ', np.mean(self.total_times))
@@ -43,8 +47,8 @@ class Acquirer(Actor):
     def runAcquirer(self):
         if self.done:
             pass
-        elif (self.frame_num < self.num_iters):
-            frame = self.arr[:, self.t:self.t+self.l]
+        elif self.frame_num < self.num_iters:
+            frame = self.arr[:, self.t : self.t + self.l]
             t = time.time()
             id = self.client.put([self.t, frame], 'acq_bubble' + str(self.frame_num))
             self.timestamp.append([time.time(), self.frame_num])
@@ -64,4 +68,3 @@ class Acquirer(Actor):
             self.data = None
             self.q_comm.put(None)
             self.done = True  # stay awake in case we get e.g. a shutdown signal
-

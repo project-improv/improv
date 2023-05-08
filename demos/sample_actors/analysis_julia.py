@@ -9,6 +9,7 @@ from nexus.store import ObjectNotFoundError
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+
 class JuliaAnalysis(Actor):
     '''
     Class to run analyses in Julia.
@@ -16,8 +17,7 @@ class JuliaAnalysis(Actor):
     '''
 
     def __init__(self, *args, julia_file='julia_func.jl'):
-        '''  julia_file: path to .jl file(s) for analyses computed in Julia
-        '''
+        '''julia_file: path to .jl file(s) for analyses computed in Julia'''
 
         super().__init__(*args)
 
@@ -59,10 +59,12 @@ class JuliaAnalysis(Actor):
         t = time.time()
         try:
             obj_id = self.q_in.get(timeout=0.0001)  # List
-            self.frame = self.client.getID(obj_id[0][str(self.frame_number)])  # Expected np.ndarray
+            self.frame = self.client.getID(
+                obj_id[0][str(self.frame_number)]
+            )  # Expected np.ndarray
         except Empty:
             pass
-        except KeyError as e: #TODO: Remove reliance on key
+        except KeyError as e:  # TODO: Remove reliance on key
             logger.error('Processor: Key error... {0}'.format(e))
         except ObjectNotFoundError:
             logger.error('Unavailable from store, dropping frame_number.')
@@ -81,7 +83,7 @@ class JuliaAnalysis(Actor):
 
     def export(self):
         t = time.time()
-        obj_ids = [self.client.put([self.result_ex, 'resultJulia'+self.frame_number])]
+        obj_ids = [self.client.put([self.result_ex, 'resultJulia' + self.frame_number])]
 
         # Automatic generation of variables to export.
         # export_list = [key for key, value in self.__dict__.items() if key.endswith('_ex')]

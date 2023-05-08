@@ -25,7 +25,6 @@ class TestLMDBStore(unittest.TestCase):
         self.test_obj = b'test_obj'
 
     def test_construction_errors(self):
-
         with self.assertRaises(FileNotFoundError):
             LMDBStore(path='/magic_land')
 
@@ -35,16 +34,26 @@ class TestLMDBStore(unittest.TestCase):
             os.removedirs('./test_lmdb_exists')
 
     def test_standalone(self):
-        self.lmdb_store = LMDBStore(path='./', name=self.LMDB_NAME, commit_freq=self.commit_freq, from_store=False)
+        self.lmdb_store = LMDBStore(
+            path='./',
+            name=self.LMDB_NAME,
+            commit_freq=self.commit_freq,
+            from_store=False,
+        )
         self.lmdb_helper(rand_id=None)
 
     def test_from_store(self):
-        self.lmdb_store = LMDBStore(path='./', name=self.LMDB_NAME, commit_freq=self.commit_freq, from_store=True)
+        self.lmdb_store = LMDBStore(
+            path='./',
+            name=self.LMDB_NAME,
+            commit_freq=self.commit_freq,
+            from_store=True,
+        )
         self.lmdb_helper(rand_id=plasma.ObjectID.from_random)
 
     @staticmethod
     def gen_rand_str(length=10):
-        """Generate a random string of fixed length """
+        """Generate a random string of fixed length"""
 
         letters = string.ascii_lowercase
         return ''.join(random.choice(letters) for _ in range(length))
@@ -90,7 +99,9 @@ class TestLMDBStore(unittest.TestCase):
 
         # Test 'flush_this_immediately'
         keys.append(key_gen())
-        self.lmdb_store.put(self.test_obj, gen_name(), obj_id=gen_id(), flush_this_immediately=True)
+        self.lmdb_store.put(
+            self.test_obj, gen_name(), obj_id=gen_id(), flush_this_immediately=True
+        )
         time.sleep(0.2)
         self.assertEqual(self.lmdb_store.get(keys[-1]), self.test_obj)
 
