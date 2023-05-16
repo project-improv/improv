@@ -1,6 +1,7 @@
 import time
 import asyncio
 import traceback
+import signal
 from queue import Empty
 from typing import Awaitable, Callable
 from improv.store import Store
@@ -56,7 +57,7 @@ class AbstractActor:
         self.client = client
 
     def _getStoreInterface(self):
-        ## TODO: Where do we require this be run? Add a Signal and include in RM?
+        # TODO: Where do we require this be run? Add a Signal and include in RM?
         if not self.client:
             store = Store(self.name)
             self.setStore(store)
@@ -103,13 +104,13 @@ class AbstractActor:
         return self.links
 
     def put(self, idnames, q_out=None, save=None):
-        if save == None:
+        if save is None:
             save = [False] * len(idnames)
 
         if len(save) < len(idnames):
             save = save + [False] * (len(idnames) - len(save))
 
-        if q_out == None:
+        if q_out is None:
             q_out = self.q_out
 
         q_out.put(idnames)
@@ -139,7 +140,8 @@ class AbstractActor:
         TODO: Only works on unix machines. Add Windows functionality
         """
         if self.lower_priority is True:
-            import os, psutil
+            import os
+            import psutil
 
             p = psutil.Process(os.getpid())
             p.nice(19)  # lowest as default
@@ -158,7 +160,7 @@ class ManagedActor(AbstractActor):
         self.actions["stop"] = self.stop
 
     def run(self):
-        with RunManager(self.name, self.actions, self.links) as rm:
+        with RunManager(self.name, self.actions, self.links):
             pass
 
     def setup(self):
@@ -186,7 +188,7 @@ class AsyncActor(AbstractActor):
         self.actions["stop"] = self.stop
 
     def run(self):
-        with AsyncRunManager(self.name, self.actions, self.links) as rm:
+        with AsyncRunManager(self.name, self.actions, self.links):
             pass
 
     async def setup(self):
@@ -203,7 +205,7 @@ class AsyncActor(AbstractActor):
         pass
 
 
-## Aliasing
+# Aliasing
 Actor = ManagedActor
 
 
@@ -291,7 +293,7 @@ class RunManager:
                     self.run = True
             except KeyboardInterrupt:
                 break
-            except Empty as e:
+            except Empty:
                 pass  # No signal from Nexus
 
         return None

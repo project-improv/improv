@@ -31,7 +31,7 @@ classifiers = ['Development Status :: 1 - Planning']
 [project.optional-dependencies]
 tests = ["pytest", "async-timeout", "pytest-asyncio", "pytest-cov", "scikit-image",]
 docs = ["jupyter-book"]
-lint = ["black", "flake8"]
+lint = ["black", "flake8", "Flake8-pyproject"]
 caiman = []
 
 [project.scripts]
@@ -45,3 +45,9 @@ exclude = ["test", "pytest", "env", "demos", "figures"]
 asyncio_mode = "auto"
 filterwarnings = [ ]
 
+[tool.flake8]
+# Recommend matching the black line length (default 88),
+# rather than using the flake8 default of 79:
+max-line-length = 88
+ignore = ['E203', 'W503']
+    # See https://github.com/PyCQA/pycodestyle/issues/373

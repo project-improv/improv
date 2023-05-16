@@ -1,8 +1,8 @@
 import logging
+from improv.nexus import Nexus
 
 # Matplotlib is overly verbose by default
 logging.getLogger("matplotlib").setLevel(logging.WARNING)
-from improv.nexus import Nexus
 
 loadFile = "./1p_demo.yaml"
 

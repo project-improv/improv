@@ -1,13 +1,12 @@
-import os
 import yaml
-import io
 from inspect import signature
 from importlib import import_module
 import logging
 
 logger = logging.getLogger(__name__)
 
-# TODO: Write a save function for Config objects output as YAML configFile but using ConfigModule objects
+# TODO: Write a save function for Config objects output as YAML configFile
+# but using ConfigModule objects
 
 
 class Config:
@@ -74,7 +73,7 @@ class Config:
             configModule = ConfigModule(name, packagename, classname, options=actor)
             try:
                 sig.bind(configModule.options)
-            except TypeError as e:
+            except TypeError:
                 logger.error("Error: Invalid arguments passed")
                 params = ""
                 for parameter in sig.parameters:
@@ -102,8 +101,6 @@ class Config:
         """Saves the config to a specific file."""
 
         wflag = True
-
-        cfg = self.actors
 
         saveFile = self.configFile.split(".")[0]
         pathName = saveFile + "_actors.yaml"
@@ -139,7 +136,7 @@ class ConfigModule:
             cfg[self.name].update({key: value})
 
         with open(pathName, writeOption) as file:
-            documents = yaml.dump(cfg, file)
+            yaml.dump(cfg, file)
 
         return wflag
 

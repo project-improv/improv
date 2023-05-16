@@ -1,19 +1,13 @@
 import time
-import pickle
 import json
-import cv2
 import os
 import numpy as np
-import scipy.sparse
-from improv.store import Store, CannotGetObjectError, ObjectNotFoundError
+from improv.store import ObjectNotFoundError
 from caiman.source_extraction.cnmf.online_cnmf import OnACID
 from caiman.source_extraction.cnmf.params import CNMFParams
-from caiman.motion_correction import motion_correct_iteration_fast, tile_and_correct
 from caiman.utils.visualization import get_contours
-from os.path import expanduser
 from queue import Empty
-import pyarrow.plasma as plasma
-from improv.actor import Actor, Spike, RunManager
+from improv.actor import Actor, RunManager
 import traceback
 
 import logging
@@ -139,9 +133,9 @@ class OnePProcessor(Actor):
             try:
                 self.frame = self.client.getID(frame[0][0])
 
-                ##motion correct
+                # motion correct
                 frame = self.onAc.mc_next(self.frame_number + init, self.frame)
-                ##fit frame
+                # fit frame
                 t2 = time.time()
                 self.onAc.fit_next(
                     self.frame_number + init, self.frame.ravel(order="F")
@@ -214,8 +208,6 @@ class OnePProcessor(Actor):
         )
         ids.append([self.frame_number, str(self.frame_number)])
 
-        t5 = time.time()
-
         self.put(ids)
 
         t6 = time.time()
@@ -259,7 +251,6 @@ class OnePProcessor(Actor):
                 )
                 .reshape(self.onAc.estimates.dims, order="F")
             )
-            # background = 0 #self.onAc.estimates.Ab[:,:mn].dot(self.onAc.estimates.C_on[:mn,(self.frame_number-1)]).reshape(self.onAc.estimates.dims, order='F')
 
             ssub_B = self.onAc.params.get("init", "ssub_B") * self.onAc.params.get(
                 "init", "ssub"

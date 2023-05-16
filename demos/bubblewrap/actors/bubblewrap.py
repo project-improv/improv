@@ -1,6 +1,5 @@
 import numpy as np
 from queue import Empty
-import os
 
 from bubblewrap_n import Bubblewrap_N
 from improv.actor import Actor, RunManager
@@ -17,9 +16,9 @@ class Bubblewrap(Actor):
         self.d = dimension
 
     def setup(self):
-        ## TODO: Input params from file
+        # TODO: Input params from file
 
-        ## Parameters
+        # Parameters
         N = 100  # number of nodes to tile with
         lam = 1e-3  # lambda
         nu = 1e-3  # nu

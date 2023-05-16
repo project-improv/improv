@@ -7,7 +7,6 @@ import sys
 import psutil
 import time
 import datetime
-import re
 from zmq import SocketOption
 from zmq.log.handlers import PUBHandler
 from improv.tui import TUI
@@ -107,7 +106,8 @@ def parse_cli_args(args):
         type=path_exists,
         action="append",
         default=[],
-        help="search path to add to sys.path when looking for actors; defaults to the directory containing configfile",
+        help="search path to add to sys.path when looking for actors; \
+              defaults to the directory containing configfile",
     )
     run_parser.add_argument(
         "configfile", type=file_exists, help="YAML file specifying improv pipeline"
@@ -173,7 +173,8 @@ def parse_cli_args(args):
         type=path_exists,
         action="append",
         default=[],
-        help="search path to add to sys.path when looking for actors; defaults to the directory containing configfile",
+        help="search path to add to sys.path when looking for actors; \
+            defaults to the directory containing configfile",
     )
     server_parser.add_argument(
         "configfile", type=file_exists, help="YAML file specifying improv pipeline"
@@ -238,7 +239,9 @@ def run_server(args):
     )
     curr_dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(
-        f"{curr_dt} Server running on (control, output, log) ports ({control_port}, {output_port}, {logging_port}).\nPress Ctrl-C to quit."
+        f"{curr_dt} Server running on (control, output, log) ports \
+            ({control_port}, {output_port}, {logging_port}).\n\
+            Press Ctrl-C to quit."
     )
     server.startNexus()
 

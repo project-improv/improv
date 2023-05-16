@@ -2,17 +2,14 @@ import numpy as np
 from math import floor
 import time
 import pyqtgraph
-from pyqtgraph import EllipseROI, PolyLineROI, ColorMap, ROI, LineSegmentROI
-from queue import Empty
-from matplotlib import cm
+from pyqtgraph import EllipseROI, PolyLineROI, ColorMap
 from matplotlib.colors import ListedColormap
 from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtGui import QColor, QPixmap
+from PyQt5.QtGui import QColor
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
 from . import improv_basic
-from improv.store import Store
 from improv.actor import Spike
 
 import logging
