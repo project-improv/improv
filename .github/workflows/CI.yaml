@@ -43,8 +43,9 @@ jobs:
         uses: Vampire/setup-wsl@v2.0.1
       - name: Install package (Windows)
         if: startsWith(matrix.os, 'windows')
-        run: |
-          pip install -e .[tests] 
+        - shell: wsl-bash {0}
+          run: |
+            pip install -e .[tests] 
           
       - name: Test with pytest
         run: |
