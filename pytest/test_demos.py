@@ -6,11 +6,7 @@ import improv.tui as tui
 
 from test_nexus import ports
 
-<<<<<<< HEAD
 SERVER_WARMUP = 10
-=======
-SERVER_WARMUP = 8
->>>>>>> reformatting with black
 
 
 @pytest.fixture()
