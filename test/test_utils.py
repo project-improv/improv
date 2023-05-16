@@ -4,63 +4,64 @@ import asyncio
 from improv.actor import RunManager, AsyncRunManager
 from multiprocessing import Process
 
+
 class StoreDependentTestCase(TestCase):
-    ''' Unit test base class that starts the Store plasma server
-        for the tests in this case.
-    '''
+    """Unit test base class that starts the Store plasma server
+    for the tests in this case.
+    """
 
     def setUp(self):
-        ''' Start the server
-        '''
-        self.p = subprocess.Popen(['plasma_store',
-                              '-s', '/tmp/store',
-                              '-m', str(10000000)],
-                              stdout=subprocess.DEVNULL,
-                              stderr=subprocess.DEVNULL)
+        """Start the server"""
+        self.p = subprocess.Popen(
+            ["plasma_store", "-s", "/tmp/store", "-m", str(10000000)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
 
     def tearDown(self):
-        ''' Kill the server
-        '''
+        """Kill the server"""
 
         self.p.kill()
         self.p.wait()
 
-class ActorDependentTestCase(TestCase):
 
+class ActorDependentTestCase(TestCase):
     def setUp(self):
-        ''' Start the server
-        '''
-        self.p = subprocess.Popen(['plasma_store',
-                              '-s', '/tmp/store',
-                              '-m', str(10000000)],
-                              stdout=subprocess.DEVNULL,
-                              stderr=subprocess.DEVNULL)
+        """Start the server"""
+        self.p = subprocess.Popen(
+            ["plasma_store", "-s", "/tmp/store", "-m", str(10000000)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
 
     def tearDown(self):
-        ''' Kill the server
-        '''
+        """Kill the server"""
 
         self.p.kill()
         self.p.wait()
 
     def run_setup(self):
-        self.isSetUp= True
+        self.isSetUp = True
 
     def runMethod(self):
-        self.runNum+=1
+        self.runNum += 1
 
     def process_setup(self):
         pass
 
     def process_run(self):
-        self.q_comm.put('ran')
+        self.q_comm.put("ran")
 
     def createprocess(self, q_sig, q_comm):
-        with RunManager('test', self.process_run, self.process_setup, q_sig, q_comm) as rm:
+        with RunManager(
+            "test", self.process_run, self.process_setup, q_sig, q_comm
+        ) as rm:
             print(rm)
 
     async def createAsyncProcess(self, q_sig, q_comm):
-        async with AsyncRunManager('test', self.process_run, self.process_setup, q_sig, q_comm) as rm:
+        async with AsyncRunManager(
+            "test", self.process_run, self.process_setup, q_sig, q_comm
+        ) as rm:
             print(rm)
 
     async def a_put(self, signal, time):

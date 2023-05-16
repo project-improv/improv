@@ -22,11 +22,13 @@ def corr_frame_stim(t_frame, t_stim):
 
     t_frame = sort_np_wrt_col(t_frame, 0)
     t_stim = sort_np_wrt_col(t_stim, 0)
-    assert np.all(t_frame[:-1, 1] < t_frame[1:, 1])  # Frame number must increase monotonically.
+    assert np.all(
+        t_frame[:-1, 1] < t_frame[1:, 1]
+    )  # Frame number must increase monotonically.
 
     out = np.flip(t_frame, axis=1).copy()
     for i in range(t_frame.shape[0]):
-        idx = np.searchsorted(t_stim[:, 0], t_frame[i, 0], side='right') - 1
+        idx = np.searchsorted(t_stim[:, 0], t_frame[i, 0], side="right") - 1
         out[i, 1] = t_stim[idx, 1] if idx > -1 else np.nan
     return out
 
