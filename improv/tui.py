@@ -16,9 +16,10 @@ from textual.widgets import (
 )
 from textual.message import Message
 import logging
-from zmq.log.handlers import PUBHandler
 
 logger = logging.getLogger(__name__)
+from zmq.log.handlers import PUBHandler
+
 logger.setLevel(logging.INFO)
 
 

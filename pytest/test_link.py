@@ -3,18 +3,12 @@ import queue
 import subprocess
 import time
 
-# import pyarrow
 import pytest
-
-# import concurrent.futures
-# from async_timeout import timeout
 
 from improv.actor import Actor
 
-# from improv.link import AsyncQueue
 from improv.store import Store
 from improv.link import Link
-
 
 @pytest.fixture
 def setup_store():

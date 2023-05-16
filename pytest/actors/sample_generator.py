@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 from improv.actor import Actor
+=======
+from improv.actor import Actor, RunManager
+>>>>>>> reformatting with black
 from datetime import date  # used for saving
 import numpy as np
 import logging
@@ -47,9 +51,15 @@ class Generator(Actor):
         """Save current randint vector to a file."""
 
         print("Generator stopping")
+<<<<<<< HEAD
         np.save(f"sample_generator_data_{date.today()}", self.data)
         # This is not the best example of a save function,
         # will overwrite previous files with the same name.
+=======
+        np.save(
+            f"sample_generator_data_{date.today()}", self.data
+        )  # This is not the best example of a save function, will overwrite previous files with the same name.
+>>>>>>> reformatting with black
         return 0
 
     def runStep(self):
