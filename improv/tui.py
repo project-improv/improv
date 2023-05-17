@@ -13,14 +13,12 @@ from textual.widgets import (
     Button,
     Static,
     Label,
-    Placeholder,
 )
 from textual.message import Message
 import logging
-
-logger = logging.getLogger(__name__)
 from zmq.log.handlers import PUBHandler
 
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
@@ -166,7 +164,7 @@ class TUI(App, inherit_bindings=False):
 
     @staticmethod
     def format_log_messages(parts):
-        type_list = ["debug", "info", "warning", "error", "critical", "exception"]
+        # type_list = ["debug", "info", "warning", "error", "critical", "exception"]
         msg_type = parts[0].decode("utf-8")
         msg = SocketLog._simple_formatter(parts[1:])
         if msg_type == "DEBUG":
