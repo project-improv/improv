@@ -1,7 +1,6 @@
 import asyncio
 import concurrent
 import signal
-import sys
 import time
 import subprocess
 import logging
@@ -14,7 +13,6 @@ from queue import Full
 from datetime import datetime
 
 from improv.store import Store
-from improv.watcher import BasicWatcher
 from improv.actor import Signal
 from improv.config import Config
 from improv.link import Link, MultiLink
@@ -226,7 +224,7 @@ class Nexus:
 
         try:
             logger.info(f"Result of run_until_complete: {res}")
-        except:
+        except Exception:
             logger.info("Res failed to await")
 
         logger.info(f"Current loop: {asyncio.get_event_loop()}")
@@ -272,7 +270,7 @@ class Nexus:
         ):  # Since Visual is not started, it cannot send a ready signal.
             try:
                 del self.actorStates["Visual"]
-            except:
+            except Exception:
                 pass
         polling = list(self.comm_queues.values())
         pollingNames = list(self.comm_queues.keys())
@@ -531,7 +529,7 @@ class Nexus:
         for q in queues:
             try:
                 q.put(shutdown_message)
-            except Exception as e:
+            except Exception:
                 logger.info("Unable to send shutdown message to {}.".format(q.name))
 
         logger.info("Canceling outstanding tasks")
@@ -599,13 +597,13 @@ class Nexus:
         instance = clss(actor.name, **actor.options)
 
         if "method" in actor.options.keys():
-            ## check for spawn
+            # check for spawn
             if "fork" == actor.options["method"]:
                 # Add link to Store store
                 store = self.createStore(actor.name)
                 instance.setStore(store)
             else:
-                ## spawn or forkserver; can't pickle plasma store
+                # spawn or forkserver; can't pickle plasma store
                 logger.info("No store for this actor yet {}".format(name))
         else:
             # Add link to Store store
@@ -613,9 +611,9 @@ class Nexus:
             instance.setStore(store)
 
         # Add signal and communication links
-        store_arg = [None, None]
-        if self.use_hdd:
-            store_arg = [store, self.createStore("default")]
+        # store_arg = [None, None]
+        # if self.use_hdd:
+        #     store_arg = [store, self.createStore("default")]
 
         q_comm = Link(actor.name + "_comm", actor.name, self.name)
         q_sig = Link(actor.name + "_sig", self.name, actor.name)
@@ -670,7 +668,7 @@ class Nexus:
         else:
             self.actors[classname].addLink(linktype, link)
 
-    ## Appears depricated? FIXME
+    # Appears depricated? FIXME
     # def createWatcher(self, watchin):
     #     watcher= BasicWatcher('Watcher', inputs=watchin)
     #     watcher.setStore(store.Store(watcher.name))
@@ -687,7 +685,7 @@ class Nexus:
         from improv.watcher import Watcher
 
         self.watcher = Watcher("watcher", self.createStore("watcher"))
-        store = self.createStore("watcher") if not self.use_hdd else None
+        # store = self.createStore("watcher") if not self.use_hdd else None
         q_sig = Link("watcher_sig", self.name, "watcher")
         self.watcher.setLinks(q_sig)
         self.sig_queues.update({q_sig.name: q_sig})
