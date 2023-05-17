@@ -6,14 +6,13 @@ from scipy.sparse import csc_matrix
 import signal
 
 from dataclasses import dataclass, make_dataclass
-from queue import Empty, Queue
+from queue import Queue
 from pathlib import Path
 from random import random
 from threading import Thread
 from typing import List, Union
 
 import lmdb
-from pyarrow import SerializationCallbackError
 from pyarrow.lib import ArrowIOError
 from pyarrow._plasma import PlasmaObjectExists, ObjectNotAvailable, ObjectID
 
@@ -279,7 +278,7 @@ class PlasmaStore(StoreInterface):
         try:
             notification_info = self.client.get_next_notification()
             # recv_objid, recv_dsize, recv_msize = notification_info
-        except ArrowIOError as e:
+        except ArrowIOError:
             notification_info = None
         except Exception as e:
             logger.exception("Notification error: {}".format(e))
@@ -557,7 +556,7 @@ class LMDBStore(StoreInterface):
         pass  # TODO
 
 
-## Aliasing
+# Aliasing
 Store = PlasmaStore
 
 
