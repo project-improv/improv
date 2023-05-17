@@ -1,8 +1,7 @@
-import numbers
 import os
 import pickle
 from contextlib import contextmanager
-from typing import Dict, Set
+# from typing import Dict, Set
 import lmdb
 from .utils import get_num_length_from_key
 
@@ -41,7 +40,7 @@ class LMDBReader:
 
         def check_if_key_equals_t(key):
             try:
-                return True if int(key[-12 - num_idx.send(key) : -12]) == t else False
+                return True if int(key[-12 - num_idx.send(key): -12]) == t else False
             except ValueError:
                 return False
 
