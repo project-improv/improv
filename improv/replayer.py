@@ -14,7 +14,8 @@ class Replayer(Actor):
 
         :param lmdb_path: path to LMDB folder
         :param replay: named of Actor to replay.
-        :param resave: (if using LMDB in this instance) save outputs from this actor as usual (default: False)
+        :param resave: (if using LMDB in this instance)
+                        save outputs from this actor as usual (default: False)
 
         """
         super().__init__(*args, **kwargs)
@@ -68,7 +69,8 @@ class Replayer(Actor):
     def move_to_plasma(self, lmdb_values):
         """Put objects into current plasma store and update object ID in saved queue."""
 
-        # TODO Make async to enable queue-based fetch system to avoid loading everything at once.
+        # TODO Make async to enable queue-based fetch system -
+        # to avoid loading everything at once.
         for lmdbdata in lmdb_values:
             try:
                 if len(lmdbdata.obj) == 1 and isinstance(
@@ -110,8 +112,8 @@ class Replayer(Actor):
 
     def runner(self):
         """
-        Get list of objects and output them to their respective queues based on time delay.
-
+        Get list of objects and output them
+        to their respective queues based on time delay.
         """
         for lmdb_value in self.lmdb_values:
             if lmdb_value.time >= self.t_saved_start_run:
@@ -133,7 +135,8 @@ class Replayer(Actor):
     #
     #
     #     funcs_to_run = [self.send_q, self.fetch_lmdb]
-    #     async with AsyncRunManager(self.name, funcs_to_run, self.setup, self.q_sig, self.q_comm) as rm:
+    #     async with AsyncRunManager(self.name, funcs_to_run, self.setup,
+    #                                   self.q_sig, self.q_comm) as rm:
     #         print(rm)
     #
     # async def send_q(self):

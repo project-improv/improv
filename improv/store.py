@@ -46,7 +46,8 @@ class StoreInterface:
 class PlasmaStore(StoreInterface):
     """Basic interface for our specific data store implemented with apache arrow plasma
     Objects are stored with object_ids
-    References to objects are contained in a dict where key is shortname, value is object_id
+    References to objects are contained in a dict where key is shortname,
+    value is object_id
     """
 
     def __init__(
@@ -75,7 +76,8 @@ class PlasmaStore(StoreInterface):
 
         :param hdd_path: Path to LMDB folder.
         :param flush_immediately: Save objects to disk immediately
-        :param commit_freq: If not flush_immediately, flush data to disk every {commit_freq} seconds.
+        :param commit_freq: If not flush_immediately,
+            flush data to disk every {commit_freq} seconds.
         """
 
         self.name = name
@@ -166,43 +168,57 @@ class PlasmaStore(StoreInterface):
         #     # csc needed for CaImAn
         #     # Pyarrow for csc/other sparse arrays
         #     # All non-arrow objects must be pickle-able
-        #     # Write more general try-catch, if anything user wants to put in store returns cannot put - pickle first, then store
+        #     # Write more general try-catch,
+        #     #  if anything user wants to put in store returns cannot put -
+        #     #  pickle first, then store
         #     # What else could we not put in?
         #     # List of test objects that cannot be stored
-        #     # https://stackoverflow.com/questions/17872056/how-to-check-if-an-object-is-pickleable#:~:text=In%20python%20you%20can%20check,(x%2C%20Number).%22
+        #     # https://stackoverflow.com/questions/17872056/
+        #       how-to-check-if-an-object-is-pickleable
+        #       #:~:text=In%20python%20you%20can%20check,(x%2C%20Number).%22
         #     try:
         #         pickle.dumps(object)
         #     except pickle.PicklingError:
         #         return False
         #     return True
         #     if isinstance(object, csc_matrix):
-        #         object_id = self.client.put(pickle.dumps(object, protocol=pickle.HIGHEST_PROTOCOL))
+        #         object_id = self.client.put(pickle.dumps(object,
+        #                                                  protocol=pickle.HIGHEST_PROTOCOL))
         #     else:
         #         object_id = self.client.put(object)
         #     self.updateStored(object_name, object_id)
 
         # except SerializationCallbackError:
         #     if isinstance(obj, csc_matrix):  # Ignore rest
-        #         object_id = self.client.put(pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL))
+        #         object_id = self.client.put(pickle.dumps(obj,
+        #                                                  protocol=pickle.HIGHEST_PROTOCOL))
 
         # except PlasmaObjectExists:
         #     logger.error('Object already exists. Meant to call replace?')
         #     # raise PlasmaObjectExists
 
         # except ArrowIOError as e:
-        #     logger.error('Could not store object ' + object_name + ': {} {}'.format(type(e).__name__, e))
+        #     logger.error('Could not store object '
+        #                  + object_name
+        #                  + ': {} {}'.format(type(e).__name__, e))
         #     logger.info('Refreshing connection and continuing')
         #     self.reset()
 
         # except Exception as e:
-        #     logger.error('Could not store object ' + object_name + ': {} {}'.format(type(e).__name__, e))
+        #     logger.error('Could not store object '
+        #                   + object_name
+        #                   + ': {} {}'.format(type(e).__name__, e))
 
         # if self.use_hdd:
-        #     self.lmdb_store.put(obj, object_name, obj_id=object_id, flush_this_immediately=flush_this_immediately)
+        #     self.lmdb_store.put(obj,
+        #                         object_name,
+        #                         obj_id=object_id,
+        #                         flush_this_immediately=flush_this_immediately)
 
         # return object_id
 
-    # Before get or getID - check if object is present and sealed (client.contains(obj_id))
+    # Before get or getID -
+    # check if object is present and sealed (client.contains(obj_id))
     def get(self, object_name):
         """Get a single object from the store
         Checks to see if it knows the object first
@@ -262,7 +278,8 @@ class PlasmaStore(StoreInterface):
     def release(self):
         self.client.disconnect()
 
-    # Necessary? How to fix for functionality? Subscribe to notifications about sealed objects?
+    # Necessary? How to fix for functionality?
+    # Subscribe to notifications about sealed objects?
     def subscribe(self):
         """Subscribe to a section? of the ds for singals
         Throws unknown errors
@@ -273,7 +290,9 @@ class PlasmaStore(StoreInterface):
             logger.error("Unknown error: {}".format(e))
             raise Exception
 
-    # client.decode_notifications? Get the notification from the buffer? Or we specifically want the next notification from the notification socket? cleint.get_notification_socket first?
+    # client.decode_notifications? Get the notification from the buffer?
+    # Or we specifically want the next notification from the notification socket?
+    # cleint.get_notification_socket first?
     def notify(self):
         try:
             notification_info = self.client.get_next_notification()
@@ -383,9 +402,11 @@ class LMDBStore(StoreInterface):
             Maximum size database may grow to; used to size the memory mapping.
             If the database grows larger than map_size, a MapFullError will be raised.
             On 64-bit there is no penalty for making this huge. Must be <2GB on 32-bit.
-        :param load: For Replayer use. Informs the class that we're loading from a previous LMDB, not create a new one.
+        :param load: For Replayer use. Informs the class that we're loading
+                    from a previous LMDB, not create a new one.
         :param flush_immediately: Save objects to disk immediately
-        :param commit_freq: If not flush_immediately, flush data to disk every {commit_freq} seconds.
+        :param commit_freq: If not flush_immediately,
+                            flush data to disk every {commit_freq} seconds.
         """
 
         # Check if LMDB folder exists.
@@ -412,8 +433,8 @@ class LMDBStore(StoreInterface):
         self.put_queue_container = make_dataclass(
             "LMDBPutContainer", [("name", str), ("obj", bytes)]
         )
-
-        self.commit_thread: Thread = None  # Initialize only after interpreter has forked at the start of each actor.
+        # Initialize only after interpreter has forked at the start of each actor.
+        self.commit_thread: Thread = None
         signal.signal(signal.SIGINT, self.flush)
 
     def get(
@@ -425,7 +446,8 @@ class LMDBStore(StoreInterface):
         Get object using key (could be any byte string or plasma.ObjectID)
 
         :param key:
-        :param include_metadata: returns whole LMDBData if true else LMDBData.obj (just the stored object).
+        :param include_metadata: returns whole LMDBData if true else LMDBData.obj
+                                (just the stored object).
         :rtype: object or LMDBData
         """
         while True:
@@ -475,7 +497,8 @@ class LMDBStore(StoreInterface):
         :type obj_name: str
         :param obj_id: Object_id from Plasma client
         :type obj_id: class 'plasma.ObjectID'
-        :param flush_this_immediately: Override self.flush_immediately. For storage of critical objects.
+        :param flush_this_immediately: Override self.flush_immediately.
+                                        For storage of critical objects.
 
         :return: None
         """

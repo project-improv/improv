@@ -297,7 +297,8 @@ class Nexus:
             except asyncio.CancelledError:
                 pass
 
-            # sort through tasks to see where we got input from (so we can choose a handler)
+            # sort through tasks to see where we got input from
+            # (so we can choose a handler)
             for i, t in enumerate(self.tasks):
                 if i < len(polling):
                     if (
@@ -321,7 +322,8 @@ class Nexus:
 
     def stop_polling_and_quit(self, signal, queues):
         logger.warn(
-            "Shutting down via signal handler for {}. Steps may be out of order or dirty.".format(
+            "Shutting down via signal handler for {}. \
+                Steps may be out of order or dirty.".format(
                 signal
             )
         )
@@ -409,7 +411,8 @@ class Nexus:
                     self.processes.append(p)
                     p.start()
                     m.q_sig.put_nowait(Signal.setup())
-                    # TODO: ensure waiting for ready before run? Or no need since in queue?
+                    # TODO: ensure waiting for ready before run?
+                    # Or no need since in queue?
                     # while m.q_comm.empty():
                     # print("Waiting for ready signal")
                     # pass
@@ -432,7 +435,7 @@ class Nexus:
                     self.allowStart = True  # TODO: replace with q_sig to FE/Visual
                     logger.info("Allowing start")
 
-                    # TODO: Maybe have flag for auto-start, else require explicit command
+                    # TODO: Maybe have flag for auto-start, or require explicit command
                     # if not self.config.hasGUI:
                     #     self.run()
 
@@ -460,7 +463,8 @@ class Nexus:
                     q.put_nowait(Signal.run())
                 except Full:
                     logger.warning("Signal queue" + q.name + "is full")
-                    # queue full, keep going anyway TODO: add repeat trying as async task
+                    # queue full, keep going anyway
+                    # TODO: add repeat trying as async task
         else:
             logger.error(
                 "-- Not all actors are ready yet, please wait and then try again."
