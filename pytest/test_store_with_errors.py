@@ -1,16 +1,16 @@
 import pytest
-import time
+# import time
 from improv.store import Store
-from multiprocessing import Process
+# from multiprocessing import Process
 from pyarrow._plasma import PlasmaObjectExists
 from scipy.sparse import csc_matrix
 import numpy as np
 import pyarrow.plasma as plasma
-from pyarrow.lib import ArrowIOError
-from improv.store import ObjectNotFoundError
-from improv.store import CannotGetObjectError
+# from pyarrow.lib import ArrowIOError
+# from improv.store import ObjectNotFoundError
+# from improv.store import CannotGetObjectError
 from improv.store import CannotConnectToStoreError
-import pickle
+# import pickle
 import subprocess
 
 WAIT_TIMEOUT = 10
@@ -64,7 +64,8 @@ def test_connect_incorrect_path(setup_store):
     # TODO: passes, but refactor --- see comments
     store_loc = "asdf"
     store = Store(store_loc)
-    # Handle exception thrown - assert name == 'CannotConnectToStoreError' and message == 'Cannot connect to store at {}'.format(str(store_loc))
+    # Handle exception thrown - assert name == 'CannotConnectToStoreError'
+    # and message == 'Cannot connect to store at {}'.format(str(store_loc))
     # with pytest.raises(Exception, match='CannotConnectToStoreError') as cm:
     #     store.connect_store(store_loc)
     #     # Check that the exception thrown is a CannotConnectToStoreError
@@ -79,7 +80,8 @@ def test_connect_none_path(setup_store):
     # BUT default should be store_loc = '/tmp/store' if not entered?
     store_loc = None
     store = Store(store_loc)
-    # Handle exception thrown - assert name == 'CannotConnectToStoreError' and message == 'Cannot connect to store at {}'.format(str(store_loc))
+    # Handle exception thrown - assert name == 'CannotConnectToStoreError'
+    # and message == 'Cannot connect to store at {}'.format(str(store_loc))
     # with pytest.raises(Exception) as cm:
     #     store.connnect_store(store_loc)
     # Check that the exception thrown is a CannotConnectToStoreError
@@ -97,7 +99,8 @@ def test_connect_none_path(setup_store):
 # class StoreGet(self):
 
 
-# TODO: @pytest.parameterize...store.get and store.getID for diff datatypes, pickleable and not, etc.
+# TODO: @pytest.parameterize...store.get and store.getID for diff datatypes,
+# pickleable and not, etc.
 # Check raises...CannotGetObjectError (object never stored)
 def test_init_empty(setup_store):
     store = Store()
@@ -118,11 +121,13 @@ def test_init_empty(setup_store):
 # except PlasmaObjectExists:
 #     logger.error('Object already exists. Meant to call replace?')
 # except ArrowIOError as e:
-#     logger.error('Could not store object '+object_name+': {} {}'.format(type(e).__name__, e))
+#     logger.error('Could not store object '+ \
+#                  object_name+': {} {}'.format(type(e).__name__, e))
 #     logger.info('Refreshing connection and continuing')
 #     self.reset()
 # except Exception as e:
-#     logger.error('Could not store object '+object_name+': {} {}'.format(type(e).__name__, e))
+#     logger.error('Could not store object '+ \
+#                  object_name+': {} {}'.format(type(e).__name__, e))
 
 
 def test_is_csc_matrix_and_put(setup_store):
@@ -157,9 +162,9 @@ def test_is_csc_matrix_and_put(setup_store):
 @pytest.mark.skip()
 def test_get_list_and_all(setup_store):
     store = Store()
-    id = store.put(1, "one")
-    id2 = store.put(2, "two")
-    id3 = store.put(3, "three")
+    # id = store.put(1, "one")
+    # id2 = store.put(2, "two")
+    # id3 = store.put(3, "three")
     assert [1, 2] == store.getList(["one", "two"])
     assert [1, 2, 3] == store.get_all()
 
@@ -174,7 +179,8 @@ def test_get_list_and_all(setup_store):
 #         store.release()
 #         store.put(1, 'one')
 #         # Check that the exception thrown is an ArrowIOError
-#     assert e.value.message == 'Could not store object ' + object_name + ': {} {}'.format(type(e).__name__, e)
+#     assert e.value.message == 'Could not store object ' + \
+#         object_name + ': {} {}'.format(type(e).__name__, e)
 #     # TODO: assert info == 'Refreshing connection and continuing'
 
 
@@ -196,10 +202,11 @@ def test_put_one(setup_store):
 
 @pytest.mark.skip(reason="Error not being raised")
 def test_put_twice(setup_store):
-    store = Store()
+    # store = Store()
     with pytest.raises(PlasmaObjectExists) as e:
-        id = store.put(2, "two")
-        id2 = store.put(2, "two")
+        # id = store.put(2, "two")
+        # id2 = store.put(2, "two")
+        pass
         # Check that the exception thrown is an PlasmaObjectExists
     assert e.value.message == "Object already exists. Meant to call replace?"
 
@@ -210,7 +217,7 @@ def test_put_twice(setup_store):
 def test_getOne(setup_store):
     store = Store()
     id = store.put(1, "one")
-    id2 = store.put(2, "two")
+    # id2 = store.put(2, "two")
     assert 1 == store.get(id)
 
 
@@ -223,7 +230,7 @@ def test_getOne(setup_store):
 #         store.get('three')
 #         assert e.value.message == 'Cannot get object {}'.format(self.query)
 
-### TODO:
+# TODO:
 """class Store_Notify(StoreDependentTestCase):
 
     def test_notify(self):
