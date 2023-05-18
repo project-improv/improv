@@ -302,7 +302,7 @@ def test_put_overflow(setup_store, caplog):
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    store = Store(store_loc="/tmp/store")
+    Store(store_loc="/tmp/store")
 
     acts = init_actors(2)
     lnk = Link("L1", acts[0], acts[1])
@@ -354,7 +354,7 @@ def test_get_empty(example_link):
     lnk = example_link
     if lnk.queue.empty:
         with pytest.raises(queue.Empty):
-            res = lnk.get(timeout=5.0)
+            lnk.get(timeout=5.0)
     else:
         assert False, "expected a timeout!"
 
