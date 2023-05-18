@@ -224,7 +224,7 @@ class Nexus:
 
         try:
             logger.info(f"Result of run_until_complete: {res}")
-        except Exception:
+        except:
             logger.info("Res failed to await")
 
         logger.info(f"Current loop: {asyncio.get_event_loop()}")
@@ -270,7 +270,7 @@ class Nexus:
         ):  # Since Visual is not started, it cannot send a ready signal.
             try:
                 del self.actorStates["Visual"]
-            except Exception:
+            except:
                 pass
         polling = list(self.comm_queues.values())
         pollingNames = list(self.comm_queues.keys())
