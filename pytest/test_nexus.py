@@ -6,8 +6,8 @@ import subprocess
 import signal
 
 from improv.nexus import Nexus
-from improv.actor import Actor
-from improv.store import Store
+# from improv.actor import Actor
+# from improv.store import Store
 
 SERVER_COUNTER = 0
 
@@ -135,7 +135,8 @@ def test_startNexus(sample_nex):
     ],
 )
 def test_config_construction(cfg_name, actor_list, link_list, setdir, ports):
-    """Tests if constructing a nexus based on the provided config has the right structure.
+    """Tests if constructing a nexus based on
+    the provided config has the right structure.
 
     After construction based on the config, this
     checks whether all the right actors are constructed and whether the
@@ -216,7 +217,7 @@ def test_queue_message(setdir, sample_nex):
     acq_comm = nex.comm_queues["Acquirer_comm"]
     acq_comm.put("Test Message")
 
-    assert nex.comm_queues == None
+    assert nex.comm_queues is None
     nex.destroyNexus()
     assert True
 
@@ -228,7 +229,7 @@ async def test_queue_readin(sample_nex, caplog):
     nex.startNexus()
     # cqs = nex.comm_queues
     # assert cqs == None
-    assert [record.msg for record in caplog.records] == None
+    assert [record.msg for record in caplog.records] is None
     # cqs["Acquirer_comm"].put('quit')
     # assert "quit" == cqs["Acquirer_comm"].get()
     # await nex.pollQueues()
