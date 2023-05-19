@@ -30,7 +30,7 @@ def setup_store():
         Figure out the scope.
     """
 
-    p = subprocess.Popen(
+    subprocess.Popen(
         ["plasma_store", "-s", "/tmp/store", "-m", str(10000000)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
@@ -70,7 +70,7 @@ async def pollQueues(links):
     print("All tasks prior to stop polling: \n")
     clean_list_print([task for task in tasks])
 
-    loop = asyncio.get_running_loop()
+    asyncio.get_running_loop()
     return stop_polling(tasks, links)
 
 
