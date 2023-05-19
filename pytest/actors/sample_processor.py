@@ -1,4 +1,4 @@
-from improv.actor import Actor, RunManager
+from improv.actor import Actor  # , RunManager
 import numpy as np
 import logging
 

@@ -1,4 +1,4 @@
-from improv.actor import Actor, RunManager
+from improv.actor import Actor
 from datetime import date  # used for saving
 import numpy as np
 import logging
@@ -49,7 +49,9 @@ class Generator(Actor):
         print("Generator stopping")
         np.save(
             f"sample_generator_data_{date.today()}", self.data
-        )  # This is not the best example of a save function, will overwrite previous files with the same name.
+        )
+        # This is not the best example of a save function,
+        # will overwrite previous files with the same name.
         return 0
 
     def runStep(self):
