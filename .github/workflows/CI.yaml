@@ -40,6 +40,7 @@ jobs:
           pip install -e .[tests] 
       - name: Install package (Windows)
         if: startsWith(matrix.os, 'windows')
+        shell: wsl-bash {0}
         run: |
           pip install -e .[tests] 
           
