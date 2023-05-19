@@ -1,10 +1,10 @@
 import pytest
 import os
 import yaml
-from inspect import signature
-from importlib import import_module
+# from inspect import signature
+# from importlib import import_module
 
-from improv.config import RepeatedActorError
+# from improv.config import RepeatedActorError
 from improv.config import Config as config
 from improv.utils import checks
 
