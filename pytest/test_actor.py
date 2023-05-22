@@ -221,7 +221,7 @@ def test_addLink(setup_store):
     passes = []
     err_messages = []
 
-    if (act.getLinks()["3"], "three"):
+    if act.getLinks()["3"] == "three":
         passes.append(True)
     else:
         passes.append(False)

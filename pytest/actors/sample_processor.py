@@ -58,8 +58,8 @@ class Processor(Actor):
         frame = None
         try:
             frame = self.q_in.get(timeout=0.05)
-        except:
-            logger.error("Could not get frame!")
+        except Exception as e:
+            logger.error("Could not get frame!: {0}".format(e))
             pass
 
         if frame is not None and self.frame_num is not None:

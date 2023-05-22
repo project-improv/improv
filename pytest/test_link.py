@@ -211,7 +211,7 @@ def test_put_unserializable(example_link, caplog, setup_store):
     sentinel = True
     try:
         lnk.put(act)
-    except:
+    except Exception:
         sentinel = False
 
     assert sentinel, "Unable to put"
