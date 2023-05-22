@@ -230,7 +230,7 @@ async def test_get_ports_from_logfile(setdir):
             "Server running on (control, output, log) ports (53345, 53344, 53343)."
         )
         log.write(
-            f"Server running on (control, output, log) ports ({test_control_port},\n"
+            f"Server running on (control, output, log) ports ({test_control_port},"
             f"{test_output_port}, {test_logging_port})."
         )
 
