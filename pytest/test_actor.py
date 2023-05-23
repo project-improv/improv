@@ -12,7 +12,7 @@ pytest.example_string_links = {}
 pytest.example_links = {}
 
 
-@pytest.fixture
+@pytest.fixture()
 def setup_store(scope="module"):
     """Fixture to set up the store subprocess with 10 mb."""
 
@@ -26,7 +26,7 @@ def setup_store(scope="module"):
     p.wait()
 
 
-@pytest.fixture
+@pytest.fixture()
 def init_actor():
     """Fixture to initialize and teardown an instance of actor."""
 
@@ -35,15 +35,15 @@ def init_actor():
     act = None
 
 
-@pytest.fixture
+@pytest.fixture()
 def example_string_links():
     """Fixture to provide a commonly used test input."""
 
     pytest.example_string_links = {"1": "one", "2": "two", "3": "three"}
-    yield pytest.example_string_links
+    return pytest.example_string_links
 
 
-@pytest.fixture
+@pytest.fixture()
 def example_links(setup_store):
     """Fixture to provide link objects as test input and setup store."""
     Store(store_loc="/tmp/store")
@@ -55,11 +55,11 @@ def example_links(setup_store):
     ]
     link_dict = {links[i].name: links[i] for i, l in enumerate(links)}
     pytest.example_links = link_dict
-    yield pytest.example_links
+    return pytest.example_links
 
 
 @pytest.mark.parametrize(
-    "attribute, expected",
+    ("attribute", "expected"),
     [
         ("q_watchout", None),
         ("name", "Test"),
@@ -67,7 +67,7 @@ def example_links(setup_store):
         ("lower_priority", False),
         ("q_in", None),
         ("q_out", None),
-    ],
+    ]
 )
 def test_default_init(attribute, expected, init_actor):
     """Tests if the default init attributes are as expected."""
@@ -114,7 +114,7 @@ def test_setLinks(links):
 
 
 @pytest.mark.parametrize(
-    "qc, qs",
+    ("qc", "qs"),
     [
         ("comm", "sig"),
         (None, None),
@@ -137,7 +137,7 @@ def test_setCommLinks(example_links, qc, qs, init_actor, setup_store):
 
 
 @pytest.mark.parametrize(
-    "links, expected",
+    ("links", "expected"),
     [
         (pytest.example_string_links, pytest.example_string_links),
         (pytest.example_links, pytest.example_links),
@@ -160,7 +160,7 @@ def test_setLinkIn(init_actor, example_string_links, example_links, links, expec
 
 
 @pytest.mark.parametrize(
-    "links, expected",
+    ("links", "expected"),
     [
         (pytest.example_string_links, pytest.example_string_links),
         (pytest.example_links, pytest.example_links),
@@ -183,7 +183,7 @@ def test_setLinkOut(init_actor, example_string_links, example_links, links, expe
 
 
 @pytest.mark.parametrize(
-    "links, expected",
+    ("links", "expected"),
     [
         (pytest.example_string_links, pytest.example_string_links),
         (pytest.example_links, pytest.example_links),
@@ -275,9 +275,8 @@ def test_put(init_actor):
 
 def test_run(init_actor):
     """Tests if actor.run raises an error."""
-
+    act = init_actor
     with pytest.raises(NotImplementedError):
-        act = init_actor
         act.run()
 
 
