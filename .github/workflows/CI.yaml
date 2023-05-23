@@ -5,12 +5,10 @@ on:
     branches:
       - master
       - dev
-      - workflow
   push:
     branches:
       - master
       - dev
-      - workflow
 
 jobs:
   test:
