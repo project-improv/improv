@@ -10,6 +10,7 @@ from improv.actor import Actor
 from improv.store import Store
 from improv.link import Link
 
+
 @pytest.fixture
 def setup_store():
     """Fixture to set up the store subprocess with 10 mb.

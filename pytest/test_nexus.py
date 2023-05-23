@@ -104,6 +104,7 @@ def test_loadConfig(sample_nex):
         ["Acquirer_comm", "Analysis_comm", "GUI_comm"]
     )
 
+
 # delete this comment later
 @pytest.mark.skip(reason="unfinished")
 def test_startNexus(sample_nex):
