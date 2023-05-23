@@ -221,7 +221,6 @@ def test_put_twice(setup_store):
 def test_getOne(setup_store):
     store = Store()
     id = store.put(1, "one")
-    # id2 = store.put(2, "two")
     assert 1 == store.get(id)
 
 
