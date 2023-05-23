@@ -1,4 +1,4 @@
-from functools import wraps
+# from functools import wraps
 
 # def coroutine(func): #FIXME who uses this and why?
 #     """ Decorator that primes 'func' by calling first {yield}. """
@@ -11,7 +11,7 @@ from functools import wraps
 #     return primer
 
 
-@coroutine
+# @coroutine
 def get_num_length_from_key():
     """
     Coroutine that gets the length of digits in LMDB key.

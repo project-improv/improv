@@ -1,23 +1,23 @@
-from multiprocessing import Process, Queue, Manager, cpu_count, set_start_method
 import numpy as np
-import pyarrow.plasma as plasma
 import asyncio
-import subprocess
-import signal
-import time
+
+# import pyarrow.plasma as plasma
+# from multiprocessing import Process, Queue, Manager, cpu_count, set_start_method
+# import subprocess
+# import signal
+# import time
 from queue import Empty
-import numpy as np
 import logging
+
+import concurrent
+
+# from pyarrow.plasma import ObjectNotAvailable
+from improv.actor import Actor, Signal, RunManager
+from improv.store import ObjectNotFoundError
+import pickle
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-import asyncio
-import concurrent
-from pyarrow.plasma import ObjectNotAvailable
-from improv.actor import Actor, Signal, RunManager, AsyncRunManager
-from improv.store import ObjectNotFoundError
-from pyarrow.plasma import ObjectNotAvailable
-import pickle
 
 
 class BasicWatcher(Actor):
@@ -68,7 +68,7 @@ class BasicWatcher(Actor):
         if an object is present and then saves the object if found
         """
 
-        if self.setUp == False:
+        if self.setUp is False:
             for q in self.polling:
                 self.tasks.append(asyncio.create_task(q.get_async()))
             self.setUp = True
@@ -132,7 +132,7 @@ class Watcher:
                 elif signal == Signal.resume():  # currently treat as same as run
                     logger.warning("Received resume signal, resuming")
                     self.flag = True
-            except Empty as e:
+            except Empty:
                 pass  # no signal from Nexus
 
     # def checkStore(self):
@@ -168,6 +168,8 @@ class Watcher:
 # def saveObjbyID(id):
 #     client = plasma.connect('/tmp/store')
 #     obj = client.get(id)
-#     with open('/media/hawkwings/Ext\ Hard\ Drive/dump/dump'+str(id)+'.pkl', 'wb') as output:
+#     with open(
+#           '/media/hawkwings/Ext\ Hard\ Drive/dump/dump'+str(id)+'.pkl', 'wb'
+#     ) as output:
 #         pickle.dump(obj, output)
 #     return id

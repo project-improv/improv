@@ -1,7 +1,7 @@
 import asyncio
 import logging
-from multiprocessing import Manager, cpu_count, set_start_method
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from multiprocessing import Manager, cpu_count
+from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures._base import CancelledError
 
 logger = logging.getLogger(__name__)

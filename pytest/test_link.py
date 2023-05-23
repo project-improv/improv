@@ -3,13 +3,15 @@ import queue
 import subprocess
 import time
 
-import pyarrow
+# import pyarrow
 import pytest
-import concurrent.futures
-from async_timeout import timeout
+
+# import concurrent.futures
+# from async_timeout import timeout
 
 from improv.actor import Actor
-from improv.link import AsyncQueue
+
+# from improv.link import AsyncQueue
 from improv.store import Store
 from improv.link import Link
 
@@ -67,7 +69,7 @@ def example_link(setup_store):
 def example_actor_system(setup_store):
     """Fixture to provide a list of 4 connected actors."""
 
-    store = setup_store
+    # store = setup_store
     acts = init_actors(4)
 
     L01 = Link("L01", acts[0].name, acts[1].name)
@@ -99,9 +101,11 @@ def kill_pytest_processes():
         This fixture should only be used at the end of testing.
     """
 
-    p = subprocess.Popen(
-        ["kill", "`pgrep pytest`"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-    )
+    # p = subprocess.Popen(
+    #     ["kill", "`pgrep pytest`"],
+    #     stdout=subprocess.DEVNULL,
+    #     stderr=subprocess.DEVNULL
+    # )
 
 
 @pytest.mark.parametrize(
@@ -143,8 +147,8 @@ def test_getstate(example_link):
 
     res = example_link.__getstate__()
     errors = []
-    errors.append(res["_real_executor"] == None)
-    errors.append(res["cancelled_join"] == False)
+    errors.append(res["_real_executor"] is None)
+    errors.append(res["cancelled_join"] is False)
 
     assert all(errors)
 
@@ -203,13 +207,13 @@ def test_put_unserializable(example_link, caplog, setup_store):
     Raises:
         SerializationCallbackError: Actor objects are unserializable.
     """
-    store = setup_store
+    # store = setup_store
     act = Actor("test")
     lnk = example_link
     sentinel = True
     try:
         lnk.put(act)
-    except:
+    except Exception:
         sentinel = False
 
     assert sentinel, "Unable to put"
@@ -255,7 +259,7 @@ async def test_put_async_success(example_link):
     lnk = example_link
     msg = "message"
     res = await lnk.put_async(msg)
-    assert res == None
+    assert res is None
 
 
 @pytest.mark.asyncio
@@ -300,7 +304,7 @@ def test_put_overflow(setup_store, caplog):
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    store = Store(store_loc="/tmp/store")
+    Store(store_loc="/tmp/store")
 
     acts = init_actors(2)
     lnk = Link("L1", acts[0], acts[1])
@@ -352,7 +356,7 @@ def test_get_empty(example_link):
     lnk = example_link
     if lnk.queue.empty:
         with pytest.raises(queue.Empty):
-            res = lnk.get(timeout=5.0)
+            lnk.get(timeout=5.0)
     else:
         assert False, "expected a timeout!"
 
@@ -439,7 +443,7 @@ def test_cancel_join_thread(example_link):
     lnk = example_link
     lnk.cancel_join_thread()
 
-    assert lnk._cancelled_join == True
+    assert lnk._cancelled_join is True
 
 
 @pytest.mark.skip(reason="unfinished")
@@ -452,7 +456,7 @@ async def test_join_thread(example_link):
     """
     lnk = example_link
     await lnk.put_async("message")
-    msg = await lnk.get_async()
+    # msg = await lnk.get_async()
     lnk.join_thread()
     assert True
 

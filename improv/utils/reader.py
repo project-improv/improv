@@ -1,8 +1,8 @@
-import numbers
 import os
 import pickle
 from contextlib import contextmanager
-from typing import Dict, Set
+
+# from typing import Dict, Set
 import lmdb
 from .utils import get_num_length_from_key
 

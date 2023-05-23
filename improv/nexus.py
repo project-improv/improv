@@ -1,7 +1,6 @@
 import asyncio
 import concurrent
 import signal
-import sys
 import time
 import subprocess
 import logging
@@ -14,7 +13,6 @@ from queue import Full
 from datetime import datetime
 
 from improv.store import Store
-from improv.watcher import BasicWatcher
 from improv.actor import Signal
 from improv.config import Config
 from improv.link import Link, MultiLink
@@ -226,8 +224,8 @@ class Nexus:
 
         try:
             logger.info(f"Result of run_until_complete: {res}")
-        except:
-            logger.info("Res failed to await")
+        except Exception as e:
+            logger.info("Res failed to await: {0}".format(e))
 
         logger.info(f"Current loop: {asyncio.get_event_loop()}")
 
@@ -272,7 +270,8 @@ class Nexus:
         ):  # Since Visual is not started, it cannot send a ready signal.
             try:
                 del self.actorStates["Visual"]
-            except:
+            except Exception as e:
+                logger.info("Visual is not started: {0}".format(e))
                 pass
         polling = list(self.comm_queues.values())
         pollingNames = list(self.comm_queues.keys())
@@ -299,7 +298,8 @@ class Nexus:
             except asyncio.CancelledError:
                 pass
 
-            # sort through tasks to see where we got input from (so we can choose a handler)
+            # sort through tasks to see where we got input from
+            # (so we can choose a handler)
             for i, t in enumerate(self.tasks):
                 if i < len(polling):
                     if (
@@ -323,7 +323,8 @@ class Nexus:
 
     def stop_polling_and_quit(self, signal, queues):
         logger.warn(
-            "Shutting down via signal handler for {}. Steps may be out of order or dirty.".format(
+            "Shutting down via signal handler for {}. \
+                Steps may be out of order or dirty.".format(
                 signal
             )
         )
@@ -411,7 +412,8 @@ class Nexus:
                     self.processes.append(p)
                     p.start()
                     m.q_sig.put_nowait(Signal.setup())
-                    # TODO: ensure waiting for ready before run? Or no need since in queue?
+                    # TODO: ensure waiting for ready before run?
+                    # Or no need since in queue?
                     # while m.q_comm.empty():
                     # print("Waiting for ready signal")
                     # pass
@@ -434,7 +436,7 @@ class Nexus:
                     self.allowStart = True  # TODO: replace with q_sig to FE/Visual
                     logger.info("Allowing start")
 
-                    # TODO: Maybe have flag for auto-start, else require explicit command
+                    # TODO: Maybe have flag for auto-start, or require explicit command
                     # if not self.config.hasGUI:
                     #     self.run()
 
@@ -462,7 +464,8 @@ class Nexus:
                     q.put_nowait(Signal.run())
                 except Full:
                     logger.warning("Signal queue" + q.name + "is full")
-                    # queue full, keep going anyway TODO: add repeat trying as async task
+                    # queue full, keep going anyway
+                    # TODO: add repeat trying as async task
         else:
             logger.error(
                 "-- Not all actors are ready yet, please wait and then try again."
@@ -531,7 +534,7 @@ class Nexus:
         for q in queues:
             try:
                 q.put(shutdown_message)
-            except Exception as e:
+            except Exception:
                 logger.info("Unable to send shutdown message to {}.".format(q.name))
 
         logger.info("Canceling outstanding tasks")
@@ -599,13 +602,13 @@ class Nexus:
         instance = clss(actor.name, **actor.options)
 
         if "method" in actor.options.keys():
-            ## check for spawn
+            # check for spawn
             if "fork" == actor.options["method"]:
                 # Add link to Store store
                 store = self.createStore(actor.name)
                 instance.setStore(store)
             else:
-                ## spawn or forkserver; can't pickle plasma store
+                # spawn or forkserver; can't pickle plasma store
                 logger.info("No store for this actor yet {}".format(name))
         else:
             # Add link to Store store
@@ -613,9 +616,9 @@ class Nexus:
             instance.setStore(store)
 
         # Add signal and communication links
-        store_arg = [None, None]
-        if self.use_hdd:
-            store_arg = [store, self.createStore("default")]
+        # store_arg = [None, None]
+        # if self.use_hdd:
+        #     store_arg = [store, self.createStore("default")]
 
         q_comm = Link(actor.name + "_comm", actor.name, self.name)
         q_sig = Link(actor.name + "_sig", self.name, actor.name)
@@ -670,7 +673,7 @@ class Nexus:
         else:
             self.actors[classname].addLink(linktype, link)
 
-    ## Appears depricated? FIXME
+    # Appears depricated? FIXME
     # def createWatcher(self, watchin):
     #     watcher= BasicWatcher('Watcher', inputs=watchin)
     #     watcher.setStore(store.Store(watcher.name))
@@ -687,7 +690,7 @@ class Nexus:
         from improv.watcher import Watcher
 
         self.watcher = Watcher("watcher", self.createStore("watcher"))
-        store = self.createStore("watcher") if not self.use_hdd else None
+        # store = self.createStore("watcher") if not self.use_hdd else None
         q_sig = Link("watcher_sig", self.name, "watcher")
         self.watcher.setLinks(q_sig)
         self.sig_queues.update({q_sig.name: q_sig})

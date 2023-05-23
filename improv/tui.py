@@ -13,14 +13,12 @@ from textual.widgets import (
     Button,
     Static,
     Label,
-    Placeholder,
 )
 from textual.message import Message
 import logging
-
-logger = logging.getLogger(__name__)
 from zmq.log.handlers import PUBHandler
 
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
@@ -166,7 +164,7 @@ class TUI(App, inherit_bindings=False):
 
     @staticmethod
     def format_log_messages(parts):
-        type_list = ["debug", "info", "warning", "error", "critical", "exception"]
+        # type_list = ["debug", "info", "warning", "error", "critical", "exception"]
         msg_type = parts[0].decode("utf-8")
         msg = SocketLog._simple_formatter(parts[1:])
         if msg_type == "DEBUG":
@@ -204,7 +202,8 @@ class TUI(App, inherit_bindings=False):
     async def send_to_controller(self, msg):
         """
         Safe version of send/receive with controller.
-        Based on the Lazy Pirate pattern [here](https://zguide.zeromq.org/docs/chapter4/#Client-Side-Reliability-Lazy-Pirate-Pattern)
+        Based on the Lazy Pirate pattern [here]
+        (https://zguide.zeromq.org/docs/chapter4/#Client-Side-Reliability-Lazy-Pirate-Pattern)
         """
         REQUEST_TIMEOUT = 2500
         REQUEST_RETRIES = 3
@@ -323,7 +322,8 @@ if __name__ == "__main__":
     async def main_loop():
         app = TUI(CONTROL_PORT, OUTPUT_PORT, LOGGING_PORT)
 
-        # the following construct ensures both the (infinite) fake servers are killed once the tui finishes
+        # the following construct ensures both the
+        # (infinite) fake servers are killed once the tui finishes
         finished, unfinished = await asyncio.wait(
             [app.run_async(), publish(), backend(), log()],
             return_when=asyncio.FIRST_COMPLETED,

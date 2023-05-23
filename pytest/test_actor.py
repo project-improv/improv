@@ -2,7 +2,7 @@ import os
 import psutil
 import pytest
 import subprocess
-from improv.link import Link, AsyncQueue
+from improv.link import Link  # , AsyncQueue
 from improv.actor import AbstractActor as Actor
 from improv.store import Store
 
@@ -46,7 +46,7 @@ def example_string_links():
 @pytest.fixture
 def example_links(setup_store):
     """Fixture to provide link objects as test input and setup store."""
-    store = Store(store_loc="/tmp/store")
+    Store(store_loc="/tmp/store")
 
     acts = [Actor("act" + str(i)) for i in range(1, 5)]  # range must be even
 
@@ -150,7 +150,7 @@ def test_setLinkIn(init_actor, example_string_links, example_links, links, expec
 
     act = init_actor
     act.setLinks(links)
-    if links != None:
+    if links is not None:
         act.setLinkIn("input_q")
         expected.update({"q_in": "input_q"})
         assert act.links == expected
@@ -173,7 +173,7 @@ def test_setLinkOut(init_actor, example_string_links, example_links, links, expe
 
     act = init_actor
     act.setLinks(links)
-    if links != None:
+    if links is not None:
         act.setLinkOut("output_q")
         expected.update({"q_out": "output_q"})
         assert act.links == expected
@@ -196,7 +196,7 @@ def test_setLinkWatch(init_actor, example_string_links, example_links, links, ex
 
     act = init_actor
     act.setLinks(links)
-    if links != None:
+    if links is not None:
         act.setLinkWatch("watch_q")
         expected.update({"q_watchout": "watch_q"})
         assert act.links == expected
@@ -221,7 +221,7 @@ def test_addLink(setup_store):
     passes = []
     err_messages = []
 
-    if (act.getLinks()["3"], "three"):
+    if act.getLinks()["3"] == "three":
         passes.append(True)
     else:
         passes.append(False)
@@ -303,7 +303,7 @@ def test_actor_connection(setup_store):
     act1 = Actor("a1")
     act2 = Actor("a2")
 
-    store = Store(store_loc="/tmp/store")
+    Store(store_loc="/tmp/store")
     link = Link("L12", act1, act2)
     act1.setLinkIn(link)
     act2.setLinkOut(link)
