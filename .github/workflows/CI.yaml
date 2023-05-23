@@ -5,10 +5,12 @@ on:
     branches:
       - master
       - dev
+      - workflow
   push:
     branches:
       - master
       - dev
+      - workflow
 
 jobs:
   test:
@@ -33,11 +35,11 @@ jobs:
       - name: Install package (Ubuntu)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-          pip install -e .[tests] --no-binary pyzmq
+          pip install -e .[tests, lint] --no-binary pyzmq
       - name: Install package (Mac)
         if: startsWith(matrix.os, 'macos')
         run: |
-          pip install -e .[tests] 
+          pip install -e .[tests, lint] 
           
       - name: Test with pytest
         run: |
