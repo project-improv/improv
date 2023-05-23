@@ -36,7 +36,7 @@ WAIT_TIMEOUT = 10
 # FIXME: some commented out tests use Store --> need to be renamed Store if used
 
 
-@pytest.fixture
+@pytest.fixture()
 # TODO: put in conftest.py
 def setup_store(store_loc="/tmp/store"):
     """Start the server"""

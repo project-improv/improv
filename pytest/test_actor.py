@@ -67,7 +67,7 @@ def example_links(setup_store):
         ("lower_priority", False),
         ("q_in", None),
         ("q_out", None),
-    ]
+    ],
 )
 def test_default_init(attribute, expected, init_actor):
     """Tests if the default init attributes are as expected."""

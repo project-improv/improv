@@ -13,7 +13,7 @@ from improv.nexus import Nexus
 SERVER_COUNTER = 0
 
 
-@pytest.fixture
+@pytest.fixture()
 def ports():
     global SERVER_COUNTER
     CONTROL_PORT = 5555
@@ -27,7 +27,7 @@ def ports():
     SERVER_COUNTER += 3
 
 
-@pytest.fixture
+@pytest.fixture()
 def setdir():
     prev = os.getcwd()
     os.chdir(os.path.dirname(__file__) + "/configs")
@@ -35,7 +35,7 @@ def setdir():
     os.chdir(prev)
 
 
-@pytest.fixture
+@pytest.fixture()
 def sample_nex(setdir, ports):
     nex = Nexus("test")
     nex.createNexus(
@@ -116,7 +116,7 @@ def test_startNexus(sample_nex):
 
 # @pytest.mark.skip(reason="This test is unfinished")
 @pytest.mark.parametrize(
-    "cfg_name, actor_list, link_list",
+    ("cfg_name", "actor_list", "link_list"),
     [
         (
             "good_config.yaml",
@@ -223,7 +223,7 @@ def test_queue_message(setdir, sample_nex):
     assert True
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @pytest.mark.skip(reason="This test is unfinished.")
 async def test_queue_readin(sample_nex, caplog):
     nex = sample_nex
