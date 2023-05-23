@@ -6,7 +6,7 @@ import improv.tui as tui
 
 from test_nexus import ports
 
-SERVER_WARMUP = 8
+SERVER_WARMUP = 10
 
 
 @pytest.fixture()
@@ -103,7 +103,7 @@ async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
         await pilot.press(*"stop", "enter")
         await pilot.pause(2)
         await pilot.press(*"quit", "enter")
-        await pilot.pause(2)
+        await pilot.pause(3)
         assert not pilot.app._running
 
     # wait on server to fully shut down
