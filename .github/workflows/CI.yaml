@@ -35,11 +35,13 @@ jobs:
       - name: Install package (Ubuntu)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-          pip install -e .[tests, lint] --no-binary pyzmq
+          pip install -e .[tests] --no-binary pyzmq
+          pip install -e .[lint] --no-binary pyzmq
       - name: Install package (Mac)
         if: startsWith(matrix.os, 'macos')
         run: |
-          pip install -e .[tests, lint] 
+          pip install -e .[tests]
+          pip install -e .[lint] 
           
       - name: Test with pytest
         run: |
