@@ -1,15 +1,19 @@
 import pytest
+
 # import time
 from improv.store import Store
+
 # from multiprocessing import Process
 from pyarrow._plasma import PlasmaObjectExists
 from scipy.sparse import csc_matrix
 import numpy as np
 import pyarrow.plasma as plasma
+
 # from pyarrow.lib import ArrowIOError
 # from improv.store import ObjectNotFoundError
 # from improv.store import CannotGetObjectError
 from improv.store import CannotConnectToStoreError
+
 # import pickle
 import subprocess
 
