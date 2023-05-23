@@ -1,11 +1,12 @@
 import logging
-# Matplotlib is overly verbose by default
-logging.getLogger("matplotlib").setLevel(logging.WARNING)
 from improv.nexus import Nexus
 
-loadFile = './1p_demo.yaml'
+# Matplotlib is overly verbose by default
+logging.getLogger("matplotlib").setLevel(logging.WARNING)
 
-nexus = Nexus('Nexus')
+loadFile = "./1p_demo.yaml"
+
+nexus = Nexus("Nexus")
 nexus.createNexus(file=loadFile)
 
 # All modules needed have been imported

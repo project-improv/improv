@@ -6,10 +6,12 @@ import subprocess
 import signal
 
 from improv.nexus import Nexus
-from improv.actor import Actor
-from improv.store import Store
+
+# from improv.actor import Actor
+# from improv.store import Store
 
 SERVER_COUNTER = 0
+
 
 @pytest.fixture
 def ports():
@@ -17,29 +19,41 @@ def ports():
     CONTROL_PORT = 5555
     OUTPUT_PORT = 5556
     LOGGING_PORT = 5557
-    yield (CONTROL_PORT + SERVER_COUNTER, OUTPUT_PORT + SERVER_COUNTER, LOGGING_PORT + SERVER_COUNTER)
+    yield (
+        CONTROL_PORT + SERVER_COUNTER,
+        OUTPUT_PORT + SERVER_COUNTER,
+        LOGGING_PORT + SERVER_COUNTER,
+    )
     SERVER_COUNTER += 3
+
 
 @pytest.fixture
 def setdir():
     prev = os.getcwd()
-    os.chdir(os.path.dirname(__file__) + '/configs')
+    os.chdir(os.path.dirname(__file__) + "/configs")
     yield None
     os.chdir(prev)
+
 
 @pytest.fixture
 def sample_nex(setdir, ports):
     nex = Nexus("test")
-    nex.createNexus(file='good_config.yaml', store_size=4000, control_port=ports[0], output_port=ports[1])
+    nex.createNexus(
+        file="good_config.yaml",
+        store_size=4000,
+        control_port=ports[0],
+        output_port=ports[1],
+    )
     yield nex
     nex.destroyNexus()
+
 
 # @pytest.fixture
 # def setup_store(setdir):
 #     """ Fixture to set up the store subprocess with 10 mb.
 
-#     This fixture runs a subprocess that instantiates the store with a 
-#     memory of 10 megabytes. It specifies that "/tmp/store/" is the 
+#     This fixture runs a subprocess that instantiates the store with a
+#     memory of 10 megabytes. It specifies that "/tmp/store/" is the
 #     location of the store socket.
 
 #     Yields:
@@ -56,30 +70,42 @@ def sample_nex(setdir, ports):
 #     yield store
 #     p.kill()
 
+
 def test_init(setdir):
     # store = setup_store
     nex = Nexus("test")
     assert str(nex) == "test"
     nex.destroyNexus()
 
+
 def test_createNexus(setdir, ports):
     nex = Nexus("test")
-    nex.createNexus(file = "good_config.yaml", control_port=ports[0], output_port=ports[1])
-    assert list(nex.comm_queues.keys()) == ["GUI_comm", "Acquirer_comm", "Analysis_comm"]
+    nex.createNexus(
+        file="good_config.yaml", control_port=ports[0], output_port=ports[1]
+    )
+    assert list(nex.comm_queues.keys()) == [
+        "GUI_comm",
+        "Acquirer_comm",
+        "Analysis_comm",
+    ]
     assert list(nex.sig_queues.keys()) == ["Acquirer_sig", "Analysis_sig"]
     assert list(nex.data_queues.keys()) == ["Acquirer.q_out", "Analysis.q_in"]
     assert list(nex.actors.keys()) == ["Acquirer", "Analysis"]
-    assert list(nex.flags.keys()) == ["quit", "run", "load"] 
+    assert list(nex.flags.keys()) == ["quit", "run", "load"]
     assert nex.processes == []
     nex.destroyNexus()
     assert True
 
-def test_loadConfig(sample_nex):
-    nex = sample_nex 
-    nex.loadConfig('good_config.yaml')
-    assert set(nex.comm_queues.keys()) == set(["Acquirer_comm", "Analysis_comm", "GUI_comm"])
 
-#delete this comment later
+def test_loadConfig(sample_nex):
+    nex = sample_nex
+    nex.loadConfig("good_config.yaml")
+    assert set(nex.comm_queues.keys()) == set(
+        ["Acquirer_comm", "Analysis_comm", "GUI_comm"]
+    )
+
+
+# delete this comment later
 @pytest.mark.skip(reason="unfinished")
 def test_startNexus(sample_nex):
     nex = sample_nex
@@ -87,22 +113,39 @@ def test_startNexus(sample_nex):
     assert [p.name for p in nex.processes] == ["Acquirer", "Analysis"]
     nex.destroyNexus()
 
+
 # @pytest.mark.skip(reason="This test is unfinished")
-@pytest.mark.parametrize("cfg_name, actor_list, link_list", [
-    ("good_config.yaml", ["Acquirer", "Analysis"], ["Acquirer_sig", "Analysis_sig"]),
-    ("simple_graph.yaml", ["Acquirer", "Analysis"], ["Acquirer_sig", "Analysis_sig"]),
-    ("complex_graph.yaml", ["Acquirer", "Analysis", "InputStim"], ["Acquirer_sig", "Analysis_sig", "InputStim_sig"])
-])
+@pytest.mark.parametrize(
+    "cfg_name, actor_list, link_list",
+    [
+        (
+            "good_config.yaml",
+            ["Acquirer", "Analysis"],
+            ["Acquirer_sig", "Analysis_sig"],
+        ),
+        (
+            "simple_graph.yaml",
+            ["Acquirer", "Analysis"],
+            ["Acquirer_sig", "Analysis_sig"],
+        ),
+        (
+            "complex_graph.yaml",
+            ["Acquirer", "Analysis", "InputStim"],
+            ["Acquirer_sig", "Analysis_sig", "InputStim_sig"],
+        ),
+    ],
+)
 def test_config_construction(cfg_name, actor_list, link_list, setdir, ports):
-    """ Tests if constructing a nexus based on the provided config has the right structure.
-    
-    After construction based on the config, this 
-    checks whether all the right actors are constructed and whether the 
-    links between them are constructed correctly. 
+    """Tests if constructing a nexus based on
+    the provided config has the right structure.
+
+    After construction based on the config, this
+    checks whether all the right actors are constructed and whether the
+    links between them are constructed correctly.
     """
 
     nex = Nexus("test")
-    nex.createNexus(file = cfg_name, control_port=ports[0], output_port=ports[1])
+    nex.createNexus(file=cfg_name, control_port=ports[0], output_port=ports[1])
     logging.info(cfg_name)
 
     # Check for actors
@@ -113,30 +156,42 @@ def test_config_construction(cfg_name, actor_list, link_list, setdir, ports):
     nex.destroyNexus()
 
     assert actor_list == act_lst
-    assert link_list == lnk_lst 
+    assert link_list == lnk_lst
     act_lst = []
     lnk_lst = []
     assert True
 
+
 def test_single_actor(setdir, ports):
     nex = Nexus("test")
     with pytest.raises(AttributeError):
-        nex.createNexus(file="single_actor.yaml", control_port=ports[0], output_port=ports[1])
+        nex.createNexus(
+            file="single_actor.yaml", control_port=ports[0], output_port=ports[1]
+        )
 
     nex.destroyNexus()
+
 
 def test_cyclic_graph(setdir, ports):
     nex = Nexus("test")
-    nex.createNexus(file="cyclic_config.yaml", control_port=ports[0], output_port=ports[1])
+    nex.createNexus(
+        file="cyclic_config.yaml", control_port=ports[0], output_port=ports[1]
+    )
     assert True
     nex.destroyNexus()
+
 
 def test_blank_cfg(setdir, caplog, ports):
     nex = Nexus("test")
     with pytest.raises(TypeError):
-        nex.createNexus(file="blank_file.yaml", control_port=ports[0], output_port=ports[1])
-    assert any(["The config file is empty" in record.msg for record in list(caplog.records)])
+        nex.createNexus(
+            file="blank_file.yaml", control_port=ports[0], output_port=ports[1]
+        )
+    assert any(
+        ["The config file is empty" in record.msg for record in list(caplog.records)]
+    )
     nex.destroyNexus()
+
 
 # def test_hasGUI_True(setdir):
 #     setdir
@@ -150,6 +205,7 @@ def test_blank_cfg(setdir, caplog, ports):
 # def test_hasGUI_False():
 #     assert True
 
+
 @pytest.mark.skip(reason="unfinished")
 def test_queue_message(setdir, sample_nex):
     nex = sample_nex
@@ -161,10 +217,11 @@ def test_queue_message(setdir, sample_nex):
     time.sleep(10)
     acq_comm = nex.comm_queues["Acquirer_comm"]
     acq_comm.put("Test Message")
-    
-    assert nex.comm_queues == None 
+
+    assert nex.comm_queues is None
     nex.destroyNexus()
     assert True
+
 
 @pytest.mark.asyncio
 @pytest.mark.skip(reason="This test is unfinished.")
@@ -173,45 +230,55 @@ async def test_queue_readin(sample_nex, caplog):
     nex.startNexus()
     # cqs = nex.comm_queues
     # assert cqs == None
-    assert [record.msg for record in caplog.records] == None
+    assert [record.msg for record in caplog.records] is None
     # cqs["Acquirer_comm"].put('quit')
     # assert "quit" == cqs["Acquirer_comm"].get()
-    # await nex.pollQueues() 
+    # await nex.pollQueues()
     assert True
+
 
 @pytest.mark.skip(reason="This test is unfinished.")
 def test_queue_sendout():
     assert True
 
+
 @pytest.mark.skip(reason="This test is unfinished.")
 def test_run_sig():
     assert True
+
 
 @pytest.mark.skip(reason="This test is unfinished.")
 def test_setup_sig():
     assert True
 
+
 @pytest.mark.skip(reason="This test is unfinished.")
 def test_quit_sig():
     assert True
+
 
 @pytest.mark.skip(reason="This test is unfinished.")
 def test_usehdd_True():
     assert True
 
+
 @pytest.mark.skip(reason="This test is unfinished.")
 def test_usehdd_False():
     assert True
 
+
 def test_startstore(caplog):
     nex = Nexus("test")
-    nex._startStore(10000) # 10 kb store
+    nex._startStore(10000)  # 10 kb store
 
-    assert any(["Store started successfully" in record.msg for record in caplog.records])
-    
+    assert any(
+        ["Store started successfully" in record.msg for record in caplog.records]
+    )
+
     nex._closeStore()
     nex.destroyNexus()
     assert True
+
 
 def test_closestore(caplog):
     nex = Nexus("test")
@@ -225,9 +292,10 @@ def test_closestore(caplog):
 
     with pytest.raises(AttributeError):
         nex.p_Store.put("Message in", "Message in Label")
-    
+
     nex.destroyNexus()
     assert True
+
 
 @pytest.mark.skip(reason="unfinished")
 def test_actor_sub(setdir, capsys, monkeypatch, ports):
@@ -235,10 +303,11 @@ def test_actor_sub(setdir, capsys, monkeypatch, ports):
     cfg_file = "sample_config.yaml"
     nex = Nexus("test")
 
-    
-    nex.createNexus(file = cfg_file, store_size=4000, control_port=ports[0], output_port=ports[1])
+    nex.createNexus(
+        file=cfg_file, store_size=4000, control_port=ports[0], output_port=ports[1]
+    )
     print("Nexus Created")
-    
+
     nex.startNexus()
     print("Nexus Started")
     # time.sleep(5)
@@ -249,19 +318,26 @@ def test_actor_sub(setdir, capsys, monkeypatch, ports):
     # time.sleep(5)
     # subprocess.Popen(["quit"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-
     nex.destroyNexus()
     assert True
 
+
 def test_sigint_exits_cleanly(ports, tmp_path):
-    server_opts = ['improv', 'server', 
-                            '-c', str(ports[0]), 
-                            '-o', str(ports[1]),
-                            '-f', tmp_path / "global.log",
+    server_opts = [
+        "improv",
+        "server",
+        "-c",
+        str(ports[0]),
+        "-o",
+        str(ports[1]),
+        "-f",
+        tmp_path / "global.log",
     ]
 
-    server = subprocess.Popen(server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    
+    server = subprocess.Popen(
+        server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+    )
+
     server.send_signal(signal.SIGINT)
 
     server.wait(10)

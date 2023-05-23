@@ -62,4 +62,6 @@ class Ui_MainWindow(object):
         self.pushButton_2.setText(_translate("MainWindow", "Run"))
         self.radioButton.setText(_translate("MainWindow", "Scatter"))
         self.radioButton_2.setText(_translate("MainWindow", "Line"))
+
+
 from pyqtgraph import PlotWidget
