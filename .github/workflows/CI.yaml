@@ -29,15 +29,14 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip build
-          pip install flake8 pytest
       - name: Install package (Ubuntu)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-          pip install -e .[tests] --no-binary pyzmq
+          pip install -e .[tests,lint] --no-binary pyzmq
       - name: Install package (Mac)
         if: startsWith(matrix.os, 'macos')
         run: |
-          pip install -e .[tests] 
+          pip install -e .[tests,lint] 
           
       - name: Test with pytest
         run: |
