@@ -36,7 +36,7 @@ WAIT_TIMEOUT = 10
 # FIXME: some commented out tests use Store --> need to be renamed Store if used
 
 
-@pytest.fixture
+@pytest.fixture()
 # TODO: put in conftest.py
 def setup_store(store_loc="/tmp/store"):
     """Start the server"""
@@ -221,7 +221,6 @@ def test_put_twice(setup_store):
 def test_getOne(setup_store):
     store = Store()
     id = store.put(1, "one")
-    # id2 = store.put(2, "two")
     assert 1 == store.get(id)
 
 

@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 # set global variables
 
 
-@pytest.fixture
+@pytest.fixture()
 def set_configdir():
     """Sets the current working directory to the configs file."""
     prev = os.getcwd()
@@ -86,7 +86,7 @@ def test_createConfig_clean(set_configdir):
     try:
         cfg.createConfig()
     except Exception as exc:
-        assert False, f"createConfig() raised an exception {exc}"
+        pytest.fail(f"createConfig() raised an exception {exc}")
 
 
 def test_createConfig_noActor(set_configdir):
