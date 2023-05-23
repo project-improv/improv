@@ -3,8 +3,8 @@ import torch
 from torch import nn
 from torchvision.models import resnet50, ResNet50_Weights
 
+
 class ResNet50(nn.Module):
-    
     def __init__(self, device):
         super().__init__()
         self.device = device
@@ -23,7 +23,8 @@ class ResNet50(nn.Module):
             predictions = self.classifier(features)
 
             return features, predictions
-            
+
+
 os.makedirs("models", exist_ok=True)
-cpu_model = torch.jit.script(ResNet50('cpu')).save("models/ResNet50_CPU.pt")
-gpu_model = torch.jit.script(ResNet50('cuda')).save("models/ResNet50_GPU.pt")
+cpu_model = torch.jit.script(ResNet50("cpu")).save("models/ResNet50_CPU.pt")
+gpu_model = torch.jit.script(ResNet50("cuda")).save("models/ResNet50_GPU.pt")

@@ -1,4 +1,3 @@
-
 """
 The script checks the validity of the YAML configuration file.
 
@@ -36,28 +35,28 @@ def check_if_connections_acyclic(path_to_yaml):
 
     """
     with open(path_to_yaml) as f:
-        raw = yaml.safe_load(f)['connections']
+        raw = yaml.safe_load(f)["connections"]
 
     # Need to keep only module names
     connections = {}
     for key, values in raw.items():
-        new_key = key.split('.')[0]
-        new_values = [value.split('.')[0] for value in values]
+        new_key = key.split(".")[0]
+        new_values = [value.split(".")[0] for value in values]
         connections[new_key] = new_values
 
     g = nx.DiGraph(connections)
     dag = nx.is_directed_acyclic_graph(g)
 
     if dag:
-        print('No loops.')
+        print("No loops.")
         return True
 
-    print('Loop(s) found.')
+    print("Loop(s) found.")
     loops = nx.algorithms.cycles.simple_cycles(g)
     for loop in loops:
-        print(*loop, sep=' to ')
+        print(*loop, sep=" to ")
     return False
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     check_if_connections_acyclic(sys.argv[1])
