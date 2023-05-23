@@ -5,12 +5,10 @@ on:
     branches:
       - master
       - dev
-      - format
   push:
     branches:
       - master
       - dev
-      - format
 
 jobs:
   test:
