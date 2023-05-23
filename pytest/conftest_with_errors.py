@@ -3,6 +3,7 @@ import subprocess
 import asyncio
 from improv.actor import RunManager, AsyncRunManager
 
+
 class StoreDependentTestCase:
     def set_up(self):
         """Start the server"""

@@ -31,7 +31,7 @@ classifiers = ['Development Status :: 1 - Planning']
 [project.optional-dependencies]
 tests = ["pytest", "async-timeout", "pytest-asyncio", "pytest-cov", "scikit-image",]
 docs = ["jupyter-book"]
-lint = ["black", "flake8", "Flake8-pyproject"， “flake8-pytest-style”]
+lint = ["black", "flake8", "Flake8-pyproject", "flake8-pytest-style"]
 caiman = []
 
 [project.scripts]
