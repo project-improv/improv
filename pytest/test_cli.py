@@ -13,7 +13,7 @@ SERVER_WARMUP = 16
 SERVER_TIMEOUT = 16
 
 
-@pytest.fixture
+@pytest.fixture()
 def setdir():
     prev = os.getcwd()
     os.chdir(os.path.dirname(__file__))
@@ -21,7 +21,7 @@ def setdir():
     os.chdir(prev)
 
 
-@pytest.fixture
+@pytest.fixture()
 async def server(setdir, ports):
     """
     Sets up a server using minimal.yaml in the configs folder.
@@ -85,7 +85,7 @@ def test_multiple_actor_path(setdir):
 
 
 @pytest.mark.parametrize(
-    "mode,flag,expected",
+    ("mode", "flag", "expected"),
     [
         ("run", "-c", "6000"),
         ("run", "-o", "6000"),
@@ -117,7 +117,7 @@ def test_can_override_ports(mode, flag, expected, setdir):
 
 
 @pytest.mark.parametrize(
-    "mode,flag,expected",
+    ("mode", "flag", "expected"),
     [
         ("run", "-c", "127.0.0.1:6000"),
         ("run", "-o", "-6000"),
@@ -134,7 +134,7 @@ def test_non_port_is_error(mode, flag, expected):
 
 
 @pytest.mark.parametrize(
-    "mode,flag,expected",
+    ("mode", "flag", "expected"),
     [
         ("client", "-c", "111.127.0.0.1:6000"),
         ("client", "-s", "127.0.1:6000"),
@@ -151,7 +151,7 @@ def test_non_ip_is_error(mode, flag, expected):
 
 
 @pytest.mark.parametrize(
-    "mode,flag,expected",
+    ("mode", "flag", "expected"),
     [
         ("client", "-c", "127.0.0.1:6000"),
         ("client", "-s", "155.4.4.3:4000"),
