@@ -85,7 +85,7 @@ class Generator(Actor):
         self.io = pynwb.NWBHDF5IO(file=file, mode="r")
         nwbfile = self.io.read()
         try:
-            data = nwbfile.acquisition['TwoPhotonSeries'].data[0:1,::]
+            data = nwbfile.acquisition['TwoPhotonSeries'].data[0:5,::]
         except Exception as e:
             logger.error(
                 "Error occurred while loading data:", e)
@@ -123,7 +123,7 @@ class Generator(Actor):
             nwbfile = self.io.read()
             try:
                 start_index = self.frame_num
-                end_index = start_index + 1
+                end_index = start_index + 5
                 sample_data = nwbfile.acquisition['TwoPhotonSeries'].data[start_index:end_index, ::]
             except Exception as e:
                 logger.error( 
