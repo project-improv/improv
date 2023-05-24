@@ -31,6 +31,7 @@ class Generator(Actor):
         self.data = None
         self.name = "Generator"
         self.frame_num = 0
+        self.nwbfile = None
 
     def __str__(self):
         return f"Name: {self.name}, Data: {self.data}"
@@ -45,18 +46,18 @@ class Generator(Actor):
         logger.info('Beginning setup for Generator')
         # try:
         #     s3_urls = get_s3_urls_and_dandi_paths(dandiset_id="000054")
-        #     # need to do "export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES" in terminal if you get an error
         # except Exception as e:
         #     logger.error(
         #         f"-------------------Get s3 urls Exception: {e}")
         #     logger.error(traceback.format_exc())
 
-        dandiset_id = '000048'  # can change according to different dandisets
-        filepath = 'sub-222549/sub-222549_ecephys+ophys.nwb'
+        # need to do "export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES" in terminal if you get an error
+        dandiset_id = '000054'  # can change according to different dandisets
+        filepath = 'sub-F1/sub-F1_ses-20190407T210000_behavior+ophys.nwb'
         
         with DandiAPIClient() as client:
             asset = client.get_dandiset(
-                dandiset_id, 'draft').get_asset_by_path(filepath)
+                dandiset_id, '0.210819.1547').get_asset_by_path(filepath)
             s3_url = asset.get_content_url(
                 follow_redirects=1, strip_query=True)
         logger.info('Got s3 urls')
@@ -83,19 +84,16 @@ class Generator(Actor):
         fsspec_logger.setLevel(logging.ERROR)
 
         # for s3_url in s3_urls:
-        with fs.open(s3_url, "rb") as f:
-            with h5py.File(f) as file:
-                with pynwb.NWBHDF5IO(file=file, load_namespaces=True) as io:
-                    nwbfile = io.read()
-                    # collect all the data into a list named self.data
-                    logger.info(type(nwbfile))
-                    try:
-                        data = nwbfile.acquisition['TwoPhotonSeries_green'].data[:]
-
-                    except Exception as e:
-                        logger.error(
-                            "Error occurred while loading data:", e)
-                    self.data = data
+        f = fs.open(s3_url, "rb")
+        file = h5py.File(f)
+        io = pynwb.NWBHDF5IO(file=file, load_namespaces=True)
+        self.nwbfile = io.read()
+        try:
+            data = self.nwbfile.acquisition['TwoPhotonSeries'].data[0-200::]
+        except Exception as e:
+            logger.error(
+                "Error occurred while loading data:", e)
+        self.data = data
         # self.data = np.asmatrix(np.random.randint(100, size = (100, 5)))
         logger.info('Completed setup for Generator')
 
@@ -115,8 +113,6 @@ class Generator(Actor):
         instead of in [1, 100]. Therefore, the average over time should 
         converge to 5.5. 
         """
-        # logger.info(self.frame_num)
-        # logger.info(self.data)
 
         if (self.frame_num < np.shape(self.data)[0]):
             data_id = self.client.put(
@@ -130,6 +126,9 @@ class Generator(Actor):
                 logger.error(
                     f"--------------------------------Generator Exception: {e}")
         else:
-            # self.data = np.concatenate((self.data, np.asmatrix(
-            #     np.random.randint(10, size=(1, 5)))), axis=0)
-            pass
+            try:
+                data = self.nwbfile.acquisition['TwoPhotonSeries'].data[self.frame_num-self.frame_num+200::]
+            except Exception as e:
+                logger.error(
+                    "Error occurred while loading data:", e)
+            self.data = self.data.append(data)
