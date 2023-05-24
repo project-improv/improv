@@ -19,7 +19,7 @@ logger.setLevel(logging.INFO)
 
 known_implementations.keys()
 
-
+ 
 class Generator(Actor):
     """ Sample actor to generate data to pass into a sample processor.
 
@@ -56,10 +56,8 @@ class Generator(Actor):
         filepath = 'sub-F1/sub-F1_ses-20190407T210000_behavior+ophys.nwb'
         
         with DandiAPIClient() as client:
-            asset = client.get_dandiset(
-                dandiset_id, '0.210819.1547').get_asset_by_path(filepath)
-            s3_url = asset.get_content_url(
-                follow_redirects=1, strip_query=True)
+            asset = client.get_dandiset(dandiset_id, '0.210819.1547').get_asset_by_path(filepath)
+            s3_url = asset.get_content_url(follow_redirects=1, strip_query=True)
         logger.info('Got s3 urls')
 
         # first, create a virtual filesystem based on the http protocol and use
@@ -67,18 +65,16 @@ class Generator(Actor):
 
         logger.info('Beginning creating virtual filesystem')
         try:
-            fs = CachingFileSystem(
-                fs=fsspec.filesystem("http"),
-                cache_storage="nwb-cache",  # Local folder for the cache
-                # HTTPFileSystem requires "requests" and "aiohttp" to be installed
-            )
+            fs=fsspec.filesystem("http")
+            # HTTPFileSystem requires "requests" and "aiohttp" to be installed
         except Exception as e:
             logger.error(f"-------------------File System Exception: {e}")
             logger.error(traceback.format_exc())
 
         logger.info('Completed creating virtual filesystem')
+
         # next, open the file
-        self.data = []
+
         # set logging level to ERROR to avoid printing out a lot of messages
         fsspec_logger = logging.getLogger("fsspec")
         fsspec_logger.setLevel(logging.ERROR)
@@ -86,15 +82,14 @@ class Generator(Actor):
         # for s3_url in s3_urls:
         f = fs.open(s3_url, "rb")
         file = h5py.File(f)
-        io = pynwb.NWBHDF5IO(file=file, load_namespaces=True)
+        io = pynwb.NWBHDF5IO(file=file, mode="r")
         self.nwbfile = io.read()
         try:
-            data = self.nwbfile.acquisition['TwoPhotonSeries'].data[0-200::]
+            data = self.nwbfile.acquisition['TwoPhotonSeries'].data[0-1::]
         except Exception as e:
             logger.error(
                 "Error occurred while loading data:", e)
         self.data = data
-        # self.data = np.asmatrix(np.random.randint(100, size = (100, 5)))
         logger.info('Completed setup for Generator')
 
     def stop(self):
@@ -120,15 +115,20 @@ class Generator(Actor):
             # logger.info('Put data in store')
             try:
                 self.q_out.put([[data_id, str(self.frame_num)]])
-                logger.info('Sent message on')
                 self.frame_num += 1
             except Exception as e:
                 logger.error(
                     f"--------------------------------Generator Exception: {e}")
         else:
+            logger.info(type(self.nwbfile.acquisition['TwoPhotonSeries'].data))
             try:
-                data = self.nwbfile.acquisition['TwoPhotonSeries'].data[self.frame_num-self.frame_num+200::]
+                start_index = self.frame_num
+                end_index = start_index + 1  
+                sample_data = self.nwbfile.acquisition['TwoPhotonSeries'].data[start_index:end_index, :]
+                logger.info('check2')
             except Exception as e:
-                logger.error(
-                    "Error occurred while loading data:", e)
-            self.data = self.data.append(data)
+                logger.error( 
+                "Error occurred while loading data:", e)
+            self.data = np.concatenate((self.data, sample_data), axis=0)
+            logger.info(self.data.shape)
+            logger.info('Completed loading more data')
