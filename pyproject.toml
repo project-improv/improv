@@ -52,9 +52,9 @@ ignore = ['E203', 'W503']
 max-line-length = 88
     # See https://github.com/PyCQA/pycodestyle/issues/373
 per-file-ignores = """
-    pytest/test_demos.py:F401,F811
-    pytest/test_cli.py:F401,F811
-    pytest/test_tui.py:F401,F811
-    pytest/test_link.py:PT012
+    test/test_demos.py:F401,F811
+    test/test_cli.py:F401,F811
+    test/test_tui.py:F401,F811
+    test/test_link.py:PT012
     """
-exclude = ["demos", "test", "build"]
+exclude = ["demos", "build"]
