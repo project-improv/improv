@@ -49,6 +49,7 @@ class Processor(Actor):
 
         except:
             logger.error("Could not get frame!")
+            time.sleep(1)
             pass
 
         if frame is not None and self.frame_num is not None:

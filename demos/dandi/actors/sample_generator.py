@@ -31,7 +31,7 @@ class Generator(Actor):
         self.data = None
         self.name = "Generator"
         self.frame_num = 0
-        self.nwbfile = None
+        self.io = None
 
     def __str__(self):
         return f"Name: {self.name}, Data: {self.data}"
@@ -82,10 +82,10 @@ class Generator(Actor):
         # for s3_url in s3_urls:
         f = fs.open(s3_url, "rb")
         file = h5py.File(f)
-        io = pynwb.NWBHDF5IO(file=file, mode="r")
-        self.nwbfile = io.read()
+        self.io = pynwb.NWBHDF5IO(file=file, mode="r")
+        nwbfile = self.io.read()
         try:
-            data = self.nwbfile.acquisition['TwoPhotonSeries'].data[0-1::]
+            data = nwbfile.acquisition['TwoPhotonSeries'].data[0:1,::]
         except Exception as e:
             logger.error(
                 "Error occurred while loading data:", e)
@@ -120,15 +120,13 @@ class Generator(Actor):
                 logger.error(
                     f"--------------------------------Generator Exception: {e}")
         else:
-            logger.info(type(self.nwbfile.acquisition['TwoPhotonSeries'].data))
+            nwbfile = self.io.read()
             try:
                 start_index = self.frame_num
-                end_index = start_index + 1  
-                sample_data = self.nwbfile.acquisition['TwoPhotonSeries'].data[start_index:end_index, :]
-                logger.info('check2')
+                end_index = start_index + 1
+                sample_data = nwbfile.acquisition['TwoPhotonSeries'].data[start_index:end_index, ::]
             except Exception as e:
                 logger.error( 
                 "Error occurred while loading data:", e)
             self.data = np.concatenate((self.data, sample_data), axis=0)
-            logger.info(self.data.shape)
-            logger.info('Completed loading more data')
+    

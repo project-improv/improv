@@ -9,3 +9,4 @@ actors:
 
 connections:
   Generator.q_out: [Processor.q_in]
+  Generator.bq_out: [Processor.bq_in]
