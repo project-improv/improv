@@ -34,6 +34,9 @@ class Generator(Actor):
         self.io = None
         self.nwbfile = None
 
+        self.behave = None
+        self.behave_num = 0
+
     def __str__(self):
         return f"Name: {self.name}, Data: {self.data}"
 
@@ -45,6 +48,11 @@ class Generator(Actor):
         """
 
         logger.info('Beginning setup for Generator')
+
+
+        # set logging level to ERROR to avoid printing out a lot of messages
+        fsspec_logger = logging.getLogger("fsspec")
+        fsspec_logger.setLevel(logging.ERROR)
 
         # need to do "export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES" in terminal if you get an error
         dandiset_id = '000054'  # can change according to different dandisets
@@ -69,12 +77,6 @@ class Generator(Actor):
         logger.info('Completed creating virtual filesystem')
 
         # next, open the file
-
-        # set logging level to ERROR to avoid printing out a lot of messages
-        fsspec_logger = logging.getLogger("fsspec")
-        fsspec_logger.setLevel(logging.ERROR)
-
-        # for s3_url in s3_urls:
         f = fs.open(s3_url, "rb")
         file = h5py.File(f)
         self.io = pynwb.NWBHDF5IO(file=file, mode="r")
@@ -85,6 +87,13 @@ class Generator(Actor):
             logger.error(
                 "Error occurred while loading data:", e)
         self.data = data
+
+        try:
+            behave = self.nwbfile.processing['behavior']['BehavioralTimeSeries']['pos'].data[0:10]
+        except Exception as e:
+            logger.error(
+                "Error occurred while loading behavior:", e)
+        self.behave = behave
         logger.info('Completed setup for Generator')
 
     def stop(self):
@@ -124,6 +133,27 @@ class Generator(Actor):
                     logger.error("Error occurred while loading data:", e)
                 self.data = np.concatenate((self.data, sample_data), axis=0)
             else:
-                logger.info("Completed running whole NWB file")
+                logger.warning("All available data have been processed")
 
-    
+        if (self.behave_num < np.shape(self.behave)[0]):
+            behave_id = self.client.put(
+                self.behave[self.behave_num], str(f"Gen_raw: {self.behave_num}"))
+            # logger.info('Put data in store')
+            try:
+                self.links['bq_out'].put([[behave_id, str(self.behave_num)]])
+                self.behave_num += 1
+            except Exception as e:
+                logger.error(
+                    f"--------------------------------Generator Exception: {e}")
+        else:
+            if (self.behave_num < len(self.nwbfile.processing['behavior']['BehavioralTimeSeries']['speed'].data)):
+                try:
+                    start_index = self.behave_num
+                    end_index = start_index + 10
+                    sample_behave = self.nwbfile.processing['behavior']['BehavioralTimeSeries']['speed'].data[start_index:end_index]
+                except Exception as e:
+                    logger.error("Error occurred while loading data:", e)
+                self.behave = np.concatenate((self.behave, sample_behave), axis=0)
+            else:
+                logger.info("Completed running whole NWB file")
+        

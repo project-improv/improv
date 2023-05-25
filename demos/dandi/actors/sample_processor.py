@@ -28,6 +28,10 @@ class Processor(Actor):
         self.frame = None
         self.avg_list = []
         self.frame_num = 1
+
+        self.behave = None
+        self.behave_list = []
+        self.behave_num = 1
         logger.info('Completed setup for Processor')
 
     def stop(self):
@@ -62,3 +66,20 @@ class Processor(Actor):
             logger.info(f"Overall Average: {np.mean(self.avg_list)}")
             logger.info(f"Frame number: {self.frame_num}")
             self.frame_num += 1
+        
+        behave = None
+        try:
+            behave = self.links['bq_in'].get(timeout=0.001)
+
+        except:
+            logger.error("Could not get position!")
+            time.sleep(1)
+            pass
+
+        if behave is not None and self.behave_num is not None:
+            self.done = False
+            self.behave = self.client.getID(behave[0][0])
+            self.behave_list.append(self.behave)
+            logger.info(f"Standard Deviation of Position: {np.std(self.behave_list)}")
+            logger.info(f"Behavior number: {self.behave_num}")
+            self.behave_num += 1
