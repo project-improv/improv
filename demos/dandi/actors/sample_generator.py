@@ -32,6 +32,7 @@ class Generator(Actor):
         self.name = "Generator"
         self.frame_num = 0
         self.io = None
+        self.nwbfile = None
 
     def __str__(self):
         return f"Name: {self.name}, Data: {self.data}"
@@ -44,12 +45,6 @@ class Generator(Actor):
         """
 
         logger.info('Beginning setup for Generator')
-        # try:
-        #     s3_urls = get_s3_urls_and_dandi_paths(dandiset_id="000054")
-        # except Exception as e:
-        #     logger.error(
-        #         f"-------------------Get s3 urls Exception: {e}")
-        #     logger.error(traceback.format_exc())
 
         # need to do "export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES" in terminal if you get an error
         dandiset_id = '000054'  # can change according to different dandisets
@@ -83,9 +78,9 @@ class Generator(Actor):
         f = fs.open(s3_url, "rb")
         file = h5py.File(f)
         self.io = pynwb.NWBHDF5IO(file=file, mode="r")
-        nwbfile = self.io.read()
+        self.nwbfile = self.io.read()
         try:
-            data = nwbfile.acquisition['TwoPhotonSeries'].data[0:5,::]
+            data = self.nwbfile.acquisition['TwoPhotonSeries'].data[0:10,::]
         except Exception as e:
             logger.error(
                 "Error occurred while loading data:", e)
@@ -120,13 +115,15 @@ class Generator(Actor):
                 logger.error(
                     f"--------------------------------Generator Exception: {e}")
         else:
-            nwbfile = self.io.read()
-            try:
-                start_index = self.frame_num
-                end_index = start_index + 5
-                sample_data = nwbfile.acquisition['TwoPhotonSeries'].data[start_index:end_index, ::]
-            except Exception as e:
-                logger.error( 
-                "Error occurred while loading data:", e)
-            self.data = np.concatenate((self.data, sample_data), axis=0)
+            if (self.frame_num < len(self.nwbfile.acquisition['TwoPhotonSeries'].data)):
+                try:
+                    start_index = self.frame_num
+                    end_index = start_index + 10
+                    sample_data = self.nwbfile.acquisition['TwoPhotonSeries'].data[start_index:end_index, ::]
+                except Exception as e:
+                    logger.error("Error occurred while loading data:", e)
+                self.data = np.concatenate((self.data, sample_data), axis=0)
+            else:
+                logger.info("Completed running whole NWB file")
+
     
