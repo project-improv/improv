@@ -31,24 +31,15 @@ class Generator(Actor):
 
     def setup(self):
         logger.info('Beginning setup for Generator')
-        path = glob.glob("demos/nwb_local/*.nwb")[0]
-
-        logger.info('Opening local file')
+        path = "demos/nwb_local/sub-222549_ecephys+ophys.nwb"
         try:
+            logger.info('Opening local file')
             self.io = pynwb.NWBHDF5IO(path, mode='r')
             self.nwbfile = self.io.read()
-        except Exception as e:
-            logger.error(f"-------------------Opening file Exception: {e}")
-            logger.error(traceback.format_exc())
-
-        logger.info('Completed opening file')
-
-        try:
-            logger.info("Reading initial data")
+            logger.info('Completed opening file')
             self.max_frame = self.nwbfile.acquisition['TwoPhotonSeries_green'].data.shape[0]
-            self.data = self.nwbfile.acquisition['TwoPhotonSeries_green'].data[0:199,:,:]
         except Exception as e:
-            logger.error(f"-------------------Exception occurred while reading data: {e}")
+            logger.error(f"-------------------Generator Exception: {e}")
             logger.error(traceback.format_exc())
         
         logger.info('Completed setup for Generator')
