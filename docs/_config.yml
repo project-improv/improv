@@ -44,3 +44,4 @@ sphinx:
   config:
     autoapi_dirs: '../improv'
     autoapi_options: ['members', 'undoc-members', 'show-inheritance', 'show-module-summary', 'imported-members', ] 
+  use_repository_button: true
