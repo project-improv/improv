@@ -44,3 +44,5 @@ sphinx:
   config:
     autoapi_dirs: '../improv'
     autoapi_options: ['members', 'undoc-members', 'show-inheritance', 'show-module-summary', 'imported-members', ] 
+
+only_build_toc_files: true
