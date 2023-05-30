@@ -12,17 +12,17 @@ logger.setLevel(logging.INFO)
 
 
 class DimReduction(Actor):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, filename, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.file = filename
 
     def setup(self):
         self.dataloc = "./"
-        self.file = "WaksmanwithFaces_KS2.mat"
         self.shape = 15000
         matdict = sio.loadmat(self.dataloc + self.file, squeeze_me=True)
         spks = matdict["stall"][:, :10]
 
-        k = 10
+        k = 10      #TODO: put in a config .txt file and read from
         l1 = k
         self.l = 10
         rp_dim = 200
@@ -53,19 +53,7 @@ class DimReduction(Actor):
             curr_neural = spks
             self.projs[i][:, :l1] = curr_basis.T @ curr_neural
 
-    def run(self):
-        print("Starting receiver loop ...")
-        print("run proSVD")
-        with RunManager(
-            self.name, self.runProcess, self.setup, self.q_sig, self.q_comm
-        ) as rm:
-            print(rm)
-
-    def runProcess(self):
-        self.runProSVD()
-        return
-
-    def runProSVD(self):
+    def runStep(self):
         try:
             res = self.q_in.get(timeout=0.0005)
             self.spks = self.client.getID(res[1])[1]

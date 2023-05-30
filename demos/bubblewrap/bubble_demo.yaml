@@ -11,6 +11,7 @@ actors:
   DimReduction:
     package: actors.dimension_reduction
     class: DimReduction
+    filename: WaksmanwithFaces_KS2.mat
     
   Bubblewrap:
     package: actors.bubblewrap
