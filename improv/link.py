@@ -189,7 +189,7 @@ class AsyncQueue(object):
         It adds the get request to the event loop and awaits, setting
         the status to pending. Once the get has returned, it returns the
         result of the get and sets its status as done.
-        
+
         Explicitly passes any exceptions to not hinder execution.
         Errors are logged with the get_async tag.
 
