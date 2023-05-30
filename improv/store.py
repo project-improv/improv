@@ -108,7 +108,7 @@ class PlasmaStore(StoreInterface):
         Updates the client internal
 
         Args:
-            store_loc (): store location
+            store_loc: store location
         """
         try:
             self.client = plasma.connect(store_loc, 20)
@@ -129,7 +129,7 @@ class PlasmaStore(StoreInterface):
         Unknown error
 
         Args:
-            obj:
+            object:
             object_name (str):
             flush_this_immediately (bool):
 

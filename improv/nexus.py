@@ -60,7 +60,7 @@ class Nexus:
         output_port=0,
     ):
         """Function to initialize class variables based on config file
-        with specific store size and port number specific by users.
+        with store size and port numbers specified by users.
 
         Starts a store of class Limbo, and then loads the config file.
 
@@ -721,6 +721,7 @@ class Nexus:
         Actor must already be instantiated
 
         #NOTE: Could use this for reassigning links if actors crash?
+        
         #TODO: Adjust to use default q_out and q_in vs being specified
         """
         classname = name.split(".")[0]
