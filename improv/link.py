@@ -193,7 +193,7 @@ class AsyncQueue(object):
         Returns:
             Awaitable or result of the get.
 
-        Exceptions:
+        Raises:
             Explicitly passes any exceptions to not hinder execution.
             Errors are logged with the get_async tag.
         """

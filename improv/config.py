@@ -117,7 +117,15 @@ class ConfigModule:
         self.options = options
 
     def saveConfigModules(self, pathName, wflag):
-        """Loops through each actor to save the modules to the config file."""
+        """Loops through each actor to save the modules to the config file.
+
+        Args:
+            pathName:
+            wflag (bool):
+
+        Returns:
+            bool: wflag
+        """
 
         if wflag:
             writeOption = "w"
