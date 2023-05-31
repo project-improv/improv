@@ -8,18 +8,21 @@ from skimage.io import imsave
 import tarfile
 import urllib.request
 
+
 def unpickle(file):
     import pickle
-    with open(file, 'rb') as fo:
-        dict = pickle.load(fo, encoding='latin1')
+
+    with open(file, "rb") as fo:
+        dict = pickle.load(fo, encoding="latin1")
     return dict
 
-cifar_link = 'https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz'
+
+cifar_link = "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
 
 data_dir = "data/CIFAR10"
 os.makedirs(data_dir, exist_ok=True)
 
-cifar_file = os.path.join(data_dir, 'cifar-10-python.tar.gz')
+cifar_file = os.path.join(data_dir, "cifar-10-python.tar.gz")
 if not os.path.isfile(cifar_file):
     filename, headers = urllib.request.urlretrieve(cifar_link, cifar_file)
 
@@ -27,20 +30,20 @@ with tarfile.open(cifar_file) as tar:
     tar.extractall(path=data_dir)
     tar.close()
 
-batch_path = os.path.join(data_dir, 'cifar-10-batches-py')
-batch_names = ['data_batch_' + str(x) for x in range(1,6)]
+batch_path = os.path.join(data_dir, "cifar-10-batches-py")
+batch_names = ["data_batch_" + str(x) for x in range(1, 6)]
 
 file = os.path.join(batch_path, batch_names[0])
 
 data_batch_1 = unpickle(file)
-data = data_batch_1['data']
+data = data_batch_1["data"]
 
-labels = data_batch_1['labels']
+labels = data_batch_1["labels"]
 
 meta_file = os.path.join(batch_path, "batches.meta")
 meta_data = unpickle(meta_file)
 
-label_names = meta_data['label_names']
+label_names = meta_data["label_names"]
 
 os.makedirs(os.path.join(data_dir, "images"), exist_ok=True)
 os.makedirs(os.path.join(data_dir, "labels"), exist_ok=True)
@@ -53,7 +56,7 @@ for i in range(300):
     img = np.dstack((R, G, B))
 
     imsave(os.path.join(data_dir, "images/{}.jpg".format(i)), img)
-    
+
     with open(os.path.join(data_dir, "labels/{}.txt".format(i)), "w") as text_file:
         text_file.write("%s" % labels[i])
         text_file.close()
