@@ -45,9 +45,9 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
         run: | 
-          sudo apt-get update --force-yes
-          sudo apt-get install python3 
-          sudo apt-get install python3-pip 
+          sudo apt-get update -y
+          sudo apt-get install -y python3 
+          sudo apt-get install -y python3-pip 
       - name: Install package (Windows)
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
