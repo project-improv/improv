@@ -59,7 +59,8 @@ jobs:
           
       - name: Test with pytest
         run: |
-          python -m pytest --cov=improv 
+          conda list | grep pytest
+          pytest --cov=improv 
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
