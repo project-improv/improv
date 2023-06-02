@@ -58,8 +58,15 @@ jobs:
           pip install -e .[tests] 
           
       - name: Test with pytest
+        if: startsWith(matrix.os, 'macos')
         run: |
-          conda list | grep pytest
+          pytest --cov=improv 
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          pytest --cov=improv 
+        if: startsWith(matrix.os, 'windows')
+        shell: wsl-bash {0}
+        run: |
           pytest --cov=improv 
 
       - name: Coveralls
