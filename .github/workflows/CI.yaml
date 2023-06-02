@@ -57,13 +57,15 @@ jobs:
           pip install flake8 pytest
           pip install -e .[tests] 
           
-      - name: Test with pytest
+      - name: Test with pytest (Mac)
         if: startsWith(matrix.os, 'macos')
         run: |
           pytest --cov=improv 
+      - name: Test with pytest (Ubuntu)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           pytest --cov=improv 
+      - name: Test with pytest (Windows)
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
         run: |
