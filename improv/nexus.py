@@ -124,10 +124,11 @@ class Nexus:
         create a Link with a name (purpose), start, and end
         Start links to one actor's name, end to the other.
         Nexus gives start_actor the Link as a q_in,
-        and end_actor the Link as a q_out
+        and end_actor the Link as a q_out.
         Nexus maintains dict of name and associated Link.
         Nexus also has list of Links that it is itself connected to
-        or communication purposes.
+        for communication purposes.
+
         OR
         For each connection, create 2 Links. Nexus acts as intermediary.
 
