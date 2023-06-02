@@ -12,9 +12,10 @@ class Replayer(Actor):
         """
         Class that outputs objects to queues based on a saved previous run.
 
-        :param lmdb_path: path to LMDB folder
-        :param replay: named of Actor to replay.
-        :param resave: (if using LMDB in this instance)
+        Args:
+            lmdb_path: path to LMDB folder
+            replay: named of Actor to replay.
+            resave: (if using LMDB in this instance)
                         save outputs from this actor as usual (default: False)
 
         """
@@ -36,9 +37,13 @@ class Replayer(Actor):
         """
         Load saved queue objects from LMDB
 
-        :param replay: named of Actor
-        :param func: (optional) Function to apply to objects before returning
-        :return:
+        Args:
+            replay: named of Actor
+            func: (optional) Function to apply to objects before returning
+
+        Returns:
+            lmdb_values
+
         """
         # Get all out queue names
         replay = f"q__{replay}"
@@ -67,7 +72,11 @@ class Replayer(Actor):
         self.put_setup(self.lmdb_values)
 
     def move_to_plasma(self, lmdb_values):
-        """Put objects into current plasma store and update object ID in saved queue."""
+        """Put objects into current plasma store and update object ID in saved queue.
+
+        Args:
+            lmdb_values:
+        """
 
         # TODO Make async to enable queue-based fetch system -
         # to avoid loading everything at once.
@@ -98,7 +107,11 @@ class Replayer(Actor):
                 pass
 
     def put_setup(self, lmdb_values):
-        """Put all objects created before Run into queue immediately."""
+        """Put all objects created before Run into queue immediately.
+
+        Args:
+            lmdb_values:
+        """
         for lmdb_value in lmdb_values:
             if lmdb_value.time < self.t_saved_start_run:
                 getattr(self, lmdb_value.queue).put(lmdb_value.obj)

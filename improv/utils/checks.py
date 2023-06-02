@@ -27,11 +27,11 @@ def check_if_connections_acyclic(path_to_yaml):
     Print 'No loops.' if the connections are acyclic.
     Print 'Loop(s) found.' followed by the loop path if loops are found.
 
-    :param path_to_yaml: Path to the YAML file.
-    :type path_to_yaml: str
+    Args:
+        path_to_yaml (str): Path to the YAML file.
 
-    :return: Whether the connections are acyclic.
-    :rtype: bool
+    Returns:
+        bool: Whether the connections are acyclic.
 
     """
     with open(path_to_yaml) as f:

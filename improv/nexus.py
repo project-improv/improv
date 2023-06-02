@@ -34,22 +34,6 @@ class Nexus:
     def __str__(self):
         return self.name
 
-    def createNexus(self, file=None, use_hdd=False):
-        """Function to initialize class variables based on config file.
-
-        Starts a store of class Limbo, and then loads the config file.
-        The config file specifies the specific actors that nexus will
-        be connected to, as well as their links.
-
-        Args:
-            file (string): Name of the config file.
-            use_hdd (bool): Whether to use hdd for the store.
-        """
-
-        self._startStore(
-            40000000000
-        )  # default size should be system-dependent; this is 40 GB
-
     def createNexus(
         self,
         file=None,
@@ -59,6 +43,24 @@ class Nexus:
         control_port=0,
         output_port=0,
     ):
+        """Function to initialize class variables based on config file.
+
+        Starts a store of class Limbo, and then loads the config file.
+        The config file specifies the specific actors that nexus will
+        be connected to, as well as their links.
+
+        Args:
+            file (string): Name of the config file.
+            use_hdd (bool): Whether to use hdd for the store.
+            use_watcher (bool): Whether to use watcher for the store.
+            store_size (int): initial store size
+            control_port (int): port number for input socket
+            output_port (int): port number for output socket
+
+        Returns:
+            string: "Shutting down", to notify start() that pollQueues has completed.
+        """
+
         curr_dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         logger.info(f"************ new improv server session {curr_dt} ************")
 
@@ -122,12 +124,16 @@ class Nexus:
         create a Link with a name (purpose), start, and end
         Start links to one actor's name, end to the other.
         Nexus gives start_actor the Link as a q_in,
-          and end_actor the Link as a q_out
+        and end_actor the Link as a q_out.
         Nexus maintains dict of name and associated Link.
         Nexus also has list of Links that it is itself connected to
-          for communication purposes.
+        for communication purposes.
+
         OR
         For each connection, create 2 Links. Nexus acts as intermediary.
+
+        Args:
+            file (string): input config filepath
         """
         # TODO load from file or user input, as in dialogue through FrontEnd?
 
@@ -198,7 +204,7 @@ class Nexus:
     def startNexus(self):
         """
         Puts all actors in separate processes and begins polling
-            to listen to comm queues
+        to listen to comm queues
         """
         for (
             name,
@@ -251,6 +257,9 @@ class Nexus:
         self.zmq_context.destroy()
 
     def start(self):
+        """
+        Start all the processes in Nexus
+        """
         logger.info("Starting processes")
         self.t = time.time()
 
@@ -278,7 +287,7 @@ class Nexus:
         stopped.
 
         Returns:
-            "Shutting down" (string): Notifies start() that pollQueues has completed.
+            string: "Shutting down", Notifies start() that pollQueues has completed.
         """
         self.actorStates = dict.fromkeys(self.actors.keys())
         if (
@@ -338,6 +347,13 @@ class Nexus:
         return "Shutting Down"
 
     def stop_polling_and_quit(self, signal, queues):
+        """
+        quit the process and stop polling signals from queues
+
+        Args:
+            signal (signal.signal): Signal for signal handler.
+            queues (AsyncQueue): Comm queues for links.
+        """
         logger.warn(
             "Shutting down via signal handler for {}. \
                 Steps may be out of order or dirty.".format(
@@ -576,6 +592,14 @@ class Nexus:
         Raises an Exception if the plasma store doesn't start
 
         #TODO: Generalize this to non-plasma stores
+
+        Args:
+            size:
+
+        Raises:
+            RuntimeError: if the size is undefined
+            Exception: if the plasma store doesn't start
+
         """
         if size is None:
             raise RuntimeError("Server size needs to be specified")
@@ -611,6 +635,10 @@ class Nexus:
     def createActor(self, name, actor):
         """Function to instantiate actor, add signal and comm Links,
         and update self.actors dictionary
+
+        Args:
+            name: name of the actor
+            actor:
         """
         # Instantiate selected class
         mod = import_module(actor.packagename)
@@ -648,6 +676,9 @@ class Nexus:
     def runActor(self, actor):
         """Run the actor continually; used for separate processes
         #TODO: hook into monitoring here?
+
+        Args:
+            actor:
         """
         actor.run()
 
@@ -676,6 +707,7 @@ class Nexus:
         Actor must already be instantiated
 
         #NOTE: Could use this for reassigning links if actors crash?
+
         #TODO: Adjust to use default q_out and q_in vs being specified
         """
         classname = name.split(".")[0]
