@@ -60,16 +60,17 @@ jobs:
       - name: Test with pytest (Mac)
         if: startsWith(matrix.os, 'macos')
         run: |
-          python - m pytest --cov=improv 
+          pytest --cov=improv 
       - name: Test with pytest (Ubuntu)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-          python - m pytest --cov=improv 
+          pytest --cov=improv 
       - name: Test with pytest (Windows)
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
         run: |
-          python - m pytest --cov=improv 
+          pytest --cov=improv 
+
       - name: Coveralls
         uses: coverallsapp/github-action@v2
 
