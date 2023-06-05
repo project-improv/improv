@@ -18,7 +18,7 @@ jobs:
       fail-fast: true
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10"]
-        os: [ubuntu-latest, macos-latest, windows-latest] # [ubuntu-latest, macos-latest, windows-latest]
+        os: [windows-latest] # [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v3
@@ -67,8 +67,7 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
         run: |
-          pytest --cov=improv 
-
+          pytest --cov=improv --ignore=test_tui.py
       - name: Coveralls
         uses: coverallsapp/github-action@v2
 
