@@ -7,17 +7,20 @@ actors:
   Acquirer:
     package: actors.acquire
     class: Acquirer
+    filename: demos/bubblewrap/data/WaksmanwithFaces_KS2.mat 
+
 
   DimReduction:
     package: actors.dimension_reduction
     class: DimReduction
-    filename: WaksmanwithFaces_KS2.mat
+    filename: demos/bubblewrap/data/WaksmanwithFaces_KS2.mat 
     
   Bubblewrap:
-    package: actors.bubblewrap
-    class: Bubblewrap
+    package: actors.bubble
+    class: Bubble
     dimension: 2
-  
+    filename: demos/bubblewrap/data/lorenz_1trajectories_3dim_500to20500_noise0.05.npz 
+
   Visual:
     package: actors.visual
     class: CaimanVisual

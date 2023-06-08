@@ -6,15 +6,17 @@ from sklearn import random_projection as rp
 from proSVD import proSVD
 from queue import Empty
 import logging
+import traceback
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
 class DimReduction(Actor):
-    def __init__(self, filename, *args, **kwargs):
+    def __init__(self, *args, filename=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.file = filename
+        if not filename: logger.error('Error: Filename not specified')
+        else: self.file = filename
 
     def setup(self):
         self.dataloc = "./"
@@ -52,6 +54,7 @@ class DimReduction(Actor):
             curr_basis = basis[:, :, i]  # has first k components
             curr_neural = spks
             self.projs[i][:, :l1] = curr_basis.T @ curr_neural
+            logger.info(self.projs[i][:, :l1].shape)
 
     def runStep(self):
         try:
@@ -68,15 +71,13 @@ class DimReduction(Actor):
                 curr_neural = self.spks
                 # projecting curr_neural onto curr_Q (our tracked subspace) and on full svd u
                 self.projs[i][:, self.t : self.t + self.l] = curr_basis.T @ curr_neural
-                id = self.client.put(
-                    [self.t, self.projs[i][:, self.t : self.t + self.l]],
-                    "dim_bubble" + str(self.t),
-                )
+                id = self.client.put(self.projs[i][:, self.t : self.t + self.l],"dim_bubble" + str(self.t))
                 try:
                     self.q_out.put([str(self.t), id])
+                    logger.info("Putted data in store")
                 except Exception as e:
-                    logger.error("Acquirer general exception: {}".format(e))
-
+                    logger.error("Dimension reduction general exception: {}".format(e))
+                    logger.error(traceback.format_exc())
         except Empty:
             return None
 

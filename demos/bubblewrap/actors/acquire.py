@@ -1,25 +1,29 @@
-from improv.actor import Actor, RunManager, Spike
+from improv.actor import Actor, RunManager, Signal
 import os
 import numpy as np
 from scipy import io as sio
 import time
 import logging
+import traceback
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
 class Acquirer(Actor):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, filename=None, **kwargs):
         super().__init__(*args, **kwargs)
+        if not filename: logger.error('Error: Filename not specified')
+        self.file = filename
         self.frame_num = 0
         self.done = False
         self.framerate = 1
+        self.timestamp = []
+        self.total_times = []
 
     def setup(self):
         dataloc = "./"
-        file = "WaksmanwithFaces_KS2.mat"
-        matdict = sio.loadmat(dataloc + file, squeeze_me=True)
+        matdict = sio.loadmat(self.file, squeeze_me=True)
         spks = matdict["stall"]
 
         # truncate so it doesn't take forever
@@ -31,20 +35,11 @@ class Acquirer(Actor):
         self.num_iters = np.ceil((spks.shape[1] - l1) / self.l).astype("int")
         self.chunk_size = 10
 
-    def run(self):
-        print("Starting receiver loop ...")
-        print("run acquire")
-        self.timestamp = []
-        self.total_times = []
-        with RunManager(
-            self.name, self.runAcquirer, self.setup, self.q_sig, self.q_comm
-        ) as rm:
-            print(rm)
-
-        print("Done running Acquire, avg time per frame: ", np.mean(self.total_times))
-        print("Acquire got through ", self.frame_num, " frames")
-
-    def runAcquirer(self):
+    def stop(self):
+        logger.info(f"Stopped running Acquire, avg time per frame: {np.mean(self.total_times)}")
+        logger.info(f"Acquire got through {self.frame_num} frames")
+    
+    def runStep(self):
         if self.done:
             pass
         elif self.frame_num < self.num_iters:
@@ -59,6 +54,8 @@ class Acquirer(Actor):
                 # also log to disk #TODO: spawn separate process here?
             except Exception as e:
                 logger.error("Acquirer general exception: {}".format(e))
+                logger.error(traceback.format_exc())
+
 
             time.sleep(self.framerate)  # pretend framerate
             self.total_times.append(time.time() - t)
