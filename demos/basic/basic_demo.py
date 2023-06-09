@@ -1,4 +1,5 @@
 import logging
+
 # Matplotlib is overly verbose by default
 logging.getLogger("matplotlib").setLevel(logging.WARNING)
 

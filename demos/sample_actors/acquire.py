@@ -31,19 +31,19 @@ class FileAcquirer(Actor):
         self.done = False
         self.flag = False
         self.filename = filename
-        self.framerate = 1/framerate
+        self.framerate = 1 / framerate
 
 
     def setup(self):
-        '''Get file names from config or user input
-            Also get specified framerate, or default is 10 Hz
-           Open file stream
-           #TODO: implement more than h5 files
-        '''
+        """Get file names from config or user input
+         Also get specified framerate, or default is 10 Hz
+        Open file stream
+        #TODO: implement more than h5 files
+        """
         if os.path.exists(self.filename):
             n, ext = os.path.splitext(self.filename)[:2]
-            if ext == '.h5' or ext == '.hdf5':
-                with h5py.File(self.filename, 'r') as file:
+            if ext == ".h5" or ext == ".hdf5":
+                with h5py.File(self.filename, "r") as file:
                     keys = list(file.keys())
                     self.data = file[keys[0]][()]
 
@@ -66,12 +66,12 @@ class FileAcquirer(Actor):
         print('Acquire got through ', self.frame_num, ' frames')
         if not os._exists('output'):
             try:
-                os.makedirs('output')
+                os.makedirs("output")
             except:
                 pass
-        if not os._exists('output/timing'):
+        if not os._exists("output/timing"):
             try:
-                os.makedirs('output/timing')
+                os.makedirs("output/timing")
             except:
                 pass
         np.savetxt('output/timing/acquire_frame_time.txt',
@@ -80,9 +80,9 @@ class FileAcquirer(Actor):
                    np.array(self.timestamp))
 
     def runStep(self):
-        '''While frames exist in location specified during setup,
-           grab frame, save, put in store
-        '''
+        """While frames exist in location specified during setup,
+        grab frame, save, put in store
+        """
         t = time.time()
 
         if self.done:
@@ -128,9 +128,8 @@ class FileAcquirer(Actor):
         return self.data[num, :, :]
 
     def saveFrame(self, frame):
-        ''' Save each frame via h5 dset
-        '''
-        self.dset[self.frame_num-1] = frame
+        """Save each frame via h5 dset"""
+        self.dset[self.frame_num - 1] = frame
         self.f.flush()
 
 
@@ -148,7 +147,7 @@ class StimAcquirer(Actor):
         self.n = 0
         self.sID = 0
         if os.path.exists(self.filename):
-            print('Looking for ', self.filename)
+            print("Looking for ", self.filename)
             n, ext = os.path.splitext(self.filename)[:2]
             if ext == ".txt":
                 # self.stim = np.loadtxt(self.filename)
@@ -158,7 +157,7 @@ class StimAcquirer(Actor):
                     stiminfo = frame[0:2]
                     self.stim.append(stiminfo)
             else:
-                logger.error('Cannot load file, possible bad extension')
+                logger.error("Cannot load file, possible bad extension")
                 raise Exception
 
         else:
@@ -177,13 +176,13 @@ class StimAcquirer(Actor):
 
 
 class BehaviorAcquirer(Actor):
-    ''' Actor that acquires information of behavioral stimulus
-        during the experiment
+    """Actor that acquires information of behavioral stimulus
+    during the experiment
 
-        Current assumption is that stimulus is off or on, on has many types,
-        and any change in stimulus is _un_associated with a frame number.
-        TODO: needs to be associated with time, then frame number
-    '''
+    Current assumption is that stimulus is off or on, on has many types,
+    and any change in stimulus is _un_associated with a frame number.
+    TODO: needs to be associated with time, then frame number
+    """
 
     def __init__(self, *args, param_file=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -200,14 +199,13 @@ class BehaviorAcquirer(Actor):
             try:
                 params_dict = None  # self._load_params_from_file(param_file)
             except Exception as e:
-                logger.exception('File cannot be loaded. {0}'.format(e))
+                logger.exception("File cannot be loaded. {0}".format(e))
         else:
             # 8 sets of input stimuli
             self.behaviors = [0, 1, 2, 3, 4, 5, 6, 7]
 
     def runStep(self):
-        ''' Check for input from behavioral control
-        '''
+        """Check for input from behavioral control"""
         # Faking it for now.
         if self.n % 50 == 0:
             self.curr_stim = random.choice(self.behaviors)
@@ -219,9 +217,9 @@ class BehaviorAcquirer(Actor):
 
 
 class FileStim(Actor):
-    ''' Actor that acquires information of behavioral stimulus
-        during the experiment from a file
-    '''
+    """Actor that acquires information of behavioral stimulus
+    during the experiment from a file
+    """
 
     def __init__(self, *args, File=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -236,8 +234,7 @@ class FileStim(Actor):
         self.data = np.loadtxt(self.file)
 
     def runStep(self):
-        ''' Check for input from behavioral control
-        '''
+        """Check for input from behavioral control"""
         # Faking it for now.
         if self.n % 50 == 0 and self.n < self.data.shape[1]*50:
             self.curr_stim = self.data[0][int(self.n/50)]
@@ -249,8 +246,7 @@ class FileStim(Actor):
 
 
 class TiffAcquirer(Actor):
-    ''' Loops through a TIF file.
-    '''
+    """Loops through a TIF file."""
 
     def __init__(self, *args, filename=None, framerate=30, **kwargs):
         super().__init__(*args, **kwargs)

@@ -1,21 +1,24 @@
-from multiprocessing import Process, Queue, Manager, cpu_count, set_start_method
 import numpy as np
-import pyarrow.plasma as plasma
 import asyncio
-import subprocess
-import signal
-import time
+
+# import pyarrow.plasma as plasma
+# from multiprocessing import Process, Queue, Manager, cpu_count, set_start_method
+# import subprocess
+# import signal
+# import time
 from queue import Empty
-import numpy as np
-import logging; logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-import asyncio
+import logging
+
 import concurrent
-from pyarrow.plasma import ObjectNotAvailable
-from improv.actor import Actor, Signal, RunManager, AsyncRunManager
+
+# from pyarrow.plasma import ObjectNotAvailable
+from improv.actor import Actor, Signal, RunManager
 from improv.store import ObjectNotFoundError
-from pyarrow.plasma import ObjectNotAvailable
 import pickle
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 
 class BasicWatcher(Actor):
     """
@@ -23,33 +26,33 @@ class BasicWatcher(Actor):
     and saves objects that have been flagged by those actors
     """
 
-    def __init__(self, *args, inputs= None):
+    def __init__(self, *args, inputs=None):
         super().__init__(*args)
 
-        self.watchin= inputs
-        
+        self.watchin = inputs
 
     def setup(self):
         """
         set up tasks and polling based on inputs which will
         be used for asynchronous polling of input queues
         """
-        self.numSaved= 0
-        self.tasks= []
-        self.polling= self.watchin
-        self.setUp= False
+        self.numSaved = 0
+        self.tasks = []
+        self.polling = self.watchin
+        self.setUp = False
 
     def run(self):
         """
-        continually run the watcher to check all of the 
+        continually run the watcher to check all of the
         input queues for objects to save
         """
 
-
-        with RunManager(self.name, self.watchrun, self.setup, self.q_sig, self.q_comm) as rm:
+        with RunManager(
+            self.name, self.watchrun, self.setup, self.q_sig, self.q_comm
+        ) as rm:
             logger.info(rm)
 
-        print('watcher saved '+ str(self.numSaved)+ ' objects')
+        print("watcher saved " + str(self.numSaved) + " objects")
 
     def watchrun(self):
         """
@@ -65,30 +68,35 @@ class BasicWatcher(Actor):
         if an object is present and then saves the object if found
         """
 
-        if self.setUp== False:
+        if self.setUp is False:
             for q in self.polling:
                 self.tasks.append(asyncio.create_task(q.get_async()))
             self.setUp = True
 
-        done, pending= await asyncio.wait(self.tasks, return_when= concurrent.futures.FIRST_COMPLETED)
+        done, pending = await asyncio.wait(
+            self.tasks, return_when=concurrent.futures.FIRST_COMPLETED
+        )
 
-        for i,t in enumerate(self.tasks):
-            if t in done or self.polling[i].status == 'done':
-                r = self.polling[i].result # r is array with id and name of object
-                actorID = self.polling[i].getStart() # name of actor asking watcher to save the object
+        for i, t in enumerate(self.tasks):
+            if t in done or self.polling[i].status == "done":
+                r = self.polling[i].result  # r is array with id and name of object
+                actorID = self.polling[
+                    i
+                ].getStart()  # name of actor asking watcher to save the object
                 try:
-                    obj= self.client.getID(r[0])
-                    np.save('output/saved/'+actorID+r[1], obj)
+                    obj = self.client.getID(r[0])
+                    np.save("output/saved/" + actorID + r[1], obj)
                 except ObjectNotFoundError as e:
                     logger.info(e.message)
                     pass
-                self.tasks[i] = (asyncio.create_task(self.polling[i].get_async()))
+                self.tasks[i] = asyncio.create_task(self.polling[i].get_async())
 
 
-class Watcher():
-    """ Monitors the store as separate process
-        TODO: Facilitate Watcher being used in multiple processes (shared list)
+class Watcher:
+    """Monitors the store as separate process
+    TODO: Facilitate Watcher being used in multiple processes (shared list)
     """
+
     # Related to subscribe - could be private, i.e., _subscribe
     def __init__(self, name, client):
         self.name = name
@@ -108,24 +116,24 @@ class Watcher():
                 try:
                     self.checkStore2()
                 except Exception as e:
-                    logger.error('Watcher exception during run: {}'.format(e))
-                    #break
+                    logger.error("Watcher exception during run: {}".format(e))
+                    # break
             try:
                 signal = self.q_sig.get(timeout=0.005)
                 if signal == Signal.run():
                     self.flag = True
-                    logger.warning('Received run signal, begin running')
+                    logger.warning("Received run signal, begin running")
                 elif signal == Signal.quit():
-                    logger.warning('Received quit signal, aborting')
+                    logger.warning("Received quit signal, aborting")
                     break
                 elif signal == Signal.pause():
-                    logger.warning('Received pause signal, pending...')
+                    logger.warning("Received pause signal, pending...")
                     self.flag = False
-                elif signal == Signal.resume(): #currently treat as same as run
-                    logger.warning('Received resume signal, resuming')
+                elif signal == Signal.resume():  # currently treat as same as run
+                    logger.warning("Received resume signal, resuming")
                     self.flag = True
-            except Empty as e:
-                pass #no signal from Nexus
+            except Empty:
+                pass  # no signal from Nexus
 
     # def checkStore(self):
     #     notification_info = self.client.notify()
@@ -138,7 +146,9 @@ class Watcher():
     #         logger.error('Watcher error: {}'.format(e))
 
     def saveObj(self, obj, name):
-        with open('/media/hawkwings/Ext Hard Drive/dump/dump'+name+'.pkl', 'wb') as output:
+        with open(
+            "/media/hawkwings/Ext Hard Drive/dump/dump" + name + ".pkl", "wb"
+        ) as output:
             pickle.dump(obj, output)
 
     def checkStore2(self):
@@ -154,9 +164,12 @@ class Watcher():
             self.saveObj(self.client.getID(id), str(id))
             self.saved_ids.append(id)
 
+
 # def saveObjbyID(id):
 #     client = plasma.connect('/tmp/store')
 #     obj = client.get(id)
-#     with open('/media/hawkwings/Ext\ Hard\ Drive/dump/dump'+str(id)+'.pkl', 'wb') as output:
+#     with open(
+#           '/media/hawkwings/Ext\ Hard\ Drive/dump/dump'+str(id)+'.pkl', 'wb'
+#     ) as output:
 #         pickle.dump(obj, output)
 #     return id

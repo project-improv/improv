@@ -15,7 +15,6 @@ import urllib.request
 
 
 def main():
-
     # make temporary directory in $HOME
     os.makedirs("data", exist_ok=True)
     os.makedirs("models", exist_ok=True)
@@ -31,6 +30,7 @@ def main():
     print("Downloading full_dog model from the DeepLabCut Model Zoo...")
     model_url = "http://deeplabcut.rowland.harvard.edu/models/DLC_Dog_resnet_50_iteration-0_shuffle-0.tar.gz"
     os.system(f"curl {model_url} | tar xvz")
+
 
 if __name__ == "__main__":
     main()
