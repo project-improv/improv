@@ -8,12 +8,18 @@ from matplotlib import cm
 from matplotlib.colors import ListedColormap
 from PyQt5 import QtGui,QtCore,QtWidgets
 from PyQt5.QtGui import QColor, QPixmap
-from PyQt5.QtCore import pyqtSignal, Qt
-from PyQt5.QtWidgets import QMessageBox, QFileDialog
+from PyQt5.QtCore import pyqtSignal, Qt, QEventLoop, QTimer 
+from PyQt5.QtWidgets import QMessageBox, QFileDialog, QApplication
+import sys
 
 from . import improv_basic
 from improv.store import Store
 from improv.actor import Signal 
+
+import zmq
+from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER
+from zmq.log.handlers import PUBHandler
+import traceback
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -22,12 +28,15 @@ logger.setLevel(logging.INFO)
 #TODO: Add ability to receive signals like pause updating ...?
 
 class BasicFrontEnd(QtWidgets.QMainWindow, improv_basic.Ui_MainWindow):
-    def __init__(self, visual, comm, parent=None):
+    def __init__(self, visual, control_port, parent=None):
         ''' Setup GUI
             Setup and start Nexus controls
         '''
         self.visual = visual #Visual class that provides plots and images
-        self.comm = comm #Link back to Nexus for transmitting signals
+        # self.comm = comm #Link back to Nexus for transmitting signals
+        self.control_port = BasicFrontEnd._sanitize_addr(control_port)
+        
+        logger.info('GUI Connected to control port: {}'.format(self.control_port))
 
         self.total_times = []
 
@@ -49,6 +58,15 @@ class BasicFrontEnd(QtWidgets.QMainWindow, improv_basic.Ui_MainWindow):
         self.slider.valueChanged.connect(_call(self.sliderMoved)) #Threshold for magnitude selection
 
         self.update()
+
+    @staticmethod
+    def _sanitize_addr(input):
+        if isinstance(input, int):
+            return "localhost:%s" % str(input)
+        elif ':' in input:
+            return input
+        else:
+            return "localhost:%s" % input
 
     def update(self):
         ''' Update visualization while running
@@ -160,13 +178,49 @@ class BasicFrontEnd(QtWidgets.QMainWindow, improv_basic.Ui_MainWindow):
         '''Run ImageProcessor in separate thread
         '''
         #self.flag = True
-        self.comm.put([Signal.run()])
+        # self.comm.put([Signal.run()])
+        self.context = zmq.Context()
+        self.control_socket = self.context.socket(REQ)
+        self.control_socket.setsockopt(zmq.SNDTIMEO, 0)
+
+        try:
+            self.control_socket.connect("tcp://%s" % self.control_port)
+        except Exception as e:
+            logger.error('Error connecting to control port: {}'.format(e))
+            logger.error(traceback.format_exc())
+
+        msg = b"run"
+        try:
+            self.control_socket.send(msg, flags=zmq.NOBLOCK)
+        except Exception as e:
+            logger.error('Error sending message: {}'.format(e))
+            logger.error(traceback.format_exc())
+        
         logger.info('-------------------------   put run in comm')
+        self.control_socket.close()
         #TODO: grey out button until self.t is done, but allow other buttons to be active
 
     def _setup(self):
-        self.comm.put([Signal.setup()])
-        self.visual.setup()
+        # self.comm.put([Signal.setup()])
+        '''Send setup message to Nexus
+        '''
+        self.context = zmq.Context()
+        self.control_socket = self.context.socket(REQ)
+        self.control_socket.setsockopt(zmq.SNDTIMEO, 0)
+
+        try:
+            self.control_socket.connect("tcp://%s" % self.control_port)
+        except Exception as e:
+            logger.error('Error connecting to control port: {}'.format(e))
+            logger.error(traceback.format_exc())
+        msg = b"setup"
+        try:
+            self.control_socket.send(msg, flags=zmq.NOBLOCK)
+        except Exception as e:
+            logger.error('Error sending message: {}'.format(e))
+            logger.error(traceback.format_exc())
+        self.control_socket.close()
+        
 
     def _loadConfig(self, file):
         self.comm.put(['load', file])
@@ -310,14 +364,32 @@ class BasicFrontEnd(QtWidgets.QMainWindow, improv_basic.Ui_MainWindow):
         '''Clicked x/close on window
             Add confirmation for closing without saving
         '''
+        self.context = zmq.Context()
+        self.control_socket = self.context.socket(REQ)
+        self.control_socket.setsockopt(zmq.SNDTIMEO, 0)
+
+        try:
+            self.control_socket.connect("tcp://%s" % self.control_port)
+        except Exception as e:
+            logger.error('Error connecting to control port: {}'.format(e))
+            logger.error(traceback.format_exc())
+
         confirm = QMessageBox.question(self, 'Message', 'Quit without saving?',
                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if confirm == QMessageBox.Yes:
-            self.comm.put(['quit'])
+            # self.comm.put(['quit'])
             # print('Visual broke, avg time per frame: ', np.mean(self.visual.total_times, axis=0))
+            msg = 'quit'
+            try:
+                self.control_socket.send_string(msg)
+            except Exception as e:
+                logger.error('Error sending message: {}'.format(e))
+                logger.error(traceback.format_exc())
+        
             print('Visual got through ', self.visual.frame_num, ' frames')
             # print('GUI avg time ', np.mean(self.total_times))
             event.accept()
+            self.control_socket.close()
         else: event.ignore()
 
 

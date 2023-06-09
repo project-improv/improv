@@ -7,15 +7,23 @@ from skimage.io import imread
 
 from improv.actor import Actor
 
-import logging; logger = logging.getLogger(__name__)
+import zmq
+from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER
+from zmq.log.handlers import PUBHandler
+import traceback
+
+import logging
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 # Classes: File Acquirer, Stim, Behavior, Tiff
+
 
 class FileAcquirer(Actor):
     '''Class to import data from files and output
        frames in a buffer, or discrete.
     '''
+
     def __init__(self, *args, filename=None, framerate=30, **kwargs):
         super().__init__(*args, **kwargs)
         self.frame_num = 0
@@ -24,6 +32,7 @@ class FileAcquirer(Actor):
         self.flag = False
         self.filename = filename
         self.framerate = 1/framerate
+
 
     def setup(self):
         '''Get file names from config or user input
@@ -38,14 +47,22 @@ class FileAcquirer(Actor):
                     keys = list(file.keys())
                     self.data = file[keys[0]][()]
 
-        else: raise FileNotFoundError
+        else:
+            raise FileNotFoundError
+        
+        self.context = zmq.Context()
+        self.send_socket = self.context.socket(PUB)
+        self.send_socket.bind("tcp://127.0.0.1:5555")
+
+        logger.info('Acquire setup complete')
 
         self.total_times = []
         self.timestamp = []
 
     def stop(self):
 
-        print('Done running Acquire, avg time per frame: ', np.mean(self.total_times))
+        print('Done running Acquire, avg time per frame: ',
+              np.mean(self.total_times))
         print('Acquire got through ', self.frame_num, ' frames')
         if not os._exists('output'):
             try:
@@ -57,8 +74,10 @@ class FileAcquirer(Actor):
                 os.makedirs('output/timing')
             except:
                 pass
-        np.savetxt('output/timing/acquire_frame_time.txt', np.array(self.total_times))
-        np.savetxt('output/timing/acquire_timestamp.txt', np.array(self.timestamp))
+        np.savetxt('output/timing/acquire_frame_time.txt',
+                   np.array(self.total_times))
+        np.savetxt('output/timing/acquire_timestamp.txt',
+                   np.array(self.timestamp))
 
     def runStep(self):
         '''While frames exist in location specified during setup,
@@ -68,37 +87,45 @@ class FileAcquirer(Actor):
 
         if self.done:
             pass
-        elif(self.frame_num < len(self.data)*5):
+        elif (self.frame_num < len(self.data)*5):
             frame = self.getFrame(self.frame_num % len(self.data))
-            ## simulate frame-dropping
+            # simulate frame-dropping
             # if self.frame_num > 1500 and self.frame_num < 1800:
             #     frame = None
-            t= time.time()
+            t = time.time()
             id = self.client.put(frame, 'acq_raw'+str(self.frame_num))
-            t1= time.time()
+            t1 = time.time()
             self.timestamp.append([time.time(), self.frame_num])
             try:
-                self.put([[id, str(self.frame_num)]], save=[True])
+                # self.q_out.put([[id, str(self.frame_num)]], save=[True])
+                # zmq send
+                id_str = str(id)  # turn ObjectID to string
+                id_value = id_str[9:-1]
+                message = [[str(id_value), str(self.frame_num)]]
+                self.send_socket.send_pyobj(message)
+                # logger.info('Acquirer sent frame {}'.format(self.frame_num))
                 self.frame_num += 1
-                 #also log to disk #TODO: spawn separate process here?
+                # also log to disk #TODO: spawn separate process here?
             except Exception as e:
                 logger.error('Acquirer general exception: {}'.format(e))
+                logger.error(traceback.format_exc())
 
-            time.sleep(self.framerate) #pretend framerate
+            time.sleep(self.framerate)  # pretend framerate
             self.total_times.append(time.time()-t)
 
-        else: # simulating a done signal from the source (eg, camera)
-            logger.error('Done with all available frames: {0}'.format(self.frame_num))
+        else:  # simulating a done signal from the source (eg, camera)
+            logger.error(
+                'Done with all available frames: {0}'.format(self.frame_num))
             self.data = None
             self.q_comm.put(None)
-            self.done = True # stay awake in case we get e.g. a shutdown signal
-            #if self.saving:
+            self.done = True  # stay awake in case we get e.g. a shutdown signal
+            # if self.saving:
             #    self.f.close()
 
     def getFrame(self, num):
         ''' Here just return frame from loaded data
         '''
-        return self.data[num,:,:]
+        return self.data[num, :, :]
 
     def saveFrame(self, frame):
         ''' Save each frame via h5 dset
@@ -106,24 +133,26 @@ class FileAcquirer(Actor):
         self.dset[self.frame_num-1] = frame
         self.f.flush()
 
+
 class StimAcquirer(Actor):
     ''' Class to load visual stimuli data from file
         and stream into the pipeline
     '''
+
     def __init__(self, *args, param_file=None, filename=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.param_file = param_file
-        self.filename= filename
+        self.filename = filename
 
     def setup(self):
-        self.n= 0
+        self.n = 0
         self.sID = 0
         if os.path.exists(self.filename):
             print('Looking for ', self.filename)
             n, ext = os.path.splitext(self.filename)[:2]
-            if ext== ".txt":
+            if ext == ".txt":
                 # self.stim = np.loadtxt(self.filename)
-                self.stim=[]
+                self.stim = []
                 f = np.loadtxt(self.filename)
                 for _, frame in enumerate(f):
                     stiminfo = frame[0:2]
@@ -132,17 +161,20 @@ class StimAcquirer(Actor):
                 logger.error('Cannot load file, possible bad extension')
                 raise Exception
 
-        else: raise FileNotFoundError
+        else:
+            raise FileNotFoundError
 
     def runStep(self):
         ''' Check for input from behavioral control
         '''
-        if self.n<len(self.stim):
+        if self.n < len(self.stim):
             # s = self.stim[self.sID]
             # self.sID+=1
-            self.q_out.put({self.n:self.stim[self.n]})
+            self.q_out.put({self.n: self.stim[self.n]})
+
         time.sleep(0.5)   # simulate a particular stimulus rate
-        self.n+=1
+        self.n += 1
+
 
 class BehaviorAcquirer(Actor):
     ''' Actor that acquires information of behavioral stimulus
@@ -160,17 +192,18 @@ class BehaviorAcquirer(Actor):
     def setup(self):
         ''' Pre-define set of input stimuli
         '''
-        self.n = 0 #our fake frame number here
-        #TODO: Consider global frame_number in store...or signal from Nexus
+        self.n = 0  # our fake frame number here
+        # TODO: Consider global frame_number in store...or signal from Nexus
 
-        #TODO: Convert this to Config and load from there
+        # TODO: Convert this to Config and load from there
         if self.param_file is not None:
             try:
-                params_dict = None #self._load_params_from_file(param_file)
+                params_dict = None  # self._load_params_from_file(param_file)
             except Exception as e:
                 logger.exception('File cannot be loaded. {0}'.format(e))
         else:
-            self.behaviors = [0, 1, 2, 3, 4, 5, 6, 7] #8 sets of input stimuli
+            # 8 sets of input stimuli
+            self.behaviors = [0, 1, 2, 3, 4, 5, 6, 7]
 
     def runStep(self):
         ''' Check for input from behavioral control
@@ -178,10 +211,10 @@ class BehaviorAcquirer(Actor):
         # Faking it for now.
         if self.n % 50 == 0:
             self.curr_stim = random.choice(self.behaviors)
-            self.onoff = random.choice([0,10])
-            self.q_out.put({self.n:[self.curr_stim, self.onoff]})
+            self.onoff = random.choice([0, 10])
+            self.q_out.put({self.n: [self.curr_stim, self.onoff]})
             logger.info('Changed stimulus! {}'.format(self.curr_stim))
-        time.sleep(1) #0.068)
+        time.sleep(1)  # 0.068)
         self.n += 1
 
 
@@ -190,26 +223,26 @@ class FileStim(Actor):
         during the experiment from a file
     '''
 
-    def __init__(self, *args, File= None, **kwargs):
+    def __init__(self, *args, File=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.file= File
+        self.file = File
 
     def setup(self):
         ''' Pre-define set of input stimuli
         '''
-        self.n = 0 #our fake frame number here
-        #TODO: Consider global frame_number in store...or signal from Nexus
+        self.n = 0  # our fake frame number here
+        # TODO: Consider global frame_number in store...or signal from Nexus
 
-        self.data= np.loadtxt(self.file)
+        self.data = np.loadtxt(self.file)
 
     def runStep(self):
         ''' Check for input from behavioral control
         '''
         # Faking it for now.
-        if self.n % 50 == 0 and self.n< self.data.shape[1]*50:
+        if self.n % 50 == 0 and self.n < self.data.shape[1]*50:
             self.curr_stim = self.data[0][int(self.n/50)]
             self.onoff = self.data[1][int(self.n/50)]
-            self.q_out.put({self.n:[self.curr_stim, self.onoff]})
+            self.q_out.put({self.n: [self.curr_stim, self.onoff]})
             logger.info('Changed stimulus! {}'.format(self.curr_stim))
         time.sleep(0.068)
         self.n += 1
@@ -225,7 +258,7 @@ class TiffAcquirer(Actor):
 
         if not os.path.exists(filename):
             raise ValueError('TIFF file {} does not exist.'.format(filename))
-        self.imgs = None #np.array(0)
+        self.imgs = None  # np.array(0)
 
         self.n_frame = 0
         self.fps = framerate
@@ -238,7 +271,8 @@ class TiffAcquirer(Actor):
 
     def runStep(self):
         t0 = time.time()
-        id_store = self.client.put(self.imgs[self.n_frame], 'acq_raw' + str(self.n_frame))
+        id_store = self.client.put(
+            self.imgs[self.n_frame], 'acq_raw' + str(self.n_frame))
         self.q_out.put([[id_store, str(self.n_frame)]])
         self.n_frame += 1
 

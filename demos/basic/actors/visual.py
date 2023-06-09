@@ -5,7 +5,12 @@ from queue import Empty
 from collections import deque
 from PyQt5 import QtWidgets
 from scipy.spatial.distance import cdist
-
+from improv.store import ObjectID
+import zmq
+from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER
+from zmq.log.handlers import PUBHandler
+import traceback
+import binascii
 from improv.actor import Actor, Signal
 from improv.store import ObjectNotFoundError
 from .front_end import BasicFrontEnd
@@ -26,15 +31,30 @@ class BasicVisual(Actor):
         logger.info('Running setup for '+self.name)
         self.visual = visual
         self.visual.setup()
+        self.context = zmq.Context()
+        self._socket = self.context.socket(PUB)
+        try:
+            self._socket.connect("tcp://127.0.0.1:4446")
+        except zmq.error.ZMQError:
+            logger.error('Error binding to control port')
+            logger.error(traceback.format_exc())
+        
 
-    def run(self):
+
+    def run(self, control_port):
         logger.info('Loading FrontEnd')
         self.app = QtWidgets.QApplication([])
-        self.viewer = BasicFrontEnd(self.visual, self.q_comm)
-        self.viewer.show()
-        logger.info('GUI ready')
-        self.q_comm.put([Signal.ready()])
-        self.visual.q_comm.put([Signal.ready()])
+        try:
+            self.viewer = BasicFrontEnd(self.visual, control_port)
+            msg = 'ready'
+            self._socket.send_string(msg)
+            self.viewer.show()
+        except Exception as e:
+            logger.error('Error loading FrontEnd: '+str(e))
+            logger.error(traceback.format_exc())
+
+        # self.q_comm.put([Signal.ready()])
+        # self.visual.q_comm.put([Signal.ready()])
         self.app.exec_()
         logger.info('Done running GUI')
 
@@ -74,6 +94,18 @@ class BasicCaimanVisual(Actor):
 
         self.window=500
 
+        self.context = zmq.Context()
+        self.acquire_socket = self.context.socket(SUB)
+        self.acquire_socket.connect("tcp://127.0.0.1:5555")
+        self.acquire_socket.setsockopt_string(SUBSCRIBE, '')
+
+        self.analysis_socket = self.context.socket(SUB)
+        self.analysis_socket.connect("tcp://127.0.0.1:5556")
+        self.analysis_socket.setsockopt_string(SUBSCRIBE, '')
+        self._getStoreInterface()
+
+        logger.info('Visual setup complete')
+
     def run(self):
         # #NOTE: Special case here, tied to GUI
         pass
@@ -82,15 +114,25 @@ class BasicCaimanVisual(Actor):
         t = time.time()
         ids = None
         try:
-            id = self.links['raw_frame_queue'].get(timeout=0.0001)
-            self.raw_frame_number = id[0][1]
-            self.raw = self.client.getID(id[0][0])
-        except Empty as e:
+            # id = self.links['raw_frame_queue'].get(timeout=0.0001)
+            #zmq receive
+            msg = self.acquire_socket.recv_pyobj(flags=zmq.NOBLOCK)
+            self.raw_frame_number = msg[0][1]
+            id = ObjectID(bytes.fromhex(msg[0][0]))
+            self.raw = self.client.getID(id)
+            # logger.info('Visual: Received raw frame {}'.format(self.raw_frame_number))
+        except zmq.Again as e:
             pass
+        # except Empty as e:
+        #     logger.error('Visual: Empty raw frame queue')
+        #     pass
         except Exception as e:
             logger.error('Visual: Exception in get data: {}'.format(e))
         try:
-            ids = self.q_in.get(timeout=0.0001)
+            # ids = self.q_in.get(timeout=0.0001)
+            # zmq receive
+            ids = self.analysis_socket.recv(flags=zmq.NOBLOCK)
+
             ids= [id[0] for id in ids]
             if ids is not None and ids[0]==1:
                 print('visual: missing frame')
@@ -104,8 +146,12 @@ class BasicCaimanVisual(Actor):
                 # self.getFrames()
                 self.total_times.append([time.time(), time.time()-t])
             self.timestamp.append([time.time(), self.frame_num])
-        except Empty as e:
+        except zmq.Again as e:
+            # logger.error('Visual: Empty analysis queue')
             pass
+        # except Empty as e:
+        #     logger.error('Visual: Empty analysis queue')
+        #     pass
         # TODO: I think we want to handle this in the store, not in actors?
         except ObjectNotFoundError as e:
             logger.error('Object not found, continuing...')

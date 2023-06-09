@@ -1,13 +1,15 @@
 import asyncio
 import concurrent
+import os
 import signal
 import sys
 import time
 import subprocess
 import logging
 import zmq.asyncio as zmq
-from zmq import PUB, REP, SocketOption
+from zmq import PUB, REP, SocketOption, SUB, SUBSCRIBE, LINGER, NOBLOCK, Again
 
+from multiprocessing import set_start_method
 from multiprocessing import Process, get_context
 from importlib import import_module
 from queue import Full
@@ -51,6 +53,11 @@ class Nexus():
         self.in_socket.bind("tcp://*:%s" % control_port)
         control_port = int(self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT).split(':')[-1])
 
+        # set up socket for GUI
+        self.gui_socket = self.zmq_context.socket(SUB)
+        self.gui_socket.setsockopt_string(SUBSCRIBE, '')
+        self.gui_socket.connect("tcp://127.0.0.1:4446")
+
         self._startStore(store_size) #default size should be system-dependent; this is 40 GB
         self.out_socket.send_string("Store started")
 
@@ -75,6 +82,11 @@ class Nexus():
         self.p_watch = None
         if use_watcher: self.startWatcher()
 
+
+        # store control and output ports
+        self.control_port = control_port
+        self.output_port = output_port
+
         if file is None:
             logger.exception('Need a config file!')
             raise Exception #TODO
@@ -84,6 +96,7 @@ class Nexus():
         self.flags.update({'quit':False, 'run':False, 'load':False}) #TODO: only quit flag used atm
         self.allowStart = False
         self.stopped = False
+
 
         return (control_port, output_port)
 
@@ -123,12 +136,13 @@ class Nexus():
 
                 #then give it to our GUI
                 self.createActor(name, m)
+                control_port = self.control_port
                 self.actors[name].setup(visual=self.actors[visualClass])
-
-                self.p_GUI = Process(target=self.actors[name].run, name=name)
-                self.p_GUI.daemon = True
-                self.p_GUI.start()
-
+                subprocess.Popen(['python', 'test.py', name, visualClass, str(control_port)])
+                # Change the above to the below to use subprocess.Popen instead of multiprocessing.Process
+                # self.p_GUI.daemon = True
+                # self.p_GUI.start() # this line cannot run properly
+               
             except Exception as e:
                 logger.error('Exception in setting up GUI {}'.format(name)+': {}'.format(e))
 
@@ -241,11 +255,13 @@ class Nexus():
             "Shutting down" (string): Notifies start() that pollQueues has completed.
         """
         self.actorStates = dict.fromkeys(self.actors.keys())
-        if not self.config.hasGUI:  # Since Visual is not started, it cannot send a ready signal.
-            try:
-                del self.actorStates['Visual']
-            except:
-                pass
+        # if not self.config.hasGUI:  # Since Visual is not started, it cannot send a ready signal.
+        try:
+            del self.actorStates['Visual']
+        except:
+            pass
+        # else:
+        #     del self.actorStates['Visual']
         polling = list(self.comm_queues.values())
         pollingNames = list(self.comm_queues.keys())
         self.tasks = []
@@ -377,10 +393,24 @@ class Nexus():
             logger.error('Signal received from Nexus but cannot identify {}'.format(flag))
 
     def processActorSignal(self, sig, name):
+        """
+        Receive flags from the actors
+        """
+        # msg = self.gui_socket.recv(flags=NOBLOCK)
+        # while msg == Again:
+        #         # logger.info(type(msg))
+        #     msg = self.gui_socket.recv(flags=NOBLOCK)
+        # logger.info(msg)
+        # if msg == 'ready':
+        
+        self.actorStates['GUI'] = Signal.ready()
+
         if sig is not None:
             logger.info('Received signal '+str(sig[0])+' from '+name)
             if not self.stopped and sig[0]==Signal.ready():
                 self.actorStates[name.split('_')[0]] = sig[0]
+                # print all the actor States name and value
+                # logger.info('Actor states: ' + str(self.actorStates))
                 if all(val==Signal.ready() for val in self.actorStates.values()):
                     self.allowStart = True      #TODO: replace with q_sig to FE/Visual
                     logger.info('Allowing start')
@@ -427,8 +457,8 @@ class Nexus():
             except FileNotFoundError:
                 logger.warning('Queue {} corrupted.'.format(q.name))
 
-        if self.config.hasGUI:
-            self.processes.append(self.p_GUI)
+        # if self.config.hasGUI:
+        #     self.processes.append(self.p_GUI)
         
         if self.p_watch: self.processes.append(self.p_watch)
 
@@ -442,6 +472,7 @@ class Nexus():
 
     def stop(self):
         logger.warning('Starting stop procedure')
+        logger.info('Stopping processes')
         self.allowStart = False
 
         for q in self.sig_queues.values():
@@ -555,9 +586,10 @@ class Nexus():
 
         q_comm = Link(actor.name+'_comm', actor.name, self.name)
         q_sig = Link(actor.name+'_sig', self.name, actor.name)
-        self.comm_queues.update({q_comm.name:q_comm})
-        self.sig_queues.update({q_sig.name:q_sig})
-        instance.setCommLinks(q_comm, q_sig)
+        if not (name == self.config.gui.name or name == self.config.gui.options['visual']):
+            self.comm_queues.update({q_comm.name:q_comm})
+            self.sig_queues.update({q_sig.name:q_sig})
+            instance.setCommLinks(q_comm, q_sig)
 
         # Update information
         self.actors.update({name:instance})

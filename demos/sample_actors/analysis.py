@@ -7,6 +7,11 @@ import os
 from improv.actor import Actor, RunManager
 from improv.store import ObjectNotFoundError
 
+import zmq
+from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER
+from zmq.log.handlers import PUBHandler
+import traceback
+
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -15,6 +20,7 @@ class MeanAnalysis(Actor):
     # TODO: this is too complex for a sample actor?
     def __init__(self, *args):
         super().__init__(*args)
+        
 
     def setup(self, param_file=None):
         ''' Set custom parameters here
@@ -46,6 +52,12 @@ class MeanAnalysis(Actor):
         self.colortime = []
         self.stimtime = []
         self.timestamp = []
+
+        self.context = zmq.Context()
+        self.send_socket = self.context.socket(PUB)
+        self.send_socket.bind("tcp://127.0.0.1:5556")
+        
+        logger.info('Analysis setup complete')
 
     def stop(self):
         
@@ -87,7 +99,10 @@ class MeanAnalysis(Actor):
             if ids is not None and ids[0]==1:
                 print('analysis: missing frame')
                 self.total_times.append(time.time()-t)
-                self.q_out.put([1])
+                # self.q_out.put([1])
+                # zmq send
+                message = [1]
+                self.send_socket.send(message)
                 raise Empty
             # t = time.time()
             self.frame = ids[-1]
@@ -182,7 +197,12 @@ class MeanAnalysis(Actor):
         ids.append([self.client.put(self.coordDict, 'analys_coords'+str(self.frame)), 'analys_coords'+str(self.frame)])
         ids.append([self.frame, str(self.frame)])
 
-        self.put(ids, save= [False, False, False, False, False, True, False])
+        # self.put(ids, save= [False, False, False, False, False, True, False])
+        # zmq send
+        save = [False, False, False, False, False, True, False]
+        message = ids
+        self.send_socket.send(message)
+        
 
         self.puttime.append(time.time()-t)
 
