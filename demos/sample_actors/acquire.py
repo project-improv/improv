@@ -98,6 +98,7 @@ class FileAcquirer(Actor):
             self.timestamp.append([time.time(), self.frame_num])
             try:
                 # self.q_out.put([[id, str(self.frame_num)]], save=[True])
+                self.q_out.put([[id, str(self.frame_num)]])
                 # zmq send
                 id_str = str(id)  # turn ObjectID to string
                 id_value = id_str[9:-1]

@@ -133,8 +133,8 @@ class BasicCaimanVisual(Actor):
         try:
             # ids = self.q_in.get(timeout=0.0001)
             # zmq receive
-            ids = self.analysis_socket.recv(flags=zmq.NOBLOCK)
-
+            ids = self.analysis_socket.recv_pyobj(flags=zmq.NOBLOCK)
+            # logger.info(type(ids))
             ids= [id[0] for id in ids]
             if ids is not None and ids[0]==1:
                 print('visual: missing frame')
@@ -158,9 +158,9 @@ class BasicCaimanVisual(Actor):
         except zmq.Again as e:
             # logger.error('Visual: Empty analysis queue')
             pass
-        # except Empty as e:
+        except Empty as e:
         #     logger.error('Visual: Empty analysis queue')
-        #     pass
+            pass
         # TODO: I think we want to handle this in the store, not in actors?
         except ObjectNotFoundError as e:
             logger.error("Object not found, continuing...")

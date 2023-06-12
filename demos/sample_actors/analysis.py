@@ -92,11 +92,13 @@ class MeanAnalysis(Actor):
         ids = None
         try:
             sig = self.links["input_stim_queue"].get(timeout=0.0001)
+            # logger.info('analysis: got input stimulus')
             self.updateStim_start(sig)
         except Empty as e:
             pass  # no change in input stimulus
         try:
             ids = self.q_in.get(timeout=0.0001)
+            # logger.info('analysis: got frame')
             ids = [id[0] for id in ids]
             if ids is not None and ids[0]==1:
                 print('analysis: missing frame')
@@ -142,6 +144,7 @@ class MeanAnalysis(Actor):
         except ObjectNotFoundError:
             logger.error("Estimates unavailable from store, droppping")
         except Empty as e:
+            # logger.error("No estimates available, dropping")
             pass
         except Exception as e:
             logger.exception("Error in analysis: {}".format(e))
@@ -230,7 +233,7 @@ class MeanAnalysis(Actor):
         # zmq send
         save = [False, False, False, False, False, True, False]
         message = ids
-        self.send_socket.send(message)
+        self.send_socket.send_pyobj(message)
         
 
         self.puttime.append(time.time() - t)
