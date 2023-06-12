@@ -37,11 +37,12 @@ class BasicVisual(Actor):
         self.visual.setup()
         self.context = zmq.Context()
         self._socket = self.context.socket(PUB)
-        try:
-            self._socket.connect("tcp://127.0.0.1:4446")
-        except zmq.error.ZMQError:
-            logger.error('Error binding to control port')
-            logger.error(traceback.format_exc())
+        # try:
+        #     self._socket.bind("tcp://127.0.0.1:4446")
+        # except zmq.error.ZMQError:
+        #     logger.error('Error binding to control port')
+        #     logger.error(traceback.format_exc())
+        
         
 
 
@@ -50,8 +51,8 @@ class BasicVisual(Actor):
         self.app = QtWidgets.QApplication([])
         try:
             self.viewer = BasicFrontEnd(self.visual, control_port)
-            msg = 'ready'
-            self._socket.send_string(msg)
+            # msg = 'ready'
+            # self._socket.send_pyobj(msg)
             self.viewer.show()
         except Exception as e:
             logger.error('Error loading FrontEnd: '+str(e))

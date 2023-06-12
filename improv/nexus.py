@@ -63,9 +63,9 @@ class Nexus:
         )
 
         # set up socket for GUI
-        self.gui_socket = self.zmq_context.socket(SUB)
-        self.gui_socket.setsockopt_string(SUBSCRIBE, '')
-        self.gui_socket.connect("tcp://127.0.0.1:4446")
+        # self.gui_socket = self.zmq_context.socket(SUB)
+        # self.gui_socket.setsockopt_string(SUBSCRIBE, '')
+        # self.gui_socket.connect("tcp://127.0.0.1:4446")
 
         self._startStore(store_size) #default size should be system-dependent; this is 40 GB
         self.out_socket.send_string("Store started")

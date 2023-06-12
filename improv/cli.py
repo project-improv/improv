@@ -323,7 +323,7 @@ def run(args):
         server = subprocess.Popen(server_opts, stdout=logfile, stderr=logfile)
 
     # wait for server to start up
-    timeout = 10
+    timeout = 60
     increment = 0.05
     time_now = 0
     while time_now < timeout:
