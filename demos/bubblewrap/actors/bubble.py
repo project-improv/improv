@@ -13,60 +13,48 @@ logger.setLevel(logging.INFO)
 
 
 class Bubble(Actor):
-    def __init__(self, *args, dimension=2, filename = None, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.d = dimension
-        if not filename: logger.error('Error: Filename not specified')
-        self.file = filename
+
 
     def setup(self):
-        ## TODO: Input params from file
+        shape_id = None
+        while shape_id is None:
+            try:
+                shape_id = self.q_in.get(timeout=0.0005)
+            except Empty: pass
+        dat_shape_0 = self.client.get(shape_id)
+        # init bubblewrap
+        M = 20
+        N = 50
+        lam = 1e-3
+        nu = 1e-3
+        grads_per_obs = 1
+        step = 8e-3
+        k = 6 # reduced dimension
+        d = k
+        num_d = k
+        T = dat_shape_0 - M # iters
+        # sigma_scale = 1e3
+        B_thresh = -10
+        n_thresh = 5e-4
+        eps = 0
+        P = 0 
+        t_wait = 1 # breadcrumbing
+        future_distance = 5
+        self.bw = Bubblewrap(N, num_d, d, step=step, lam=lam, eps=eps, M=M, nu=nu, 
+                        t_wait=t_wait, n_thresh=n_thresh, B_thresh=B_thresh)
+        id = None
+        while id is None:
+            try:
+                id = self.q_in.get(timeout = 0.0005)
+            except Empty: pass
+        init_data = self.client.getID(id)
 
-        ## Parameters
-        N = 100  # number of nodes to tile with
-        lam = 1e-3  # lambda
-        nu = 1e-3  # nu
-        eps = 1e-3  # epsilon sets data forgetting
-        step = 8e-2  # for adam gradients
-        M = 30  # small set of data seen for initialization
-        B_thresh = -10  # threshold for when to teleport (log scale)
-        batch = False  # run in batch mode
-        batch_size = 1  # batch mode size; if not batch is 1
-        go_fast = False  # flag to skip computing priors, predictions, and entropy for optimal speed
-
-        ## Load data from datagen/datagen.py
-        s = np.load(self.file)
-        # s = np.load('WaksmanwithFaces_KS2.mat')
-        # data = s['ssSVD10'][0]
-        data = np.random.rand(2688,10)
-        T = data.shape[0]
-        self.d = data.shape[1]
-
-        self.bw = Bubblewrap(
-            N,
-            self.d,
-            step=step,
-            lam=lam,
-            M=M,
-            eps=eps,
-            nu=nu,
-            B_thresh=B_thresh,
-            batch=batch,
-            batch_size=batch_size,
-            go_fast=go_fast,
-        )
-
-        init = -M
-        end = T - M
-        step = batch_size
-
-        for i in np.arange(0, M, step):
-            if batch:
-                self.bw.observe(data[i : i + step])
-            else:
-                self.bw.observe(data[i])
+        for i in np.arange(0, M):
+            self.bw.observe(init_data[i])
         self.bw.init_nodes()
-        print("Nodes initialized")
+        logger.info("Nodes initialized")
 
         self._getStoreInterface()
 
@@ -75,13 +63,12 @@ class Bubble(Actor):
             ids = self.q_in.get(timeout=0.0005)
 
             # expect ids of size 2 containing data location and frame number
-            new_data = self.client.getID(ids[1])[:,0]
+            new_data = self.client.getID(ids[1])
             self.frame_number = int(ids[0])
 
-            self.bw.observe(new_data.T)
+            self.bw.observe(new_data)
             self.bw.e_step()
             self.bw.grad_Q()
-            #self.links['bq_out'].put()
             self.putOutput()
         except Empty:
             pass
@@ -98,4 +85,6 @@ class Bubble(Actor):
                     np.array(self.bw.pred), "pred" + str(self.frame_number)))
         ids.append(self.client.put(
                     np.array(self.bw.entropy_list), "entropy" + str(self.frame_number)))
+        ids.append(self.client.put(
+                    np.array(self.bw.dead_nodes), "dead_nodes" + str(self.frame_number)))
         self.q_out.put(ids)

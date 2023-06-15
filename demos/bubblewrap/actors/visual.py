@@ -37,8 +37,8 @@ class CaimanVisual(Actor):
         super().__init__(*args)
 
     def setup(self):
-        self.data = np.empty((0,0))
-        self.bw_data = np.empty((0,0))
+        self.data = None
+        self.bw_L = None
 
     def run(self):
         pass  # NOTE: Special case here, tied to GUI
@@ -46,12 +46,15 @@ class CaimanVisual(Actor):
     def getData(self):
         try:
             res = self.q_in.get(timeout=0.0005)
-            #self.links['bq_out'].put()
             bw_res = self.links['bw_in'].get(timeout=0.0005)
             self.data = self.client.getID(res[1])
-            self.bw_data = self.client.getID(bw_res[1])
+            self.bw_L = self.client.getID(bw_res[1])
+            self.bw_mu = self.client.getID(bw_res[2])
+            self.bw_n_obs = self.client.getID(bw_res[3])
+            self.bw_dead_nodes = self.client.getID(bw_res[6])
         except Empty as e:
-            pass
+            return False
         except Exception as e:
             logger.error('Visual: Exception in get data: {}'.format(e))
             logger.error(traceback.format_exc())
+        return True

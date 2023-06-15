@@ -1,9 +1,10 @@
 from improv.actor import Actor, RunManager
 import time
 import numpy as np
-from scipy import io as sio
+import mat73
+import scipy.signal as signal
 from sklearn import random_projection as rp
-from proSVD import proSVD
+from proSVD.proSVD import proSVD
 from queue import Empty
 import logging
 import traceback
@@ -13,77 +14,75 @@ logger.setLevel(logging.INFO)
 
 
 class DimReduction(Actor):
-    def __init__(self, *args, filename=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if not filename: logger.error('Error: Filename not specified')
-        else: self.file = filename
 
     def setup(self):
-        self.dataloc = "./"
-        self.shape = 15000
-        matdict = sio.loadmat(self.dataloc + self.file, squeeze_me=True)
-        spks = matdict["stall"][:, :10]
+        init_id = None
+        while init_id is None:
+            try:
+                init_id = self.q_in.get(timeout = 0.0005)
+            except Empty: pass
+        logger.info("Got init data")
+        my_list = self.client.getID(init_id)
+        dat_shape_0 = my_list[0]
+        dat_init = np.array(my_list[1])
 
-        k = 10      #TODO: put in a config .txt file and read from
-        l1 = k
-        self.l = 10
-        rp_dim = 200
+        bw_id = self.client.put(dat_shape_0, "dat_shape_bw")
+        self.q_out.put(bw_id)
 
-        num_iters = np.ceil((self.shape - l1) / self.l).astype("int")
+        # proSVD params
+        k = 6 # reduced dimension
+        trueSVD = True # whether proSVD should track true SVD basis (a little slower)
+        l = 1 # columns per update
+        l1 = 100 # columns used to initialize
+        decay = 1 # 1 = effective window is all of data
+        num_iters = np.floor((dat_shape_0 - l1 - l)/l).astype('int')
+        bin_size_ms = 10
+        pro_end = int(dat_shape_0/8)
+        M = 20
 
-        self.pro_proj = np.zeros((k, self.shape))
-        self.pro = proSVD.proSVD(k, history=num_iters, trueSVD=True)
-        self.pro.initialize(spks)
-        self.pro_proj[:, :l1] = self.pro.Q.T @ spks
-
-        self.proj_stream_ssSVD = np.zeros(
-            (self.pro.Qs.shape[1], self.pro.Qs.shape[2] * self.l)
-        )
-        proj_stream_SVD = np.zeros(
-            (self.pro.Us.shape[1], self.pro.Us.shape[2] * self.l)
-        )
-        self.projs = [self.proj_stream_ssSVD, proj_stream_SVD]
-        self.bases = [self.pro.Qs, self.pro.Us]
-
-        self.transformer = rp.SparseRandomProjection(n_components=rp_dim)
-
-        # X_rp = self.reduce_sparseRP(spks, transformer=self.transformer)
-        self.pro.updateSVD(spks)
-
-        for i, basis in enumerate(self.bases):
-            curr_basis = basis[:, :, i]  # has first k components
-            curr_neural = spks
-            self.projs[i][:, :l1] = curr_basis.T @ curr_neural
-            logger.info(self.projs[i][:, :l1].shape)
+        # smoothing params
+        kern_sd = 50
+        self.smooth_filt = signal.gaussian(int(6 * kern_sd / bin_size_ms), int(kern_sd / bin_size_ms), sym=True)
+        self.smooth_filt /=  np.sum(self.smooth_filt)
+        data_init_smooth = np.apply_along_axis(lambda x, filt: np.convolve(x, filt, 'same'), 
+                                            0, dat_init, filt=self.smooth_filt)
+        
+        # initialize proSVD
+        self.pro = proSVD(k=k, decay_alpha=decay, trueSVD=trueSVD, history=0)
+        self.pro.initialize(data_init_smooth.T)
+        # storing dimension-reduced data
+        self.data_red = np.zeros((dat_shape_0, k))
+        self.data_red[:l1, :] = data_init_smooth @ self.pro.Q
+        bw_id = self.client.put(self.data_red[:M], "bw_data")
+        self.q_out.put(bw_id)
+        self.pro_diffs = []
+        self.smooth_window = dat_init[l1-len(self.smooth_filt):l1, :]
+        logger.info(self.smooth_window.shape)
 
     def runStep(self):
         try:
             res = self.q_in.get(timeout=0.0005)
-            self.spks = self.client.getID(res[1])[1]
+            data_curr = self.client.getID(res[1])[1]
             self.t = self.client.getID(res[1])[0]
+            start, end = self.t, self.t+self.pro.w_len
+            self.smooth_window[:-1, :] = self.smooth_window[1:, :]
+            self.smooth_window[-1, :] = data_curr
+            dat_smooth = self.smooth_filt @ self.smooth_window
 
-            # X_rp = self.reduce_sparseRP(self.spks, transformer=self.transformer)
-            self.pro.updateSVD(self.spks)
+            self.pro.preupdate()
+            self.pro.updateSVD(dat_smooth[:, None])
+            self.pro.postupdate()
+            self.pro_diffs.append(np.linalg.norm(self.pro.Q-self.pro.Q_prev, axis=0))
 
-            for i, basis in enumerate(self.bases):
-                curr_basis = basis[:, :, i]  # has first k components
-                # aligning neural to Q (depends on l1 and l)
-                curr_neural = self.spks
-                # projecting curr_neural onto curr_Q (our tracked subspace) and on full svd u
-                self.projs[i][:, self.t : self.t + self.l] = curr_basis.T @ curr_neural
-                id = self.client.put(self.projs[i][:, self.t : self.t + self.l],"dim_bubble" + str(self.t))
-                try:
-                    self.q_out.put([str(self.t), id])
-                    logger.info("Putted data in store")
-                except Exception as e:
-                    logger.error("Dimension reduction general exception: {}".format(e))
-                    logger.error(traceback.format_exc())
+            self.data_red[start:end, :] = dat_smooth @ self.pro.Q
+            try:
+                id = self.client.put(self.data_red[self.t], "dim_bubble" + str(self.t))
+                self.q_out.put([str(self.t), id])
+            except Exception as e:
+                logger.error("Dimension reduction general exception: {}".format(e))
+                logger.error(traceback.format_exc())
         except Empty:
             return None
 
-    def reduce_sparseRP(X, comps=100, eps=0.1, transformer=None):
-        np.random.seed(42)
-        if transformer is None:
-            transformer = rp.SparseRandomProjection(n_components=comps, eps=eps)
-        X_new = transformer.fit_transform(X)
-        return X_new
