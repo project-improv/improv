@@ -43,16 +43,14 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
 
         self.plt = self.widget.getPlotItem()
         self.scatter = pyqtgraph.ScatterPlotItem(
-                size=10, brush=pyqtgraph.mkBrush(177, 177, 177),
-                pen = pyqtgraph.mkPen(None)
+                size = 10, brush=pyqtgraph.mkBrush(177, 177, 177),
+                pen = pyqtgraph.mkPen(None),
                 )
         self.data_red = np.empty((0,2))
-        self.prev_switch = None
         self.bw_center = pyqtgraph.ScatterPlotItem(
-        size=10, brush=pyqtgraph.mkBrush(0, 0, 0),
+        size = 25, brush=pyqtgraph.mkBrush(0, 0, 0),
         pen = pyqtgraph.mkPen(None)
         )
-        self.line = pyqtgraph.PlotDataItem(size=10)
 
         # Setup button
         self.pushButton.clicked.connect(_call(self._setup))
@@ -60,41 +58,15 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
         # Run button
         self.pushButton_2.clicked.connect(_call(self._runProcess))
         self.pushButton_2.clicked.connect(_call(self.update)) # Tell Nexus to start
-        # el = QtWidgets.QGraphicsEllipseItem(-4-(12/2), 2-(8/2), 12, 8, self.plt)
-        # el.setBrush(pyqtgraph.mkBrush(QColor(237, 103, 19, int(0.4/1*255))))
-        # el.setPen(pyqtgraph.mkPen(None))
-        # el.setRotation(45)
-        #self.plt.addItem(el)
 
     def update(self):
         try:
             while not self.visual.getData(): pass
-            #self.plotDimRed()
             self.plotBw()
         except Exception as e:
             logger.error('Front End Exception: {}'.format(e))
             logger.error(traceback.format_exc()) 
         QtCore.QTimer.singleShot(10, self.update)
-
-    def plotDimRed(self):
-        newDat = np.array([self.visual.data[0], self.visual.data[1]])
-        self.data_red = np.vstack([self.data_red, newDat])
-        if self.radioButton.isChecked():
-            #check if button was recently pressed
-            if self.prev_switch in ['l', None]:
-                self.plt.removeItem(self.line)
-                self.plt.addItem(self.scatter)
-                self.prev_switch = 's'
-            self.scatter.setData(pos=self.data_red)
-        elif self.radioButton_2.isChecked():
-            if self.prev_switch in ['s', None]:
-                self.plt.removeItem(self.scatter)
-                self.plt.addItem(self.line)
-                self.prev_switch = 'l'
-                self.line.setData(self.data_red)
-
-            
-
 
     def plotBw(self):
         self.plt.clear()
@@ -111,13 +83,14 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
                 width, height = np.sqrt(s[0])*3, np.sqrt(s[1])*3
                 angle = atan2(v[0,1],v[0,0])*360 / (2*np.pi)
                 alpha_mat = 0.4
-                x = self.visual.bw_mu[n,0]-(width/2)
-                y = self.visual.bw_mu[n,1]-(height/2)
-                el = QtWidgets.QGraphicsEllipseItem(x, y, width, height, self.plt)
-                logger.info(f"{el.pos().x()}, {el.pos().y()}")
+                x = self.visual.bw_mu[n,0]
+                y = self.visual.bw_mu[n,1]
+                logger.info(np.array([x,y])+np.array([width,height]))
+                el = QtWidgets.QGraphicsEllipseItem(x-(width/2), y-(height/2), width, height, self.plt)
                 el.setBrush(pyqtgraph.mkBrush(QColor(237, 103, 19, int(alpha_mat/1*255))))
                 el.setPen(pyqtgraph.mkPen(None))
-                #el.setRotation(angle) TODO: fix rotation
+                el.setTransformOriginPoint(x, y)
+                el.setRotation(angle)
                 self.plt.addItem(el)
                 # ax.text(mu[n,0] + .3,mu[n,1] + .3,str(n))
             else: pass
@@ -135,7 +108,6 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
         mask = np.ones(self.visual.bw_mu.shape[0], dtype=bool)
         mask[self.visual.bw_n_obs < .1] = False
         mask[self.visual.bw_dead_nodes] = False
-        logger.info(f"center: {self.visual.bw_mu[mask, 0]}, {self.visual.bw_mu[mask,1]}")
         self.bw_center.setData(x = self.visual.bw_mu[mask, 0], y = self.visual.bw_mu[mask, 1])
         self.plt.addItem(self.bw_center)
 
