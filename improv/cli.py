@@ -239,9 +239,9 @@ def run_server(args):
     )
     curr_dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(
-        f"{curr_dt} Server running on (control, output, log) ports \
-            ({control_port}, {output_port}, {logging_port}).\n\
-            Press Ctrl-C to quit."
+        f"{curr_dt} Server running on (control, output, log) ports "
+        f"({control_port}, {output_port}, {logging_port}).\n"
+        f"Press Ctrl-C to quit."
     )
     server.startNexus()
 
