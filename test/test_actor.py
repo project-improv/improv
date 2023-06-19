@@ -5,7 +5,10 @@ import subprocess
 from improv.link import Link  # , AsyncQueue
 from improv.actor import AbstractActor as Actor
 from improv.store import Store
+from demos.basic.actors.zmqActor import ZmqPSActor, ZmqRRActor
 
+import traceback
+import asyncio
 # set global_variables
 
 pytest.example_string_links = {}
@@ -103,7 +106,8 @@ def test_setStore(setup_store):
 
 
 @pytest.mark.parametrize(
-    "links", [(pytest.example_string_links), ({}), (pytest.example_links), (None)]
+    "links", [(pytest.example_string_links), ({}),
+              (pytest.example_links), (None)]
 )
 def test_setLinks(links):
     """Tests if the actors links can be set to certain values."""
@@ -312,3 +316,55 @@ def test_actor_connection(setup_store):
     act1.q_in.put(msg)
 
     assert act2.q_out.get() == msg
+
+def test_zmq_ps(ip, port):
+    """Tests if we can set the zmq socket and send message."""
+
+    act1 = ZmqPSActor("act1")
+    act2 = ZmqPSActor("act2")
+
+    try:
+        act1.setSendSocket(ip, port)
+        print("act1 set send socket success to ", act1.address)
+    except:
+        traceback.print_exc()
+    try:
+        act2.setRecvSocket(ip, port)
+        print("act2 set recv socket success to ", act2.address)
+    except:
+        traceback.print_exc()
+    # msg = input("input msg:")
+    msg = "hello"
+    try:
+        act1.sendMsg(msg)
+        print("act1 send result:", msg)
+    except:
+        traceback.print_exc()
+    try:
+        recvmsg = act2.recvMsg()
+        print("act2 recv result:", recvmsg)
+    except:
+        traceback.print_exc()
+
+async def test_zmq_rr(ip, port):
+
+    act1 = ZmqRRActor("act1")
+    act2 = ZmqRRActor("act2")
+    act1.setReqSocket(ip, port)
+    print("act1 set req socket success to ", act1.address)
+    act2.setRepSocket(ip, port)
+    print("act2 set rep socket success to ", act2.address)
+    msg = "hello"
+    reply = "world"
+    coro1 = act1.requestMsg(msg)
+    coro2 = act2.replyMsg(reply)
+    result = await asyncio.gather(coro1, coro2)
+    replymsg = result[0]
+    recvmsg = result[1]
+    print("act1 send result:", msg, ", and act2 reply result:", replymsg)
+    print("act2 recv result:", recvmsg)
+
+# write a main function to run the zmq test
+if __name__ == "__main__":
+    test_zmq_ps(ip = "127.0.0.1", port = 5555)
+    asyncio.run(test_zmq_rr(ip = "127.0.0.1", port = 5556))
