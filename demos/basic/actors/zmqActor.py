@@ -22,12 +22,13 @@ class ZmqPSActor(Actor):
         self.address = None
         self.context = None
 
-    def setSendSocket(self, ip, port):
+    def setSendSocket(self, ip, port, timeout=0.001):
         self.context = zmq.Context()
         self.send_socket = self.context.socket(PUB)
         # bind to the socket according to the ip and port
         self.address = "tcp://{}:{}".format(ip, port)
         self.send_socket.bind(self.address)
+        time.sleep(timeout)
         
 
                               
