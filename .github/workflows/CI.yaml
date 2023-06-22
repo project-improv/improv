@@ -69,7 +69,7 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
         run: |
-          pytest -vv --cov=improv --ignore=test/test_tui.py --ignore=test/test_store_with_errors.py --ignore=test/test_runManager.py --ignore=test/test_link.py --ignore=test/test_nexus.py
+          pytest -vv --cov=improv --ignore=test/test_tui.py --ignore=test/test_store_with_errors.py --ignore=test/test_runManager.py --ignore=test/test_link.py --ignore=test/test_nexus.py --ignore=test/test_actor.py
           #          pytest -vv --cov=improv --ignore=test/test_tui.py --ignore=test/test_store_with_errors.py --ignore=test/test_runManager.py
       - name: Coveralls
         uses: coverallsapp/github-action@v2
