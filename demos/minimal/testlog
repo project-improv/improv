@@ -6,3 +6,11 @@ Traceback (most recent call last):
   File "/home/chrisunix/.local/bin/improv", line 5, in <module>
     from improv import default_invocation
 ImportError: cannot import name 'default_invocation' from 'improv' (/home/chrisunix/improv/improv/__init__.py)
+Traceback (most recent call last):
+  File "/home/chrisunix/.local/bin/improv", line 5, in <module>
+    from improv import default_invocation
+ImportError: cannot import name 'default_invocation' from 'improv' (/home/chrisunix/improv/improv/__init__.py)
+Traceback (most recent call last):
+  File "/home/chrisunix/.local/bin/improv", line 5, in <module>
+    from improv import default_invocation
+ImportError: cannot import name 'default_invocation' from 'improv' (/home/chrisunix/improv/improv/__init__.py)
