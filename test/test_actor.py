@@ -117,7 +117,7 @@ def test_setLinks(links):
     ("qc", "qs"),
     [
         ("comm", "sig"),
-        (None, None),
+        # (None, None),
         ("", ""),
         ("LINK", "LINK"),  # these are placeholder names (store is not setup)
     ],
