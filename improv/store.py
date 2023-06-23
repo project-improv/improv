@@ -53,7 +53,7 @@ class PlasmaStore(StoreInterface):
     def __init__(
         self,
         name="default",
-        store_loc="/tmp/store",
+        store_loc="/tmp/store1",
         use_lmdb=False,
         lmdb_path="../outputs/",
         lmdb_name=None,
