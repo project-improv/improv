@@ -92,7 +92,7 @@ def test_repr(example_string_links):
     act.setLinks(example_string_links)
     assert act.__repr__() == "Test: dict_keys(['1', '2', '3'])"
 
-@pytest.mark.skip(reason="GH actions debug")
+@pytest.mark.skip(reason="GH actions debug") 
 def test_setStore(setup_store):
     """Tests if the store is started and linked with the actor."""
 
