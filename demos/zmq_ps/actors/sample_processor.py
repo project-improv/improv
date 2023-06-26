@@ -9,7 +9,8 @@ logger.setLevel(logging.INFO)
 
 
 class Processor(Actor):
-    """Sample processor used to calculate the average of an array of integers.
+    """Sample processor used to calculate the average of an array of integers
+    using sync ZMQ to communicate.
 
     Intended for use with sample_generator.py.
     """
@@ -19,6 +20,7 @@ class Processor(Actor):
 
     def setup(self):
         """Initializes all class variables.
+        Sets up a ZmqRRActor to receive data from the generator.
 
         self.name (string): name of the actor.
         self.frame (ObjectID): Store object id referencing data from the store.
@@ -40,6 +42,7 @@ class Processor(Actor):
 
     def runStep(self):
         """Gets from the input queue and calculates the average.
+        Receives data from the generator using a ZmqRRActor.
 
         Receives an ObjectID, references data in the store using that
         ObjectID, calculates the average of that data, and finally prints

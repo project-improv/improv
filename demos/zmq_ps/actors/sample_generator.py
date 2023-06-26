@@ -10,7 +10,8 @@ logger.setLevel(logging.INFO)
 
 
 class Generator(Actor):
-    """Sample actor to generate data to pass into a sample processor.
+    """Sample actor to generate data to pass into a sample processor
+    using sync ZMQ to communicate.
 
     Intended for use along with sample_processor.py.
     """
@@ -26,6 +27,7 @@ class Generator(Actor):
 
     def setup(self):
         """Generates an array that serves as an initial source of data.
+        Sets up a ZmqPSActor to send data to the processor.
 
         Initial array is a 100 row, 5 column numpy matrix that contains
         integers from 1-99, inclusive.
@@ -45,6 +47,7 @@ class Generator(Actor):
 
     def runStep(self):
         """Generates additional data after initial setup data is exhausted.
+        Sends data to the processor using a ZmqPSActor.
 
         Data is of a different form as the setup data in that although it is
         the same size (5x1 vector), it is uniformly distributed in [1, 10]

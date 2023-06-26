@@ -14,7 +14,10 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 class ZmqPSActor(Actor):
-    """Zmq actor with PUB/SUB pattern."""
+    """
+    Zmq actor with PUB/SUB pattern.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.send_socket = None
@@ -23,6 +26,10 @@ class ZmqPSActor(Actor):
         self.context = None
 
     def setSendSocket(self, ip, port, timeout=0.001):
+        """
+        Sets up the send socket for the actor.
+        """
+
         self.context = zmq.Context()
         self.send_socket = self.context.socket(PUB)
         # bind to the socket according to the ip and port
@@ -33,6 +40,10 @@ class ZmqPSActor(Actor):
 
                               
     def setRecvSocket(self, ip, port, timeout=0.001):
+        """
+        Sets up the receive socket for the actor.
+        """
+
         self.context = zmq.Context()
         self.recv_socket = self.context.socket(SUB)
         self.address = "tcp://{}:{}".format(ip, port)
@@ -41,11 +52,19 @@ class ZmqPSActor(Actor):
         time.sleep(timeout)
                                  
     def sendMsg(self,msg):
+        """
+        Sends a message to the controller.
+        """
+
         self.send_socket.send_pyobj(msg)
         self.send_socket.close()
         self.context.term()
     
     def recvMsg(self):
+        """
+        Receives a message from the controller.
+        """
+
         recv_msg = ""
         while True:
             try:
@@ -68,6 +87,10 @@ class ZmqRRActor(Actor):
         self.context = None
 
     def setReqSocket(self, ip, port, timeout=0.001):
+        """
+        Sets up the request socket for the actor.
+        """
+
         self.context = zmq.asyncio.Context()
         self.req_socket = self.context.socket(REQ)
         # bind to the socket according to the ip and port
@@ -76,6 +99,10 @@ class ZmqRRActor(Actor):
         time.sleep(timeout)
                               
     def setRepSocket(self, ip, port, timeout=0.001):
+        """
+        Sets up the reply socket for the actor.
+        """
+
         self.context = zmq.asyncio.Context()
         self.rep_socket = self.context.socket(REP)
         self.address = "tcp://{}:{}".format(ip, port)
@@ -131,6 +158,9 @@ class ZmqRRActor(Actor):
         return reply
     
     async def replyMsg(self,reply):
+        """
+        Safe version of receive/reply with controller.
+        """
         msg = await self.rep_socket.recv_pyobj()
         await self.rep_socket.send_pyobj(reply)
         self.rep_socket.close()

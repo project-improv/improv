@@ -189,6 +189,9 @@ class AsyncActor(AbstractActor):
         self.actions["stop"] = self.stop
 
     def run(self):
+        """
+        Run the actor in an async loop
+        """
         result = asyncio.run(AsyncRunManager(self.name, self.actions, self.links).run_actor())
         return result
 
