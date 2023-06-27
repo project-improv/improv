@@ -9,6 +9,7 @@ from demos.basic.actors.zmqActor import ZmqPSActor, ZmqRRActor
 
 import traceback
 import asyncio
+
 # set global_variables
 
 pytest.example_string_links = {}
@@ -61,6 +62,22 @@ def example_links(setup_store):
     return pytest.example_links
 
 
+@pytest.fixture()
+def ip():
+    """Fixture to provide an IP test input."""
+
+    pytest.ip = "127.0.0.1"
+    return pytest.ip
+
+
+# @pytest.fixture()
+# def unused_tcp_port():
+#     """Fixture to provide a tcp port test input."""
+
+#     pytest.unused_tcp_port = 5555
+#     return pytest.unused_tcp_port
+
+
 @pytest.mark.parametrize(
     ("attribute", "expected"),
     [
@@ -106,8 +123,7 @@ def test_setStore(setup_store):
 
 
 @pytest.mark.parametrize(
-    "links", [(pytest.example_string_links), ({}),
-              (pytest.example_links), (None)]
+    "links", [(pytest.example_string_links), ({}), (pytest.example_links), (None)]
 )
 def test_setLinks(links):
     """Tests if the actors links can be set to certain values."""
@@ -317,19 +333,20 @@ def test_actor_connection(setup_store):
 
     assert act2.q_out.get() == msg
 
-def test_zmq_ps(ip, port):
-    """Tests if we can set the zmq socket and send message."""
+
+def test_zmq_ps(ip, unused_tcp_port):
+    """Tests if we can set the zmq PUB/SUB socket and send message."""
 
     act1 = ZmqPSActor("act1")
     act2 = ZmqPSActor("act2")
 
     try:
-        act1.setSendSocket(ip, port)
+        act1.setSendSocket(ip, unused_tcp_port)
         print("act1 set send socket success to ", act1.address)
     except:
         traceback.print_exc()
     try:
-        act2.setRecvSocket(ip, port)
+        act2.setRecvSocket(ip, unused_tcp_port)
         print("act2 set recv socket success to ", act2.address)
     except:
         traceback.print_exc()
@@ -346,13 +363,15 @@ def test_zmq_ps(ip, port):
     except:
         traceback.print_exc()
 
-async def test_zmq_rr(ip, port):
+
+async def test_zmq_rr(ip, unused_tcp_port):
+    """Tests if we can set the zmq REQ/REP socket and send message."""
 
     act1 = ZmqRRActor("act1")
     act2 = ZmqRRActor("act2")
-    act1.setReqSocket(ip, port)
+    act1.setReqSocket(ip, unused_tcp_port)
     print("act1 set req socket success to ", act1.address)
-    act2.setRepSocket(ip, port)
+    act2.setRepSocket(ip, unused_tcp_port)
     print("act2 set rep socket success to ", act2.address)
     msg = "hello"
     reply = "world"
@@ -364,7 +383,8 @@ async def test_zmq_rr(ip, port):
     print("act1 send result:", msg, ", and act2 reply result:", replymsg)
     print("act2 recv result:", recvmsg)
 
+
 # write a main function to run the zmq test
 if __name__ == "__main__":
-    test_zmq_ps(ip = "127.0.0.1", port = 5555)
-    asyncio.run(test_zmq_rr(ip = "127.0.0.1", port = 5556))
+    test_zmq_ps(ip="127.0.0.1", unused_tcp_port=5555)
+    asyncio.run(test_zmq_rr(ip="127.0.0.1", unused_tcp_port=5556))

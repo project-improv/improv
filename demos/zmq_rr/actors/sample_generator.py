@@ -61,7 +61,7 @@ class Generator(AsyncActor):
             # logger.info('Put data in store')
             try:
                 # self.q_out.put([[data_id, str(self.frame_num)]])
-                self.publish.setReqSocket(ip = "127.0.0.1", port = 5555)
+                self.publish.setReqSocket(ip="127.0.0.1", port=5555)
                 await self.publish.requestMsg([[data_id, str(self.frame_num)]])
                 # logger.info("Sent message on")
                 self.frame_num += 1

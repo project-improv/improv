@@ -192,7 +192,9 @@ class AsyncActor(AbstractActor):
         """
         Run the actor in an async loop
         """
-        result = asyncio.run(AsyncRunManager(self.name, self.actions, self.links).run_actor())
+        result = asyncio.run(
+            AsyncRunManager(self.name, self.actions, self.links).run_actor()
+        )
         return result
 
     async def setup(self):
@@ -332,8 +334,8 @@ class AsyncRunManager:
         self.q_comm = self.links["q_comm"]
 
         self.runStore = runStore
-        self.timeout = timeout 
-        
+        self.timeout = timeout
+
         self.loop = asyncio.get_event_loop()
         self.start = time.time()
 
@@ -344,68 +346,68 @@ class AsyncRunManager:
     async def run_actor(self):
         while True:
             # Run any actions given a received Signal
-                if self.run:
-                    try:
-                        await self.actions["run"]()
-                    except Exception as e:
-                        logger.error(
-                            "Actor "
-                            + self.actorName
-                            + " exception during run: {}".format(e)
-                        )
-                        logger.error(traceback.format_exc())
-                elif self.stop:
-                    try:
-                        await self.actions["stop"]()
-                    except Exception as e:
-                        logger.error(
-                            "Actor "
-                            + self.actorName
-                            + " exception during stop: {}".format(e)
-                        )
-                        logger.error(traceback.format_exc())
-                    self.stop = False  # Run once
-                elif self.config:
-                    try:
-                        if self.runStore:
-                            self.runStore()
-                        await self.actions["setup"]()
-                        self.q_comm.put([Signal.ready()])
-                    except Exception as e:
-                        logger.error(
-                            "Actor "
-                            + self.actorName
-                            + " exception during setup: {}".format(e)
-                        )
-                        logger.error(traceback.format_exc())
-                    self.config = False
+            if self.run:
+                try:
+                    await self.actions["run"]()
+                except Exception as e:
+                    logger.error(
+                        "Actor "
+                        + self.actorName
+                        + " exception during run: {}".format(e)
+                    )
+                    logger.error(traceback.format_exc())
+            elif self.stop:
+                try:
+                    await self.actions["stop"]()
+                except Exception as e:
+                    logger.error(
+                        "Actor "
+                        + self.actorName
+                        + " exception during stop: {}".format(e)
+                    )
+                    logger.error(traceback.format_exc())
+                self.stop = False  # Run once
+            elif self.config:
+                try:
+                    if self.runStore:
+                        self.runStore()
+                    await self.actions["setup"]()
+                    self.q_comm.put([Signal.ready()])
+                except Exception as e:
+                    logger.error(
+                        "Actor "
+                        + self.actorName
+                        + " exception during setup: {}".format(e)
+                    )
+                    logger.error(traceback.format_exc())
+                self.config = False
 
             # Check for new Signals received from Nexus
-                try:
-                    signal = self.q_sig.get(timeout=self.timeout)
-                    logger.debug("{} received Signal {}".format(self.actorName, signal))
-                    if signal == Signal.run():
-                        self.run = True
-                        logger.warning("Received run signal, begin running")
-                    elif signal == Signal.setup():
-                        self.config = True
-                    elif signal == Signal.stop():
-                        self.run = False
-                        self.stop = True
-                        logger.warning(f"actor {self.actorName} received stop signal")
-                    elif signal == Signal.quit():
-                        logger.warning("Received quit signal, aborting")
-                        break
-                    elif signal == Signal.pause():
-                        logger.warning("Received pause signal, pending...")
-                        self.run = False
-                    elif signal == Signal.resume():  # currently treat as same as run
-                        logger.warning("Received resume signal, resuming")
-                        self.run = True
-                except KeyboardInterrupt:
+            try:
+                signal = self.q_sig.get(timeout=self.timeout)
+                logger.debug("{} received Signal {}".format(self.actorName, signal))
+                if signal == Signal.run():
+                    self.run = True
+                    logger.warning("Received run signal, begin running")
+                elif signal == Signal.setup():
+                    self.config = True
+                elif signal == Signal.stop():
+                    self.run = False
+                    self.stop = True
+                    logger.warning(f"actor {self.actorName} received stop signal")
+                elif signal == Signal.quit():
+                    logger.warning("Received quit signal, aborting")
                     break
-                except Empty:
-                    pass  # No signal from Nexus
+                elif signal == Signal.pause():
+                    logger.warning("Received pause signal, pending...")
+                    self.run = False
+                elif signal == Signal.resume():  # currently treat as same as run
+                    logger.warning("Received resume signal, resuming")
+                    self.run = True
+            except KeyboardInterrupt:
+                break
+            except Empty:
+                pass  # No signal from Nexus
 
         return None
 

@@ -10,8 +10,10 @@ import asyncio
 import time
 
 import logging
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
 
 class ZmqPSActor(Actor):
     """
@@ -37,8 +39,6 @@ class ZmqPSActor(Actor):
         self.send_socket.bind(self.address)
         time.sleep(timeout)
         
-
-                              
     def setRecvSocket(self, ip, port, timeout=0.001):
         """
         Sets up the receive socket for the actor.
@@ -48,10 +48,10 @@ class ZmqPSActor(Actor):
         self.recv_socket = self.context.socket(SUB)
         self.address = "tcp://{}:{}".format(ip, port)
         self.recv_socket.connect(self.address)
-        self.recv_socket.setsockopt(SUBSCRIBE, b'')
+        self.recv_socket.setsockopt(SUBSCRIBE, b"")
         time.sleep(timeout)
-                                 
-    def sendMsg(self,msg):
+
+    def sendMsg(self, msg):
         """
         Sends a message to the controller.
         """
@@ -76,9 +76,12 @@ class ZmqPSActor(Actor):
         self.context.term()
         return recv_msg
 
+
 class ZmqRRActor(Actor):
-    """Zmq actor with REQ/REP pattern."""
-    
+    """
+    Zmq actor with REQ/REP pattern.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.req_socket = None
@@ -97,7 +100,7 @@ class ZmqRRActor(Actor):
         self.address = "tcp://{}:{}".format(ip, port)
         self.req_socket.connect(self.address)
         time.sleep(timeout)
-                              
+
     def setRepSocket(self, ip, port, timeout=0.001):
         """
         Sets up the reply socket for the actor.
@@ -108,11 +111,12 @@ class ZmqRRActor(Actor):
         self.address = "tcp://{}:{}".format(ip, port)
         self.rep_socket.bind(self.address)
         time.sleep(timeout)
-                                 
-    async def requestMsg(self,msg):
+
+    async def requestMsg(self, msg):
         """Safe version of send/receive with controller.
         Based on the Lazy Pirate pattern [here]
-        (https://zguide.zeromq.org/docs/chapter4/#Client-Side-Reliability-Lazy-Pirate-Pattern)"""
+        (https://zguide.zeromq.org/docs/chapter4/#Client-Side-Reliability-Lazy-Pirate-Pattern)
+        """
 
         REQUEST_TIMEOUT = 2500
         REQUEST_RETRIES = 3
@@ -157,7 +161,7 @@ class ZmqRRActor(Actor):
         self.context.term()
         return reply
     
-    async def replyMsg(self,reply):
+    async def replyMsg(self, reply):
         """
         Safe version of receive/reply with controller.
         """

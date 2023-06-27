@@ -53,7 +53,7 @@ class Processor(Actor):
         
         try:
             # frame = self.q_in.get(timeout=0.001)
-            self.subscribe.setRecvSocket(ip = "127.0.0.1", port = 5555)
+            self.subscribe.setRecvSocket(ip="127.0.0.1", port=5555)
             frame = self.subscribe.recvMsg()
             # logger.info(f"Received frame: {frame}")
 

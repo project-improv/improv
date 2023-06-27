@@ -9,7 +9,7 @@ logger.setLevel(logging.INFO)
 
 
 class Processor(AsyncActor):
-    """Sample processor used to calculate the average of an array of integers 
+    """Sample processor used to calculate the average of an array of integers
     using async ZMQ to communicate.
    
     Intended for use with sample_generator.py.
@@ -53,7 +53,7 @@ class Processor(AsyncActor):
         
         try:
             # frame = self.q_in.get(timeout=0.001)
-            self.subscribe.setRepSocket(ip = "127.0.0.1", port = 5555)
+            self.subscribe.setRepSocket(ip ="127.0.0.1", port=5555)
             reply = "received"
             frame = await self.subscribe.replyMsg(reply)
             # logger.info(f"Received frame: {frame}")
