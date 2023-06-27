@@ -7,7 +7,6 @@ from improv.actor import AbstractActor as Actor
 from improv.store import Store
 from demos.basic.actors.zmqActor import ZmqPSActor, ZmqRRActor
 
-import traceback
 import asyncio
 
 # set global_variables
