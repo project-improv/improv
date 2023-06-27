@@ -3,9 +3,7 @@ import asyncio
 import traceback
 import signal
 from queue import Empty
-from typing import Awaitable, Callable
 from improv.store import Store
-import concurrent.futures
 
 import logging
 
