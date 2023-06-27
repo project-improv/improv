@@ -11,7 +11,7 @@ logger.setLevel(logging.INFO)
 class Processor(AsyncActor):
     """Sample processor used to calculate the average of an array of integers
     using async ZMQ to communicate.
-   
+
     Intended for use with sample_generator.py.
     """
 
