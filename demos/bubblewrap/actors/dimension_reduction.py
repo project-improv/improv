@@ -37,9 +37,7 @@ class DimReduction(Actor):
         l = 1 # columns per update
         l1 = 100 # columns used to initialize
         decay = 1 # 1 = effective window is all of data
-        num_iters = np.floor((dat_shape_0 - l1 - l)/l).astype('int')
         bin_size_ms = 10
-        pro_end = int(dat_shape_0/8)
         M = 20
 
         # smoothing params
@@ -59,7 +57,6 @@ class DimReduction(Actor):
         self.q_out.put(bw_id)
         self.pro_diffs = []
         self.smooth_window = dat_init[l1-len(self.smooth_filt):l1, :]
-        logger.info(self.smooth_window.shape)
 
     def runStep(self):
         try:
@@ -79,7 +76,8 @@ class DimReduction(Actor):
             self.data_red[start:end, :] = dat_smooth @ self.pro.Q
             try:
                 id = self.client.put(self.data_red[self.t], "dim_bubble" + str(self.t))
-                self.q_out.put([str(self.t), id])
+                self.q_out.put([int(self.t), id])
+                self.links['v_out'].put([int(self.t), id])
             except Exception as e:
                 logger.error("Dimension reduction general exception: {}".format(e))
                 logger.error(traceback.format_exc())

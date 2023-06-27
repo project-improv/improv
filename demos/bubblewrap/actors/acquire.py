@@ -5,6 +5,7 @@ import mat73
 import time
 import logging
 import traceback
+import time
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -17,7 +18,7 @@ class Acquirer(Actor):
         self.file = filename
         self.frame_num = 0
         self.done = False
-        self.framerate = 1
+        self.framerate = 24
         self.timestamp = []
         self.total_times = []
 
@@ -69,7 +70,6 @@ class Acquirer(Actor):
             frame = self.data[start:end, :]
             t = time.time()
             id = self.client.put([self.t, frame], "acq_bubble" + str(self.frame_num))
-            # logger.info(frame.shape)
             self.timestamp.append([time.time(), self.frame_num])
             try:
                 self.q_out.put([str(self.frame_num), id])
@@ -81,7 +81,7 @@ class Acquirer(Actor):
                 logger.error(traceback.format_exc())
 
 
-            time.sleep(self.framerate)  # pretend framerate
+            time.sleep(1/self.framerate)  # pretend framerate
             self.total_times.append(time.time() - t)
 
         else:  # simulating a done signal from the source

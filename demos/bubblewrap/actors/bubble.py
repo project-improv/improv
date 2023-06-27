@@ -64,7 +64,7 @@ class Bubble(Actor):
 
             # expect ids of size 2 containing data location and frame number
             new_data = self.client.getID(ids[1])
-            self.frame_number = int(ids[0])
+            self.frame_number = ids[0]
 
             self.bw.observe(new_data)
             self.bw.e_step()
@@ -87,4 +87,4 @@ class Bubble(Actor):
                     np.array(self.bw.entropy_list), "entropy" + str(self.frame_number)))
         ids.append(self.client.put(
                     np.array(self.bw.dead_nodes), "dead_nodes" + str(self.frame_number)))
-        self.q_out.put(ids)
+        self.q_out.put([self.frame_number, ids])

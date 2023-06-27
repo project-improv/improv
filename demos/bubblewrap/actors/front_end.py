@@ -61,8 +61,8 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
 
     def update(self):
         try:
-            while not self.visual.getData(): pass
-            self.plotBw()
+            if self.visual.getData():
+                self.plotBw()
         except Exception as e:
             logger.error('Front End Exception: {}'.format(e))
             logger.error(traceback.format_exc()) 
@@ -85,25 +85,12 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
                 alpha_mat = 0.4
                 x = self.visual.bw_mu[n,0]
                 y = self.visual.bw_mu[n,1]
-                logger.info(np.array([x,y])+np.array([width,height]))
                 el = QtWidgets.QGraphicsEllipseItem(x-(width/2), y-(height/2), width, height, self.plt)
                 el.setBrush(pyqtgraph.mkBrush(QColor(237, 103, 19, int(alpha_mat/1*255))))
                 el.setPen(pyqtgraph.mkPen(None))
                 el.setTransformOriginPoint(x, y)
                 el.setRotation(angle)
                 self.plt.addItem(el)
-                # ax.text(mu[n,0] + .3,mu[n,1] + .3,str(n))
-            else: pass
-                # el = np.linalg.inv(L[n])
-                # sig = el.T @ el
-                # u,s,v = np.linalg.svd(sig)
-                # width, height = np.sqrt(s[0])*3, np.sqrt(s[1])*3
-                # angle = atan2(v[0,1],v[0,0])*360 / (2*np.pi)
-                # el = Ellipse((mu[n,0], mu[n,1]), width, height, angle=angle, zorder=8)
-                # el.set_alpha(0.05)
-                # el.set_clip_box(ax.bbox)
-                # el.set_facecolor('#000000')
-                # ax.add_artist(el)
 
         mask = np.ones(self.visual.bw_mu.shape[0], dtype=bool)
         mask[self.visual.bw_n_obs < .1] = False

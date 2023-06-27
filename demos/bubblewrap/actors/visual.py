@@ -45,13 +45,13 @@ class CaimanVisual(Actor):
 
     def getData(self):
         try:
-            res = self.q_in.get(timeout=0.0005)
             bw_res = self.links['bw_in'].get(timeout=0.0005)
+            res = self.q_in.get(timeout=0.0005)
             self.data = self.client.getID(res[1])
-            self.bw_L = self.client.getID(bw_res[1])
-            self.bw_mu = self.client.getID(bw_res[2])
-            self.bw_n_obs = self.client.getID(bw_res[3])
-            self.bw_dead_nodes = self.client.getID(bw_res[6])
+            self.bw_L = self.client.getID(bw_res[1][1])
+            self.bw_mu = self.client.getID(bw_res[1][2])
+            self.bw_n_obs = self.client.getID(bw_res[1][3])
+            self.bw_dead_nodes = self.client.getID(bw_res[1][6])
         except Empty as e:
             return False
         except Exception as e:
