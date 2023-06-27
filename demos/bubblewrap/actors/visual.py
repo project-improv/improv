@@ -44,6 +44,7 @@ class CaimanVisual(Actor):
         pass  # NOTE: Special case here, tied to GUI
 
     def getData(self):
+        """Load data from dim reduction and bubblewrap, returns false on timeout"""
         try:
             bw_res = self.links['bw_in'].get(timeout=0.0005)
             res = self.q_in.get(timeout=0.0005)

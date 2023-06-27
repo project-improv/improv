@@ -23,6 +23,10 @@ class Acquirer(Actor):
         self.total_times = []
 
     def setup(self):
+        """
+        Load data file, parse spike data, then send initalization data to dim reduction
+        Note: A utility function that downloads the required data file can be found in utils.py
+        """
         # get unsorted vs sorted units
         data_dict = mat73.loadmat(self.file)
         units_unsorted = []
@@ -53,7 +57,7 @@ class Acquirer(Actor):
         self.t = l1
         self.num_iters = np.floor((self.data.shape[0] - l1 - self.l)/self.l).astype('int')
 
-
+        #send to dim reduction
         init_id = self.client.put([self.data.shape[0], self.data[:l1, :]], "init_data")
         logger.info("Putted init data")
         self.q_out.put(init_id)
@@ -63,6 +67,7 @@ class Acquirer(Actor):
         logger.info(f"Acquire got through {self.frame_num} frames")
     
     def runStep(self):
+        """Send data to dim reduction one frame at a time"""
         if self.done:
             pass
         elif self.frame_num < self.num_iters:

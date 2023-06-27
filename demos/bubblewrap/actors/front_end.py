@@ -60,6 +60,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
         self.pushButton_2.clicked.connect(_call(self.update)) # Tell Nexus to start
 
     def update(self):
+        """Check if get data is successful, call plotting function and update GUI"""
         try:
             if self.visual.getData():
                 self.plotBw()
@@ -69,14 +70,16 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
         QtCore.QTimer.singleShot(10, self.update)
 
     def plotBw(self):
+        """Function for plotting dim reduced trajectories and bubbles"""
         self.plt.clear()
+        # Dim reduced data plotting
         newDat = np.array([self.visual.data[0], self.visual.data[1]])
         self.data_red = np.vstack([self.data_red, newDat])
         self.scatter.setData(pos=self.data_red)
         self.plt.addItem(self.scatter)
-
+        # bubble plotting
         for n in np.arange(self.visual.bw_L.shape[0]):
-            if n not in self.visual.bw_dead_nodes:
+            if n not in self.visual.bw_dead_nodes:  #ignore dead nodes
                 el = np.linalg.inv(self.visual.bw_L[n])
                 sig = el.T @ el
                 u,s,v = np.linalg.svd(sig)

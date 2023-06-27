@@ -18,6 +18,7 @@ class Bubble(Actor):
 
 
     def setup(self):
+        """Load data from dim reduction and perform node initalization"""
         shape_id = None
         while shape_id is None:
             try:
@@ -59,6 +60,7 @@ class Bubble(Actor):
         self._getStoreInterface()
 
     def runStep(self):
+        """Observe new data from dim reduction and update bubblewrap"""
         try:
             ids = self.q_in.get(timeout=0.0005)
 
@@ -74,7 +76,7 @@ class Bubble(Actor):
             pass
 
     def putOutput(self):
-        # Function for putting updated results into the store
+        """Function for putting updated results into the store"""
         ids = []
         ids.append(self.client.put(np.array(self.bw.A), "A" + str(self.frame_number)))
         ids.append(self.client.put(np.array(self.bw.L), "L" + str(self.frame_number)))

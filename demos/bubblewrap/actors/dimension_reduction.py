@@ -18,6 +18,7 @@ class DimReduction(Actor):
         super().__init__(*args, **kwargs)
 
     def setup(self):
+        """Load initial data from Acquirer, performs initalization and send to bubblewrap"""
         init_id = None
         while init_id is None:
             try:
@@ -54,11 +55,13 @@ class DimReduction(Actor):
         self.data_red = np.zeros((dat_shape_0, k))
         self.data_red[:l1, :] = data_init_smooth @ self.pro.Q
         bw_id = self.client.put(self.data_red[:M], "bw_data")
+        #send to bubblewrap
         self.q_out.put(bw_id)
         self.pro_diffs = []
         self.smooth_window = dat_init[l1-len(self.smooth_filt):l1, :]
 
     def runStep(self):
+        """update proSVD at each step using data from Acquirer and send to bubblewrap"""
         try:
             res = self.q_in.get(timeout=0.0005)
             data_curr = self.client.getID(res[1])[1]
@@ -67,13 +70,14 @@ class DimReduction(Actor):
             self.smooth_window[:-1, :] = self.smooth_window[1:, :]
             self.smooth_window[-1, :] = data_curr
             dat_smooth = self.smooth_filt @ self.smooth_window
-
+            # update proSVD
             self.pro.preupdate()
             self.pro.updateSVD(dat_smooth[:, None])
             self.pro.postupdate()
             self.pro_diffs.append(np.linalg.norm(self.pro.Q-self.pro.Q_prev, axis=0))
 
             self.data_red[start:end, :] = dat_smooth @ self.pro.Q
+            # send to bubblewrap
             try:
                 id = self.client.put(self.data_red[self.t], "dim_bubble" + str(self.t))
                 self.q_out.put([int(self.t), id])
