@@ -38,7 +38,7 @@ class ZmqPSActor(Actor):
         self.address = "tcp://{}:{}".format(ip, port)
         self.send_socket.bind(self.address)
         time.sleep(timeout)
-        
+
     def setRecvSocket(self, ip, port, timeout=0.001):
         """
         Sets up the receive socket for the actor.
@@ -59,7 +59,7 @@ class ZmqPSActor(Actor):
         self.send_socket.send_pyobj(msg)
         self.send_socket.close()
         self.context.term()
-    
+
     def recvMsg(self):
         """
         Receives a message from the controller.
@@ -122,7 +122,7 @@ class ZmqRRActor(Actor):
         REQUEST_RETRIES = 3
 
         retries_left = REQUEST_RETRIES
-        
+
         try:
             logger.info(f"Sending {msg} to controller.")
             await self.req_socket.send_pyobj(msg)
@@ -160,7 +160,7 @@ class ZmqRRActor(Actor):
         self.req_socket.close()
         self.context.term()
         return reply
-    
+
     async def replyMsg(self, reply):
         """
         Safe version of receive/reply with controller.

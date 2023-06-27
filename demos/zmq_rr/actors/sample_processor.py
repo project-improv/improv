@@ -50,10 +50,10 @@ class Processor(AsyncActor):
         """
 
         frame = None
-        
+
         try:
             # frame = self.q_in.get(timeout=0.001)
-            self.subscribe.setRepSocket(ip ="127.0.0.1", port=5555)
+            self.subscribe.setRepSocket(ip="127.0.0.1", port=5555)
             reply = "received"
             frame = await self.subscribe.replyMsg(reply)
             # logger.info(f"Received frame: {frame}")

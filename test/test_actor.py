@@ -362,6 +362,7 @@ def test_zmq_ps(ip, unused_tcp_port):
         print("act2 recv result:", recvmsg)
     except:
         traceback.print_exc()
+    assert recvmsg == msg
 
 
 async def test_zmq_rr(ip, unused_tcp_port):
@@ -382,6 +383,8 @@ async def test_zmq_rr(ip, unused_tcp_port):
     recvmsg = result[1]
     print("act1 send result:", msg, ", and act2 reply result:", replymsg)
     print("act2 recv result:", recvmsg)
+    assert replymsg == reply
+    assert recvmsg == msg
 
 
 # write a main function to run the zmq test

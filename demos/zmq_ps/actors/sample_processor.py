@@ -50,7 +50,7 @@ class Processor(Actor):
         """
 
         frame = None
-        
+
         try:
             # frame = self.q_in.get(timeout=0.001)
             self.subscribe.setRecvSocket(ip="127.0.0.1", port=5555)

@@ -414,12 +414,11 @@ class AsyncRunManager:
     async def __aenter__(self):
         self.start = time.time()
         return self
-    
+
     async def __aexit__(self, type, value, traceback):
         logger.info("Ran for {} seconds".format(time.time() - self.start))
         logger.warning("Exiting AsyncRunManager")
         return None
-   
 
 
 class Signal:
