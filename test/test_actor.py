@@ -339,29 +339,15 @@ def test_zmq_ps(ip, unused_tcp_port):
 
     act1 = ZmqPSActor("act1")
     act2 = ZmqPSActor("act2")
-
-    try:
-        act1.setSendSocket(ip, unused_tcp_port)
-        print("act1 set send socket success to ", act1.address)
-    except Exception as e:
-        traceback.print_exc()
-    try:
-        act2.setRecvSocket(ip, unused_tcp_port)
-        print("act2 set recv socket success to ", act2.address)
-    except Exception as e:
-        traceback.print_exc()
-    # msg = input("input msg:")
+    act1.setSendSocket(ip, unused_tcp_port)
+    print("act1 set send socket success to ", act1.address)
+    act2.setRecvSocket(ip, unused_tcp_port)
+    print("act2 set recv socket success to ", act2.address)
     msg = "hello"
-    try:
-        act1.sendMsg(msg)
-        print("act1 send result:", msg)
-    except Exception as e:
-        traceback.print_exc()
-    try:
-        recvmsg = act2.recvMsg()
-        print("act2 recv result:", recvmsg)
-    except Exception as e:
-        traceback.print_exc()
+    act1.sendMsg(msg)
+    print("act1 send result:", msg)
+    recvmsg = act2.recvMsg()
+    print("act2 recv result:", recvmsg)
     assert recvmsg == msg
 
 
