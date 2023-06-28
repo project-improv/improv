@@ -58,6 +58,10 @@ def example_links(setup_store):
     return pytest.example_links
 
 
+def test_CI_debug():
+    """ For CI debug only; delete afterwards."""
+    assert True
+
 @pytest.mark.parametrize(
     ("attribute", "expected"),
     [
