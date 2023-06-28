@@ -58,13 +58,6 @@ def example_links(setup_store):
     return pytest.example_links
 
 
-def test_CI_debug():
-    """Dummy test for use in CI integration for windows only. Should be skipped later
-    and deleted before any merge into main. 
-    """
-    assert True
-
-        
 @pytest.mark.parametrize(
     ("attribute", "expected"),
     [
