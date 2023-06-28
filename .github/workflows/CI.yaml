@@ -51,7 +51,6 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
         run: |
-          ##          python3 -m pip install --upgrade pip build
           pip install --upgrade pip
           pip install build
           pip install flake8 pytest
