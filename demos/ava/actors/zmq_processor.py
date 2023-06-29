@@ -165,6 +165,7 @@ class AudioProcessor(Actor):
             try:
                 t1 = time.time()
                 audio = self.client.getID(ids[0])
+                print(f"data: {audio}")
                 self.seg_num = self.client.getID(ids[1])
                 t2 = time.time()
                 # Get only filename of segment w/o extension...do in acquire.py instead?
@@ -173,7 +174,6 @@ class AudioProcessor(Actor):
                 spec, dt, f = get_spec(audio, self.params)
                 if self.save_stft:
                     stft_path = os.path.join(self.stfts_path, fname)
-                    os.makedirs(stft_path, exist_ok=True)
                     np.save(os.path.join(stft_path + '.npy'), spec)
                 #
                 # from ava.segment.amplitude_segmentation import get_onsets_offsets...
@@ -240,7 +240,7 @@ class AudioProcessor(Actor):
                                                                                             e, self.seg_num))
                 print(traceback.format_exc())
                 self.dropped_wav.append(self.seg_num)
-            self.proc_total_times.append((time.time() - t)*1000.0)
+            # self.proc_total_times.append((time.time() - t)*1000.0)
         else:
             pass
 
@@ -249,10 +249,24 @@ class AudioProcessor(Actor):
         ''' Check to see if we have .wav — q_in
         '''
         try:
-            res = self.q_in.get(timeout=0.005)
+            # HUGE timeout
+            res = self.q_in.get(timeout=10)
             return res
         #TODO: additional error handling
         except Empty:
+            print("No q_in", self.seg_num)
+            store_info = self.client.get_all()
+            # print(f"store: {store_info}")
+            print(f"notify: {self.client.notify()}")
+            print(f"num objs: {len(store_info)}")
+            obj_ids = store_info.keys()
+            # print(f"objs: {obj_ids}")
+            dsize = []
+            for id in obj_ids:
+                dsize.append(store_info[id]['data_size'])
+            # print(f"size: {np.sum(store_info[obj_ids]['data_size'])}")
+            print(f"size: {np.sum(dsize)}")
+            print(f"size diff: {self.client.get_capacity() - (np.sum(dsize))}")
             pass
             # logger.info('No .wav files for processing')
             # return None

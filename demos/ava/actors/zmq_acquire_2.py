@@ -25,7 +25,7 @@ class ZMQAcquirer(Actor):
         ctx = zmq.Context.instance()
         # self.ctx = zmq.Context()
         self.sock = ctx.socket(zmq.SUB)
-        self.sock.setsockopt_string(zmq.SUBSCRIBE,"")
+        self.sock.setsockopt_string(zmq.SUBSCRIBE, "", encoding="utf-8")
         # self.sock.setsockopt(zmq.SUBSCRIBE,"")
         # Make sure ip_address and port are str
         self.sock.connect("tcp://" + str(ip_address) + ':' + str(port))
@@ -51,9 +51,9 @@ class ZMQAcquirer(Actor):
 
         del self.data_buffer
 
-        print(self.time_opt)
+        # print(self.time_opt)
         values = [self.in_timestamps, self.zmq_acq_total_times, self.zmq_timestamps, self.get_data, self.put_to_store, self.put_out_time]
-        print(values)
+        # print(values)
 
         if self.time_opt is True:
             keys = self.timing
@@ -100,35 +100,50 @@ class ZMQAcquirer(Actor):
 
         try:   
             t1 = time.time()
-            msg = self.sock.recv_multipart()
-            array = np.asarray(msg)
-            curr_data = np.frombuffer(array, dtype=np.int16)
-            self.in_timestamps.append(curr_data[0])
-            curr_data = curr_data[1:]
-            self.data_buffer = np.concatenate((self.data_buffer, curr_data), axis=0)
-            onset = int(self.seg_num*self.seg_dur)
-            offset = int((self.seg_num+1)*self.seg_dur)
-            print(self.data_buffer.size, offset)
-            if self.data_buffer.size >= offset:
-                data = self.data_buffer[onset:offset]
-                t2 = time.time()
-                self.get_data.append((t2 - t1)*1000.0)
-                print(self.get_data)
-                t3 = time.time()
-                data_obj_id = self.client.put(data, 'seg_num_' + str(self.seg_num))
-                seg_obj_id = self.client.put(self.seg_num, 'seg_num_' + str(self.seg_num))
-                t4 = time.time()
-                self.put_to_store.append((t4 - t3)*1000.0)
-                print(self.put_to_store)
-                t5 = time.time()
-                self.q_out.put([data_obj_id, seg_obj_id])
-                self.put_out_time.append((time.time() - t5)*1000.0)
-                print(self.put_out_time)
-                self.data_buffer[onset:offset] = None
-                self.seg_num += 1
-                
-                self.zmq_acq_total_times.append((time.time() - t)*1000.0)
-                print(self.zmq_acq_total_times)
+            try:
+                msg = self.sock.recv_string()
+            except zmq.ZMQError as e:
+                if e.errno == zmq.EAGAIN:
+                    print("no msg ready")
+                    pass  # no message was ready
+                else:
+                    raise  # real error
+            else:
+                # process message
+                # buff = [np.int16(m.bytes.decode("utf-8")) for m in msg]
+                # array = np.asarray(msg)
+                # curr_data = np.frombuffer(array, dtype=np.int16)
+                # self.in_timestamps.append(buff[0])
+                # curr_data = buff[1:]
+                # self.data_buffer = np.concatenate((self.data_buffer, curr_data), axis=0)
+                self.data_buffer.append(np.int16(msg))
+                onset = int(self.seg_num*self.seg_dur)
+                offset = int((self.seg_num+1)*self.seg_dur)
+                # print(self.data_buffer.size, offset)
+                # if self.data_buffer.size >= offset:
+                # print(len(self.data_buffer), offset)
+                if len(self.data_buffer) >= offset:
+                    # print(self.data_buffer)
+                    data = self.data_buffer[onset:offset]
+                    print(data, self.seg_num)
+                    t2 = time.time()
+                    self.get_data.append((t2 - t1)*1000.0)
+                    # print(self.get_data)
+                    t3 = time.time()
+                    data_obj_id = self.client.put(data, 'seg_num_' + str(self.seg_num))
+                    seg_obj_id = self.client.put(self.seg_num, 'seg_num_' + str(self.seg_num))
+                    t4 = time.time()
+                    self.put_to_store.append((t4 - t3)*1000.0)
+                    # print(self.put_to_store)
+                    t5 = time.time()
+                    self.q_out.put([data_obj_id, seg_obj_id])
+                    self.put_out_time.append((time.time() - t5)*1000.0)
+                    # print(self.put_out_time)
+                    # self.data_buffer[onset:offset] = None
+                    self.seg_num += 1
+                    
+                    self.zmq_acq_total_times.append((time.time() - t)*1000.0)
+                    # print(self.zmq_acq_total_times)
 
         except Exception as e:
                 logger.error('Acquirer general exception: {}'.format(e))

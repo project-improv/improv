@@ -3,12 +3,12 @@
 
 actors:
   Acquirer:
-    package: actors.zmq_acquire
+    package: actors.zmq_acquire_deque
     class: ZMQAcquirer
     # n_segs: 447 # for 120 ms segments (weird, Fig 6 = 2 min data x 60 s x 1000 ms = 120000 ms = 1000 segments)
     # folder: /home/eao21/improv/demos/ava/blu291/v3/audio/66/blu291_43532.29693000_03_08_08_14_53/20 # exclude data/blu285/v1/original_data/DIR/birdname_130519_103325.4.wav for embedding new, fit UMAP on 100,000 120 ms (or 60, 120, 180, 240...test min...20 ms - Fig 6 supplement 1 plots)
-    ip_address: 10.122.168.184
-    port: 5555
+    sub_ip: 10.122.168.184
+    sub_port: 5555
     fs: 32000
     win_dur: 20
     time_opt: True
@@ -19,7 +19,7 @@ actors:
       - get_data
       - put_to_store
       - put_out_time
-    out_path: zmq/improv/output/timing/
+    out_path: zmq_4/improv/output/timing/
 
   Processor:
     package: actors.zmq_processor
@@ -64,7 +64,7 @@ actors:
       - z_to_store
       - put_q_out
       - proc_total_times
-    out_path: zmq/improv/output
+    out_path: zmq_4/improv/output
     method: fork
   
   # Analysis:
