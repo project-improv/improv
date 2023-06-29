@@ -96,7 +96,7 @@ class AudioAcquirer(Actor):
             values = [self.acq_total_times, self.acq_timestamps, self.get_wav_time, self.put_wav_time, self.put_out_time]
             timing_dict = dict(zip(keys, values))
             df = pd.DataFrame.from_dict(timing_dict, orient='index').transpose()
-            df.to_csv(os.path.join(self.out_path, 'acq_timing_' + str(self.n_segs) + '.csv'), index=False, header=True)
+            df.to_csv(os.path.join(self.out_path, 'acq_timing_' + str(self.seg_num) + '.csv'), index=False, header=True)
 
         return 0
 
@@ -147,6 +147,7 @@ class AudioAcquirer(Actor):
             warnings.filterwarnings("ignore", category=WavFileWarning)
             fs, audio = wavfile.read(file)
         return fs, audio
+    
 
     def plot_audio(self, audio, fname):
         try:

@@ -18,9 +18,10 @@ import traceback, warnings
 
 from improv.actor import Actor, RunManager
 
-from autoencoded_vocal_analysis.ava.preprocessing.utils import get_spec as get_interp_spec
-from autoencoded_vocal_analysis.ava.segmenting.utils import get_spec
-from autoencoded_vocal_analysis.ava.plotting.shotgun_movie import SimpleDataset
+from ava.models.vae import VAE
+from ava.preprocessing.utils import get_spec as get_interp_spec
+from ava.segmenting.utils import get_spec
+from ava.plotting.shotgun_movie import SimpleDataset
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -83,8 +84,11 @@ class AudioProcessor(Actor):
 
         logger.info('Loading model for ' + self.name)
 
-        t = time.time()        
-        self.model = torch.jit.load(self.model_path).eval().to(self.device)
+        t = time.time()
+        self.model = VAE().eval().to(self.device)
+        self.model.load_state(self.model_path)
+        # self.model = torch.jit.load(self.model_path).eval().to(self.device)
+        # self.model = torch.load(self.model_path).eval().to(self.device)
         torch.cuda.synchronize()
         load_model_time = (time.time() - t)*1000.0
 
@@ -95,7 +99,7 @@ class AudioProcessor(Actor):
                 text_file.close()
 
         t = time.time()
-        sample_input = torch.rand(size=(1, 1, 128, 128), device=self.device)
+        sample_input = torch.rand(size=(1,128,128), device=self.device)
         # self.model = torch.jit.optimize_for_inference(self.model)
         # Still have the high first run??? Why even though warmup in setup?
         with torch.no_grad():
@@ -167,7 +171,6 @@ class AudioProcessor(Actor):
                 fpath = Path(os.path.split(self.client.getID(ids[2]))[1]).stem
                 fname =  '_'.join(fpath.split('_')[:-1])
                 seg = fpath.split('_')[-1]
-                t3 = time.time()
                 spec, dt, f = get_spec(audio, self.params)
                 if self.save_stft:
                     stft_path = os.path.join(self.stfts_path, fname)
@@ -190,11 +193,11 @@ class AudioProcessor(Actor):
 
                 # if amps.max() < self.params['amp_threshold']:
                 #     seg = seg + str('_skip')
-
+                t3 = time.time()
                 spec = self._genSpec(0, self.win_len, audio, fs, self.params)
                 t4 = time.time()
                 # if self.shoulder_spec:
-                #     shoulder_spec = self._genSpec(self.shoulder, self.shoulder+len(audio), audio, fs, self.params)
+                #     shoulder_spec = self._genSpec(self.shoulder, self.shoulder+len(audio), audio, , self.params)
                 if self.save_spec:
                     spec_path = os.path.join(self.specs_path, fname)
                     os.makedirs(spec_path, exist_ok=True)
@@ -204,7 +207,7 @@ class AudioProcessor(Actor):
                 t6 = time.time()
                 latents, t_dev, t_inf = self._runInference(spec)
                 t7 = time.time()
-                latents = latents.detach().cpu().numpy()
+                latents = latents[0].detach().cpu().numpy()
                 t8 = time.time()
                 if self.save_latent:
                     latent_path = os.path.join(self.latents_path, fname)
@@ -315,7 +318,7 @@ class AudioProcessor(Actor):
         to_device = time.time() - t
         with torch.no_grad():
             t = time.time()
-            output = self.model.forward(spec.unsqueeze(0).unsqueeze(0))
+            output = self.model.encode(spec.unsqueeze(0))
             torch.cuda.synchronize()
             inf_time = time.time() - t
 
