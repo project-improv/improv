@@ -235,6 +235,12 @@ class Limbo(StoreInterface):
         '''
         return self.client.list()
 
+    def get_capacity(self):
+        ''' Get the memory capacity of the store
+        '''
+        return self.client.store_capacity()
+
+
     def reset(self):
         ''' Reset client connection
         '''
@@ -326,11 +332,11 @@ class Limbo(StoreInterface):
     #         retcode = self._delete(object_name)
     #         self.stored.pop(object_name)
 
-    # def delete(self, id):
-    #     try:
-    #         self.client.delete([id])
-    #     except Exception as e:
-    #         logger.error('Couldnt delete: {}'.format(e))
+    def delete(self, id):
+        try:
+            self.client.delete([id])
+        except Exception as e:
+            logger.error('Couldnt delete: {}'.format(e))
 
     # Delete below!
     def saveStore(self, fileName='data/store_dump'):
