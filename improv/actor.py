@@ -268,6 +268,7 @@ class RunManager():
                 self.config = False #Run once
             try: 
                 signal = self.q_sig.get(timeout=self.timeout)
+                logger.info(signal)
                 if signal == Spike.run(): 
                     self.run = True
                     logger.warning('Received run signal, begin running')
