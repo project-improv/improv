@@ -6,8 +6,8 @@ from improv.store import ObjectNotFoundError
 from caiman.source_extraction.cnmf.online_cnmf import OnACID
 from caiman.source_extraction.cnmf.params import CNMFParams
 from caiman.utils.visualization import get_contours
+from demos.sample_actors.process import CaimanProcessor
 from queue import Empty
-from improv.actor import Actor, RunManager
 import traceback
 
 import logging
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class OnePProcessor(Actor):
+class OnePProcessor(CaimanProcessor):
     """Using 1p method from Caiman"""
 
     def __init__(self, *args, init_filename="data/tmp.hdf5", config_file=None):
@@ -51,6 +51,15 @@ class OnePProcessor(Actor):
         self.onAc.initialize_online()
         self.max_shifts_online = self.onAc.params.get("online", "max_shifts_online")
 
+        self.fitframe_time = []
+        self.putAnalysis_time = []
+        self.detect_time = []
+        self.shape_time = []
+        self.flag = False
+        self.total_times = []
+        self.timestamp = []
+        self.counter = 0
+
     def loadParams(self, param_file=None):
         """Load parameters from file or 'defaults' into store
         TODO: accept user input from GUI
@@ -70,25 +79,8 @@ class OnePProcessor(Actor):
             logger.exception("Need a config file for Caiman!")
         self.client.put(params_dict, "params_dict")
 
-    def run(self):
-        """Run the processor continually on input frames"""
-        self.fitframe_time = []
-        self.putAnalysis_time = []
-        self.detect_time = []
-        self.shape_time = []
-        self.flag = False
-        self.total_times = []
-        self.timestamp = []
-        self.counter = 0
-
-        with RunManager(
-            self.name, self.runProcess, self.setup, self.q_sig, self.q_comm
-        ) as rm:
-            logger.info(rm)
-
-        print(
-            "Processor broke, avg time per frame: ", np.mean(self.total_times, axis=0)
-        )
+    def stop(self):
+        print("Processor broke, avg time per frame: ", np.mean(self.total_times, axis=0))
         print("Processor got through ", self.frame_number, " frames")
         if not os._exists("output"):
             try:
@@ -103,9 +95,7 @@ class OnePProcessor(Actor):
         np.savetxt("output/timing/process_frame_time.txt", np.array(self.total_times))
         np.savetxt("output/timing/process_timestamp.txt", np.array(self.timestamp))
 
-        np.savetxt(
-            "output/timing/putAnalysis_time.txt", np.array(self.putAnalysis_time)
-        )
+        np.savetxt("output/timing/putAnalysis_time.txt", np.array(self.putAnalysis_time))
 
         self.shape_time = np.array(self.onAc.t_shapes)
         self.detect_time = np.array(self.onAc.t_detect)
@@ -114,7 +104,7 @@ class OnePProcessor(Actor):
         np.savetxt("output/timing/shape_time.txt", self.shape_time)
         np.savetxt("output/timing/detect_time.txt", self.detect_time)
 
-    def runProcess(self):
+    def runStep(self):
         """Run process. Runs once per frame.
         Output is a location in the DS to continually
         place the Estimates results, with ref number that
@@ -138,18 +128,14 @@ class OnePProcessor(Actor):
                 # fit frame
                 t2 = time.time()
                 self.onAc.fit_next(
-                    self.frame_number + init, self.frame.ravel(order="F")
-                )
+                    self.frame_number + init, self.frame.ravel(order="F"))
                 self.fitframe_time.append([time.time() - t2])
 
                 self.putEstimates()
                 self.timestamp.append([time.time(), self.frame_number])
             except ObjectNotFoundError:
-                logger.error(
-                    "Processor: Frame {} unavailable from store, droppping".format(
-                        self.frame_number
-                    )
-                )
+                logger.error("Processor: Frame {} unavailable from store, droppping"
+                             .format(self.frame_number ))
                 self.dropped_frames.append(self.frame_number)
                 self.q_out.put([1])
             except KeyError as e:
@@ -159,9 +145,7 @@ class OnePProcessor(Actor):
             except Exception as e:
                 logger.error(
                     "Processor error: {}: {} during frame number {}".format(
-                        type(e).__name__, e, self.frame_number
-                    )
-                )
+                        type(e).__name__, e, self.frame_number))
                 print(traceback.format_exc())
                 self.dropped_frames.append(self.frame_number)
             self.frame_number += 1
@@ -188,33 +172,19 @@ class OnePProcessor(Actor):
         t4 = time.time()
 
         ids = []
-        ids.append(
-            [
-                self.client.put(self.coords, "coords" + str(self.frame_number)),
-                "coords" + str(self.frame_number),
-            ]
-        )
-        ids.append(
-            [
-                self.client.put(image, "proc_image" + str(self.frame_number)),
-                "proc_image" + str(self.frame_number),
-            ]
-        )
-        ids.append(
-            [
-                self.client.put(C, "C" + str(self.frame_number)),
-                "C" + str(self.frame_number),
-            ]
-        )
+        ids.append([self.client.put(self.coords, "coords" + str(self.frame_number)),
+                "coords" + str(self.frame_number),])
+        ids.append([self.client.put(image, "proc_image" + str(self.frame_number)),
+                "proc_image" + str(self.frame_number),])
+        ids.append([self.client.put(C, "C" + str(self.frame_number)),
+                "C" + str(self.frame_number),])
         ids.append([self.frame_number, str(self.frame_number)])
 
         self.put(ids)
 
         t6 = time.time()
 
-        self.putAnalysis_time.append(
-            [time.time() - t, t2 - t, t3 - t2, t4 - t3, t6 - t4]
-        )
+        self.putAnalysis_time.append([time.time() - t, t2 - t, t3 - t2, t4 - t3, t6 - t4])
 
     def _updateCoords(self, A, dims, num):
         """See if we need to recalculate the coords
@@ -225,9 +195,8 @@ class OnePProcessor(Actor):
             self.coords = get_contours(A, dims)
             self.num = num
 
-        elif (
-            self.num < num
-        ):  # np.shape(A)[1] > np.shape(self.A)[1] and self.frame_number % 200 == 0:
+        elif (self.num < num):  
+            # np.shape(A)[1] > np.shape(self.A)[1] and self.frame_number % 200 == 0:
             # Only recalc if we have new components
             # FIXME: Since this is only for viz, only do this every 100 frames
             # TODO: maybe only recalc coords that are new?
@@ -244,39 +213,22 @@ class OnePProcessor(Actor):
         mn = self.onAc.M - self.onAc.N
         image = self.frame.copy()
         try:
-            components = (
-                self.onAc.estimates.Ab[:, mn:]
-                .dot(
-                    self.onAc.estimates.C_on[mn : self.onAc.M, (self.frame_number - 1)]
-                )
-                .reshape(self.onAc.estimates.dims, order="F")
-            )
+            components = (self.onAc.estimates.Ab[:, mn:]
+                          .dot(self.onAc.estimates.C_on[mn : self.onAc.M, (self.frame_number - 1)])
+                          .reshape(self.onAc.estimates.dims, order="F"))
 
-            ssub_B = self.onAc.params.get("init", "ssub_B") * self.onAc.params.get(
-                "init", "ssub"
-            )
+            ssub_B = self.onAc.params.get("init", "ssub_B") * self.onAc.params.get("init", "ssub")
             if ssub_B == 1:
-                B = (
-                    self.onAc.estimates.W.dot(
-                        (image - components).flatten(order="F") - self.onAc.estimates.b0
-                    )
-                    + self.onAc.estimates.b0
-                )
+                B = (self.onAc.estimates.W.dot((image - components).flatten(order="F") 
+                                               - self.onAc.estimates.b0) + self.onAc.estimates.b0)
                 background = B.reshape(self.onAc.estimates.dims, order="F")
             else:
                 bc2 = self.onAc.estimates.downscale_matrix.dot(
-                    (image - components).flatten(order="F") - self.onAc.estimates.b0
-                )
-                background = (
-                    self.onAc.estimates.b0
-                    + self.onAc.estimates.upscale_matrix.dot(
-                        self.onAc.estimates.W.dot(bc2)
-                    )
-                ).reshape(self.onAc.estimates.dims, order="F")
+                    (image - components).flatten(order="F") - self.onAc.estimates.b0)
+                background = (self.onAc.estimates.b0 + self.onAc.estimates.upscale_matrix.dot(
+                        self.onAc.estimates.W.dot(bc2))).reshape(self.onAc.estimates.dims, order="F")
 
-            image = ((components + background) - self.onAc.bnd_Y[0]) / np.diff(
-                self.onAc.bnd_Y
-            )
+            image = ((components + background) - self.onAc.bnd_Y[0]) / np.diff(self.onAc.bnd_Y)
             image = np.minimum((image * 255.0), 255).astype("u1")
         except ValueError as ve:
             logger.info("ValueError: {0}".format(ve))
