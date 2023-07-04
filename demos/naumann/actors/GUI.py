@@ -4,7 +4,7 @@ from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 from . import improv_fit
 from improv.store import Store
-from improv.actor import Spike
+from improv.actor import Signal
 import numpy as np
 from math import floor
 import time
@@ -23,7 +23,7 @@ logger.setLevel(logging.INFO)
 # TODO: Add ability to receive signals like pause updating ...?
 
 
-class FrontEnd(QtGui.QMainWindow, improv_fit.Ui_MainWindow):
+class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
     COLOR = {
         0: (240, 122, 5),
         1: (181, 240, 5),
@@ -200,12 +200,12 @@ class FrontEnd(QtGui.QMainWindow, improv_fit.Ui_MainWindow):
 
     def _runProcess(self):
         """Run ImageProcessor in separate thread"""
-        self.comm.put([Spike.run()])
+        self.comm.put([Signal.run()])
         logger.info("-------------------------   put run in comm")
         # TODO: grey out button until self.t is done, but allow other buttons to be active
 
     def _setup(self):
-        self.comm.put([Spike.setup()])
+        self.comm.put([Signal.setup()])
         self.visual.setup()
 
     def _loadConfig(self, file):

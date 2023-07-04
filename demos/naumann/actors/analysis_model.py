@@ -1,9 +1,9 @@
-from improv.actor import Actor, Spike, RunManager
+from improv.actor import Actor, Signal, RunManager
 from improv.store import ObjectNotFoundError
 from queue import Empty
 import numpy as np
 import time
-import cv2
+#import cv2
 import colorsys
 import scipy
 
@@ -35,7 +35,7 @@ class ModelAnalysis(Actor):
     def setup(self, param_file=None):
         """ """
         np.seterr(divide="ignore")
-
+        logger.info("Running setup for " + self.name)
         # TODO: same as behaviorAcquisition, need number of stimuli here. Make adaptive later
         self.num_stim = 12
         self.frame = 0
@@ -74,8 +74,15 @@ class ModelAnalysis(Actor):
         self.LL = []
         self.fit_times = []
 
+        self.links = {}
+        self.links['q_sig'] = self.q_sig
+        self.links['q_comm'] = self.q_comm
+        self.actions = {}
+        self.actions['run'] = self.runStep
+        self.actions['setup'] = self.setup
+        
         with RunManager(
-            self.name, self.runStep, self.setup, self.q_sig, self.q_comm
+            self.name, self.actions, self.links
         ) as rm:
             logger.info(rm)
 
@@ -145,7 +152,7 @@ class ModelAnalysis(Actor):
             # Compute coloring of neurons for processed frame
             # Also rotate and stack as needed for plotting
             # TODO: move to viz, but we don't need to compute this 30 times/sec
-            self.color = self.plotColorFrame()
+            #self.color = self.plotColorFrame()
 
             if self.frame >= self.window:
                 window = self.window
@@ -446,7 +453,7 @@ class ModelAnalysis(Actor):
         ids.append(self.client.put(self.Call, "Call" + str(self.frame)))
         ids.append(self.client.put(self.Cpop, "Cpop" + str(self.frame)))
         ids.append(self.client.put(self.tune, "tune" + str(self.frame)))
-        ids.append(self.client.put(self.color, "color" + str(self.frame)))
+        #ids.append(self.client.put(self.color, "color" + str(self.frame)))
         ids.append(self.client.put(self.coordDict, "analys_coords" + str(self.frame)))
         ids.append(self.client.put(self.allStims, "stim" + str(self.frame)))
         ids.append(self.client.put(w, "w" + str(self.frame)))
@@ -500,26 +507,26 @@ class ModelAnalysis(Actor):
 
         self.stimtime.append(time.time() - t)
 
-    def plotColorFrame(self):
-        """Computes colored nicer background+components frame"""
-        t = time.time()
-        image = self.image
-        color = np.stack([image, image, image, image], axis=-1).astype(np.uint8).copy()
-        color[..., 3] = 255
-        # TODO: don't stack image each time?
-        if self.coords is not None:
-            for i, c in enumerate(self.coords):
-                # c = np.array(c)
-                ind = c[~np.isnan(c).any(axis=1)].astype(int)
-                # TODO: Compute all colors simultaneously! then index in...
-                cv2.fillConvexPoly(
-                    color, ind, self._tuningColor(i, color[ind[:, 1], ind[:, 0]])
-                )
+    # def plotColorFrame(self):
+    #     """Computes colored nicer background+components frame"""
+    #     t = time.time()
+    #     image = self.image
+    #     color = np.stack([image, image, image, image], axis=-1).astype(np.uint8).copy()
+    #     color[..., 3] = 255
+    #     # TODO: don't stack image each time?
+    #     if self.coords is not None:
+    #         for i, c in enumerate(self.coords):
+    #             # c = np.array(c)
+    #             ind = c[~np.isnan(c).any(axis=1)].astype(int)
+    #             # TODO: Compute all colors simultaneously! then index in...
+    #             cv2.fillConvexPoly(
+    #                 color, ind, self._tuningColor(i, color[ind[:, 1], ind[:, 0]])
+    #             )
 
-        # TODO: keep list of neural colors. Compute tuning colors and IF NEW, fill ConvexPoly.
+    #     # TODO: keep list of neural colors. Compute tuning colors and IF NEW, fill ConvexPoly.
 
-        self.colortime.append(time.time() - t)
-        return color
+    #     self.colortime.append(time.time() - t)
+    #     return color
 
     def _tuningColor(self, ind, inten):
         """ind identifies the neuron by number"""
