@@ -175,14 +175,12 @@ demos/ava/scripts/gif.py
 demos/ava/scripts/latent_projection_plot.py
 demos/ava/scripts/shotgun_movie.py
 demos/ava/scripts/window_vae_dataset.py
-improv/store.py
-improv/nexus.py
-improv/store.py
 demos/ava/torchscript/ava_vae.py
 demos/ava/scripts/utils.py
 demos/ava/scripts/segment_wav.py
 demos/ava/scripts/merge_bout.py
 demos/ava/scripts/data_container.py
 demos/ava/scripts/concat_wavs.py
-improv/nexus.py
-improv/store.py
+demos/**/**/*.npy
+demos/ava/actors/zmq/zmq*
+demos/ava/actors/zmq/lv_zmq_publisher.py
