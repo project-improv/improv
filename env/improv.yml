@@ -1,0 +1,12 @@
+name: improv
+channels:
+- conda-forge
+dependencies:
+- numpy
+- scipy
+- matplotlib
+- pip
+- pyarrow
+- pyqt
+- python-lmdb
+- pyyaml

@@ -1,0 +1,30 @@
+actors:
+  Acquirer:
+    package: demos.sample_actors.acquire
+    class: FileAcquirer
+    filename: data/Tolias_mesoscope_2.hdf5
+    framerate: 30
+
+  Acquirer:
+    package: demos.sample_actors.acquire
+    class: FileAcquirer
+    filename: data/Tolias_mesoscope_2.hdf5
+    framerate: 15 
+
+  Processor:
+    package: demos.sample_actors.process 
+    class: CaimanProcessor
+
+  Analysis:
+    package: demos.sample_actors.analysis
+    class: MeanAnalysis
+
+  InputStim:
+    package: demos.sample_actors.acquire
+    class: BehaviorAcquirer
+
+
+connections:
+  Acquirer.q_out: [Processor.q_in,]
+  Processor.q_out: [Analysis.q_in]
+  InputStim.q_out: [Analysis.input_stim_queue]
