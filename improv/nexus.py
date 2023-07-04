@@ -4,6 +4,8 @@ import signal
 import time
 import subprocess
 import logging
+import os
+import uuid
 import zmq.asyncio as zmq
 from zmq import PUB, REP, SocketOption
 
@@ -30,6 +32,7 @@ class Nexus:
 
     def __init__(self, name="Server"):
         self.name = name
+        self.store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
 
     def __str__(self):
         return self.name
@@ -59,14 +62,13 @@ class Nexus:
         control_port = int(
             self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT).split(":")[-1]
         )
-
         self._startStore(
             store_size
         )  # default size should be system-dependent; this is 40 GB
         self.out_socket.send_string("Store started")
-
         # connect to store and subscribe to notifications
-        self.store = Store()
+        logger.info("Create new store object")
+        self.store = Store(store_loc=self.store_loc)
         self.store.subscribe()
 
         # LMDB storage
@@ -141,6 +143,7 @@ class Nexus:
 
                 # then give it to our GUI
                 self.createActor(name, m)
+                logger.info("setup the actor GUI {0}, {1}".format(name, m))
                 self.actors[name].setup(visual=self.actors[visualClass])
 
                 self.p_GUI = Process(target=self.actors[name].run, name=name)
@@ -161,7 +164,9 @@ class Nexus:
         for name, actor in self.config.actors.items():
             if name not in self.actors.keys():
                 # Check for actors being instantiated twice
+                logger.info("setup the actor without GUI {0}".format(name))
                 self.createActor(name, actor)
+            logger.info("get the actor without GUI {0}".format(name))
 
         # Second set up each connection b/t actors
         for name, link in self.data_queues.items():
@@ -250,6 +255,15 @@ class Nexus:
         """
         logger.warning("Destroying Nexus")
         self._closeStore()
+        try:
+            os.remove(self.store_loc)
+        except FileNotFoundError:
+            logger.exception(
+                "Store file at location {0} has already been deleted".format(
+                    self.store_loc
+                )
+            )
+        logger.warning("Delete the store at location {0}".format(self.store_loc))
 
     async def pollQueues(self):
         """
@@ -546,11 +560,11 @@ class Nexus:
     def createStore(self, name):
         """Creates Store w/ or w/out LMDB functionality based on {self.use_hdd}."""
         if not self.use_hdd:
-            return Store(name)
+            return Store(name, self.store_loc)
         else:
             if name not in self.store_dict:
                 self.store_dict[name] = Store(
-                    name, use_hdd=True, lmdb_name=self.lmdb_name
+                    name, self.store_loc, use_hdd=True, lmdb_name=self.lmdb_name
                 )
             return self.store_dict[name]
 
@@ -568,7 +582,7 @@ class Nexus:
                 [
                     "plasma_store",
                     "-s",
-                    "/tmp/store",
+                    self.store_loc,
                     "-m",
                     str(size),
                     "-e",
@@ -577,7 +591,9 @@ class Nexus:
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
-            logger.info("Store started successfully")
+            logger.info(
+                "Store started successfully at location: {0}".format(self.store_loc)
+            )
         except Exception as e:
             logger.exception("Store cannot be started: {0}".format(e))
 
@@ -588,7 +604,9 @@ class Nexus:
         try:
             self.p_Store.kill()
             self.p_Store.wait()
-            logger.info("Store closed successfully")
+            logger.info(
+                "Store closed successfully at location: {0}".format(self.store_loc)
+            )
         except Exception as e:
             logger.exception("Cannot close store {0}".format(e))
 
@@ -599,7 +617,7 @@ class Nexus:
         # Instantiate selected class
         mod = import_module(actor.packagename)
         clss = getattr(mod, actor.classname)
-        instance = clss(actor.name, **actor.options)
+        instance = clss(actor.name, self.store_loc, **actor.options)
 
         if "method" in actor.options.keys():
             # check for spawn

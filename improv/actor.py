@@ -19,7 +19,7 @@ class AbstractActor:
     Also needs to be responsive to sent Signals (e.g. run, setup, etc)
     """
 
-    def __init__(self, name, method="fork"):
+    def __init__(self, name, store_loc, method="fork"):
         """Require a name for multiple instances of the same actor/class
         Create initial empty dict of Links for easier referencing
         """
@@ -28,7 +28,7 @@ class AbstractActor:
         self.links = {}
         self.method = method
         self.client = None
-
+        self.store_loc = store_loc
         self.lower_priority = False
 
         # start with no explicit data queues.
@@ -59,7 +59,7 @@ class AbstractActor:
     def _getStoreInterface(self):
         # TODO: Where do we require this be run? Add a Signal and include in RM?
         if not self.client:
-            store = Store(self.name)
+            store = Store(self.name, self.store_loc)
             self.setStore(store)
 
     def setLinks(self, links):

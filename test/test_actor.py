@@ -1,23 +1,30 @@
 import os
 import psutil
 import pytest
+import uuid
 import subprocess
 from improv.link import Link  # , AsyncQueue
 from improv.actor import AbstractActor as Actor
 from improv.store import Store
 
+
 # set global_variables
 
 pytest.example_string_links = {}
 pytest.example_links = {}
+store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
 
 
 @pytest.fixture()
-def setup_store(scope="module"):
-    """Fixture to set up the store subprocess with 10 mb."""
+def set_store_loc():
+    return store_loc
 
+
+@pytest.fixture()
+def setup_store(set_store_loc, scope="module"):
+    """Fixture to set up the store subprocess with 10 mb."""
     p = subprocess.Popen(
-        ["plasma_store", "-s", "/tmp/store", "-m", str(10000000)],
+        ["plasma_store", "-s", set_store_loc, "-m", str(10000000)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
@@ -27,10 +34,10 @@ def setup_store(scope="module"):
 
 
 @pytest.fixture()
-def init_actor():
+def init_actor(set_store_loc):
     """Fixture to initialize and teardown an instance of actor."""
 
-    act = Actor("Test")
+    act = Actor("Test", set_store_loc)
     yield act
     act = None
 
@@ -44,11 +51,13 @@ def example_string_links():
 
 
 @pytest.fixture()
-def example_links(setup_store):
+def example_links(setup_store, set_store_loc):
     """Fixture to provide link objects as test input and setup store."""
-    Store(store_loc="/tmp/store")
+    Store(store_loc=set_store_loc)
 
-    acts = [Actor("act" + str(i)) for i in range(1, 5)]  # range must be even
+    acts = [
+        Actor("act" + str(i), set_store_loc) for i in range(1, 5)
+    ]  # range must be even
 
     links = [
         Link("L" + str(i + 1), acts[i], acts[i + 1]) for i in range(len(acts) // 2)
@@ -85,19 +94,19 @@ def test_repr_default_initialization(init_actor):
     assert rep == "Test: dict_keys([])"
 
 
-def test_repr(example_string_links):
+def test_repr(example_string_links, set_store_loc):
     """Test if the actor representation has the right, nonempty, dict."""
 
-    act = Actor("Test")
+    act = Actor("Test", set_store_loc)
     act.setLinks(example_string_links)
     assert act.__repr__() == "Test: dict_keys(['1', '2', '3'])"
 
 
-def test_setStore(setup_store):
+def test_setStore(setup_store, set_store_loc):
     """Tests if the store is started and linked with the actor."""
 
-    act = Actor("Acquirer")
-    store = Store(store_loc="/tmp/store")
+    act = Actor("Acquirer", set_store_loc)
+    store = Store(store_loc=set_store_loc)
     act.setStore(store.client)
     assert act.client is store.client
 
@@ -105,10 +114,10 @@ def test_setStore(setup_store):
 @pytest.mark.parametrize(
     "links", [(pytest.example_string_links), ({}), (pytest.example_links), (None)]
 )
-def test_setLinks(links):
+def test_setLinks(links, set_store_loc):
     """Tests if the actors links can be set to certain values."""
 
-    act = Actor("test")
+    act = Actor("test", set_store_loc)
     act.setLinks(links)
     assert act.links == links
 
@@ -122,12 +131,12 @@ def test_setLinks(links):
         ("LINK", "LINK"),  # these are placeholder names (store is not setup)
     ],
 )
-def test_setCommLinks(example_links, qc, qs, init_actor, setup_store):
+def test_setCommLinks(example_links, qc, qs, init_actor, setup_store, set_store_loc):
     """Tests if commLinks can be added to the actor"s links."""
 
     if qc == "LINK" and qs == "LINK":
-        qc = Link("L1", Actor("1"), Actor("2"))
-        qs = Link("L2", Actor("3"), Actor("4"))
+        qc = Link("L1", Actor("1", set_store_loc), Actor("2", set_store_loc))
+        qs = Link("L2", Actor("3", set_store_loc), Actor("4", set_store_loc))
     act = init_actor
     act.setLinks(example_links)
     act.setCommLinks(qc, qs)
@@ -205,10 +214,10 @@ def test_setLinkWatch(init_actor, example_string_links, example_links, links, ex
             act.setLinkIn("input_queue")
 
 
-def test_addLink(setup_store):
+def test_addLink(setup_store, set_store_loc):
     """Tests if a link can be added to the dictionary of links."""
 
-    act = Actor("test")
+    act = Actor("test", set_store_loc)
     links = {"1": "one", "2": "two"}
     act.setLinks(links)
     newName = "3"
@@ -290,7 +299,7 @@ def test_changePriority(init_actor):
     assert psutil.Process(os.getpid()).nice() == 19
 
 
-def test_actor_connection(setup_store):
+def test_actor_connection(setup_store, set_store_loc):
     """Test if the links between actors are established correctly.
 
     This test instantiates two actors with different names, then instantiates
@@ -298,11 +307,10 @@ def test_actor_connection(setup_store):
     one actor. Then, in the other actor, it is removed from the queue, and
     checked to verify it matches the original message.
     """
+    act1 = Actor("a1", set_store_loc)
+    act2 = Actor("a2", set_store_loc)
 
-    act1 = Actor("a1")
-    act2 = Actor("a2")
-
-    Store(store_loc="/tmp/store")
+    Store(store_loc=set_store_loc)
     link = Link("L12", act1, act2)
     act1.setLinkIn(link)
     act2.setLinkOut(link)

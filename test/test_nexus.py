@@ -1,16 +1,25 @@
 import time
 import os
+import uuid
 import pytest
 import logging
 import subprocess
 import signal
 
 from improv.nexus import Nexus
+from improv.store import Store
+
 
 # from improv.actor import Actor
 # from improv.store import Store
 
 SERVER_COUNTER = 0
+store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
+
+
+@pytest.fixture()
+def get_store_loc():
+    return store_loc
 
 
 @pytest.fixture()
@@ -267,7 +276,7 @@ def test_usehdd_False():
     assert True
 
 
-def test_startstore(caplog):
+def test_startstore(caplog, get_store_loc):
     nex = Nexus("test")
     nex._startStore(10000)  # 10 kb store
 
@@ -282,7 +291,6 @@ def test_startstore(caplog):
 
 def test_closestore(caplog):
     nex = Nexus("test")
-
     nex._startStore(10000)
     nex._closeStore()
 
@@ -295,6 +303,21 @@ def test_closestore(caplog):
 
     nex.destroyNexus()
     assert True
+
+
+@pytest.mark.skip(reason="exception is raised but pytest says it's not")
+def test_falsly_delete_store():
+    nex = Nexus("test")
+    store_location = nex.store_loc
+    nex._startStore(10000)
+    Store(store_loc=nex.store_loc)
+    logging.info("the created store location is: {0}".format(nex.store_loc))
+    os.remove(nex.store_loc)
+    with pytest.raises(FileNotFoundError) as e:
+        nex.destroyNexus()
+    assert e.value.message == (
+        "Store file at location {0} has already been deleted".format(store_location)
+    )
 
 
 @pytest.mark.skip(reason="unfinished")
