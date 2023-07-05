@@ -256,7 +256,7 @@ class Nexus:
         try:
             os.remove(self.store_loc)
         except FileNotFoundError:
-            logger.exception(
+            logger.warning(
                 "Store file at location {0} has already been deleted".format(
                     self.store_loc
                 )

@@ -305,7 +305,6 @@ def test_closestore(caplog):
     assert True
 
 
-@pytest.mark.skip(reason="exception is raised but pytest says it's not")
 def test_falsly_delete_store():
     nex = Nexus("test")
     store_location = nex.store_loc
