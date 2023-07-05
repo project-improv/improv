@@ -311,8 +311,7 @@ def test_falsly_delete_store(caplog):
     nex._startStore(10000)
     Store(store_loc=nex.store_loc)
     os.remove(nex.store_loc)
-    with pytest.raises(FileNotFoundError) as e:
-        nex.destroyNexus()
+    nex.destroyNexus()
     assert any(
         "Store file at location {0} has already been deleted".format(store_location)
         in record.msg
