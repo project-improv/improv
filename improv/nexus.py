@@ -143,7 +143,6 @@ class Nexus:
 
                 # then give it to our GUI
                 self.createActor(name, m)
-                logger.info("setup the actor GUI {0}, {1}".format(name, m))
                 self.actors[name].setup(visual=self.actors[visualClass])
 
                 self.p_GUI = Process(target=self.actors[name].run, name=name)
@@ -164,9 +163,8 @@ class Nexus:
         for name, actor in self.config.actors.items():
             if name not in self.actors.keys():
                 # Check for actors being instantiated twice
-                logger.info("setup the actor without GUI {0}".format(name))
                 self.createActor(name, actor)
-            logger.info("get the actor without GUI {0}".format(name))
+            logger.info("setup the actor {0}".format(name))
 
         # Second set up each connection b/t actors
         for name, link in self.data_queues.items():

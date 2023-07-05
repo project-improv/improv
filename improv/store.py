@@ -248,7 +248,6 @@ class PlasmaStore(StoreInterface):
 
         :return: Stored object
         """
-        logger.info("aaaaaa{0}".format(self.client.list()))
         # Check in RAM
         if not hdd_only:
             res = self.client.get(obj_id, 0)  # Timeout = 0 ms
