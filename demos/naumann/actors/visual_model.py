@@ -89,7 +89,7 @@ class CaimanVisual(Actor):
         except Empty as e:
             pass
         except Exception as e:
-            logger.error("Visual: Exception in get data: {}".format(e))
+            logger.error("Visual: Exception in get raw data: {}".format(e))
         try:
             ids = self.q_in.get(timeout=0.0001)
             if ids is not None and ids[0] == 1:
@@ -117,7 +117,7 @@ class CaimanVisual(Actor):
         except ObjectNotFoundError as e:
             logger.error("Object not found, continuing anyway...")
         except Exception as e:
-            logger.error("Visual: Exception in get data: {}".format(e))
+            logger.error("Visual: Exception in get frame data: {}".format(e))
 
     def getCurves(self):
         """Return the fluorescence traces and calculated tuning curves
