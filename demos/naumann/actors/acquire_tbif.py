@@ -55,7 +55,7 @@ class FileAcquirer(Actor):
         '''
         self.total_times = []
         self.timestamp = []
-        self.links = {}
+        #self.links = {}
         self.links['q_sig'] = self.q_sig
         self.links['q_comm'] = self.q_comm
         self.actions = {}

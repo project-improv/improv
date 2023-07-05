@@ -74,7 +74,7 @@ class ModelAnalysis(Actor):
         self.LL = []
         self.fit_times = []
 
-        self.links = {}
+        #self.links = {}
         self.links['q_sig'] = self.q_sig
         self.links['q_comm'] = self.q_comm
         self.actions = {}
