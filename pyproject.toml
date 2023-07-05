@@ -58,3 +58,12 @@ per-file-ignores = """
     test/test_link.py:PT012
     """
 exclude = ["demos", "build"]
+
+[tool.black]
+line-length = 88
+exclude = '''
+/(
+    demos
+  | build
+)/
+'''
