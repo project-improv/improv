@@ -32,7 +32,6 @@ class Nexus:
 
     def __init__(self, name="Server"):
         self.name = name
-        self.store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
 
     def __str__(self):
         return self.name
@@ -164,7 +163,7 @@ class Nexus:
             if name not in self.actors.keys():
                 # Check for actors being instantiated twice
                 self.createActor(name, actor)
-            logger.info("setup the actor {0}".format(name))
+                logger.info("setup the actor {0}".format(name))
 
         # Second set up each connection b/t actors
         for name, link in self.data_queues.items():
@@ -576,6 +575,7 @@ class Nexus:
         if size is None:
             raise RuntimeError("Server size needs to be specified")
         try:
+            self.store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
             self.p_Store = subprocess.Popen(
                 [
                     "plasma_store",
