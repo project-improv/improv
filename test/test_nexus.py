@@ -84,7 +84,6 @@ def test_init(setdir):
     # store = setup_store
     nex = Nexus("test")
     assert str(nex) == "test"
-    nex.destroyNexus()
 
 
 def test_createNexus(setdir, ports):
@@ -305,10 +304,10 @@ def test_closestore(caplog):
     assert True
 
 
-def test_falsly_delete_store(caplog):
+def test_store_already_deleted_issues_warning(caplog):
     nex = Nexus("test")
-    store_location = nex.store_loc
     nex._startStore(10000)
+    store_location = nex.store_loc
     Store(store_loc=nex.store_loc)
     os.remove(nex.store_loc)
     nex.destroyNexus()
