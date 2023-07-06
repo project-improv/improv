@@ -32,7 +32,6 @@ class Nexus:
 
     def __init__(self, name="Server"):
         self.name = name
-        self.store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
 
     def __str__(self):
         return self.name
@@ -143,7 +142,6 @@ class Nexus:
 
                 # then give it to our GUI
                 self.createActor(name, m)
-                logger.info("setup the actor GUI {0}, {1}".format(name, m))
                 self.actors[name].setup(visual=self.actors[visualClass])
 
                 self.p_GUI = Process(target=self.actors[name].run, name=name)
@@ -164,9 +162,8 @@ class Nexus:
         for name, actor in self.config.actors.items():
             if name not in self.actors.keys():
                 # Check for actors being instantiated twice
-                logger.info("setup the actor without GUI {0}".format(name))
                 self.createActor(name, actor)
-            logger.info("get the actor without GUI {0}".format(name))
+                logger.info("setup the actor {0}".format(name))
 
         # Second set up each connection b/t actors
         for name, link in self.data_queues.items():
@@ -258,7 +255,7 @@ class Nexus:
         try:
             os.remove(self.store_loc)
         except FileNotFoundError:
-            logger.exception(
+            logger.warning(
                 "Store file at location {0} has already been deleted".format(
                     self.store_loc
                 )
@@ -557,7 +554,7 @@ class Nexus:
 
         logger.info("Polling has stopped.")
 
-    def createStore(self, name):
+    def createStoreInterface(self, name):
         """Creates Store w/ or w/out LMDB functionality based on {self.use_hdd}."""
         if not self.use_hdd:
             return Store(name, self.store_loc)
@@ -578,6 +575,7 @@ class Nexus:
         if size is None:
             raise RuntimeError("Server size needs to be specified")
         try:
+            self.store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
             self.p_Store = subprocess.Popen(
                 [
                     "plasma_store",
@@ -623,20 +621,20 @@ class Nexus:
             # check for spawn
             if "fork" == actor.options["method"]:
                 # Add link to Store store
-                store = self.createStore(actor.name)
+                store = self.createStoreInterface(actor.name)
                 instance.setStore(store)
             else:
                 # spawn or forkserver; can't pickle plasma store
                 logger.info("No store for this actor yet {}".format(name))
         else:
             # Add link to Store store
-            store = self.createStore(actor.name)
+            store = self.createStoreInterface(actor.name)
             instance.setStore(store)
 
         # Add signal and communication links
         # store_arg = [None, None]
         # if self.use_hdd:
-        #     store_arg = [store, self.createStore("default")]
+        #     store_arg = [store, self.createStoreInterface("default")]
 
         q_comm = Link(actor.name + "_comm", actor.name, self.name)
         q_sig = Link(actor.name + "_sig", self.name, actor.name)
@@ -707,8 +705,8 @@ class Nexus:
     def startWatcher(self):
         from improv.watcher import Watcher
 
-        self.watcher = Watcher("watcher", self.createStore("watcher"))
-        # store = self.createStore("watcher") if not self.use_hdd else None
+        self.watcher = Watcher("watcher", self.createStoreInterface("watcher"))
+        # store = self.createStoreInterface("watcher") if not self.use_hdd else None
         q_sig = Link("watcher_sig", self.name, "watcher")
         self.watcher.setLinks(q_sig)
         self.sig_queues.update({q_sig.name: q_sig})

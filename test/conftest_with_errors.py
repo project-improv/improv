@@ -2,14 +2,15 @@
 import subprocess
 import asyncio
 from improv.actor import RunManager, AsyncRunManager
-from improv.utils.utils import get_store_location
+import os
+import uuid
 
 
 class StoreDependentTestCase:
     def set_up(self):
         """Start the server"""
         print("Setting up Plasma store.")
-        store_loc = get_store_location()
+        store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
         self.p = subprocess.Popen(
             ["plasma_store", "-s", store_loc, "-m", str(10000000)],
             stdout=subprocess.DEVNULL,
@@ -27,7 +28,7 @@ class ActorDependentTestCase:
     def set_up(self):
         """Start the server"""
         print("Setting up Plasma store.")
-        store_loc = get_store_location()
+        store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
         self.p = subprocess.Popen(
             ["plasma_store", "-s", store_loc, "-m", str(10000000)],
             stdout=subprocess.DEVNULL,
