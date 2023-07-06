@@ -109,9 +109,11 @@ class PlasmaStore(StoreInterface):
             # Is plasma.PlasmaClient necessary?
             # 20 in plasma.connect(store_loc, 20) = 20 retries
             # self.client: plasma.PlasmaClient = plasma.connect(store_loc, 20)
-            logger.info("Successfully connected to store")
-        except Exception as e:
-            logger.exception("Cannot connect to store: {0}".format(e))
+            logger.info(
+                "Successfully connected to store at locations {0} ".format(store_loc)
+            )
+        except Exception:
+            logger.exception("Cannot connect to store: {0}".format(store_loc))
             raise CannotConnectToStoreError(store_loc)
         return self.client
 
@@ -273,7 +275,7 @@ class PlasmaStore(StoreInterface):
     def reset(self):
         """Reset client connection"""
         self.client = self.connect_store(self.store_loc)
-        logger.debug("Reset local connection to store")
+        logger.debug("Reset local connection to store: {0}".format(self.store_loc))
 
     def release(self):
         self.client.disconnect()

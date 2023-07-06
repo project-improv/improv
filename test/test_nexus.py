@@ -6,6 +6,8 @@ import subprocess
 import signal
 
 from improv.nexus import Nexus
+from improv.store import Store
+
 
 # from improv.actor import Actor
 # from improv.store import Store
@@ -75,7 +77,6 @@ def test_init(setdir):
     # store = setup_store
     nex = Nexus("test")
     assert str(nex) == "test"
-    nex.destroyNexus()
 
 
 def test_createNexus(setdir, ports):
@@ -267,7 +268,7 @@ def test_usehdd_False():
     assert True
 
 
-def test_startstore(caplog):
+def test_startstore(caplog, set_store_loc):
     nex = Nexus("test")
     nex._startStore(10000)  # 10 kb store
 
@@ -282,7 +283,6 @@ def test_startstore(caplog):
 
 def test_closestore(caplog):
     nex = Nexus("test")
-
     nex._startStore(10000)
     nex._closeStore()
 
@@ -295,6 +295,20 @@ def test_closestore(caplog):
 
     nex.destroyNexus()
     assert True
+
+
+def test_store_already_deleted_issues_warning(caplog):
+    nex = Nexus("test")
+    nex._startStore(10000)
+    store_location = nex.store_loc
+    Store(store_loc=nex.store_loc)
+    os.remove(nex.store_loc)
+    nex.destroyNexus()
+    assert any(
+        "Store file at location {0} has already been deleted".format(store_location)
+        in record.msg
+        for record in caplog.records
+    )
 
 
 @pytest.mark.skip(reason="unfinished")
