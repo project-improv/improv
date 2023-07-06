@@ -551,6 +551,7 @@ class CircleROI(EllipseROI):
     def __init__(self, pos, size, **args):
         pyqtgraph.ROI.__init__(self, pos, size, **args)
         self.aspectLocked = True
+        self.path = None
 
 
 class PolyROI(PolyLineROI):
