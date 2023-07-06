@@ -1,7 +1,6 @@
 import os
 import psutil
 import pytest
-import uuid
 import subprocess
 from improv.link import Link  # , AsyncQueue
 from improv.actor import AbstractActor as Actor
@@ -12,12 +11,6 @@ from improv.store import Store
 
 pytest.example_string_links = {}
 pytest.example_links = {}
-store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
-
-
-@pytest.fixture()
-def set_store_loc():
-    return store_loc
 
 
 @pytest.fixture()

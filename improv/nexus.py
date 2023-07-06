@@ -554,7 +554,7 @@ class Nexus:
 
         logger.info("Polling has stopped.")
 
-    def createStore(self, name):
+    def createStoreInterface(self, name):
         """Creates Store w/ or w/out LMDB functionality based on {self.use_hdd}."""
         if not self.use_hdd:
             return Store(name, self.store_loc)
@@ -621,20 +621,20 @@ class Nexus:
             # check for spawn
             if "fork" == actor.options["method"]:
                 # Add link to Store store
-                store = self.createStore(actor.name)
+                store = self.createStoreInterface(actor.name)
                 instance.setStore(store)
             else:
                 # spawn or forkserver; can't pickle plasma store
                 logger.info("No store for this actor yet {}".format(name))
         else:
             # Add link to Store store
-            store = self.createStore(actor.name)
+            store = self.createStoreInterface(actor.name)
             instance.setStore(store)
 
         # Add signal and communication links
         # store_arg = [None, None]
         # if self.use_hdd:
-        #     store_arg = [store, self.createStore("default")]
+        #     store_arg = [store, self.createStoreInterface("default")]
 
         q_comm = Link(actor.name + "_comm", actor.name, self.name)
         q_sig = Link(actor.name + "_sig", self.name, actor.name)
@@ -705,8 +705,8 @@ class Nexus:
     def startWatcher(self):
         from improv.watcher import Watcher
 
-        self.watcher = Watcher("watcher", self.createStore("watcher"))
-        # store = self.createStore("watcher") if not self.use_hdd else None
+        self.watcher = Watcher("watcher", self.createStoreInterface("watcher"))
+        # store = self.createStoreInterface("watcher") if not self.use_hdd else None
         q_sig = Link("watcher_sig", self.name, "watcher")
         self.watcher.setLinks(q_sig)
         self.sig_queues.update({q_sig.name: q_sig})

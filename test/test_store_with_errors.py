@@ -2,8 +2,6 @@ import pytest
 
 # import time
 from improv.store import Store
-import uuid
-import os
 
 # from multiprocessing import Process
 from pyarrow._plasma import PlasmaObjectExists
@@ -20,12 +18,6 @@ from improv.store import CannotConnectToStoreError
 import subprocess
 
 WAIT_TIMEOUT = 10
-store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
-
-
-@pytest.fixture()
-def get_store_loc():
-    return store_loc
 
 
 # TODO: add docstrings!!!
@@ -47,11 +39,11 @@ def get_store_loc():
 
 @pytest.fixture()
 # TODO: put in conftest.py
-def setup_store(get_store_loc):
+def setup_store(set_store_loc):
     """Start the server"""
     print("Setting up Plasma store.")
     p = subprocess.Popen(
-        ["plasma_store", "-s", get_store_loc, "-m", str(10000000)],
+        ["plasma_store", "-s", set_store_loc, "-m", str(10000000)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
@@ -67,12 +59,12 @@ def setup_store(get_store_loc):
     p.wait(WAIT_TIMEOUT)
 
 
-def test_connect(setup_store, get_store_loc):
-    store = Store(store_loc=get_store_loc)
+def test_connect(setup_store, set_store_loc):
+    store = Store(store_loc=set_store_loc)
     assert isinstance(store.client, plasma.PlasmaClient)
 
 
-def test_connect_incorrect_path(setup_store, get_store_loc):
+def test_connect_incorrect_path(setup_store, set_store_loc):
     # TODO: shorter name???
     # TODO: passes, but refactor --- see comments
     store_loc = "asdf"
@@ -115,8 +107,8 @@ def test_connect_none_path(setup_store):
 # TODO: @pytest.parameterize...store.get and store.getID for diff datatypes,
 # pickleable and not, etc.
 # Check raises...CannotGetObjectError (object never stored)
-def test_init_empty(setup_store, get_store_loc):
-    store = Store(store_loc=get_store_loc)
+def test_init_empty(setup_store, set_store_loc):
+    store = Store(store_loc=set_store_loc)
     assert store.get_all() == {}
 
 
@@ -143,9 +135,9 @@ def test_init_empty(setup_store, get_store_loc):
 #                  object_name+': {} {}'.format(type(e).__name__, e))
 
 
-def test_is_csc_matrix_and_put(setup_store, get_store_loc):
+def test_is_csc_matrix_and_put(setup_store, set_store_loc):
     mat = csc_matrix((3, 4), dtype=np.int8)
-    store = Store(store_loc=get_store_loc)
+    store = Store(store_loc=set_store_loc)
     x = store.put(mat, "matrix")
     assert isinstance(store.getID(x), csc_matrix)
 
@@ -172,8 +164,8 @@ def test_is_csc_matrix_and_put(setup_store, get_store_loc):
 
 
 @pytest.mark.skip()
-def test_get_list_and_all(setup_store, get_store_loc):
-    store = Store(store_loc=get_store_loc)
+def test_get_list_and_all(setup_store, set_store_loc):
+    store = Store(store_loc=set_store_loc)
     # id = store.put(1, "one")
     # id2 = store.put(2, "two")
     # id3 = store.put(3, "three")
@@ -196,8 +188,8 @@ def test_get_list_and_all(setup_store, get_store_loc):
 #     # TODO: assert info == 'Refreshing connection and continuing'
 
 
-def test_reset(setup_store, get_store_loc):
-    store = Store(store_loc=get_store_loc)
+def test_reset(setup_store, set_store_loc):
+    store = Store(store_loc=set_store_loc)
     store.reset()
     id = store.put(1, "one")
     assert store.get(id) == 1
@@ -206,8 +198,8 @@ def test_reset(setup_store, get_store_loc):
 # class Store_Put(StoreDependentTestCase):
 
 
-def test_put_one(setup_store, get_store_loc):
-    store = Store(store_loc=get_store_loc)
+def test_put_one(setup_store, set_store_loc):
+    store = Store(store_loc=set_store_loc)
     id = store.put(1, "one")
     assert 1 == store.get(id)
 
@@ -226,8 +218,8 @@ def test_put_twice(setup_store):
 # class Store_PutGet(StoreDependentTestCase):
 
 
-def test_getOne(setup_store, get_store_loc):
-    store = Store(store_loc=get_store_loc)
+def test_getOne(setup_store, set_store_loc):
+    store = Store(store_loc=set_store_loc)
     id = store.put(1, "one")
     assert 1 == store.get(id)
 
