@@ -1,5 +1,3 @@
-# import pytest
-import subprocess
 import os
 import uuid
 import pytest
