@@ -3,7 +3,7 @@ from improv.store import ObjectNotFoundError
 from queue import Empty
 import numpy as np
 import time
-#import cv2
+import cv2
 import colorsys
 import scipy
 
@@ -152,7 +152,7 @@ class ModelAnalysis(Actor):
             # Compute coloring of neurons for processed frame
             # Also rotate and stack as needed for plotting
             # TODO: move to viz, but we don't need to compute this 30 times/sec
-            #self.color = self.plotColorFrame()
+            self.color = self.plotColorFrame()
 
             if self.frame >= self.window:
                 window = self.window
