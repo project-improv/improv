@@ -128,16 +128,16 @@ class CaimanVisualStim(Actor):
             pass
         except Exception as e:
             logger.error('Visual: Exception in get stim for visual: {}'.format(e))
-        try:
-            self.optimized_N, id1, id2 = self.links['optim_in'].get(timeout=0.0001)
-            self.curr_est = self.client.getID(id1)
-            self.curr_unc = self.client.getID(id2)
-            self.selectedNeuron = int(self.optimized_N)
-            print('Visualizing neuron under optimization: ', self.selectedNeuron)
-        except Empty as e:
-            pass
-        except Exception as e:
-            logger.error('Visual: Exception in get stim for visual: {}'.format(e))
+        # try:
+        #     self.optimized_N, id1, id2 = self.links['optim_in'].get(timeout=0.0001)
+        #     self.curr_est = self.client.getID(id1)
+        #     self.curr_unc = self.client.getID(id2)
+        #     self.selectedNeuron = int(self.optimized_N)
+        #     print('Visualizing neuron under optimization: ', self.selectedNeuron)
+        # except Empty as e:
+        #     pass
+        # except Exception as e:
+        #     logger.error('Visual: Exception in get stim for visual: {}'.format(e))
 
     def getCurves(self):
         ''' Return the fluorescence traces and calculated tuning curves
