@@ -59,13 +59,14 @@ class ZMQAcquirer(Actor):
         logger.info("Setting up subscriber for acquisition")
         self.setRecvSocket() 
 
-        logger.info("Initializing lists")
-        self.in_timestamps = []
-        self.zmq_acq_total_times = []
-        self.zmq_timestamps = []
-        self.get_data = []
-        self.put_to_store = []
-        self.put_out_time = []
+        if self.time_opt is True:
+            logger.info("Initializing lists for timing")
+            self.in_timestamps = []
+            self.zmq_acq_total_times = []
+            self.zmq_timestamps = []
+            self.get_data = []
+            self.put_to_store = []
+            self.put_out_time = []
 
         self.dropped_msg = []
         self.ns = deque([], maxlen=int(100))
@@ -79,7 +80,7 @@ class ZMQAcquirer(Actor):
         if self.time_opt is True:
             os.makedirs(self.out_path, exist_ok=True)
 
-        logger.info(f"Completed setup for ZMQAcquirer")
+        logger.info("Completed setup for ZMQAcquirer")
 
 
     def stop(self):
@@ -108,32 +109,31 @@ class ZMQAcquirer(Actor):
 
         return 0
     
+    
     def runStep(self):
         """
         """
+
+        if self.done:
+            pass
 
         t = time.time()
 
         if self.time_opt is True:
             self.zmq_timestamps.append(time.time())
 
-        if self.done:
-            pass
-
         try:   
             t1 = time.time()
 
             logger.info("Receiving msg")
             msg = self.recvMsg()
-            logger.info("Msg received: {msg}")
+            logger.info(f"Msg received: {msg}")
 
             self.data.extend(np.int16(msg[:-1]))
             self.ns.append(int(msg[-1]))
-            logger.info("Data: {self.data}")
-            logger.info("ns: {self.ns}")
+            logger.info(f"data: {self.data}")
+            logger.info(f"ns: {self.ns}")
 
-            print(self.data, '\n', '\n')
-            print(self.ns)
 
             # if np.sum(self.ns) >= int(self.seg_dur) * self.seg_num+1:
             #     t2 = time.time()
@@ -172,8 +172,8 @@ class ZMQAcquirer(Actor):
         #     self.dropped_wav.append(self.seg_num)
         self.zmq_acq_total_times.append((time.time() - t)*1000.0)
 
-        print(f"Acquire broke, avg time per segment: {np.mean(self.zmq_acq_total_times)}")
-        print(f"Acquire got through {self.seg_num} segments")
+        logger.info(f"Acquire broke, avg time per segment: {np.mean(self.zmq_acq_total_times)}")
+        logger.info(f"Acquire got through {self.seg_num} segments")
 
 
     def setRecvSocket(self):
