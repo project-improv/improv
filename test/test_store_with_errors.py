@@ -19,6 +19,7 @@ import subprocess
 
 WAIT_TIMEOUT = 10
 
+
 # TODO: add docstrings!!!
 # TODO: clean up syntax - consistent capitalization, function names, etc.
 # TODO: decide to keep classes
@@ -38,11 +39,11 @@ WAIT_TIMEOUT = 10
 
 @pytest.fixture()
 # TODO: put in conftest.py
-def setup_store(store_loc="/tmp/store"):
+def setup_store(set_store_loc):
     """Start the server"""
     print("Setting up Plasma store.")
     p = subprocess.Popen(
-        ["plasma_store", "-s", store_loc, "-m", str(10000000)],
+        ["plasma_store", "-s", set_store_loc, "-m", str(10000000)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
@@ -58,16 +59,15 @@ def setup_store(store_loc="/tmp/store"):
     p.wait(WAIT_TIMEOUT)
 
 
-def test_connect(setup_store):
-    store = Store()
+def test_connect(setup_store, set_store_loc):
+    store = Store(store_loc=set_store_loc)
     assert isinstance(store.client, plasma.PlasmaClient)
 
 
-def test_connect_incorrect_path(setup_store):
+def test_connect_incorrect_path(setup_store, set_store_loc):
     # TODO: shorter name???
     # TODO: passes, but refactor --- see comments
     store_loc = "asdf"
-    store = Store(store_loc)
     # Handle exception thrown - assert name == 'CannotConnectToStoreError'
     # and message == 'Cannot connect to store at {}'.format(str(store_loc))
     # with pytest.raises(Exception, match='CannotConnectToStoreError') as cm:
@@ -75,6 +75,7 @@ def test_connect_incorrect_path(setup_store):
     #     # Check that the exception thrown is a CannotConnectToStoreError
     #     raise Exception('Cannot connect to store: {0}'.format(e))
     with pytest.raises(CannotConnectToStoreError) as e:
+        store = Store(store_loc=store_loc)
         store.connect_store(store_loc)
         # Check that the exception thrown is a CannotConnectToStoreError
     assert e.value.message == "Cannot connect to store at {}".format(str(store_loc))
@@ -83,7 +84,6 @@ def test_connect_incorrect_path(setup_store):
 def test_connect_none_path(setup_store):
     # BUT default should be store_loc = '/tmp/store' if not entered?
     store_loc = None
-    store = Store(store_loc)
     # Handle exception thrown - assert name == 'CannotConnectToStoreError'
     # and message == 'Cannot connect to store at {}'.format(str(store_loc))
     # with pytest.raises(Exception) as cm:
@@ -95,6 +95,7 @@ def test_connect_none_path(setup_store):
     # Check that the exception thrown is a CannotConnectToStoreError
     #     raise Exception('Cannot connect to store: {0}'.format(e))
     with pytest.raises(CannotConnectToStoreError) as e:
+        store = Store(store_loc=store_loc)
         store.connect_store(store_loc)
         # Check that the exception thrown is a CannotConnectToStoreError
     assert e.value.message == "Cannot connect to store at {}".format(str(store_loc))
@@ -106,8 +107,8 @@ def test_connect_none_path(setup_store):
 # TODO: @pytest.parameterize...store.get and store.getID for diff datatypes,
 # pickleable and not, etc.
 # Check raises...CannotGetObjectError (object never stored)
-def test_init_empty(setup_store):
-    store = Store()
+def test_init_empty(setup_store, set_store_loc):
+    store = Store(store_loc=set_store_loc)
     assert store.get_all() == {}
 
 
@@ -134,10 +135,9 @@ def test_init_empty(setup_store):
 #                  object_name+': {} {}'.format(type(e).__name__, e))
 
 
-def test_is_csc_matrix_and_put(setup_store):
+def test_is_csc_matrix_and_put(setup_store, set_store_loc):
     mat = csc_matrix((3, 4), dtype=np.int8)
-    store_loc = "/tmp/store"
-    store = Store(store_loc)
+    store = Store(store_loc=set_store_loc)
     x = store.put(mat, "matrix")
     assert isinstance(store.getID(x), csc_matrix)
 
@@ -164,8 +164,8 @@ def test_is_csc_matrix_and_put(setup_store):
 
 
 @pytest.mark.skip()
-def test_get_list_and_all(setup_store):
-    store = Store()
+def test_get_list_and_all(setup_store, set_store_loc):
+    store = Store(store_loc=set_store_loc)
     # id = store.put(1, "one")
     # id2 = store.put(2, "two")
     # id3 = store.put(3, "three")
@@ -188,8 +188,8 @@ def test_get_list_and_all(setup_store):
 #     # TODO: assert info == 'Refreshing connection and continuing'
 
 
-def test_reset(setup_store):
-    store = Store()
+def test_reset(setup_store, set_store_loc):
+    store = Store(store_loc=set_store_loc)
     store.reset()
     id = store.put(1, "one")
     assert store.get(id) == 1
@@ -198,8 +198,8 @@ def test_reset(setup_store):
 # class Store_Put(StoreDependentTestCase):
 
 
-def test_put_one(setup_store):
-    store = Store()
+def test_put_one(setup_store, set_store_loc):
+    store = Store(store_loc=set_store_loc)
     id = store.put(1, "one")
     assert 1 == store.get(id)
 
@@ -218,8 +218,8 @@ def test_put_twice(setup_store):
 # class Store_PutGet(StoreDependentTestCase):
 
 
-def test_getOne(setup_store):
-    store = Store()
+def test_getOne(setup_store, set_store_loc):
+    store = Store(store_loc=set_store_loc)
     id = store.put(1, "one")
     assert 1 == store.get(id)
 
