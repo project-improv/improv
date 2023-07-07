@@ -555,7 +555,8 @@ class Nexus:
         logger.info("Polling has stopped.")
 
     def createStoreInterface(self, name):
-        """Creates StoreInterface w/ or w/out LMDB functionality based on {self.use_hdd}."""
+        """Creates StoreInterface w/ or w/out LMDB
+        functionality based on {self.use_hdd}."""
         if not self.use_hdd:
             return StoreInterface(name, self.store_loc)
         else:
@@ -590,7 +591,9 @@ class Nexus:
                 stderr=subprocess.DEVNULL,
             )
             logger.info(
-                "StoreInterface started successfully at location: {0}".format(self.store_loc)
+                "StoreInterface started successfully at location: {0}".format(
+                    self.store_loc
+                )
             )
         except Exception as e:
             logger.exception("StoreInterface cannot be started: {0}".format(e))
@@ -603,7 +606,9 @@ class Nexus:
             self.p_StoreInterface.kill()
             self.p_StoreInterface.wait()
             logger.info(
-                "StoreInterface closed successfully at location: {0}".format(self.store_loc)
+                "StoreInterface closed successfully at location: {0}".format(
+                    self.store_loc
+                )
             )
         except Exception as e:
             logger.exception("Cannot close store {0}".format(e))

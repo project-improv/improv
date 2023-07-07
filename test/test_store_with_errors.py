@@ -34,8 +34,6 @@ WAIT_TIMEOUT = 10
 
 # store_loc = '/dev/shm'
 
-# FIXME: some commented out tests use StoreInterface --> need to be renamed StoreInterface if used
-
 
 @pytest.fixture()
 # TODO: put in conftest.py

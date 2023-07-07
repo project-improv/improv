@@ -456,10 +456,12 @@ class LMDBStoreInterface(StoreInterface):
             try:
                 if isinstance(key, str) or isinstance(key, ObjectID):
                     return self._get_one(
-                        LMDBStoreInterface._convert_obj_id_to_bytes(key), include_metadata
+                        LMDBStoreInterface._convert_obj_id_to_bytes(key),
+                        include_metadata,
                     )
                 return self._get_batch(
-                    list(map(LMDBStoreInterface._convert_obj_id_to_bytes, key)), include_metadata
+                    list(map(LMDBStoreInterface._convert_obj_id_to_bytes, key)),
+                    include_metadata,
                 )
             except (
                 lmdb.BadRslotError
