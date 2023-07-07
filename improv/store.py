@@ -43,7 +43,7 @@ class StoreInterface:
         raise NotImplementedError
 
 
-class PlasmaStore(StoreInterface):
+class PlasmaStoreInterface(StoreInterface):
     """Basic interface for our specific data store implemented with apache arrow plasma
     Objects are stored with object_ids
     References to objects are contained in a dict where key is shortname,
@@ -62,7 +62,7 @@ class PlasmaStore(StoreInterface):
         commit_freq=1,
     ):
         """
-        Constructor for the Store
+        Constructor for the StoreInterface
 
         :param name:
         :param store_loc: Apache Arrow Plasma client location
@@ -90,7 +90,7 @@ class PlasmaStore(StoreInterface):
         self.flush_immediately = flush_immediately
 
         if use_lmdb:
-            self.lmdb_store = LMDBStore(
+            self.lmdb_store = LMDBStoreInterface(
                 path=lmdb_path,
                 name=lmdb_name,
                 max_size=hdd_maxstore,
@@ -114,7 +114,7 @@ class PlasmaStore(StoreInterface):
             )
         except Exception:
             logger.exception("Cannot connect to store: {0}".format(store_loc))
-            raise CannotConnectToStoreError(store_loc)
+            raise CannotConnectToStoreInterfaceError(store_loc)
         return self.client
 
     def put(self, object, object_name, flush_this_immediately=False):
@@ -188,7 +188,7 @@ class PlasmaStore(StoreInterface):
         #                                                  protocol=pickle.HIGHEST_PROTOCOL))
         #     else:
         #         object_id = self.client.put(object)
-        #     self.updateStored(object_name, object_id)
+        #     self.updateStoreInterfaced(object_name, object_id)
 
         # except SerializationCallbackError:
         #     if isinstance(obj, csc_matrix):  # Ignore rest
@@ -246,7 +246,7 @@ class PlasmaStore(StoreInterface):
 
         :raises ObjectNotFoundError
 
-        :return: Stored object
+        :return: StoreInterfaced object
         """
         # Check in RAM
         if not hdd_only:
@@ -314,14 +314,14 @@ class PlasmaStore(StoreInterface):
             ids.append(plasma.ObjectID(np.random.bytes(20)))
         return ids
 
-    def updateStored(self, object_name, object_id):
+    def updateStoreInterfaced(self, object_name, object_id):
         """Update local dict with info we need locally
         Report to Nexus that we updated the store
             (did a put or delete/replace)
         """
         self.stored.update({object_name: object_id})
 
-    def getStored(self):
+    def getStoreInterfaced(self):
         """returns its info about what it has stored"""
         return self.stored
 
@@ -354,7 +354,7 @@ class PlasmaStore(StoreInterface):
     #         logger.error('Couldnt delete: {}'.format(e))
 
     # Delete below!
-    def saveStore(self, fileName="data/store_dump"):
+    def saveStoreInterface(self, fileName="data/store_dump"):
         """Save the entire store to disk
         Uses pickle, should extend to mmap, hd5f, ...
         """
@@ -385,7 +385,7 @@ class PlasmaStore(StoreInterface):
             pickle.dump(obj, output)
 
 
-class LMDBStore(StoreInterface):
+class LMDBStoreInterface(StoreInterface):
     def __init__(
         self,
         path="../outputs/",
@@ -456,10 +456,10 @@ class LMDBStore(StoreInterface):
             try:
                 if isinstance(key, str) or isinstance(key, ObjectID):
                     return self._get_one(
-                        LMDBStore._convert_obj_id_to_bytes(key), include_metadata
+                        LMDBStoreInterface._convert_obj_id_to_bytes(key), include_metadata
                     )
                 return self._get_batch(
-                    list(map(LMDBStore._convert_obj_id_to_bytes, key)), include_metadata
+                    list(map(LMDBStoreInterface._convert_obj_id_to_bytes, key)), include_metadata
                 )
             except (
                 lmdb.BadRslotError
@@ -563,7 +563,7 @@ class LMDBStore(StoreInterface):
         """
 
         with self.lmdb_env.begin(write=True) as txn:
-            out = txn.pop(LMDBStore._convert_obj_id_to_bytes(obj_id))
+            out = txn.pop(LMDBStoreInterface._convert_obj_id_to_bytes(obj_id))
         if out is None:
             raise ObjectNotFoundError
 
@@ -582,7 +582,7 @@ class LMDBStore(StoreInterface):
 
 
 # Aliasing
-Store = PlasmaStore
+StoreInterface = PlasmaStoreInterface
 
 
 @dataclass
@@ -637,13 +637,13 @@ class CannotGetObjectError(Exception):
         return self.message
 
 
-class CannotConnectToStoreError(Exception):
+class CannotConnectToStoreInterfaceError(Exception):
     """Raised when failing to connect to store."""
 
     def __init__(self, store_loc):
         super().__init__()
 
-        self.name = "CannotConnectToStoreError"
+        self.name = "CannotConnectToStoreInterfaceError"
 
         self.message = "Cannot connect to store at {}".format(str(store_loc))
 

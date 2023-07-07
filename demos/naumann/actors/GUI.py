@@ -3,7 +3,7 @@ from PyQt5.QtGui import QColor, QPixmap
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 from . import improv_fit
-from improv.store import Store
+from improv.store import StoreInterface
 from improv.actor import Spike
 import numpy as np
 from math import floor

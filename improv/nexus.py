@@ -14,7 +14,7 @@ from importlib import import_module
 from queue import Full
 from datetime import datetime
 
-from improv.store import Store
+from improv.store import StoreInterface
 from improv.actor import Signal
 from improv.config import Config
 from improv.link import Link, MultiLink
@@ -61,13 +61,13 @@ class Nexus:
         control_port = int(
             self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT).split(":")[-1]
         )
-        self._startStore(
+        self._startStoreInterface(
             store_size
         )  # default size should be system-dependent; this is 40 GB
-        self.out_socket.send_string("Store started")
+        self.out_socket.send_string("StoreInterface started")
         # connect to store and subscribe to notifications
         logger.info("Create new store object")
-        self.store = Store(store_loc=self.store_loc)
+        self.store = StoreInterface(store_loc=self.store_loc)
         self.store.subscribe()
 
         # LMDB storage
@@ -251,12 +251,12 @@ class Nexus:
         to kill the process running the store (plasma server)
         """
         logger.warning("Destroying Nexus")
-        self._closeStore()
+        self._closeStoreInterface()
         try:
             os.remove(self.store_loc)
         except FileNotFoundError:
             logger.warning(
-                "Store file at location {0} has already been deleted".format(
+                "StoreInterface file at location {0} has already been deleted".format(
                     self.store_loc
                 )
             )
@@ -413,7 +413,7 @@ class Nexus:
                                     p.daemon = True
                     # Setting the stores for each actor to be the same
                     # TODO: test if this works for fork -- don't think it does?
-                    m.setStore(
+                    m.setStoreInterface(
                         [act for act in self.actors.values() if act.name != pro.name][
                             0
                         ].client
@@ -555,17 +555,17 @@ class Nexus:
         logger.info("Polling has stopped.")
 
     def createStoreInterface(self, name):
-        """Creates Store w/ or w/out LMDB functionality based on {self.use_hdd}."""
+        """Creates StoreInterface w/ or w/out LMDB functionality based on {self.use_hdd}."""
         if not self.use_hdd:
-            return Store(name, self.store_loc)
+            return StoreInterface(name, self.store_loc)
         else:
             if name not in self.store_dict:
-                self.store_dict[name] = Store(
+                self.store_dict[name] = StoreInterface(
                     name, self.store_loc, use_hdd=True, lmdb_name=self.lmdb_name
                 )
             return self.store_dict[name]
 
-    def _startStore(self, size):
+    def _startStoreInterface(self, size):
         """Start a subprocess that runs the plasma store
         Raises a RuntimeError exception size is undefined
         Raises an Exception if the plasma store doesn't start
@@ -576,7 +576,7 @@ class Nexus:
             raise RuntimeError("Server size needs to be specified")
         try:
             self.store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
-            self.p_Store = subprocess.Popen(
+            self.p_StoreInterface = subprocess.Popen(
                 [
                     "plasma_store",
                     "-s",
@@ -590,20 +590,20 @@ class Nexus:
                 stderr=subprocess.DEVNULL,
             )
             logger.info(
-                "Store started successfully at location: {0}".format(self.store_loc)
+                "StoreInterface started successfully at location: {0}".format(self.store_loc)
             )
         except Exception as e:
-            logger.exception("Store cannot be started: {0}".format(e))
+            logger.exception("StoreInterface cannot be started: {0}".format(e))
 
-    def _closeStore(self):
+    def _closeStoreInterface(self):
         """Internal method to kill the subprocess
         running the store (plasma sever)
         """
         try:
-            self.p_Store.kill()
-            self.p_Store.wait()
+            self.p_StoreInterface.kill()
+            self.p_StoreInterface.wait()
             logger.info(
-                "Store closed successfully at location: {0}".format(self.store_loc)
+                "StoreInterface closed successfully at location: {0}".format(self.store_loc)
             )
         except Exception as e:
             logger.exception("Cannot close store {0}".format(e))
@@ -620,16 +620,16 @@ class Nexus:
         if "method" in actor.options.keys():
             # check for spawn
             if "fork" == actor.options["method"]:
-                # Add link to Store store
+                # Add link to StoreInterface store
                 store = self.createStoreInterface(actor.name)
-                instance.setStore(store)
+                instance.setStoreInterface(store)
             else:
                 # spawn or forkserver; can't pickle plasma store
                 logger.info("No store for this actor yet {}".format(name))
         else:
-            # Add link to Store store
+            # Add link to StoreInterface store
             store = self.createStoreInterface(actor.name)
-            instance.setStore(store)
+            instance.setStoreInterface(store)
 
         # Add signal and communication links
         # store_arg = [None, None]
@@ -692,7 +692,7 @@ class Nexus:
     # Appears depricated? FIXME
     # def createWatcher(self, watchin):
     #     watcher= BasicWatcher('Watcher', inputs=watchin)
-    #     watcher.setStore(store.Store(watcher.name))
+    #     watcher.setStoreInterface(store.StoreInterface(watcher.name))
     #     q_comm = Link('Watcher_comm', watcher.name, self.name)
     #     q_sig = Link('Watcher_sig', self.name, watcher.name)
     #     self.comm_queues.update({q_comm.name:q_comm})
@@ -701,7 +701,7 @@ class Nexus:
 
     #     self.actors.update({watcher.name: watcher})
 
-    # TODO: Store access here seems wrong, need to test
+    # TODO: StoreInterface access here seems wrong, need to test
     def startWatcher(self):
         from improv.watcher import Watcher
 

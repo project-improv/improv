@@ -1,7 +1,7 @@
 import pytest
 
 # import time
-from improv.store import Store
+from improv.store import StoreInterface
 
 # from multiprocessing import Process
 from pyarrow._plasma import PlasmaObjectExists
@@ -12,7 +12,7 @@ import pyarrow.plasma as plasma
 # from pyarrow.lib import ArrowIOError
 # from improv.store import ObjectNotFoundError
 # from improv.store import CannotGetObjectError
-from improv.store import CannotConnectToStoreError
+from improv.store import CannotConnectToStoreInterfaceError
 
 # import pickle
 import subprocess
@@ -34,7 +34,7 @@ WAIT_TIMEOUT = 10
 
 # store_loc = '/dev/shm'
 
-# FIXME: some commented out tests use Store --> need to be renamed Store if used
+# FIXME: some commented out tests use StoreInterface --> need to be renamed StoreInterface if used
 
 
 @pytest.fixture()
@@ -60,7 +60,7 @@ def setup_store(set_store_loc):
 
 
 def test_connect(setup_store, set_store_loc):
-    store = Store(store_loc=set_store_loc)
+    store = StoreInterface(store_loc=set_store_loc)
     assert isinstance(store.client, plasma.PlasmaClient)
 
 
@@ -68,51 +68,51 @@ def test_connect_incorrect_path(setup_store, set_store_loc):
     # TODO: shorter name???
     # TODO: passes, but refactor --- see comments
     store_loc = "asdf"
-    # Handle exception thrown - assert name == 'CannotConnectToStoreError'
+    # Handle exception thrown - assert name == 'CannotConnectToStoreInterfaceError'
     # and message == 'Cannot connect to store at {}'.format(str(store_loc))
-    # with pytest.raises(Exception, match='CannotConnectToStoreError') as cm:
+    # with pytest.raises(Exception, match='CannotConnectToStoreInterfaceError') as cm:
     #     store.connect_store(store_loc)
-    #     # Check that the exception thrown is a CannotConnectToStoreError
+    #     # Check that the exception thrown is a CannotConnectToStoreInterfaceError
     #     raise Exception('Cannot connect to store: {0}'.format(e))
-    with pytest.raises(CannotConnectToStoreError) as e:
-        store = Store(store_loc=store_loc)
+    with pytest.raises(CannotConnectToStoreInterfaceError) as e:
+        store = StoreInterface(store_loc=store_loc)
         store.connect_store(store_loc)
-        # Check that the exception thrown is a CannotConnectToStoreError
+        # Check that the exception thrown is a CannotConnectToStoreInterfaceError
     assert e.value.message == "Cannot connect to store at {}".format(str(store_loc))
 
 
 def test_connect_none_path(setup_store):
     # BUT default should be store_loc = '/tmp/store' if not entered?
     store_loc = None
-    # Handle exception thrown - assert name == 'CannotConnectToStoreError'
+    # Handle exception thrown - assert name == 'CannotConnectToStoreInterfaceError'
     # and message == 'Cannot connect to store at {}'.format(str(store_loc))
     # with pytest.raises(Exception) as cm:
     #     store.connnect_store(store_loc)
-    # Check that the exception thrown is a CannotConnectToStoreError
-    # assert cm.exception.name == 'CannotConnectToStoreError'
-    # with pytest.raises(Exception, match='CannotConnectToStoreError') as cm:
+    # Check that the exception thrown is a CannotConnectToStoreInterfaceError
+    # assert cm.exception.name == 'CannotConnectToStoreInterfaceError'
+    # with pytest.raises(Exception, match='CannotConnectToStoreInterfaceError') as cm:
     #     store.connect_store(store_loc)
-    # Check that the exception thrown is a CannotConnectToStoreError
+    # Check that the exception thrown is a CannotConnectToStoreInterfaceError
     #     raise Exception('Cannot connect to store: {0}'.format(e))
-    with pytest.raises(CannotConnectToStoreError) as e:
-        store = Store(store_loc=store_loc)
+    with pytest.raises(CannotConnectToStoreInterfaceError) as e:
+        store = StoreInterface(store_loc=store_loc)
         store.connect_store(store_loc)
-        # Check that the exception thrown is a CannotConnectToStoreError
+        # Check that the exception thrown is a CannotConnectToStoreInterfaceError
     assert e.value.message == "Cannot connect to store at {}".format(str(store_loc))
 
 
-# class StoreGet(self):
+# class StoreInterfaceGet(self):
 
 
 # TODO: @pytest.parameterize...store.get and store.getID for diff datatypes,
 # pickleable and not, etc.
 # Check raises...CannotGetObjectError (object never stored)
 def test_init_empty(setup_store, set_store_loc):
-    store = Store(store_loc=set_store_loc)
+    store = StoreInterface(store_loc=set_store_loc)
     assert store.get_all() == {}
 
 
-# class StoreGetID(self):
+# class StoreInterfaceGetID(self):
 # TODO:
 # Check both hdd_only=False/True
 # Check isInstance type, isInstance bytes, else
@@ -137,7 +137,7 @@ def test_init_empty(setup_store, set_store_loc):
 
 def test_is_csc_matrix_and_put(setup_store, set_store_loc):
     mat = csc_matrix((3, 4), dtype=np.int8)
-    store = Store(store_loc=set_store_loc)
+    store = StoreInterface(store_loc=set_store_loc)
     x = store.put(mat, "matrix")
     assert isinstance(store.getID(x), csc_matrix)
 
@@ -145,27 +145,27 @@ def test_is_csc_matrix_and_put(setup_store, set_store_loc):
 # FAILED - ObjectNotFoundError NOT RAISED?
 # def test_not_put(setup_store):
 #     store_loc = '/tmp/store'
-#     store = Store(store_loc)
+#     store = StoreInterface(store_loc)
 #     with pytest.raises(ObjectNotFoundError) as e:
 #         obj_id = store.getID(store.random_ObjectID(1))
 #         # Check that the exception thrown is a ObjectNotFoundError
 #     assert e.value.message == 'Cannnot find object with ID/name "{}"'.format(obj_id)
 
-# FAILED - AssertionError...looks at LMDBStore in story.py
+# FAILED - AssertionError...looks at LMDBStoreInterface in story.py
 # assert name is not None?
 # def test_use_hdd(setup_store):
 #     store_loc = '/tmp/store'
-#     store = Store(store_loc, use_lmdb=True)
+#     store = StoreInterface(store_loc, use_lmdb=True)
 #     lmdb_store = store.lmdb_store
 #     lmdb_store.put(1, 'one')
 #     assert lmdb_store.getID('one', hdd_only=True) == 1
 
-# class StoreGetListandAll(StoreDependentTestCase):
+# class StoreInterfaceGetListandAll(StoreInterfaceDependentTestCase):
 
 
 @pytest.mark.skip()
 def test_get_list_and_all(setup_store, set_store_loc):
-    store = Store(store_loc=set_store_loc)
+    store = StoreInterface(store_loc=set_store_loc)
     # id = store.put(1, "one")
     # id2 = store.put(2, "two")
     # id3 = store.put(3, "three")
@@ -173,12 +173,12 @@ def test_get_list_and_all(setup_store, set_store_loc):
     assert [1, 2, 3] == store.get_all()
 
 
-# class Store_ReleaseReset(StoreDependentTestCase):
+# class StoreInterface_ReleaseReset(StoreInterfaceDependentTestCase):
 
 # FAILED - DID NOT RAISE <class 'OSError'>???
 # def test_release(setup_store):
 #     store_loc = '/tmp/store'
-#     store = Store(store_loc)
+#     store = StoreInterface(store_loc)
 #     with pytest.raises(ArrowIOError) as e:
 #         store.release()
 #         store.put(1, 'one')
@@ -189,24 +189,24 @@ def test_get_list_and_all(setup_store, set_store_loc):
 
 
 def test_reset(setup_store, set_store_loc):
-    store = Store(store_loc=set_store_loc)
+    store = StoreInterface(store_loc=set_store_loc)
     store.reset()
     id = store.put(1, "one")
     assert store.get(id) == 1
 
 
-# class Store_Put(StoreDependentTestCase):
+# class StoreInterface_Put(StoreInterfaceDependentTestCase):
 
 
 def test_put_one(setup_store, set_store_loc):
-    store = Store(store_loc=set_store_loc)
+    store = StoreInterface(store_loc=set_store_loc)
     id = store.put(1, "one")
     assert 1 == store.get(id)
 
 
 @pytest.mark.skip(reason="Error not being raised")
 def test_put_twice(setup_store):
-    # store = Store()
+    # store = StoreInterface()
     with pytest.raises(PlasmaObjectExists) as e:
         # id = store.put(2, "two")
         # id2 = store.put(2, "two")
@@ -215,17 +215,17 @@ def test_put_twice(setup_store):
     assert e.value.message == "Object already exists. Meant to call replace?"
 
 
-# class Store_PutGet(StoreDependentTestCase):
+# class StoreInterface_PutGet(StoreInterfaceDependentTestCase):
 
 
 def test_getOne(setup_store, set_store_loc):
-    store = Store(store_loc=set_store_loc)
+    store = StoreInterface(store_loc=set_store_loc)
     id = store.put(1, "one")
     assert 1 == store.get(id)
 
 
 # def test_get_nonexistent(setup_store):
-#     store = Store()
+#     store = StoreInterface()
 #     # Handle exception thrown
 #     # Check that the exception thrown is a CannotGetObjectError
 #     with pytest.raises(CannotGetObjectError) as e:
@@ -234,30 +234,30 @@ def test_getOne(setup_store, set_store_loc):
 #         assert e.value.message == 'Cannot get object {}'.format(self.query)
 
 # TODO:
-"""class Store_Notify(StoreDependentTestCase):
+"""class StoreInterface_Notify(StoreInterfaceDependentTestCase):
 
     def test_notify(self):
         # TODO: not unit testable?
 
 ### This is NOT USED anymore???
-class Store_UpdateStored(StoreDependentTestCase):
+class StoreInterface_UpdateStoreInterfaced(StoreInterfaceDependentTestCase):
 
-    # Accessing self.store.stored directly to test getStored separately
+    # Accessing self.store.stored directly to test getStoreInterfaced separately
     def test_updateGet(self):
         self.store.put(1, 'one')
-        self.store.updateStored('one', 3)
+        self.store.updateStoreInterfaced('one', 3)
         assert 3 == self.store.stored['one']
 
-class Store_GetStored(StoreDependentTestCase):
+class StoreInterface_GetStoreInterfaced(StoreInterfaceDependentTestCase):
 
-    def test_getStoredEmpty(self):
-        assert self.store.getStored() == False
+    def test_getStoreInterfacedEmpty(self):
+        assert self.store.getStoreInterfaced() == False
 
-    def test_putGetStored(self):
+    def test_putGetStoreInterfaced(self):
         self.store.put(1, 'one')
-        assert 1 == self.store.getID(self.store.getStored()['one'])
+        assert 1 == self.store.getID(self.store.getStoreInterfaced()['one'])
 
-class Store_internalPutGet(StoreDependentTestCase):
+class StoreInterface_internalPutGet(StoreInterfaceDependentTestCase):
 
     def test_put(self):
         id = self.store.random_ObjectID(1)
@@ -266,7 +266,7 @@ class Store_internalPutGet(StoreDependentTestCase):
 
     def test_get(self):
         id= self.store.put(1, 'one')
-        self.store.updateStored('one', id)
+        self.store.updateStoreInterfaced('one', id)
         assert self.store._get('one') == 1
 
     def test__getNonexistent(self):
@@ -278,7 +278,7 @@ class Store_internalPutGet(StoreDependentTestCase):
             assert cm.exception.name == 'ObjectNotFoundError'
             assert cm.exception.message == 'Cannnot find object with ID/name "three"'
 
-class Store_saveConfig(StoreDependentTestCase):
+class StoreInterface_saveConfig(StoreInterfaceDependentTestCase):
 
     def test_config(self):
         fileName= 'data/config_dump'
@@ -290,7 +290,7 @@ class Store_saveConfig(StoreDependentTestCase):
             assert pickle.load(output) == [1, 2]
 
 # Test out CSC matrix format after updating to arrow 0.14.0
-class Store_sparseMatrix(StoreDependentTestCase):
+class StoreInterface_sparseMatrix(StoreInterfaceDependentTestCase):
 
     def test_csc(self):
         csc = csc_matrix((3, 4), dtype=np.int8)
