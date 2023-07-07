@@ -1,7 +1,7 @@
 import time
 import numpy as np
 import cv2
-from improv.store import Store, ObjectNotFoundError
+from improv.store import StoreInterface, ObjectNotFoundError
 from scipy.spatial.distance import cdist
 from math import floor
 import colorsys

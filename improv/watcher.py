@@ -114,7 +114,7 @@ class Watcher:
         while True:
             if self.flag:
                 try:
-                    self.checkStore2()
+                    self.checkStoreInterface2()
                 except Exception as e:
                     logger.error("Watcher exception during run: {}".format(e))
                     # break
@@ -135,7 +135,7 @@ class Watcher:
             except Empty:
                 pass  # no signal from Nexus
 
-    # def checkStore(self):
+    # def checkStoreInterface(self):
     #     notification_info = self.client.notify()
     #     recv_objid, recv_dsize, recv_msize = notification_info
     #     obj = self.client.getID(recv_objid)
@@ -151,7 +151,7 @@ class Watcher:
         ) as output:
             pickle.dump(obj, output)
 
-    def checkStore2(self):
+    def checkStoreInterface2(self):
         objs = list(self.client.get_all().keys())
         ids_to_save = list(set(objs) - set(self.saved_ids))
 

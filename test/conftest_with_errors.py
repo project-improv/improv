@@ -6,7 +6,7 @@ import os
 import uuid
 
 
-class StoreDependentTestCase:
+class StoreInterfaceDependentTestCase:
     def set_up(self):
         """Start the server"""
         print("Setting up Plasma store.")

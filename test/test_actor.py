@@ -4,7 +4,7 @@ import pytest
 import subprocess
 from improv.link import Link  # , AsyncQueue
 from improv.actor import AbstractActor as Actor
-from improv.store import Store
+from improv.store import StoreInterface
 
 
 # set global_variables
@@ -46,7 +46,7 @@ def example_string_links():
 @pytest.fixture()
 def example_links(setup_store, set_store_loc):
     """Fixture to provide link objects as test input and setup store."""
-    Store(store_loc=set_store_loc)
+    StoreInterface(store_loc=set_store_loc)
 
     acts = [
         Actor("act" + str(i), set_store_loc) for i in range(1, 5)
@@ -95,12 +95,12 @@ def test_repr(example_string_links, set_store_loc):
     assert act.__repr__() == "Test: dict_keys(['1', '2', '3'])"
 
 
-def test_setStore(setup_store, set_store_loc):
+def test_setStoreInterface(setup_store, set_store_loc):
     """Tests if the store is started and linked with the actor."""
 
     act = Actor("Acquirer", set_store_loc)
-    store = Store(store_loc=set_store_loc)
-    act.setStore(store.client)
+    store = StoreInterface(store_loc=set_store_loc)
+    act.setStoreInterface(store.client)
     assert act.client is store.client
 
 
@@ -303,7 +303,7 @@ def test_actor_connection(setup_store, set_store_loc):
     act1 = Actor("a1", set_store_loc)
     act2 = Actor("a2", set_store_loc)
 
-    Store(store_loc=set_store_loc)
+    StoreInterface(store_loc=set_store_loc)
     link = Link("L12", act1, act2)
     act1.setLinkIn(link)
     act2.setLinkOut(link)
