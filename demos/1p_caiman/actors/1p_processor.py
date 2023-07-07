@@ -20,90 +20,17 @@ class OnePProcessor(CaimanProcessor):
     """Using 1p method from Caiman"""
 
     def __init__(self, *args, init_filename="data/tmp.hdf5", config_file=None):
-        super().__init__(*args)
-        print("initfile ", init_filename, "config file ", config_file)
-        self.param_file = config_file
-        print(init_filename)
-        self.init_filename = init_filename
-        self.frame_number = 0
+        super().__init__(*args, init_filename, config_file)
 
     def setup(self):
         """Using #2 method from the realtime demo, with short init
         and online processing with OnACID-E
         """
-        logger.info("Running setup for " + self.name)
-        self.done = False
-        self.dropped_frames = []
-        self.coords = None
-        self.ests = None
-        self.A = None
-        self.num = 0
-        self.saving = False
+        super().setup()
 
-        self.loadParams(param_file=self.param_file)
-        self.params = self.client.get("params_dict")
-
-        # MUST include inital set of frames
-        print(self.params["fnames"])
-
-        self.opts = CNMFParams(params_dict=self.params)
-        self.onAc = OnACID(params=self.opts)
-        self.onAc.initialize_online()
-        self.max_shifts_online = self.onAc.params.get("online", "max_shifts_online")
-
-        self.fitframe_time = []
-        self.putAnalysis_time = []
-        self.detect_time = []
-        self.shape_time = []
-        self.flag = False
-        self.total_times = []
-        self.timestamp = []
-        self.counter = 0
-
-    def loadParams(self, param_file=None):
-        """Load parameters from file or 'defaults' into store
-        TODO: accept user input from GUI
-        This also effectively registers specific params
-        that CaimanProcessor needs with Nexus
-        TODO: Wrap init_filename into caiman params if params exist
-        """
-        cwd = os.getcwd() + "/"
-        if param_file is not None:
-            try:
-                params_dict = json.load(open(param_file, "r"))
-                params_dict["fnames"] = [cwd + self.init_filename]
-                params_dict["K"] = None
-            except Exception as e:
-                logger.exception("File cannot be loaded. {0}".format(e))
-        else:
-            logger.exception("Need a config file for Caiman!")
-        self.client.put(params_dict, "params_dict")
 
     def stop(self):
-        print("Processor broke, avg time per frame: ", np.mean(self.total_times, axis=0))
-        print("Processor got through ", self.frame_number, " frames")
-        if not os._exists("output"):
-            try:
-                os.makedirs("output")
-            except:
-                pass
-        if not os._exists("output/timing"):
-            try:
-                os.makedirs("output/timing")
-            except:
-                pass
-        np.savetxt("output/timing/process_frame_time.txt", np.array(self.total_times))
-        np.savetxt("output/timing/process_timestamp.txt", np.array(self.timestamp))
-
-        np.savetxt("output/timing/putAnalysis_time.txt", np.array(self.putAnalysis_time))
-
-        self.shape_time = np.array(self.onAc.t_shapes)
-        self.detect_time = np.array(self.onAc.t_detect)
-
-        np.savetxt("output/timing/fitframe_time.txt", np.array(self.fitframe_time))
-        np.savetxt("output/timing/shape_time.txt", self.shape_time)
-        np.savetxt("output/timing/detect_time.txt", self.detect_time)
-
+        super().stop()
     def runStep(self):
         """Run process. Runs once per frame.
         Output is a location in the DS to continually
@@ -111,11 +38,7 @@ class OnePProcessor(CaimanProcessor):
         corresponds to the frame number
         """
         init = self.params["init_batch"]
-        frame = None
-        try:
-            frame = self.q_in.get(timeout=0.0005)
-        except Empty:
-            pass
+        frame = self._checkFrames()
 
         if frame is not None:
             t = time.time()
