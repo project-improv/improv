@@ -3,12 +3,12 @@
 
 actors:
   Acquirer:
-    package: actors.zmq.lv_zmq_subscribe
+    package: actors.zmq.lv_zmq_subscriber
     class: ZMQAcquirer
     # n_segs: 447 # for 120 ms segments (weird, Fig 6 = 2 min data x 60 s x 1000 ms = 120000 ms = 1000 segments)
     # folder: /home/eao21/improv/demos/ava/blu291/v3/audio/66/blu291_43532.29693000_03_08_08_14_53/20 # exclude data/blu285/v1/original_data/DIR/birdname_130519_103325.4.wav for embedding new, fit UMAP on 100,000 120 ms (or 60, 120, 180, 240...test min...20 ms - Fig 6 supplement 1 plots)
-    sub_ip: 10.122.168.184
-    sub_port: 5555
+    ip: 10.122.168.184
+    port: 5555
     fs: 32000
     win_dur: 20
     time_opt: True
@@ -22,7 +22,7 @@ actors:
     out_path: zmq_07042023/improv/output/timing/
 
   Processor:
-    package: actors.zmq_processor
+    package: actors.zmq.zmq_processor
     class: AudioProcessor
     # n_segs: 50 # for 120 ms segments (weird, Fig 6 = 2 min data x 60 s x 1000 ms = 120000 ms = 1000 segments)
     model_path: /home/eao21/improv/demos/ava/blu291/models/v4/checkpoint_300.tar # check squeeze/unsqueeze
