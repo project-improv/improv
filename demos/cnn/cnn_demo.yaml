@@ -1,0 +1,42 @@
+# settings:
+  # use_watcher: [Acquirer, Processor, Analysis, Visual]
+
+actors:
+  Acquirer:
+    package: actors.acquire
+    class: ImageAcquirer
+    n_imgs: 300
+    folder: data/CIFAR10/images
+    exts:
+      - .jpg
+      - .png
+    classify: True
+    label_folder: data/CIFAR10/labels
+    out_path: output/GPU/timing/
+
+  Processor:
+    package: actors.processor
+    class: CNNProcessor
+    n_imgs: 300
+    gpu: True
+    gpu_num: 0
+    model_path: models/ResNet50_GPU.pt
+    classify: True
+    labels: data/CIFAR10/label_names.txt
+    out_path: output/GPU/timing/
+    method: spawn
+    
+  # Analysis:
+  #   package: actors.analysis
+  #   class: PyTorchAnalysis
+  #   model_path: models/ResNet50-CIFAR10.pt
+  #   classify: False
+
+  # Visual:
+  #   package: actors.visual
+  #   class: PyTorchAnalysis
+
+connections:
+  Acquirer.q_out: [Processor.q_in]
+  # Processor.q_out: [Analysis.q_in]
+  # Analysis.q_out: [Visual.q_in]

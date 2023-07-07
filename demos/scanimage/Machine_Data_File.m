@@ -161,7 +161,7 @@ photonCountingDebounce = 2.5e-08;     % [s] time the TTL input needs to be stabl
 I2CEnable = false;
 I2CAddress = 0;     % [byte] I2C address of the FPGA
 I2CDebounce = 5e-07;     % [s] time the I2C signal has to be stable high before a change is registered
-I2CStoreAsChar = false;     % if false, the I2C packet bytes are stored as a uint8 array. if true, the I2C packet bytes are stored as a string. Note: a Null byte in the packet terminates the string
+I2CStoreInterfaceAsChar = false;     % if false, the I2C packet bytes are stored as a uint8 array. if true, the I2C packet bytes are stored as a string. Note: a Null byte in the packet terminates the string
 I2CDisableAckOutput = false;     % the FPGA confirms each packet with an ACK bit by actively pulling down the SDA line. I2C_DISABLE_ACK_OUTPUT = true disables the FPGA output
 
 % Laser Trigger
