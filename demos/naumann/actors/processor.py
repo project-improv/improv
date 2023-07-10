@@ -44,8 +44,7 @@ class Naumann_processor(CaimanProcessor):
         self.ests = None
         self.A = None
 
-        self.loadParams(param_file=self.param_file)
-        self.params = self.client.get("params_dict")
+        self.params = self.loadParams(param_file=self.param_file)
 
         # MUST include inital set of frames
         # TODO: Institute check here as requirement to Nexus
@@ -108,18 +107,13 @@ class Naumann_processor(CaimanProcessor):
                 self.frame = self.client.getID(frame[0][str(self.frame_number)])
                 self.frame = self._processFrame(self.frame, self.frame_number + init)
                 t2 = time.time()
-                self._fitFrame(
-                    self.frame_number + init, self.frame.reshape(-1, order="F")
-                )
+                self._fitFrame(self.frame_number + init, self.frame.reshape(-1, order="F"))
                 self.fitframe_time.append([time.time() - t2])
                 self.putEstimates()
                 self.timestamp.append([time.time(), self.frame_number])
             except ObjectNotFoundError:
-                logger.error(
-                    "Processor: Frame {} unavailable from store, droppping".format(
-                        self.frame_number
-                    )
-                )
+                logger.error("Processor: Frame {} unavailable from store, droppping"
+                             .format(self.frame_number))
                 self.dropped_frames.append(self.frame_number)
                 self.q_out.put([1])
             except KeyError as e:
@@ -127,11 +121,8 @@ class Naumann_processor(CaimanProcessor):
                 # Proceed at all costs
                 self.dropped_frames.append(self.frame_number)
             except Exception as e:
-                logger.error(
-                    "Processor error: {}: {} during frame number {}".format(
-                        type(e).__name__, e, self.frame_number
-                    )
-                )
+                logger.error("Processor error: {}: {} during frame number {}"
+                             .format(type(e).__name__, e, self.frame_number))
                 print(traceback.format_exc())
                 self.dropped_frames.append(self.frame_number)
             self.frame_number += 1
@@ -157,16 +148,10 @@ class Naumann_processor(CaimanProcessor):
             frame -= self.onAc.img_min
         if self.onAc.params.get("online", "motion_correct"):
             try:
-                templ = (
-                    self.onAc.estimates.Ab.dot(
-                        self.onAc.estimates.C_on[: self.onAc.M, (frame_number - 1)]
-                    ).reshape(
-                        # self.onAc.estimates.C_on[:self.onAc.M, (frame_number-1)%self.onAc.window]).reshape(
-                        self.onAc.params.get("data", "dims"),
-                        order="F",
-                    )
-                    * self.onAc.img_norm
-                )
+                templ = (self.onAc.estimates.Ab.dot(
+                        self.onAc.estimates.C_on[: self.onAc.M, (frame_number - 1)])
+                        .reshape(# self.onAc.estimates.C_on[:self.onAc.M, (frame_number-1)%self.onAc.window]).reshape(
+                        self.onAc.params.get("data", "dims"),order="F",)* self.onAc.img_norm)
             except Exception as e:
                 logger.error("Unknown exception {0}".format(e))
                 raise Exception
@@ -192,8 +177,7 @@ class Naumann_processor(CaimanProcessor):
                 )[:2]
             else:
                 frame_cor, shift = motion_correct_iteration_fast(
-                    frame, templ, self.max_shifts_online, self.max_shifts_online
-                )
+                    frame, templ, self.max_shifts_online, self.max_shifts_online)
             self.onAc.estimates.shifts.append(shift)
         else:
             frame_cor = frame

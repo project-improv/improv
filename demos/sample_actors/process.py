@@ -73,9 +73,7 @@ class CaimanProcessor(Actor):
         self.counter = 0
 
     def stop(self):
-        print(
-            "Processor broke, avg time per frame: ", np.mean(self.total_times, axis=0)
-        )
+        print("Processor broke, avg time per frame: ", np.mean(self.total_times, axis=0))
         print("Processor got through ", self.frame_number, " frames")
         np.savetxt("output/timing/process_frame_time.txt", np.array(self.total_times))
         np.savetxt("output/timing/process_timestamp.txt", np.array(self.timestamp))
@@ -87,9 +85,7 @@ class CaimanProcessor(Actor):
         np.savetxt("output/timing/shape_time.txt", self.shape_time)
         np.savetxt("output/timing/detect_time.txt", self.detect_time)
 
-        np.savetxt(
-            "output/timing/putAnalysis_time.txt", np.array(self.putAnalysis_time)
-        )
+        np.savetxt("output/timing/putAnalysis_time.txt", np.array(self.putAnalysis_time))
         np.savetxt("output/timing/procFrame_time.txt", np.array(self.procFrame_time))
 
         print("Number of times coords updated ", self.counter)
@@ -97,16 +93,11 @@ class CaimanProcessor(Actor):
         if self.onAc.estimates.OASISinstances is not None:
             try:
                 init = self.params["init_batch"]
-                S = np.stack(
-                    [osi.s[init:] for osi in self.onAc.estimates.OASISinstances]
-                )
+                S = np.stack([osi.s[init:] for osi in self.onAc.estimates.OASISinstances])
                 np.savetxt("output/end_spikes.txt", S)
             except Exception as e:
-                logger.error(
-                    "Exception {}: {} during frame number {}".format(
-                        type(e).__name__, e, self.frame_number
-                    )
-                )
+                logger.error("Exception {}: {} during frame number {}"
+                             .format(type(e).__name__, e, self.frame_number))
                 print(traceback.format_exc())
         else:
             print("No OASIS")
@@ -134,18 +125,13 @@ class CaimanProcessor(Actor):
             try:
                 self.frame = self.client.getID(frame[0][str(self.frame_number)])
                 t2 = time.time()
-                self._fitFrame(
-                    self.frame_number + init, self.frame.reshape(-1, order="F")
-                )
+                self._fitFrame(self.frame_number + init, self.frame.reshape(-1, order="F"))
                 self.fitframe_time.append([time.time() - t2])
                 self.putEstimates()
                 self.timestamp.append([time.time(), self.frame_number])
             except ObjectNotFoundError:
-                logger.error(
-                    "Processor: Frame {} unavailable from store, droppping".format(
-                        self.frame_number
-                    )
-                )
+                logger.error("Processor: Frame {} unavailable from store, droppping"
+                             .format(self.frame_number))
                 self.dropped_frames.append(self.frame_number)
                 self.q_out.put([1])
             except KeyError as e:
@@ -153,11 +139,8 @@ class CaimanProcessor(Actor):
                 # Proceed at all costs
                 self.dropped_frames.append(self.frame_number)
             except Exception as e:
-                logger.error(
-                    "Processor error: {}: {} during frame number {}".format(
-                        type(e).__name__, e, self.frame_number
-                    )
-                )
+                logger.error("Processor error: {}: {} during frame number {}"
+                             .format(type(e).__name__, e, self.frame_number))
                 print(traceback.format_exc())
                 self.dropped_frames.append(self.frame_number)
             self.frame_number += 1
@@ -224,12 +207,9 @@ class CaimanProcessor(Actor):
         t = time.time()
         nb = self.onAc.params.get("init", "nb")
         A = self.onAc.estimates.Ab[:, nb:]
-        before = self.params[
-            "init_batch"
-        ]  # self.frame_number-500 if self.frame_number > 500 else 0
-        C = self.onAc.estimates.C_on[
-            nb : self.onAc.M, before : self.frame_number + before
-        ]  # .get_ordered()
+        before = self.params["init_batch"]  
+        # self.frame_number-500 if self.frame_number > 500 else 0
+        C = self.onAc.estimates.C_on[nb : self.onAc.M, before : self.frame_number + before]  # .get_ordered()
         t2 = time.time()
         t3 = time.time()
 
@@ -252,9 +232,7 @@ class CaimanProcessor(Actor):
 
         # self.q_comm.put([self.frame_number])
 
-        self.putAnalysis_time.append(
-            [time.time() - t, t2 - t, t3 - t2, t4 - t3, t5 - t4, t6 - t5]
-        )
+        self.putAnalysis_time.append([time.time() - t, t2 - t, t3 - t2, t4 - t3, t5 - t4, t6 - t5])
 
     def _checkFrames(self):
         """Check to see if we have frames for processing"""
@@ -303,21 +281,13 @@ class CaimanProcessor(Actor):
         try:
             # components = self.onAc.estimates.Ab[:,mn:].dot(self.onAc.estimates.C_on[mn:self.onAc.M,(self.frame_number-1)%self.onAc.window]).reshape(self.onAc.dims, order='F')
             # background = self.onAc.estimates.Ab[:,:mn].dot(self.onAc.estimates.C_on[:mn,(self.frame_number-1)%self.onAc.window]).reshape(self.onAc.dims, order='F')
-            components = (
-                self.onAc.estimates.Ab[:, mn:]
-                .dot(
-                    self.onAc.estimates.C_on[mn : self.onAc.M, (self.frame_number - 1)]
-                )
-                .reshape(self.onAc.dims, order="F")
-            )
-            background = (
-                self.onAc.estimates.Ab[:, :mn]
+            components = (self.onAc.estimates.Ab[:, mn:]
+                .dot(self.onAc.estimates.C_on[mn : self.onAc.M, (self.frame_number - 1)])
+                .reshape(self.onAc.dims, order="F"))
+            background = (self.onAc.estimates.Ab[:, :mn]
                 .dot(self.onAc.estimates.C_on[:mn, (self.frame_number - 1)])
-                .reshape(self.onAc.dims, order="F")
-            )
-            image = ((components + background) - self.onAc.bnd_Y[0]) / np.diff(
-                self.onAc.bnd_Y
-            )
+                .reshape(self.onAc.dims, order="F"))
+            image = ((components + background) - self.onAc.bnd_Y[0]) / np.diff(self.onAc.bnd_Y)
             image = np.minimum((image * 255.0), 255).astype("u1")
         except ValueError as ve:
             logger.info("ValueError: {0}".format(ve))

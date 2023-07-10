@@ -26,11 +26,38 @@ class OnePProcessor(CaimanProcessor):
         """Using #2 method from the realtime demo, with short init
         and online processing with OnACID-E
         """
-        super().setup()
+        logger.info("Running setup for " + self.name)
+        self.done = False
+        self.dropped_frames = []
+        self.coords = None
+        self.ests = None
+        self.A = None
+        self.num = 0
+        self.saving = False
 
+        self.params = self.loadParams(param_file=self.param_file)
 
+        # MUST include inital set of frames
+        logger.info(self.params["fnames"])
+
+        self.opts = CNMFParams(params_dict=self.params)
+        self.onAc = OnACID(params=self.opts)
+        self.onAc.initialize_online()
+        self.max_shifts_online = self.onAc.params.get("online", "max_shifts_online")
+
+        self.fitframe_time = []
+        self.putAnalysis_time = []
+        self.procFrame_time = []  # aka t_motion
+        self.detect_time = []
+        self.shape_time = []
+        self.flag = False
+        self.total_times = []
+        self.timestamp = []
+        self.counter = 0
+        
     def stop(self):
         super().stop()
+
     def runStep(self):
         """Run process. Runs once per frame.
         Output is a location in the DS to continually

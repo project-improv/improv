@@ -35,16 +35,6 @@ class BasicProcessor(CaimanProcessor):
     def setup(self):
         super().setup()
 
-        self.fitframe_time = []
-        self.putAnalysis_time = []
-        self.procFrame_time = []  # aka t_motion
-        self.detect_time = []
-        self.shape_time = []
-        self.flag = False
-        self.total_times = []
-        self.timestamp = []
-        self.counter = 0
-
     def stop(self):
         print("Processor broke, avg time per frame: ", np.mean(self.total_times, axis=0))
         print("Processor got through ", self.frame_number, " frames")
@@ -128,16 +118,10 @@ class BasicProcessor(CaimanProcessor):
             frame -= self.onAc.img_min
         if self.onAc.params.get("online", "motion_correct"):
             try:
-                templ = (
-                    self.onAc.estimates.Ab.dot(
-                        self.onAc.estimates.C_on[: self.onAc.M, (frame_number - 1)]
-                    ).reshape(
-                        # self.onAc.estimates.C_on[:self.onAc.M, (frame_number-1)%self.onAc.window]).reshape(
-                        self.onAc.params.get("data", "dims"),
-                        order="F",
-                    )
-                    * self.onAc.img_norm
-                )
+                templ = (self.onAc.estimates.Ab
+                         .dot(self.onAc.estimates.C_on[: self.onAc.M, (frame_number - 1)])
+                        .reshape(# self.onAc.estimates.C_on[:self.onAc.M, (frame_number-1)%self.onAc.window]).reshape(
+                        self.onAc.params.get("data", "dims"),order="F",)* self.onAc.img_norm)
             except Exception as e:
                 logger.error("Unknown exception {0}".format(e))
                 raise Exception
@@ -163,8 +147,7 @@ class BasicProcessor(CaimanProcessor):
                 )[:2]
             else:
                 frame_cor, shift = motion_correct_iteration_fast(
-                    frame, templ, self.max_shifts_online, self.max_shifts_online
-                )
+                    frame, templ, self.max_shifts_online, self.max_shifts_online)
             self.onAc.estimates.shifts.append(shift)
         else:
             frame_cor = frame
@@ -244,15 +227,13 @@ class BasicProcessor(CaimanProcessor):
         try:
             # components = self.onAc.estimates.Ab[:,mn:].dot(self.onAc.estimates.C_on[mn:self.onAc.M,(self.frame_number-1)%self.onAc.window]).reshape(self.onAc.dims, order='F')
             # background = self.onAc.estimates.Ab[:,:mn].dot(self.onAc.estimates.C_on[:mn,(self.frame_number-1)%self.onAc.window]).reshape(self.onAc.dims, order='F')
-            components = (
-                self.onAc.estimates.Ab[:, mn:]
+            components = (self.onAc.estimates.Ab[:, mn:]
                 .dot(self.onAc.estimates.C_on[mn : self.onAc.M, (self.frame_number - 1)])
                 .reshape(self.onAc.estimates.dims, order="F"))
-            background = (
-                self.onAc.estimates.Ab[:, :mn]
+            background = (self.onAc.estimates.Ab[:, :mn]
                 .dot(self.onAc.estimates.C_on[:mn, (self.frame_number - 1)])
                 .reshape(self.onAc.estimates.dims, order="F"))
-            image = ((components + background) - self.onAc.bnd_Y[0]) / np.diff(self.onAc.bnd_Y)
+            image = components + background # - self.onAc.bnd_Y[0]) / np.diff(self.onAc.bnd_Y)
             image = np.minimum((image * 255.0), 255).astype("u1")
         except ValueError as ve:
             logger.info("ValueError: {0}".format(ve))
