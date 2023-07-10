@@ -37,44 +37,7 @@ class OnePProcessor(CaimanProcessor):
         place the Estimates results, with ref number that
         corresponds to the frame number
         """
-        init = self.params["init_batch"]
-        frame = self._checkFrames()
-
-        if frame is not None:
-            t = time.time()
-            self.done = False
-            try:
-                self.frame = self.client.getID(frame[0][0])
-
-                # motion correct
-                frame = self.onAc.mc_next(self.frame_number + init, self.frame)
-                # fit frame
-                t2 = time.time()
-                self.onAc.fit_next(
-                    self.frame_number + init, self.frame.ravel(order="F"))
-                self.fitframe_time.append([time.time() - t2])
-
-                self.putEstimates()
-                self.timestamp.append([time.time(), self.frame_number])
-            except ObjectNotFoundError:
-                logger.error("Processor: Frame {} unavailable from store, droppping"
-                             .format(self.frame_number ))
-                self.dropped_frames.append(self.frame_number)
-                self.q_out.put([1])
-            except KeyError as e:
-                logger.error("Processor: Key error... {0}".format(e))
-                # Proceed at all costs
-                self.dropped_frames.append(self.frame_number)
-            except Exception as e:
-                logger.error(
-                    "Processor error: {}: {} during frame number {}".format(
-                        type(e).__name__, e, self.frame_number))
-                print(traceback.format_exc())
-                self.dropped_frames.append(self.frame_number)
-            self.frame_number += 1
-            self.total_times.append(time.time() - t)
-        else:
-            pass
+        super().runStep()
 
     def putEstimates(self):
         """Put whatever estimates we currently have
