@@ -6,7 +6,7 @@ import random
 import numpy as np
 from skimage.io import imread
 
-from improv.actor import Actor, RunManager, Spike
+from improv.actor import Actor, RunManager, Signal
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -152,7 +152,7 @@ class FileAcquirerZMQ(Actor):
 if __name__=="__main__":
     #starting the store manually
     import subprocess
-    from improv.store import Limbo
+    from improv.store import StoreInterface
     p = subprocess.Popen(["plasma_store", "-s", "/tmp/store", "-m", str(10000000000)],\
     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     # 1000000000 for id and 10000000000 for id2
