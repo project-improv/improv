@@ -3,6 +3,7 @@ import os
 import asyncio
 import subprocess
 import improv.tui as tui
+from demos.basic.actors.zmqActor import ZmqPSActor, ZmqRRActor
 
 from test_nexus import ports
 
@@ -16,6 +17,22 @@ def setdir():
     os.chdir("../demos")
     yield None
     os.chdir(prev)
+
+
+@pytest.fixture()
+def ip():
+    """Fixture to provide an IP test input."""
+
+    pytest.ip = "127.0.0.1"
+    return pytest.ip
+
+
+@pytest.fixture()
+def unused_tcp_port():
+    """Fixture to provide a tcp port test input."""
+
+    pytest.unused_tcp_port = 5555
+    return pytest.unused_tcp_port
 
 
 @pytest.mark.parametrize(
@@ -115,3 +132,43 @@ async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
     # then remove that file and logile
     os.remove(datafile)
     os.remove(logfile)  # later, might want to read this file and check for messages
+
+
+def test_zmq_ps(ip, unused_tcp_port):
+    """Tests if we can set the zmq PUB/SUB socket and send message."""
+
+    act1 = ZmqPSActor("act1")
+    act2 = ZmqPSActor("act2")
+    act1.setSendSocket(ip, unused_tcp_port)
+    act2.setRecvSocket(ip, unused_tcp_port)
+    msg = "hello"
+    act1.sendMsg(msg)
+    recvmsg = act2.recvMsg()
+    assert recvmsg == msg
+
+
+async def test_zmq_rr(ip, unused_tcp_port):
+    """Tests if we can set the zmq REQ/REP socket and send message."""
+
+    act1 = ZmqRRActor("act1")
+    act2 = ZmqRRActor("act2")
+    act1.setReqSocket(ip, unused_tcp_port)
+    act2.setRepSocket(ip, unused_tcp_port)
+    msg = "hello"
+    reply = "world"
+    coro1 = act1.requestMsg(msg)
+    coro2 = act2.replyMsg(reply)
+    result = await asyncio.gather(coro1, coro2)
+    replymsg = result[0]
+    recvmsg = result[1]
+    assert replymsg == reply
+    assert recvmsg == msg
+
+
+async def test_zmq_rr_timeout(ip, unused_tcp_port):
+    """Test for requestMsg where we timeout or fail to send"""
+    act1 = ZmqRRActor("act1")
+    act1.setReqSocket(ip, unused_tcp_port)
+    msg = "hello"
+    replymsg = await act1.requestMsg(msg, timeout=0.1)
+    assert replymsg is None
