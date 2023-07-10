@@ -170,5 +170,5 @@ async def test_zmq_rr_timeout(ip, unused_tcp_port):
     act1 = ZmqRRActor("act1", "/tmp/store")
     act1.setReqSocket(ip, unused_tcp_port)
     msg = "hello"
-    replymsg = await act1.requestMsg(msg, timeout=0.1)
+    replymsg = await act1.requestMsg(msg)
     assert replymsg is None
