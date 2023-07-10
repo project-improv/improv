@@ -25,10 +25,10 @@ with open(acq_data_path, "r") as f:
 
 acq_keys = ["put_img_time", "put_out_time", "acq_total_times", "put_lab_time"]
 acq_titles = [
-    "Image -> Store Time",
+    "Image -> StoreInterface Time",
     "Image+Label -> q_out Time",
     "Total Acquisition Time",
-    "Label -> Store Time",
+    "Label -> StoreInterface Time",
 ]
 acq_files = [
     "put_img_time.png",
@@ -57,15 +57,15 @@ proc_keys = [
     "total_times",
 ]
 proc_titles = [
-    "Stored Image -> Processor Time",
+    "StoreInterfaced Image -> Processor Time",
     "Process Image Time",
     "Image -> Device Time",
     "Inference Time",
     "Output -> np.array Time",
-    "Output -> Store",
+    "Output -> StoreInterface",
     "Output -> q_out",
     "Prediction Time",
-    "Classification/Prediction Output -> Store",
+    "Classification/Prediction Output -> StoreInterface",
     "Total Processing Time",
 ]
 proc_files = [

@@ -4,7 +4,7 @@ import json
 import cv2
 import numpy as np
 import scipy.sparse
-from improv.store import Store, CannotGetObjectError, ObjectNotFoundError
+from improv.store import StoreInterface, CannotGetObjectError, ObjectNotFoundError
 from caiman.source_extraction import cnmf
 from caiman.source_extraction.cnmf.utilities import detrend_df_f
 from caiman.source_extraction.cnmf.online_cnmf import OnACID
