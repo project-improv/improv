@@ -7,7 +7,7 @@ import pytest
 
 from improv.actor import Actor
 
-from improv.store import Store
+from improv.store import StoreInterface
 from improv.link import Link
 
 
@@ -31,7 +31,7 @@ def setup_store():
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    store = Store(store_loc="/tmp/store")
+    store = StoreInterface(store_loc="/tmp/store")
     yield store
     p.kill()
     p.wait()
@@ -298,7 +298,7 @@ def test_put_overflow(setup_store, caplog):
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    Store(store_loc="/tmp/store")
+    StoreInterface(store_loc="/tmp/store")
 
     acts = init_actors(2)
     lnk = Link("L1", acts[0], acts[1])
@@ -313,7 +313,7 @@ def test_put_overflow(setup_store, caplog):
 
     if caplog.records:
         for record in caplog.records:
-            if "PlasmaStoreFull" in record.msg:
+            if "PlasmaStoreInterfaceFull" in record.msg:
                 assert True
     else:
         pytest.fail("expected an error!")
