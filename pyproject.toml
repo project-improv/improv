@@ -56,5 +56,16 @@ per-file-ignores = """
     test/test_cli.py:F401,F811
     test/test_tui.py:F401,F811
     test/test_link.py:PT012
+    test/test_nexus.py:PT012
+    test/test_store_with_errors.py:PT012
     """
 exclude = ["demos", "build"]
+
+[tool.black]
+line-length = 88
+exclude = '''
+/(
+    demos
+  | build
+)/
+'''
