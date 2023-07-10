@@ -27,12 +27,12 @@ def ip():
     return pytest.ip
 
 
-@pytest.fixture()
-def unused_tcp_port():
-    """Fixture to provide a tcp port test input."""
+# @pytest.fixture()
+# def unused_tcp_port():
+#     """Fixture to provide a tcp port test input."""
 
-    pytest.unused_tcp_port = 5555
-    return pytest.unused_tcp_port
+#     pytest.unused_tcp_port = 5555
+#     return pytest.unused_tcp_port
 
 
 @pytest.mark.parametrize(
@@ -151,7 +151,7 @@ async def test_zmq_rr(ip, unused_tcp_port):
     """Tests if we can set the zmq REQ/REP socket and send message."""
 
     act1 = ZmqRRActor("act1", "/tmp/store")
-    act2 = ZmqRRActor("act2","/tmp/store")
+    act2 = ZmqRRActor("act2", "/tmp/store")
     act1.setReqSocket(ip, unused_tcp_port)
     act2.setRepSocket(ip, unused_tcp_port)
     msg = "hello"
