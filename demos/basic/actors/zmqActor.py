@@ -94,11 +94,10 @@ class ZmqRRActor(Actor):
         Sets up the request socket for the actor.
         """
 
-        self.context = zmq.asyncio.Context()
+        self.context = zmq.Context()
         self.req_socket = self.context.socket(REQ)
         # bind to the socket according to the ip and port
         self.address = "tcp://{}:{}".format(ip, port)
-        self.req_socket.connect(self.address)
         time.sleep(timeout)
 
     def setRepSocket(self, ip, port, timeout=0.001):
@@ -106,7 +105,7 @@ class ZmqRRActor(Actor):
         Sets up the reply socket for the actor.
         """
 
-        self.context = zmq.asyncio.Context()
+        self.context = zmq.Context()
         self.rep_socket = self.context.socket(REP)
         self.address = "tcp://{}:{}".format(ip, port)
         self.rep_socket.bind(self.address)
@@ -124,6 +123,7 @@ class ZmqRRActor(Actor):
         retries_left = REQUEST_RETRIES
 
         try:
+            self.req_socket.connect(self.address)
             logger.info(f"Sending {msg} to controller.")
             await self.req_socket.send_pyobj(msg)
             reply = None
