@@ -184,3 +184,15 @@ demos/ava/scripts/concat_wavs.py
 demos/**/**/*.npy
 demos/ava/actors/zmq/zmq*
 demos/ava/actors/zmq/lv_zmq_publisher.py
+demos/ava/scripts/zmq_plotting.py
+demos/ava/actors/umap_visual.py
+demos/ava/actors/visual.py
+demos/ava/blu285/vae.pt
+demos/ava/blu285/embedding.pkl
+demos/ava/blu285/checkpoint_encoder_300.tar
+demos/ava/blu285/birdname_130519_103325.4.pkl
+demos/ava/globa_log_100d_100ns_no_out.txt
+demos/ava/global_log_640d_qout_save
+demos/ava/global_log_ex_07072023
+demos/ava/log_072023.txt
+demos/ava/actors/visual.py
