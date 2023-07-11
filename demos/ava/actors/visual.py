@@ -10,9 +10,10 @@ import logging; logger = logging.getLogger(__name__)
 from improv.actor import Actor, RunManager
 
 class AVAVisual(Actor):
-    ''' Visual as a single Actor — only saving out plots
+    """
+    Visual as a single Actor — only saving out plots
     TODO GUI for streaming audio, specs, adding latents to embedding
-    '''
+    """
 
     def __init__(self, *args, out_path=None, **kwargs):
         super().__init__(*args, **kwargs)
