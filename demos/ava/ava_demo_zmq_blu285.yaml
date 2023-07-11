@@ -25,7 +25,7 @@ actors:
     package: actors.zmq.zmq_processor
     class: AudioProcessor
     # n_segs: 50 # for 120 ms segments (weird, Fig 6 = 2 min data x 60 s x 1000 ms = 120000 ms = 1000 segments)
-    model_path: /home/eao21/improv/demos/ava/blu291/models/v4/checkpoint_300.tar
+    model_path: /home/eao21/project-improv/improv/demos/ava/blu285/checkpoint_encoder_300.tar
     # model_path: /home/eao21/improv/demos/ava/blu291/models/v4/checkpoint_300.tar # check squeeze/unsqueeze
     # from finch_window_mwe and paper
     fs: 32000
@@ -36,8 +36,8 @@ actors:
       min_freq: 400
       max_freq: 10000
       win_len: 0.12 # 120 ms segments of audio
-      nperseg: 256
-      noverlap: 128
+      nperseg: 512
+      noverlap: 256
       max_dur: 0.12
       spec_min_val: 3.0 # minimum STFT log-modulus
       spec_max_val: 8.0 # maximum STFT log-modulus
