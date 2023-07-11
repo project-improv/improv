@@ -12,9 +12,6 @@ from zmq.log.handlers import PUBHandler
 from improv.actor import Actor, RunManager
 
 import logging; logger = logging.getLogger(__name__)
-
-logging.basicConfig(level=logging.INFO, filename='lv_zmq_subscriber.log', encoding='utf-8')
-
 logger.setLevel(logging.INFO)
 
 class ZMQAcquirer(Actor):
@@ -43,18 +40,14 @@ class ZMQAcquirer(Actor):
         if self.time_opt is True:
             self.timing = timing
             self.out_path = out_path
-            
-            os.makedirs(self.out_path, exist_ok=True)
-            logger.info(f"Timing directory for {self.name}: {self.out_path}")
         
-        # n per seg, samples for given window duration, for example, 20 ms of data at 32000 fs = 20 ms of data at 320 fms
-        # or 0.02 s * 32000 fs
-        self.n_per_seg = win_dur * fs
+        # win_dur in ms, for example, 20 ms
+        # self.seg_dur = (fs*win_dur)/1000.0
 
+        self.done = False
 
     def __str__(self):
         return f"Name: {self.name}, Data: {self.data}"
-
 
     def setup(self):
         """
@@ -62,35 +55,32 @@ class ZMQAcquirer(Actor):
         https://zguide.zeromq.org/docs/chapter2/#Node-Coordination
         """
 
-        logger.info(f"Running setup for {self.name}")
-
-        logger.info("Setting up subscriber receive socket for acquisition")
+        logger.info("Beginning setup for ZMQAcquirer")
+        logger.info("Setting up subscriber for acquisition")
         self.setRecvSocket() 
-        
-        # initialize timing lists
-        if self.time_opt is True:
-            logger.info(f"Initializing lists for {self.name} timing")
-            
-            self.zmq_acq_timestamps = []
-            self.recv_msg = []
-            self.get_data = []
-            self.put_seg_to_store = []
-            self.put_out_time = []
-            self.zmq_acq_total_times = []
 
+        if self.time_opt is True:
+            logger.info("Initializing lists for timing")
+            self.in_timestamps = []
+            self.zmq_acq_total_times = []
+            self.zmq_timestamps = []
+            self.get_data = []
+            self.put_to_store = []
+            self.put_out_time = []
 
         self.dropped_msg = []
-        self.ns_per_msg = []
-        self.data = []
-        # self.ns = deque([])
-        # self.data = deque([], maxlen=int(1000))
+        self.ns = deque([], maxlen=int(100))
 
-        self.msg_num = 0
         self.seg_num = 0
+        self.i = 0
 
-        self.done = False
+        self.data = deque([], maxlen=int(100))
+        # self.data = []
 
-        logger.info(f"Completed setup for {self.name}")
+        if self.time_opt is True:
+            os.makedirs(self.out_path, exist_ok=True)
+
+        logger.info("Completed setup for ZMQAcquirer")
 
 
     def stop(self):
@@ -98,7 +88,7 @@ class ZMQAcquirer(Actor):
         Meh... https://stackoverflow.com/questions/9019873/should-i-close-zeromq-socket-explicitly-in-python
         """
         
-        logger.info(f"{self.name} stopping")
+        logger.info("ZMQAcquirer stopping")
         # Close subscriber socket
         logger.info("Closing subscriber socket")
         self.recv_socket.close()
@@ -107,25 +97,21 @@ class ZMQAcquirer(Actor):
         self.context.term()
 
         if self.time_opt is True:
-            logger.info(f"Saving out timing info for {self.name}")
+            logger.info("Saving out timing info")
             keys = self.timing
-            values = [self.zmq_acq_timestamps, self.get_data, self.put_seg_to_store, self.put_out_time, self.zmq_acq_total_times]
+            values = [self.in_timestamps, self.zmq_acq_total_times, self.zmq_timestamps, self.get_data, self.put_to_store, self.put_out_time]
 
             timing_dict = dict(zip(keys, values))
             df = pd.DataFrame.from_dict(timing_dict, orient='index').transpose()
             df.to_csv(os.path.join(self.out_path, 'zmq_acq_timing.csv'), index=False, header=True)
 
-        np.save(os.path.join(self.out_path, 'ns_per_msg.npy'), self.ns_per_msg)
-        
-        logger.info(f"{self.name} stopped")
+        logger.info("ZMQAcquirer stopped")
 
         return 0
     
     
     def runStep(self):
         """
-        TIMING — DOES IT TAKE LONGER TO APPEND LIST OR SET NEW VAR???
-        REFACTOR?
         """
 
         if self.done:
@@ -134,46 +120,36 @@ class ZMQAcquirer(Actor):
         t = time.time()
 
         if self.time_opt is True:
-            self.zmq_acq_timestamps.append(time.time())
+            self.zmq_timestamps.append(time.time())
 
         try:   
-            # logger.info(f"Receiving msg {self.msg_num}")
-
             t1 = time.time()
+
+            logger.info("Receiving msg")
             msg = self.recvMsg()
-            t2 = time.time()
-            # self.recv_msg.append((time.time() - t1)*1000.0)
+            logger.info(f"Msg received: {msg}")
 
             self.data.extend(np.int16(msg[:-1]))
-            self.ns_per_msg.append(int(msg[-1]))
+            self.ns.append(int(msg[-1]))
+            logger.info(f"data: {self.data}")
+            logger.info(f"ns: {self.ns}")
 
-            # ns_obj_id = self.client.put(int(msg[-1]), f"n_per_msg_{self.msg_num}")
 
-            # logger.info(f"data: {self.data}")
-            # logger.info(f"ns: {self.ns}")
+            # if np.sum(self.ns) >= int(self.seg_dur) * self.seg_num+1:
+            #     t2 = time.time()
+            #     self.get_data.append((t2 - t1)*1000.0)
+            #     t3 = time.time()
+            #     data_obj_id = self.client.put(np.array(self.data), 'seg_num_' + str(self.seg_num))
+            #     seg_obj_id = self.client.put(self.seg_num, 'seg_num_' + str(self.seg_num))
+            #     t4 = time.time()
+            #     self.put_to_store.append((t4 - t3)*1000.0)
+            #     t5 = time.time()
+            #     self.q_out.put([data_obj_id, seg_obj_id])
+            #     self.put_out_time.append((time.time() - t5)*1000.0)
 
-            # logger.info(f"seg {self.seg_num}, n={int(msg[-1])}")
-
-            t3 = time.time()
-            # self.get_data.append((time.time() - t2)*1000.0)
-
-            if np.sum(self.ns_per_msg) >= self.n_per_seg * (self.seg_num + 1):
-
-                data_obj_id = self.client.put(np.array(self.data[0:self.n_per_seg]), f"seg_num_{str(self.seg_num)}")
-                seg_obj_id = self.client.put(self.seg_num, f"seg_num_{str(self.seg_num)}")
-                self.put_seg_to_store((time.time() - t3)*1000.0)
-
-                t4 = time.time()
-                self.q_out.put(data_obj_id)
-                self.put_out_time.append((time.time() - t4)*1000.0)
+            #     self.seg_num += 1
                 
-                self.data = self.data[self.n_per_seg:]
-                self.seg_num += 1
-
-            self.recv_msg.append((t2 - t1)*1000.0)
-            self.get_data.append((t3- t2)*1000.0)
-
-            self.msg_num += 1
+            #     self.zmq_acq_total_times.append((time.time() - t)*1000.0)
 
         except Exception as e:
                 logger.error(f"Acquirer general exception: {e}")
@@ -194,12 +170,10 @@ class ZMQAcquirer(Actor):
         #                                                                                 e, self.seg_num))
         #     print(traceback.format_exc())
         #     self.dropped_wav.append(self.seg_num)
-        self.zmq_acq_total_times.append((time.time() - t)*1000.0)
+        # self.zmq_acq_total_times.append((time.time() - t)*1000.0)
 
-        logger.info(f"{self.name} avg time per run: {np.mean(self.zmq_acq_total_times)} ms")
-
-        # logger.info(f"Acquire broke, avg time per segment: {np.mean(self.zmq_acq_total_times)} ms")
-        # logger.info(f"Acquire got through {self.seg_num} segments")
+        # logger.info(f"Acquire broke, avg time per segment: {np.mean(self.zmq_acq_total_times)}")
+        logger.info(f"Acquire got through {self.seg_num} segments")
 
 
     def setRecvSocket(self):
@@ -235,7 +209,7 @@ class ZMQAcquirer(Actor):
         # self.recv_socket.setsockopt(SUBSCRIBE, b"t")
         # self.recv_socket.setsockopt(SUBSCRIBE, b"d")
 
-        logger.info(f"Subscriber socket: {recv_address}")
+        logger.info(f"Subscriber socket set: {recv_address}")
         # why include a timeout? time how long it takes to connect?
         # time.sleep(timeout)
 
@@ -262,7 +236,7 @@ class ZMQAcquirer(Actor):
             else: 
                 msg = self.recv_socket.recv()
         except ZMQError as e:
-            logger.info(f"ZMQ error: {e}, {self.msg_num}")
+            logger.info(f"ZMQ error: {e}")
             if e.errno == ETERM:
                 pass           # Interrupted - or break if in loop
             if e.errno == EAGAIN:
@@ -271,14 +245,11 @@ class ZMQAcquirer(Actor):
                 raise # real error
                 # traceback.print_exc()
         
-        # logger.info(f"Msg {self.msg_num} received: {msg}")
+        logger.info(f"Message received: {msg}")
         return msg # process message
     
 
-# FOR TESTING PURPOSES OUTSIDE OF IMPROV
 if __name__ == "__main__":
-
-    out_path = '/home/eao21/project-improv/improv/demos/ava/zmq_ex_ns/ns_per_msg.npy'
 
     sub_ip = "10.122.168.184"
     sub_port = "5555"
@@ -290,15 +261,84 @@ if __name__ == "__main__":
     zmq_acq.setup()
 
     data = []
-    ns_per_msg = []
+    ns = []
+
+    import numpy as np
+    import os
+    import pandas as pd
+    import matplotlib.pyplot as plt
+
+    from scipy.io import wavfile
+    from scipy.io.wavfile import WavFileWarning
+
+    import warnings
+
+    plt.rcParams.update({'font.size' : 14,
+        'font.family' : 'Arial',
+        'lines.linewidth': 0,
+        'axes.labelsize': 10,
+        'legend.fontsize': 8,
+        'axes.titlesize': 10,
+        'xtick.labelsize': 8,
+        'ytick.labelsize': 8,
+        'figure.dpi': 300,
+        'savefig.dpi': 500,
+        'axes.spines.right': False,
+        'axes.spines.top': False,
+        'axes.edgecolor': 'k', 
+        'axes.linewidth': 1, 
+        'axes.grid': False,
+        'xtick.major.width': .5,
+        'ytick.major.width': .5,
+        'axes.autolimit_mode': 'data',
+        'savefig.format': 'svg'})
+
+
+    def plot_hist(data, cmap, title, out_path, file_name, bins='auto', range=None, rc_add=None, save=False, show=False):
+        '''
+        '''
+        fig = plt.figure(figsize=(6.4,4.8))
+        ax = plt.subplot(111) 
+
+        if rc_add is not None:
+            plt.rcParams.update(rc_add)
+
+        ax.hist(data, bins=bins, range=range, color=cmap)
+        ax.set_xlabel('n per Message', fontname='Arial')
+        ax.set_ylabel('Counts', fontname='Arial')
+        plt.title(title)
+
+        if title is not None:
+            ax.set_title(title)
+
+        if save is True:
+            fig.savefig(os.path.join(out_path, file_name) + '.svg',
+            format='svg',
+            bbox_inches='tight',
+            dpi=500)
+
+        if show is True:
+            pass
+
+        plt.close()
+
+        return fig
     
     t = time.time()
     while 1:
         msg = zmq_acq.recvMsg()
-        
         data.extend(np.int16(msg[:-1]))
-        ns_per_msg.append(int(msg[-1]))
+        ns.append(int(msg[-1]))
 
-        np.save(os.path.join(out_path, 'ns_per_msg.npy'), ns_per_msg)
+        if len(ns) >= 10000:
+            np.save('ns_per_msg.npy', ns)
+
+            print(np.mean(ns))
+            print(np.std(ns))
+
+            plot_hist(ns, cmap='#8a4590', save=True, title=None, out_path='', file_name='n_per_msg')
+
+            break
+
         # one = zmq_acq.runZMQAcquirer()
         # print(one - t - 1)
