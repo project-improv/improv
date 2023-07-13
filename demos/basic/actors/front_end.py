@@ -12,7 +12,7 @@ from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
 from . import improv_basic
-from improv.store import Store
+from improv.store import StoreInterface
 from improv.actor import Signal
 
 import logging

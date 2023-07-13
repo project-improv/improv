@@ -7,7 +7,7 @@ import pytest
 
 from improv.actor import Actor
 
-from improv.store import Store
+from improv.store import StoreInterface
 from improv.link import Link
 
 
@@ -31,7 +31,7 @@ def setup_store():
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    store = Store(store_loc="/tmp/store")
+    store = StoreInterface(store_loc="/tmp/store")
     yield store
     p.kill()
     p.wait()
@@ -47,7 +47,7 @@ def init_actors(n=1):
     # the links must be specified as an empty dictionary to avoid
     # actors sharing a dictionary of links
 
-    return [Actor("test " + str(i), links={}) for i in range(n)]
+    return [Actor("test " + str(i), "/tmp/store", links={}) for i in range(n)]
 
 
 @pytest.fixture()
@@ -167,7 +167,7 @@ def test_getStart(example_link):
 
     lnk = example_link
 
-    assert lnk.getStart() == Actor("test 0").name
+    assert lnk.getStart() == Actor("test 0", "/tmp/store").name
 
 
 def test_getEnd(example_link):
@@ -175,7 +175,7 @@ def test_getEnd(example_link):
 
     lnk = example_link
 
-    assert lnk.getEnd() == Actor("test 1").name
+    assert lnk.getEnd() == Actor("test 1", "/tmp/store").name
 
 
 def test_put(example_link):
@@ -202,7 +202,7 @@ def test_put_unserializable(example_link, caplog, setup_store):
         SerializationCallbackError: Actor objects are unserializable.
     """
     # store = setup_store
-    act = Actor("test")
+    act = Actor("test", "/tmp/store")
     lnk = example_link
     sentinel = True
     try:
@@ -298,7 +298,7 @@ def test_put_overflow(setup_store, caplog):
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    Store(store_loc="/tmp/store")
+    StoreInterface(store_loc="/tmp/store")
 
     acts = init_actors(2)
     lnk = Link("L1", acts[0], acts[1])
@@ -313,7 +313,7 @@ def test_put_overflow(setup_store, caplog):
 
     if caplog.records:
         for record in caplog.records:
-            if "PlasmaStoreFull" in record.msg:
+            if "PlasmaStoreInterfaceFull" in record.msg:
                 assert True
     else:
         pytest.fail("expected an error!")
