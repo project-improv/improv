@@ -3,7 +3,7 @@ import pickle
 import json
 import cv2
 import numpy as np
-from improv.store import Store, CannotGetObjectError, ObjectNotFoundError
+from improv.store import StoreInterface, CannotGetObjectError, ObjectNotFoundError
 from os.path import expanduser
 import os
 from queue import Empty

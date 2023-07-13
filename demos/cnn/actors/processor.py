@@ -113,7 +113,7 @@ class CNNProcessor(Actor):
             self.setup,
             self.q_sig,
             self.q_comm,
-            runStore=self._getStoreInterface(),
+            runStoreInterface=self._getStoreInterface(),
         ) as rm:
             print(rm)
 

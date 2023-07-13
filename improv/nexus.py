@@ -4,6 +4,8 @@ import signal
 import time
 import subprocess
 import logging
+import os
+import uuid
 import zmq.asyncio as zmq
 from zmq import PUB, REP, SocketOption
 
@@ -12,7 +14,7 @@ from importlib import import_module
 from queue import Full
 from datetime import datetime
 
-from improv.store import Store
+from improv.store import StoreInterface
 from improv.actor import Signal
 from improv.config import Config
 from improv.link import Link, MultiLink
@@ -59,14 +61,13 @@ class Nexus:
         control_port = int(
             self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT).split(":")[-1]
         )
-
-        self._startStore(
+        self._startStoreInterface(
             store_size
         )  # default size should be system-dependent; this is 40 GB
-        self.out_socket.send_string("Store started")
-
+        self.out_socket.send_string("StoreInterface started")
         # connect to store and subscribe to notifications
-        self.store = Store()
+        logger.info("Create new store object")
+        self.store = StoreInterface(store_loc=self.store_loc)
         self.store.subscribe()
 
         # LMDB storage
@@ -162,6 +163,7 @@ class Nexus:
             if name not in self.actors.keys():
                 # Check for actors being instantiated twice
                 self.createActor(name, actor)
+                logger.info("setup the actor {0}".format(name))
 
         # Second set up each connection b/t actors
         for name, link in self.data_queues.items():
@@ -249,7 +251,16 @@ class Nexus:
         to kill the process running the store (plasma server)
         """
         logger.warning("Destroying Nexus")
-        self._closeStore()
+        self._closeStoreInterface()
+        try:
+            os.remove(self.store_loc)
+        except FileNotFoundError:
+            logger.warning(
+                "StoreInterface file at location {0} has already been deleted".format(
+                    self.store_loc
+                )
+            )
+        logger.warning("Delete the store at location {0}".format(self.store_loc))
 
     async def pollQueues(self):
         """
@@ -402,7 +413,7 @@ class Nexus:
                                     p.daemon = True
                     # Setting the stores for each actor to be the same
                     # TODO: test if this works for fork -- don't think it does?
-                    m.setStore(
+                    m.setStoreInterface(
                         [act for act in self.actors.values() if act.name != pro.name][
                             0
                         ].client
@@ -543,18 +554,19 @@ class Nexus:
 
         logger.info("Polling has stopped.")
 
-    def createStore(self, name):
-        """Creates Store w/ or w/out LMDB functionality based on {self.use_hdd}."""
+    def createStoreInterface(self, name):
+        """Creates StoreInterface w/ or w/out LMDB
+        functionality based on {self.use_hdd}."""
         if not self.use_hdd:
-            return Store(name)
+            return StoreInterface(name, self.store_loc)
         else:
             if name not in self.store_dict:
-                self.store_dict[name] = Store(
-                    name, use_hdd=True, lmdb_name=self.lmdb_name
+                self.store_dict[name] = StoreInterface(
+                    name, self.store_loc, use_hdd=True, lmdb_name=self.lmdb_name
                 )
             return self.store_dict[name]
 
-    def _startStore(self, size):
+    def _startStoreInterface(self, size):
         """Start a subprocess that runs the plasma store
         Raises a RuntimeError exception size is undefined
         Raises an Exception if the plasma store doesn't start
@@ -564,11 +576,12 @@ class Nexus:
         if size is None:
             raise RuntimeError("Server size needs to be specified")
         try:
-            self.p_Store = subprocess.Popen(
+            self.store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
+            self.p_StoreInterface = subprocess.Popen(
                 [
                     "plasma_store",
                     "-s",
-                    "/tmp/store",
+                    self.store_loc,
                     "-m",
                     str(size),
                     "-e",
@@ -577,18 +590,26 @@ class Nexus:
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
-            logger.info("Store started successfully")
+            logger.info(
+                "StoreInterface started successfully at location: {0}".format(
+                    self.store_loc
+                )
+            )
         except Exception as e:
-            logger.exception("Store cannot be started: {0}".format(e))
+            logger.exception("StoreInterface cannot be started: {0}".format(e))
 
-    def _closeStore(self):
+    def _closeStoreInterface(self):
         """Internal method to kill the subprocess
         running the store (plasma sever)
         """
         try:
-            self.p_Store.kill()
-            self.p_Store.wait()
-            logger.info("Store closed successfully")
+            self.p_StoreInterface.kill()
+            self.p_StoreInterface.wait()
+            logger.info(
+                "StoreInterface closed successfully at location: {0}".format(
+                    self.store_loc
+                )
+            )
         except Exception as e:
             logger.exception("Cannot close store {0}".format(e))
 
@@ -599,26 +620,26 @@ class Nexus:
         # Instantiate selected class
         mod = import_module(actor.packagename)
         clss = getattr(mod, actor.classname)
-        instance = clss(actor.name, **actor.options)
+        instance = clss(actor.name, self.store_loc, **actor.options)
 
         if "method" in actor.options.keys():
             # check for spawn
             if "fork" == actor.options["method"]:
-                # Add link to Store store
-                store = self.createStore(actor.name)
-                instance.setStore(store)
+                # Add link to StoreInterface store
+                store = self.createStoreInterface(actor.name)
+                instance.setStoreInterface(store)
             else:
                 # spawn or forkserver; can't pickle plasma store
                 logger.info("No store for this actor yet {}".format(name))
         else:
-            # Add link to Store store
-            store = self.createStore(actor.name)
-            instance.setStore(store)
+            # Add link to StoreInterface store
+            store = self.createStoreInterface(actor.name)
+            instance.setStoreInterface(store)
 
         # Add signal and communication links
         # store_arg = [None, None]
         # if self.use_hdd:
-        #     store_arg = [store, self.createStore("default")]
+        #     store_arg = [store, self.createStoreInterface("default")]
 
         q_comm = Link(actor.name + "_comm", actor.name, self.name)
         q_sig = Link(actor.name + "_sig", self.name, actor.name)
@@ -676,7 +697,7 @@ class Nexus:
     # Appears depricated? FIXME
     # def createWatcher(self, watchin):
     #     watcher= BasicWatcher('Watcher', inputs=watchin)
-    #     watcher.setStore(store.Store(watcher.name))
+    #     watcher.setStoreInterface(store.StoreInterface(watcher.name))
     #     q_comm = Link('Watcher_comm', watcher.name, self.name)
     #     q_sig = Link('Watcher_sig', self.name, watcher.name)
     #     self.comm_queues.update({q_comm.name:q_comm})
@@ -685,12 +706,12 @@ class Nexus:
 
     #     self.actors.update({watcher.name: watcher})
 
-    # TODO: Store access here seems wrong, need to test
+    # TODO: StoreInterface access here seems wrong, need to test
     def startWatcher(self):
         from improv.watcher import Watcher
 
-        self.watcher = Watcher("watcher", self.createStore("watcher"))
-        # store = self.createStore("watcher") if not self.use_hdd else None
+        self.watcher = Watcher("watcher", self.createStoreInterface("watcher"))
+        # store = self.createStoreInterface("watcher") if not self.use_hdd else None
         q_sig = Link("watcher_sig", self.name, "watcher")
         self.watcher.setLinks(q_sig)
         self.sig_queues.update({q_sig.name: q_sig})
