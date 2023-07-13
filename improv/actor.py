@@ -4,7 +4,7 @@ import traceback
 import signal
 from queue import Empty
 from typing import Awaitable, Callable
-from improv.store import Store
+from improv.store import StoreInterface
 
 import logging
 
@@ -19,7 +19,7 @@ class AbstractActor:
     Also needs to be responsive to sent Signals (e.g. run, setup, etc)
     """
 
-    def __init__(self, name, method="fork"):
+    def __init__(self, name, store_loc, method="fork"):
         """Require a name for multiple instances of the same actor/class
         Create initial empty dict of Links for easier referencing
         """
@@ -28,7 +28,7 @@ class AbstractActor:
         self.links = {}
         self.method = method
         self.client = None
-
+        self.store_loc = store_loc
         self.lower_priority = False
 
         # start with no explicit data queues.
@@ -46,7 +46,7 @@ class AbstractActor:
         """
         return self.name + ": " + str(self.links.keys())
 
-    def setStore(self, client):
+    def setStoreInterface(self, client):
         """Sets the client interface to the store
 
         Args:
@@ -59,8 +59,8 @@ class AbstractActor:
     def _getStoreInterface(self):
         # TODO: Where do we require this be run? Add a Signal and include in RM?
         if not self.client:
-            store = Store(self.name)
-            self.setStore(store)
+            store = StoreInterface(self.name, self.store_loc)
+            self.setStoreInterface(store)
 
     def setLinks(self, links):
         """General full dict set for links"""
@@ -212,7 +212,7 @@ Actor = ManagedActor
 class RunManager:
     """ """
 
-    def __init__(self, name, actions, links, runStore=None, timeout=1e-6):
+    def __init__(self, name, actions, links, runStoreInterface=None, timeout=1e-6):
         self.run = False
         self.stop = False
         self.config = False
@@ -225,7 +225,7 @@ class RunManager:
         self.q_sig = self.links["q_sig"]
         self.q_comm = self.links["q_comm"]
 
-        self.runStore = runStore
+        self.runStoreInterface = runStoreInterface
         self.timeout = timeout
 
     def __enter__(self):
@@ -256,8 +256,8 @@ class RunManager:
                 self.stop = False  # Run once
             elif self.config:
                 try:
-                    if self.runStore:
-                        self.runStore()
+                    if self.runStoreInterface:
+                        self.runStoreInterface()
                     self.actions["setup"]()
                     self.q_comm.put([Signal.ready()])
                 except Exception as e:
