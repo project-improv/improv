@@ -312,6 +312,7 @@ def test_actor_connection(setup_store):
 
     Store(store_loc="/tmp/store")
     link = Link("L12", act1, act2)
+
     act1.setLinkIn(link)
     act2.setLinkOut(link)
 
