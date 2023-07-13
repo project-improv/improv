@@ -94,7 +94,7 @@ class ZmqRRActor(Actor):
         Sets up the request socket for the actor.
         """
 
-        self.context = zmq.Context()
+        self.context = zmq.asyncio.Context()
         self.req_socket = self.context.socket(REQ)
         # bind to the socket according to the ip and port
         self.address = "tcp://{}:{}".format(ip, port)
@@ -105,7 +105,7 @@ class ZmqRRActor(Actor):
         Sets up the reply socket for the actor.
         """
 
-        self.context = zmq.Context()
+        self.context = zmq.asyncio.Context()
         self.rep_socket = self.context.socket(REP)
         self.address = "tcp://{}:{}".format(ip, port)
         self.rep_socket.bind(self.address)

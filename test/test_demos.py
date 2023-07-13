@@ -27,12 +27,12 @@ def ip():
     return pytest.ip
 
 
-@pytest.fixture()
-def unused_tcp_port():
-    """Fixture to provide a tcp port test input."""
+# @pytest.fixture()
+# def unused_tcp_port():
+#     """Fixture to provide a tcp port test input."""
 
-    pytest.unused_tcp_port = 5555
-    return pytest.unused_tcp_port
+#     pytest.unused_tcp_port = 5555
+#     return pytest.unused_tcp_port
 
 
 @pytest.mark.parametrize(
@@ -137,8 +137,8 @@ async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
 def test_zmq_ps(ip, unused_tcp_port):
     """Tests if we can set the zmq PUB/SUB socket and send message."""
 
-    act1 = ZmqPSActor("act1")
-    act2 = ZmqPSActor("act2")
+    act1 = ZmqPSActor("act1", "/tmp/store")
+    act2 = ZmqPSActor("act2", "/tmp/store")
     act1.setSendSocket(ip, unused_tcp_port)
     act2.setRecvSocket(ip, unused_tcp_port)
     msg = "hello"
@@ -150,8 +150,8 @@ def test_zmq_ps(ip, unused_tcp_port):
 async def test_zmq_rr(ip, unused_tcp_port):
     """Tests if we can set the zmq REQ/REP socket and send message."""
 
-    act1 = ZmqRRActor("act1")
-    act2 = ZmqRRActor("act2")
+    act1 = ZmqRRActor("act1", "/tmp/store")
+    act2 = ZmqRRActor("act2", "/tmp/store")
     act1.setReqSocket(ip, unused_tcp_port)
     act2.setRepSocket(ip, unused_tcp_port)
     msg = "hello"
@@ -167,8 +167,8 @@ async def test_zmq_rr(ip, unused_tcp_port):
 
 async def test_zmq_rr_timeout(ip, unused_tcp_port):
     """Test for requestMsg where we timeout or fail to send"""
-    act1 = ZmqRRActor("act1")
+    act1 = ZmqRRActor("act1", "/tmp/store")
     act1.setReqSocket(ip, unused_tcp_port)
     msg = "hello"
-    replymsg = await act1.requestMsg(msg, timeout=0.1)
+    replymsg = await act1.requestMsg(msg)
     assert replymsg is None
