@@ -18,7 +18,7 @@ jobs:
       fail-fast: true
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10"]
-        os: [windows-latest] # [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest] # [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v3
@@ -64,7 +64,7 @@ jobs:
       - name: Test with pytest (Ubuntu)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-          # pytest -vv --cov=improv --ignore=test/test_tui.py --ignore=test/test_store_with_errors.py --ignore=test/test_runManager.py --ignore=test/test_link.py --ignore=test/test_nexus.py
+          pytest -vv --cov=improv --ignore=test/test_tui.py --ignore=test/test_store_with_errors.py --ignore=test/test_runManager.py --ignore=test/test_link.py --ignore=test/test_nexus.py
       - name: Test with pytest (Windows)
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}

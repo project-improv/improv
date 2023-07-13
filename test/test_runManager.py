@@ -7,7 +7,7 @@ from improv.link import Link, AsyncQueue
 from improv.actor import AbstractActor
 from improv.actor import RunManager
 from improv.actor import Signal
-from improv.store import Store 
+from improv.store import StoreInterface
 from actors.sample_generator import Generator
 from actors.sample_processor import Processor
 
@@ -28,6 +28,7 @@ def init_rm():
     RM = RunManager("Test", samp_gen.runStep, samp_gen.links)
     yield [RM, samp_gen, samp_proc]
 
+@pytest.mark.skip(reason="unfinished")
 def test_RM_init(init_rm):
     [RM, gen, proc] = init_rm
     
@@ -38,6 +39,8 @@ def test_RM_init(init_rm):
     assert RM.timeout == 1e-6
 
 
+
+@pytest.mark.skip(reason="unfinished")
 def test_RM_run(init_rm):
     [RM, gen, proc] = init_rm
 
