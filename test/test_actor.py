@@ -7,8 +7,6 @@ from improv.actor import AbstractActor as Actor
 from improv.store import StoreInterface
 
 
-import asyncio
-
 # set global_variables
 
 pytest.example_string_links = {}
