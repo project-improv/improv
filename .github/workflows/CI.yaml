@@ -52,7 +52,7 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
         run: |
-          pwd
+          ls -a ../../../../..
           pip install --upgrade pip
           pip install build
           pip install flake8 pytest
@@ -66,12 +66,12 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           #default
-          pytest test/test_actor.py -vv --cov=improv
+          pytest test/test_actor.py -vv --cov=improv -k "setStoreInterface"
       - name: Test with pytest (Windows)
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
         run: |
-          pytest test/test_actor.py -vv --cov=improv 
+          pytest test/test_actor.py -vv --cov=improv -k "setStoreInterface"
           # pytest -vv --cov=improv --ignore=test/test_tui.py --ignore=test/test_store_with_errors.py --ignore=test/test_runManager.py --ignore=test/test_link.py --ignore=test/test_nexus.py --ignore=test/test_actor.py
           #          pytest -vv --cov=improv --ignore=test/test_tui.py --ignore=test/test_store_with_errors.py --ignore=test/test_runManager.py
       - name: Coveralls

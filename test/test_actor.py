@@ -101,8 +101,10 @@ def test_repr(example_string_links, set_store_loc):
 
 def test_setStoreInterface(setup_store, set_store_loc):
     """Tests if the store is started and linked with the actor."""
-
+    
+    print("HERE");
     act = Actor("Acquirer", set_store_loc)
+    print(f"store_loc: {set_store_loc}")
     store = StoreInterface(store_loc=set_store_loc)
     act.setStoreInterface(store.client)
     assert act.client is store.client
