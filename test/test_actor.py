@@ -88,7 +88,7 @@ def test_repr_default_initialization(init_actor, set_store_loc):
 
     act = init_actor
     rep = act.__repr__()
-    print(f"store_loc: {set_store_loc}")
+    print(f"\nstore_loc: {set_store_loc}\n")
     assert rep == "Test: dict_keys([])"
 
 
