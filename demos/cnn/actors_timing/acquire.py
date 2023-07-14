@@ -1,16 +1,11 @@
-import time
-import os
-# import h5py
-# import random
 import numpy as np
+import os
 import pandas as pd
+from pathlib import Path # for FolderAcquirer
 from skimage.io import imread
+import time
 
-# For FolderAcquirer
-from pathlib import Path
-from queue import Empty
-
-from improv.actor import Actor, RunManager
+from improv.actor import Actor
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -61,6 +56,18 @@ class ImageAcquirer(Actor):
     def setup(self):
         os.makedirs(self.out_path, exist_ok=True)
 
+        self.acq_total_times = []
+        self.acq_timestamps = []
+        self.get_img_time = []
+        self.put_img_time = []
+        self.put_out_time = []
+        self.timestamps = []
+
+        if self.classify is True and self.label_path is not None:
+            self.get_lab_time = []
+            self.put_lab_time = []
+            self.lab_timestamps = []
+
         self.files = [f.as_posix() for f in self.path.iterdir() if f.suffix in self.exts]
         self.files.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
 
@@ -83,17 +90,11 @@ class ImageAcquirer(Actor):
     #     f.create_dataset("default", data=self.imgs)
     #     f.close()
 
-    def run(self):
+    def runStep(self):
         ''' Triggered at Run
             Get list of files in the folder and use that as the baseline.
             Arg: exts = list of possible extensions
         '''
-        self.acq_total_times = []
-        self.acq_timestamps = []
-        self.get_img_time = []
-        self.put_img_time = []
-        self.put_out_time = []
-        self.timestamps = []
 
         # if self.time is True:
         #     for l in self.timing:
@@ -108,11 +109,6 @@ class ImageAcquirer(Actor):
     # for k, v in kwargs.items():
     #     setattr(self, k, v)
 
-        if self.classify is True and self.label_path is not None:
-            self.get_lab_time = []
-            self.put_lab_time = []
-            self.lab_timestamps = []
-
         # if self.classify is True and self.label_path is not None:
         #     for l in self.lab_timing:
         #         setattr(self, l, [])
@@ -120,29 +116,7 @@ class ImageAcquirer(Actor):
         #         self.put_lab_time = []
         #         self.lab_timestamps = []
 
-        with RunManager(self.name, self.runAcquirer, self.setup, self.q_sig, self.q_comm) as rm:
-            print(rm)
 
-        if '.tif' or '.tiff' in self.exts:
-            print('Acquire broke, avg time per frame:', np.mean(self.acq_total_times))
-            print('Acquire got through', self.img_num, ' frames')
-        if '.jpg' or '.png' in self.exts:
-            print('Acquire broke, avg time per image:', np.mean(self.acq_total_times))
-            print('Acquire got through ', self.img_num, ' images')
-
-        if self.time_opt is True:
-            keys = self.timing
-            values = [self.acq_timestamps, self.get_img_time, self.put_img_time, self.put_out_time, self.acq_total_times] 
-
-            if self.classify is True and self.label_path is not None:
-                keys.extend(self.lab_timing)
-                values.extend([self.get_lab_time, self.put_lab_time, self.lab_timestamps])
-            
-            timing_dict = dict(zip(keys, values))
-            df = pd.DataFrame.from_dict(timing_dict, orient='index').transpose()
-            df.to_csv(os.path.join(self.out_path, 'acq_timing_' + str(self.n_imgs) + '.csv'), index=False, header=True)
-        
-    def runAcquirer(self):
         '''
         '''
         if self.time_opt is True:
@@ -201,6 +175,32 @@ class ImageAcquirer(Actor):
             self.data = None
             self.q_comm.put(None)
             self.done = True
+
+
+        if '.tif' or '.tiff' in self.exts:
+            print('Acquire broke, avg time per frame:', np.mean(self.acq_total_times))
+            print('Acquire got through', self.img_num, ' frames')
+        if '.jpg' or '.png' in self.exts:
+            print('Acquire broke, avg time per image:', np.mean(self.acq_total_times))
+            print('Acquire got through ', self.img_num, ' images')
+
+    def stop(self):
+        '''
+        '''
+
+        if self.time_opt is True:
+            keys = self.timing
+            values = [self.acq_timestamps, self.get_img_time, self.put_img_time, self.put_out_time, self.acq_total_times] 
+
+            if self.classify is True and self.label_path is not None:
+                keys.extend(self.lab_timing)
+                values.extend([self.get_lab_time, self.put_lab_time, self.lab_timestamps])
+            
+            timing_dict = dict(zip(keys, values))
+            df = pd.DataFrame.from_dict(timing_dict, orient='index').transpose()
+            df.to_csv(os.path.join(self.out_path, 'acq_timing_' + str(self.n_imgs) + '.csv'), index=False, header=True)
+
+        return 0
 
     def get_img(self, file):
         '''

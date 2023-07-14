@@ -1,13 +1,14 @@
-import os
-import time
 import numpy as np
+import os
 import pandas as pd
-from improv.store import CannotGetObjectError, ObjectNotFoundError
 from queue import Empty
-from improv.actor import Actor, RunManager
+import time
+
+from improv.store import CannotGetObjectError, ObjectNotFoundError
+from improv.actor import Actor
 
 import torch
-from scipy.special import softmax
+from scipy.special import softmax # why scipy? — refactor for use torch Softmax, torch.nn.Softmax(dim=None) or torch.softmax
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -48,12 +49,21 @@ class CNNProcessor(Actor):
 
     def setup(self):
         ''' Initialize model
+        TODO: reorganize below
         '''
         os.makedirs(self.out_path, exist_ok=True)
 
         logger.info('Loading model for ' + self.name)
         self.done = False
         self.dropped_img = []
+
+        self.total_times = []
+
+        if self.classify is True:
+            self.true_label = []
+            self.pred_label = []
+            self.percent = []
+            self.top_five = []
 
         t = time.time()        
         self.model = torch.jit.load(self.model_path).eval().to(self.device)
@@ -84,30 +94,16 @@ class CNNProcessor(Actor):
                 self.labels = f.read().split(", ")
                 f.close()
 
-    def run(self):
+    def runStep(self):
         ''' Run the processor continually on input data, e.g.,images
-        '''
-        self.total_times = []
 
-        if self.classify is True:
-            self.true_label = []
-            self.pred_label = []
-            self.percent = []
-            self.top_five = []
-
-        with RunManager(self.name, self.runProcess, self.setup, self.q_sig, self.q_comm, runStore=self._getStoreInterface()) as rm:
-            print(rm)
-        
-        print('Processor broke, avg time per image:', np.mean(self.total_times))
-        print('Processor got through', self.img_num, ' images')
-
-    def runProcess(self):
-        ''' Run process. Runs once per image.
+            Run process. Runs once per image.
             Output is a location in the DS to continually
             place the processed image, model output, and classification/prediction with ref number that
             corresponds to the frame number (TODO)
             [From neurofinder/actors/processor.py]
         '''
+
         ids = self._checkInput()
 
         if ids is not None:
@@ -149,6 +145,9 @@ class CNNProcessor(Actor):
             self.data = None
             self.q_comm.put(None)
             self.done = True  # stay awake in case we get a shutdown signal
+
+        print('Processor broke, avg time per image:', np.mean(self.total_times))
+        print('Processor got through', self.img_num, ' images')
 
     def _checkInput(self):
         ''' Check to see if we have images for processing

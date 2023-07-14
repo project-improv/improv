@@ -1,13 +1,14 @@
-import os
-import time
 import numpy as np
+import os
 import pandas as pd
-from improv.store import CannotGetObjectError, ObjectNotFoundError
 from queue import Empty
-from improv.actor import Actor, RunManager
+import time
+
+from improv.store import CannotGetObjectError, ObjectNotFoundError
+from improv.actor import Actor
 
 import torch
-from scipy.special import softmax
+from scipy.special import softmax # why scipy? — refactor for use torch Softmax, torch.nn.Softmax(dim=None) or torch.softmax
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -54,6 +55,24 @@ class CNNProcessor(Actor):
         '''
         os.makedirs(self.out_path, exist_ok=True)
 
+        self.proc_timestamps = []
+        self.get_img_out = []
+        self.proc_img_time = []
+        self.to_device = []
+        self.inference_time = []
+        self.out_to_np = []
+        self.put_out_store = []
+        self.put_q_out = []
+        if self.classify is True:
+            self.pred_time = []
+            self.put_pred_store = []
+            self.true_label = []
+            self.pred_label = []
+            self.percent = []
+            self.top_five = []
+
+        self.proc_total_times = []
+
         logger.info('Loading model for ' + self.name)
         self.done = False
         self.dropped_img = []
@@ -90,52 +109,14 @@ class CNNProcessor(Actor):
     def run(self):
         ''' 
         Run processor continually on input data, e.g.,images
-        '''
-        self.proc_timestamps = []
-        self.get_img_out = []
-        self.proc_img_time = []
-        self.to_device = []
-        self.inference_time = []
-        self.out_to_np = []
-        self.put_out_store = []
-        self.put_q_out = []
-        if self.classify is True:
-            self.pred_time = []
-            self.put_pred_store = []
-            self.true_label = []
-            self.pred_label = []
-            self.percent = []
-            self.top_five = []
-
-        self.proc_total_times = []
-
-        with RunManager(self.name, self.runProcess, self.setup, self.q_sig, self.q_comm, runStore=self._getStoreInterface()) as rm:
-            print(rm)
         
-        print('Processor broke, avg time per image:', np.mean(self.proc_total_times))
-        print('Processor got through', self.img_num, ' images')
-
-        # keys = ['proc_timestamps', 'get_img_out', 'proc_img_time', 'to_device', 'inference_time', 'out_to_np', 'put_out_store', 'put_q_out', 'total_times']
-
-        keys = self.timing
-        values = [self.proc_timestamps, self.get_img_out, self.proc_img_time, self.to_device, self.inference_time, self.out_to_np, self.put_out_store, self.put_q_out, self.proc_total_times]
-
-        if self.classify is True and self.labels is not None:
-            self.lab_timing.extend(['true_label', 'pred_label', 'percent', 'top_five'])
-            keys.extend(self.lab_timing)
-            values.extend([self.pred_time, self.put_pred_store, self.true_label, self.pred_label, self.percent, self.top_five])
-
-        timing_dict = dict(zip(keys, values))
-        df = pd.DataFrame.from_dict(timing_dict, orient='index').transpose()
-        df.to_csv(os.path.join(self.out_path, 'proc_timing_' + str(self.n_imgs) + '.csv'), index=False, header=True)
-
-    def runProcess(self):
-        ''' Run process. Runs once per image.
+        Run process. Runs once per image.
             Output is a location in the DS to continually
             place the processed image, model output, and classification/prediction with ref number that
             corresponds to the frame number (TODO)
             [Adapted from neurofinder/actors/processor.py]
         '''
+        
         self.proc_timestamps.append((time.time(), int(self.img_num)))
 
         ids = self._checkInput()
@@ -215,6 +196,27 @@ class CNNProcessor(Actor):
             self.data = None
             self.q_comm.put(None)
             self.done = True  # stay awake in case we get a shutdown signal
+        print('Processor broke, avg time per image:', np.mean(self.proc_total_times))
+        print('Processor got through', self.img_num, ' images')
+
+        # keys = ['proc_timestamps', 'get_img_out', 'proc_img_time', 'to_device', 'inference_time', 'out_to_np', 'put_out_store', 'put_q_out', 'total_times']
+
+    def stop(self):
+        '''
+        '''
+
+        keys = self.timing
+        values = [self.proc_timestamps, self.get_img_out, self.proc_img_time, self.to_device, self.inference_time, self.out_to_np, self.put_out_store, self.put_q_out, self.proc_total_times]
+
+        if self.classify is True and self.labels is not None:
+            self.lab_timing.extend(['true_label', 'pred_label', 'percent', 'top_five'])
+            keys.extend(self.lab_timing)
+            values.extend([self.pred_time, self.put_pred_store, self.true_label, self.pred_label, self.percent, self.top_five])
+
+        timing_dict = dict(zip(keys, values))
+        df = pd.DataFrame.from_dict(timing_dict, orient='index').transpose()
+        df.to_csv(os.path.join(self.out_path, 'proc_timing_' + str(self.n_imgs) + '.csv'), index=False, header=True)
+
 
 # Should the following technically be internal?
     def _checkInput(self):

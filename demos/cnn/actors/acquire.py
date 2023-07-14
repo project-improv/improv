@@ -1,27 +1,21 @@
-import time
-import os
-# import h5py
-# import random
 import numpy as np
+import os
 import pandas as pd
+from pathlib import Path # for FolderAcquirer
 from skimage.io import imread
+import time
 
-# For FolderAcquirer
-from pathlib import Path
-from queue import Empty
-
-from improv.actor import Actor, RunManager
+from improv.actor import Actor
 
 import logging; logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 class ImageAcquirer(Actor):
-    ''' Current behavior is looping over all image files in a folder.
-        Class to read TIFF/JPG/PNG files in a specified {path} from disk.
-        Designed for scenarios when new TIFF/JPG/PNG files are created during the run.
-        Reads only new TIFF/JPG/PNG files (after Run started) and put on to the Plasma store.
-        If there're multiple files, files are loaded by name.
-    '''
+    # TODO: Update ALL docstrings
+    # TODO: Clean commented sections
+    # TODO: Add any relevant q_comm
+    """Actor simulating image acquisition, read from disk.
+    """
 
     def __init__(self, *args, n_imgs=None, folder=None, exts=None, classify=False, label_folder=None, out_path=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,7 +26,7 @@ class ImageAcquirer(Actor):
         self.classify = classify
 
         if folder is None:
-            logger.error('Must specify folder of data.')
+            logger.error("Must specify folder of data.")
         else:
             self.path = Path(folder)
             if not self.path.exists() or not self.path.is_dir():
@@ -59,6 +53,8 @@ class ImageAcquirer(Actor):
         '''
         os.makedirs(self.out_path, exist_ok=True)
 
+        self.acq_total_times = []
+
         self.files = [f.as_posix() for f in self.path.iterdir() if f.suffix in self.exts]
         self.files.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
 
@@ -66,26 +62,14 @@ class ImageAcquirer(Actor):
             self.label_files = [f.as_posix() for f in self.label_path.iterdir()]
             self.label_files.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
             
-    def run(self):
-        ''' Triggered at Run
+    def runStep(self):
+        '''Triggered at Run
             Get list of files in the folder and use that as the baseline.
             Arg: exts = list of possible extensions
-        '''
-        self.acq_total_times = []
-        
-        with RunManager(self.name, self.runAcquirer, self.setup, self.q_sig, self.q_comm) as rm:
-            print(rm)
 
-        if '.tif' or '.tiff' in self.exts:
-            print('Acquire broke, avg time per frame:', np.mean(self.acq_total_times))
-            print('Acquire got through', self.img_num, ' frames')
-        if '.jpg' or '.png' in self.exts:
-            print('Acquire broke, avg time per image:', np.mean(self.acq_total_times))
-            print('Acquire got through ', self.img_num, ' images')
-
-    def runAcquirer(self):
-        ''' Main loop. If there're new files, read and put into store.
+            Main loop. If there're new files, read and put into store.
         '''
+
         if self.done:
             pass
         
@@ -109,11 +93,21 @@ class ImageAcquirer(Actor):
             except IndexError as e:
                 pass
 
+        # IF ACQUIRED TOTAL NUMBER OF IMGS, DONE
         if self.img_num == self.n_imgs:
+            # NOT ERROR -> INFO
             logger.error('Done acquiring all available data: {}'.format(self.img_num))
             self.data = None
             self.q_comm.put(None)
             self.done = True  # stay awake in case we get a shutdown signal
+
+        # NOTE: NOT QUITE APPROPRIATE FOR NEW FORMAT — BROKE IF RUN STOPS DUE TO ACQUISITION ERROR, LOG TOTAL NUMBER OF IMGS ACQUIRED BEFORE STOP
+        if '.tif' or '.tiff' in self.exts:
+            print('Acquire broke, avg time per frame:', np.mean(self.acq_total_times))
+            print('Acquire got through', self.img_num, ' frames')
+        if '.jpg' or '.png' in self.exts:
+            print('Acquire broke, avg time per image:', np.mean(self.acq_total_times))
+            print('Acquire got through ', self.img_num, ' images')
 
     def get_img(self, file):
         '''
