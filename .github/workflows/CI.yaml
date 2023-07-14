@@ -66,12 +66,12 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           #default
-          pytest test/test_actor.py -vv --cov=improv -k "setStoreInterface"
+          pytest test/test_actor.py -vv --cov=improv 
       - name: Test with pytest (Windows)
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
         run: |
-          pytest test/test_actor.py -vv --cov=improv -k "setStoreInterface"
+          pytest test/test_actor.py -vv --cov=improv  -k "repr_default"
           # pytest -vv --cov=improv --ignore=test/test_tui.py --ignore=test/test_store_with_errors.py --ignore=test/test_runManager.py --ignore=test/test_link.py --ignore=test/test_nexus.py --ignore=test/test_actor.py
           #          pytest -vv --cov=improv --ignore=test/test_tui.py --ignore=test/test_store_with_errors.py --ignore=test/test_runManager.py
       - name: Coveralls

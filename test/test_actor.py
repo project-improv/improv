@@ -83,11 +83,12 @@ def test_default_init(attribute, expected, init_actor):
     assert atr == expected
 
 
-def test_repr_default_initialization(init_actor):
+def test_repr_default_initialization(init_actor, set_store_loc):
     """Test if the actor representation has the right dict keys."""
 
     act = init_actor
     rep = act.__repr__()
+    print(f"store_loc: {set_store_loc}")
     assert rep == "Test: dict_keys([])"
 
 
