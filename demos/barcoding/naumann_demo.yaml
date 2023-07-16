@@ -1,0 +1,33 @@
+actors:
+  GUI:
+    package: actors.visual_model
+    class: DisplayVisual
+    visual: Visual
+
+  Acquirer:
+    package: actors.acquire_tbif
+    class: TbifAcquirer
+    filename: ./demos/barcoding/data/08-17-14_1437_F1_6dpfCOMPLETESET_WB_overclimbing_z-1.tbif
+    framerate: 3.6
+
+  Processor:
+    package: actors.processor
+    class: CaimanProcessor
+    init_filename: demos/barcoding/data/tbif_ex_crop.h5
+    config_file: ./demos/barcoding/naumann_caiman_params.txt
+
+  Visual:
+    package: actors.visual_model
+    class: CaimanVisual
+  
+  Analysis:
+    package: actors.analysis_model
+    class: ModelAnalysis
+    input_stim_num: 8
+
+
+connections:
+  Acquirer.q_out: [Processor.q_in, Visual.raw_frame_queue]
+  Processor.q_out: [Analysis.q_in]
+  Analysis.q_out: [Visual.q_in]
+  Acquirer.stim_queue: [Analysis.input_stim_queue]
