@@ -5,7 +5,7 @@ actors:
     visual: Visual
 
   Acquirer:
-    package: improv.actors.acquire
+    package: demos.sample_actors.acquire
     class: TiffAcquirer
     filename: data/Data_200001.tif
     framerate: 20
@@ -21,11 +21,11 @@ actors:
     class: BasicCaimanVisual
   
   Analysis:
-    package: improv.actors.analysis
+    package: demos.sample_actors.analysis
     class: MeanAnalysis
 
   InputStim:
-    package: improv.actors.acquire
+    package: demos.sample_actors.acquire
     class: BehaviorAcquirer
 
 
