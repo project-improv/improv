@@ -1,6 +1,6 @@
 from improv.actor import Actor
 
-import zmq.asyncio as zmq
+import zmq
 from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER, Again
 from zmq.log.handlers import PUBHandler
 import traceback
