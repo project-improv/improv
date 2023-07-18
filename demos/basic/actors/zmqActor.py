@@ -1,7 +1,7 @@
 from improv.actor import Actor
 
 import zmq.asyncio as zmq
-from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER, Again
+from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER, Again, NOBLOCK
 from zmq.log.handlers import PUBHandler
 import traceback
 
@@ -67,7 +67,7 @@ class ZmqPSActor(Actor):
         recv_msg = ""
         while True:
             try:
-                recv_msg = self.recv_socket.recv_pyobj(flags=zmq.NOBLOCK)
+                recv_msg = self.recv_socket.recv_pyobj(flags=NOBLOCK)
                 break
             except Again:
                 pass
