@@ -3,7 +3,11 @@ from queue import Empty
 import os
 import improv.store as store
 from scipy import io as sio
-from Bubblewrap.bubblewrap import Bubblewrap
+try:
+    from Bubblewrap.bubblewrap import Bubblewrap
+except ModuleNotFoundError as e:
+    e.msg = "You need to install bubblewrap under ./improv top level directory. See https://github.com/draeloslab/Bubblewrap for details"
+    raise
 from improv.actor import Actor, RunManager
 
 import logging

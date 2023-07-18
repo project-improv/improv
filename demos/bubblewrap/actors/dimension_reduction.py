@@ -4,7 +4,11 @@ import numpy as np
 import mat73
 import scipy.signal as signal
 from sklearn import random_projection as rp
-from proSVD.proSVD import proSVD
+try:
+    from proSVD.proSVD import proSVD
+except ModuleNotFoundError as e:
+    e.msg = "You need to install proSVD under ./improv top level directory. See https://github.com/pearsonlab/proSVD for details"
+    raise
 from queue import Empty
 import logging
 import traceback
