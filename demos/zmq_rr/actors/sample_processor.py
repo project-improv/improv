@@ -32,7 +32,7 @@ class Processor(AsyncActor):
         self.frame = None
         self.avg_list = []
         self.frame_num = 1
-        self.subscribe = ZmqRRActor("processor")
+        self.subscribe = ZmqRRActor("processor", self.store_loc)
         logger.info("Completed setup for Processor")
 
     async def stop(self):
@@ -53,7 +53,7 @@ class Processor(AsyncActor):
 
         try:
             # frame = self.q_in.get(timeout=0.001)
-            self.subscribe.setRepSocket(ip="127.0.0.1", port=5555)
+            self.subscribe.setRepSocket(ip="127.0.0.1", port=5556)
             reply = "received"
             frame = await self.subscribe.replyMsg(reply)
             # logger.info(f"Received frame: {frame}")

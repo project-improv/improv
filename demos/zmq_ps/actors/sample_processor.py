@@ -32,7 +32,7 @@ class Processor(Actor):
         self.frame = None
         self.avg_list = []
         self.frame_num = 1
-        self.subscribe = ZmqPSActor("processor")
+        self.subscribe = ZmqPSActor("processor", self.store_loc)
         logger.info("Completed setup for Processor")
 
     def stop(self):
@@ -53,7 +53,7 @@ class Processor(Actor):
 
         try:
             # frame = self.q_in.get(timeout=0.001)
-            self.subscribe.setRecvSocket(ip="127.0.0.1", port=5555)
+            self.subscribe.setRecvSocket(ip="127.0.0.1", port=5556)
             frame = self.subscribe.recvMsg()
             # logger.info(f"Received frame: {frame}")
 

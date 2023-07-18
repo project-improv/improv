@@ -35,7 +35,7 @@ class Generator(Actor):
 
         logger.info("Beginning setup for Generator")
         self.data = np.asmatrix(np.random.randint(100, size=(100, 5)))
-        self.publish = ZmqPSActor("generator")
+        self.publish = ZmqPSActor("generator", self.store_loc)
         logger.info("Completed setup for Generator")
 
     def stop(self):
@@ -61,7 +61,7 @@ class Generator(Actor):
             # logger.info('Put data in store')
             try:
                 # self.q_out.put([[data_id, str(self.frame_num)]])
-                self.publish.setSendSocket(ip="127.0.0.1", port=5555)
+                self.publish.setSendSocket(ip="127.0.0.1", port=5556)
                 self.publish.sendMsg([[data_id, str(self.frame_num)]])
                 # logger.info("Sent message on")
                 self.frame_num += 1
