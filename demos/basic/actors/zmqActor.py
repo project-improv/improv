@@ -1,11 +1,10 @@
 from improv.actor import Actor
 
-import zmq
+import zmq.asyncio as zmq
 from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER, Again
 from zmq.log.handlers import PUBHandler
 import traceback
 
-import zmq.asyncio
 import asyncio
 import time
 
