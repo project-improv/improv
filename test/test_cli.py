@@ -68,11 +68,18 @@ async def cli_args(setdir, ports):
     config_file = "configs/minimal.yaml"
     Args = namedtuple(
         "cli_args",
-        "control_port output_port logging_port logfile configfile actor_path",
+        "control_port output_port logging_port logfile configfile actor_path"
     )
 
-    args = Args(control_port, output_port, logging_port, logfile, config_file, [])
-    yield args
+    args = Args(
+        control_port,
+        output_port,
+        logging_port,
+        logfile,
+        config_file,
+        []
+    )
+    return args
 
 
 def test_configfile_required(setdir):
@@ -259,7 +266,7 @@ async def test_get_ports_from_logfile(setdir):
 
 
 async def test_no_server_start_in_logfile_raises_error(setdir, cli_args, capsys):
-    with open(cli_args.logfile, mode="w") as f:
+    with open(cli_args.logfile, mode='w') as f:
         f.write("this is some placeholder text")
 
     cli.get_server_ports(cli_args, timeout=1)
@@ -273,7 +280,7 @@ async def test_no_server_start_in_logfile_raises_error(setdir, cli_args, capsys)
 
 async def test_no_ports_in_logfile_raises_error(setdir, cli_args, capsys):
     curr_dt = datetime.datetime.now().replace(microsecond=0)
-    with open(cli_args.logfile, mode="w") as f:
+    with open(cli_args.logfile, mode='w') as f:
         f.write(f"{curr_dt} Server running on (control, output, log) ports XXX\n")
 
     cli.get_server_ports(cli_args, timeout=1)
