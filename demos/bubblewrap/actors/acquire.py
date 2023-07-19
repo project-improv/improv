@@ -1,11 +1,11 @@
-from improv.actor import Actor, RunManager, Signal
-import os
+from improv.actor import Actor
 import numpy as np
 import mat73
 import time
 import logging
 import traceback
 import time
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

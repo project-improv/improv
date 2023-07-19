@@ -1,14 +1,7 @@
-from improv.actor import Actor, RunManager
-import time
+from improv.actor import Actor
 import numpy as np
-import mat73
 import scipy.signal as signal
-from sklearn import random_projection as rp
-try:
-    from proSVD.proSVD import proSVD
-except ModuleNotFoundError as e:
-    e.msg = "You need to install proSVD under ./improv top level directory. See https://github.com/pearsonlab/proSVD for details"
-    raise
+from proSVD.proSVD import proSVD
 from queue import Empty
 import logging
 import traceback

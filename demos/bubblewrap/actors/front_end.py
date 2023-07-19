@@ -1,20 +1,12 @@
 import pyqtgraph
 import numpy as np
-import matplotlib.pylab as plt
-import matplotlib
-
-matplotlib.use("Qt5Agg")
-
-from PyQt5 import QtGui, QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QColor
 from . import improv_bubble
 from improv.actor import Signal
 from math import atan2, floor
 
-from queue import Empty
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
-from matplotlib.figure import Figure
-from PyQt5.QtWidgets import QGridLayout, QMessageBox
+from PyQt5.QtWidgets import QMessageBox
 
 import logging
 import traceback

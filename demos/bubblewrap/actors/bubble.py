@@ -1,16 +1,10 @@
+
 import numpy as np
 from queue import Empty
-import os
-import improv.store as store
-from scipy import io as sio
-try:
-    from Bubblewrap.bubblewrap import Bubblewrap
-except ModuleNotFoundError as e:
-    e.msg = "You need to install bubblewrap under ./improv top level directory. See https://github.com/draeloslab/Bubblewrap for details"
-    raise
-from improv.actor import Actor, RunManager
-
+from Bubblewrap.bubblewrap import Bubblewrap
+from improv.actor import Actor
 import logging
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
