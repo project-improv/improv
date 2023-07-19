@@ -354,9 +354,11 @@ def get_server_ports(args, timeout):
         time_now += increment
 
     if not server_start_time:
-        print(f"Unable to read server start time from {args.logfile}.\n"
-              "This may be because the server could not be started or"
-              "did not log its activity.")
+        print(
+            f"Unable to read server start time from {args.logfile}.\n"
+            "This may be because the server could not be started or"
+            "did not log its activity."
+        )
     elif not ports:
         print(f"Unable to read ports from {args.logfile}.")
 
