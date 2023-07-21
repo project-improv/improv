@@ -4,6 +4,7 @@ import asyncio
 import subprocess
 import improv.tui as tui
 from demos.basic.actors.zmqActor import ZmqPSActor, ZmqRRActor
+import multiprocessing as mp
 
 from test_nexus import ports
 
@@ -156,8 +157,21 @@ async def test_zmq_rr(ip, unused_tcp_port):
     act2.setRepSocket(ip, unused_tcp_port)
     msg = "hello"
     reply = "world"
-    replymsg = act1.requestMsg(msg)
-    recvmsg = act2.replyMsg(reply)
+
+    #create two processes to run the request and reply
+    process1 = mp.Process(target=act1.requestMsg, args=(msg,))
+    process2 = mp.Process(target=act2.replyMsg, args=(reply,))
+
+    process1.start()
+    process2.start()
+
+    process1.join()
+    process2.join()
+
+    #get the return value from the process
+    replymsg = process1.exitcode  
+    recvmsg = process2.exitcode
+
     assert replymsg == reply
     assert recvmsg == msg
 
