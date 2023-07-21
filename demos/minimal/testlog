@@ -1,0 +1,58 @@
+improv.nexus ************ new improv server session 2023-07-20 23:47:29 ************
+improv.nexus StoreInterface started successfully at location: /tmp/4e4578f3-e427-406a-94cd-e75d1735b783
+asyncio Using selector: EpollSelector
+improv.nexus Create new store object
+improv.store Successfully connected to store at locations /tmp/4e4578f3-e427-406a-94cd-e75d1735b783 
+improv.store Unknown error: 'NoneType' object has no attribute 'subscribe'
+Traceback (most recent call last):
+  File "/home/chrisunix/improv/improv/store.py", line 290, in subscribe
+    self.client.subscribe()
+AttributeError: 'NoneType' object has no attribute 'subscribe'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/chrisunix/anaconda3/envs/improv/bin/improv", line 8, in <module>
+    sys.exit(default_invocation())
+  File "/home/chrisunix/improv/improv/cli.py", line 202, in default_invocation
+    args.func(args)
+  File "/home/chrisunix/improv/improv/cli.py", line 235, in run_server
+    control_port, output_port = server.createNexus(
+  File "/home/chrisunix/improv/improv/nexus.py", line 71, in createNexus
+    self.store.subscribe()
+  File "/home/chrisunix/improv/improv/store.py", line 293, in subscribe
+    raise Exception
+Exception
+sys:1: ResourceWarning: unclosed socket <zmq.asyncio.Socket(zmq.PUB) at 0x7fb354b8b0a0>
+sys:1: ResourceWarning: unclosed socket <zmq.asyncio.Socket(zmq.REP) at 0x7fb354b8b2e0>
+/home/chrisunix/anaconda3/envs/improv/lib/python3.9/subprocess.py:1048: ResourceWarning: subprocess 625 is still running
+  _warn("subprocess %s is still running" % self.pid,
+improv.nexus ************ new improv server session 2023-07-20 23:47:48 ************
+improv.nexus StoreInterface started successfully at location: /tmp/a90fea46-4e25-427f-8c72-a04edb656e79
+asyncio Using selector: EpollSelector
+improv.nexus Create new store object
+improv.store Successfully connected to store at locations /tmp/a90fea46-4e25-427f-8c72-a04edb656e79 
+improv.store Unknown error: 'NoneType' object has no attribute 'subscribe'
+Traceback (most recent call last):
+  File "/home/chrisunix/improv/improv/store.py", line 290, in subscribe
+    self.client.subscribe()
+AttributeError: 'NoneType' object has no attribute 'subscribe'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/chrisunix/anaconda3/envs/improv/bin/improv", line 8, in <module>
+    sys.exit(default_invocation())
+  File "/home/chrisunix/improv/improv/cli.py", line 202, in default_invocation
+    args.func(args)
+  File "/home/chrisunix/improv/improv/cli.py", line 235, in run_server
+    control_port, output_port = server.createNexus(
+  File "/home/chrisunix/improv/improv/nexus.py", line 71, in createNexus
+    self.store.subscribe()
+  File "/home/chrisunix/improv/improv/store.py", line 293, in subscribe
+    raise Exception
+Exception
+sys:1: ResourceWarning: unclosed socket <zmq.asyncio.Socket(zmq.PUB) at 0x7fc7ed0db100>
+sys:1: ResourceWarning: unclosed socket <zmq.asyncio.Socket(zmq.REP) at 0x7fc7ed0db340>
+/home/chrisunix/anaconda3/envs/improv/lib/python3.9/subprocess.py:1048: ResourceWarning: subprocess 637 is still running
+  _warn("subprocess %s is still running" % self.pid,
