@@ -113,7 +113,6 @@ def test_setStoreInterface(setup_store, set_store_loc):
     assert act.client is store.client
 
 
-@pytest.mark.skip(reason="GH actions debug") 
 @pytest.mark.parametrize(
     "links", [(pytest.example_string_links), ({}), (pytest.example_links), (None)]
 )
@@ -124,7 +123,6 @@ def test_setLinks(links, set_store_loc):
     act.setLinks(links)
     assert act.links == links
 
-@pytest.mark.skip(reason="GH actions debug")
 @pytest.mark.parametrize(
     ("qc", "qs"),
     [
@@ -148,7 +146,6 @@ def test_setCommLinks(example_links, qc, qs, init_actor, setup_store, set_store_
     assert act.links == example_links
 
 
-@pytest.mark.skip(reason="GH actions debug") 
 @pytest.mark.parametrize(
     ("links", "expected"),
     [
@@ -172,7 +169,6 @@ def test_setLinkIn(init_actor, example_string_links, example_links, links, expec
             act.setLinkIn("input_queue")
 
 
-@pytest.mark.skip(reason="GH actions debug") 
 @pytest.mark.parametrize(
     ("links", "expected"),
     [
@@ -196,7 +192,6 @@ def test_setLinkOut(init_actor, example_string_links, example_links, links, expe
             act.setLinkIn("output_queue")
 
 
-@pytest.mark.skip(reason="GH actions debug") 
 @pytest.mark.parametrize(
     ("links", "expected"),
     [
