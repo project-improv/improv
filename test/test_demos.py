@@ -156,11 +156,8 @@ async def test_zmq_rr(ip, unused_tcp_port):
     act2.setRepSocket(ip, unused_tcp_port)
     msg = "hello"
     reply = "world"
-    coro1 = act1.requestMsg(msg)
-    coro2 = act2.replyMsg(reply)
-    result = await asyncio.gather(coro1, coro2)
-    replymsg = result[0]
-    recvmsg = result[1]
+    replymsg = act1.requestMsg(msg)
+    recvmsg = act2.replyMsg(reply)
     assert replymsg == reply
     assert recvmsg == msg
 
@@ -170,5 +167,5 @@ async def test_zmq_rr_timeout(ip, unused_tcp_port):
     act1 = ZmqRRActor("act1", "/tmp/store")
     act1.setReqSocket(ip, unused_tcp_port)
     msg = "hello"
-    replymsg = await act1.requestMsg(msg)
+    replymsg = act1.requestMsg(msg)
     assert replymsg is None
