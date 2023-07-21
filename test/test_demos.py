@@ -156,7 +156,7 @@ def test_zmq_rr(ip, unused_tcp_port):
     def handle_reply():
         return act2.replyMsg(reply)
 
-    # Use a ThreadPoolExecutor to run handle_request() 
+    # Use a ThreadPoolExecutor to run handle_request()
     # and handle_reply() in separate threads.
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
