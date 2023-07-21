@@ -105,7 +105,7 @@ class PlasmaStoreInterface(StoreInterface):
         Updates the client internal
         """
         try:
-            self.client = plasma.connect(store_loc, 20)
+            self.client = None #plasma.connect(store_loc, 20)
             # Is plasma.PlasmaClient necessary?
             # 20 in plasma.connect(store_loc, 20) = 20 retries
             # self.client: plasma.PlasmaClient = plasma.connect(store_loc, 20)

@@ -16,6 +16,7 @@ pytest.example_links = {}
 @pytest.fixture()
 def setup_store(set_store_loc, scope="module"):
     """Fixture to set up the store subprocess with 10 mb."""
+    print(f"set store loc: {set_store_loc}")
     p = subprocess.Popen(
         ["plasma_store", "-s", set_store_loc, "-m", str(10000000)],
         stdout=subprocess.DEVNULL,
@@ -88,7 +89,7 @@ def test_repr_default_initialization(init_actor, set_store_loc):
 
     act = init_actor
     rep = act.__repr__()
-    print(f"\nstore_loc: {set_store_loc}\n")
+    #print(f"\nstore_loc: {set_store_loc}\n")
     assert rep == "Test: dict_keys([])"
 
 
@@ -97,6 +98,7 @@ def test_repr(example_string_links, set_store_loc):
 
     act = Actor("Test", set_store_loc)
     act.setLinks(example_string_links)
+    #print(f"set store loc: {set_store_loc}")
     assert act.__repr__() == "Test: dict_keys(['1', '2', '3'])"
 
 
