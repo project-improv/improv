@@ -25,14 +25,13 @@ class ZmqPSActor(Actor):
         self.send_socket = None
         self.recv_socket = None
         self.address = None
-        self.context = None
+        self.context = zmq.Context()
 
     def setSendSocket(self, ip, port, timeout=0.001):
         """
         Sets up the send socket for the actor.
         """
 
-        self.context = zmq.Context()
         self.send_socket = self.context.socket(PUB)
         # bind to the socket according to the ip and port
         self.address = "tcp://{}:{}".format(ip, port)
@@ -44,7 +43,6 @@ class ZmqPSActor(Actor):
         Sets up the receive socket for the actor.
         """
 
-        self.context = zmq.Context()
         self.recv_socket = self.context.socket(SUB)
         self.address = "tcp://{}:{}".format(ip, port)
         self.recv_socket.connect(self.address)
@@ -58,7 +56,6 @@ class ZmqPSActor(Actor):
 
         self.send_socket.send_pyobj(msg)
         self.send_socket.close()
-        self.context.term()
 
     def recvMsg(self):
         """
@@ -73,7 +70,6 @@ class ZmqPSActor(Actor):
             except Again:
                 pass
         self.recv_socket.close()
-        self.context.term()
         return recv_msg
 
 
@@ -87,14 +83,13 @@ class ZmqRRActor(Actor):
         self.req_socket = None
         self.rep_socket = None
         self.address = None
-        self.context = None
+        self.context = zmq.Context()
 
     def setReqSocket(self, ip, port, timeout=0.001):
         """
         Sets up the request socket for the actor.
         """
 
-        self.context = zmq.asyncio.Context()
         self.req_socket = self.context.socket(REQ)
         # bind to the socket according to the ip and port
         self.address = "tcp://{}:{}".format(ip, port)
@@ -105,13 +100,12 @@ class ZmqRRActor(Actor):
         Sets up the reply socket for the actor.
         """
 
-        self.context = zmq.asyncio.Context()
         self.rep_socket = self.context.socket(REP)
         self.address = "tcp://{}:{}".format(ip, port)
         self.rep_socket.bind(self.address)
         time.sleep(timeout)
 
-    async def requestMsg(self, msg):
+    def requestMsg(self, msg):
         """Safe version of send/receive with controller.
         Based on the Lazy Pirate pattern [here]
         (https://zguide.zeromq.org/docs/chapter4/#Client-Side-Reliability-Lazy-Pirate-Pattern)
@@ -125,14 +119,14 @@ class ZmqRRActor(Actor):
         try:
             self.req_socket.connect(self.address)
             logger.info(f"Sending {msg} to controller.")
-            await self.req_socket.send_pyobj(msg)
+            self.req_socket.send_pyobj(msg)
             reply = None
 
             while True:
-                ready = await self.req_socket.poll(REQUEST_TIMEOUT)
+                ready = self.req_socket.poll(REQUEST_TIMEOUT)
 
                 if ready:
-                    reply = await self.req_socket.recv_pyobj()
+                    reply = self.req_socket.recv_pyobj()
                     logger.info(f"Received {reply} from controller.")
                     break
                 else:
@@ -152,21 +146,21 @@ class ZmqRRActor(Actor):
                 self.req_socket.connect(self.address)
 
                 logger.info(f"Resending {msg} to controller.")
-                await self.req_socket.send_pyobj(msg)
+                self.req_socket.send_pyobj(msg)
 
         except asyncio.CancelledError:
             pass
 
         self.req_socket.close()
-        self.context.term()
         return reply
+    
 
-    async def replyMsg(self, reply):
+    def replyMsg(self, reply):
         """
         Safe version of receive/reply with controller.
         """
-        msg = await self.rep_socket.recv_pyobj()
-        await self.rep_socket.send_pyobj(reply)
+        msg = self.rep_socket.recv_pyobj()
+        time.sleep(0.001)  
+        self.rep_socket.send_pyobj(reply)
         self.rep_socket.close()
-        self.context.term()
         return msg

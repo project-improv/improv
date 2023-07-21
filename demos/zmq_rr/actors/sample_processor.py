@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Processor(AsyncActor):
+class Processor(Actor):
     """Sample processor used to calculate the average of an array of integers
     using async ZMQ to communicate.
 
@@ -18,7 +18,7 @@ class Processor(AsyncActor):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    async def setup(self):
+    def setup(self):
         """Initializes all class variables.
         Sets up a ZmqRRActor to receive data from the generator.
 
@@ -35,12 +35,12 @@ class Processor(AsyncActor):
         self.subscribe = ZmqRRActor("processor", self.store_loc)
         logger.info("Completed setup for Processor")
 
-    async def stop(self):
+    def stop(self):
         """Trivial stop function for testing purposes."""
 
         logger.info("Processor stopping")
 
-    async def runStep(self):
+    def runStep(self):
         """Gets from the input queue and calculates the average.
         Receives data from the generator using a ZmqRRActor.
 
@@ -55,7 +55,7 @@ class Processor(AsyncActor):
             # frame = self.q_in.get(timeout=0.001)
             self.subscribe.setRepSocket(ip="127.0.0.1", port=5556)
             reply = "received"
-            frame = await self.subscribe.replyMsg(reply)
+            frame = self.subscribe.replyMsg(reply)
             # logger.info(f"Received frame: {frame}")
 
         except:

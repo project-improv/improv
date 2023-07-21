@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Generator(AsyncActor):
+class Generator(Actor):
     """Sample actor to generate data to pass into a sample processor
     using async ZMQ to communicate.
 
@@ -25,7 +25,7 @@ class Generator(AsyncActor):
     def __str__(self):
         return f"Name: {self.name}, Data: {self.data}"
 
-    async def setup(self):
+    def setup(self):
         """Generates an array that serves as an initial source of data.
         Sets up a ZmqRRActor to send data to the processor.
 
@@ -38,14 +38,14 @@ class Generator(AsyncActor):
         self.publish = ZmqRRActor("generator", self.store_loc)
         logger.info("Completed setup for Generator")
 
-    async def stop(self):
+    def stop(self):
         """Save current randint vector to a file."""
 
         logger.info("Generator stopping")
         np.save("sample_generator_data.npy", self.data)
         return 0
 
-    async def runStep(self):
+    def runStep(self):
         """Generates additional data after initial setup data is exhausted.
         Sends data to the processor using a ZmqRRActor.
 
@@ -62,7 +62,7 @@ class Generator(AsyncActor):
             try:
                 # self.q_out.put([[data_id, str(self.frame_num)]])
                 self.publish.setReqSocket(ip="127.0.0.1", port=5556)
-                await self.publish.requestMsg([[data_id, str(self.frame_num)]])
+                self.publish.requestMsg([[data_id, str(self.frame_num)]])
                 # logger.info("Sent message on")
                 self.frame_num += 1
             except Exception as e:
