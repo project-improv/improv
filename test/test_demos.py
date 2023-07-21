@@ -28,14 +28,6 @@ def ip():
     return pytest.ip
 
 
-@pytest.fixture()
-def unused_tcp_port():
-    """Fixture to provide a tcp port test input."""
-
-    pytest.unused_tcp_port = 5556
-    return pytest.unused_tcp_port
-
-
 @pytest.mark.parametrize(
     ("dir", "configfile", "logfile"), [("minimal", "minimal.yaml", "testlog")]
 )
@@ -166,7 +158,7 @@ def test_zmq_rr(ip, unused_tcp_port):
 
     # Use a ThreadPoolExecutor to run handle_request() 
     # and handle_reply() in separate threads.
-    
+
     with concurrent.futures.ThreadPoolExecutor() as executor:
         future1 = executor.submit(handle_request)
         future2 = executor.submit(handle_reply)
