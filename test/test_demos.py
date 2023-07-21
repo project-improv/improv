@@ -4,6 +4,7 @@ import asyncio
 import subprocess
 import improv.tui as tui
 from demos.basic.actors.zmqActor import ZmqPSActor, ZmqRRActor
+import concurrent.futures
 
 from test_nexus import ports
 
@@ -156,9 +157,26 @@ def test_zmq_rr(ip, unused_tcp_port):
     act2.setRepSocket(ip, unused_tcp_port)
     msg = "hello"
     reply = "world"
-    act1.requestMsg(msg)
-    recvmsg = act2.replyMsg(reply)
-    assert recvmsg == msg
+
+    def handle_request():
+        return act1.requestMsg(msg)
+
+    def handle_reply():
+        return act2.replyMsg(reply)
+
+    # Use a ThreadPoolExecutor to run handle_request() and handle_reply() in separate threads.
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future1 = executor.submit(handle_request)
+        future2 = executor.submit(handle_reply)
+
+        # Ensure the request is sent before the reply.
+        request_result = future1.result()
+        reply_result = future2.result()
+
+    # Check if the received message is equal to the original message.
+    assert reply_result == msg
+    # Check if the reply is correct.
+    assert request_result == reply
 
 
 def test_zmq_rr_timeout(ip, unused_tcp_port):
