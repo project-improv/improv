@@ -43,6 +43,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         self.comm = comm  # Link back to Nexus for transmitting signals
 
         self.total_times = []
+        self.sort_barcode_index = None
 
         pyqtgraph.setConfigOption("background", QColor(100, 100, 100))
         super(FrontEnd, self).__init__(parent)
@@ -154,30 +155,27 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         y = radius * np.sin(theta)
 
         # polar plots
-        barcodes = [self.grplot_3, self.grplot_4]
-        for barcode in barcodes:
-            barcode.setAspectLocked(True)
-
-            # Add polar grid lines
-            barcode.addLine(x=0, pen=0.2)
-            barcode.addLine(y=0, pen=0.2)
-            for r in range(0, 4, 1):
-                circle = pyqtgraph.QtGui.QGraphicsEllipseItem(-r, -r, r * 2, r * 2)
-                circle.setPen(pyqtgraph.mkPen(0.1))
-                barcode.addItem(circle)
-            barcode.hideAxis("bottom")
-            barcode.hideAxis("left")
-
-        self.selectedBarcode = barcodes[0].plot()
-        self.allBarcode = barcodes[1].plot()
-        self.selectedBarcode.setData(x, y)
-        self.allBarcode.setData(x, y)
+        self.allBarcode = self.rawplot_5
+        # for barcode in barcodes:
+        #     barcode.setAspectLocked(True)
+            
+        #     # Add polar grid lines
+        #     # barcode.addLine(x=0, pen=0.2)
+        #     # barcode.addLine(y=0, pen=0.2)
+        #     # for r in range(0, 4, 1):
+        #     #     circle = pyqtgraph.QtGui.QGraphicsEllipseItem(-r, -r, r * 2, r * 2)
+        #     #     circle.setPen(pyqtgraph.mkPen(0.1))
+        #     #     barcode.addItem(circle)
+            
+        #     barcode.hideAxis("bottom")
+        #     barcode.hideAxis("left")
+        # self.allBarcode.setData(x, y)
 
         # videos
         # self.rawplot.ui.histogram.vb.disableAutoRange()
-        self.rawplot.ui.histogram.vb.setLimits(
-            yMin=-0.1, yMax=200
-        )  # 0-255 needed, saturated here for easy viewing
+        # self.rawplot.ui.histogram.vb.setLimits(
+        #     yMin=-0.1, yMax=200
+        # )  # 0-255 needed, saturated here for easy viewing
 
         self.grplot_5.setLabel("bottom", "Frames")
         self.grplot_5.setLabel("left", " - Log Likelihood")
@@ -215,7 +213,13 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         """TODO: Bug on clicking ROI --> trace and report to pyqtgraph"""
         image = None
         raw, color, weight = self.visual.getFrames()
-        if raw is not None:
+        
+        if (self.sort_barcode_index is not None) and (self.barcode is not None):
+            barcode_copy = self.barcode[1].copy()
+            sort_barcode = barcode_copy[self.sort_barcode_index, :]
+            logger.info("what is the sort_index and what is the sorted_barcode?{0}, \n {1}, the original {2}".format(self.sort_barcode_index, sort_barcode, self.barcode[1]))
+            self.rawplot.setImage(sort_barcode.T)
+        elif raw is not None:
             raw = np.rot90(raw, 2)
             if np.unique(raw).size > 1:
                 self.rawplot.setImage(raw, autoHistogramRange=False)
@@ -232,6 +236,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
             # cmap = ColorMap(pos=np.linspace(0, 1, len(colordata)), color=colordata)
             # self.rawplot_3.setColorMap(cmap)
             # self.rawplot_3.ui.histogram.vb.setLimits(yMin=0.1, yMax=1)
+        
         else:
             pass
             # self.rawplot_3.ui.histogram.vb.setLimits(yMin=8, yMax=255)
@@ -250,6 +255,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         LL = None
         try:
             (Cx, C, Cpop, barcode, LL) = self.visual.getCurves()
+            self.barcode = barcode
         except TypeError:
             pass
         except Exception as e:
@@ -289,20 +295,12 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
 
         #Tune: selectedTune(1, 8), overall tune(num, 8)
         if barcode is not None:
-            self.num = barcode[1].shape[0]
-            theta = np.linspace(0, (315 / 360) * 2 * np.pi, self.num)
-            theta = np.append(theta, 0)
-            self.theta = theta
-            barcodes = [self.selectedBarcode, self.allBarcode]
-            pens = [penR, penW]
-            for i, t in enumerate(barcode):
+            barcodes = [self.allBarcode]
+            pens = [penG]
+            for i, t in enumerate(barcodes):
                 if t is not None:
-                    radius = np.zeros(self.num + 1)
-                    radius[: len(t)] = t / np.max(t)
-                    radius[-1] = radius[0]
-                    x = np.clip(radius * np.cos(self.theta) * 4, -5, 5)
-                    y = np.clip(radius * np.sin(self.theta) * 4, -5, 5)
-                    barcodes[i].setData(x, y, pen=pens[i])
+                    y = barcode[1]
+                    barcodes[i].setImage(y.T)
         # else:
         #     print('tune is none')
 
@@ -323,7 +321,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
             self.last_n = self.visual.selectedNeuron
 
         if self.flagW:  # nothing drawn yet
-            loc, lines, strengths = self.visual.selectNW(selectedraw[0], selectedraw[1])
+            loc, lines, strengths, self.sort_barcode_index = self.visual.selectNW(selectedraw[0], selectedraw[1])
             # print('clicked lines ', lines)
             self.lines = []
             self.pens = []

@@ -22,6 +22,7 @@ class Ui_MainWindow(object):
             "#label_3 {color: rgb(225, 230, 240)}\n"
             "#label_4 {color: rgb(225, 230, 240)}\n"
             "#label_5 {color: rgb(225, 230, 240)}\n"
+            "#label_7 {color: rgb(225, 230, 240)}\n"
             "#frame {background-color: rgb(150, 160, 175);\n"
             "border-style: outset;\n"
             "border-width: 2px;\n"
@@ -222,6 +223,16 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.label_5.setFont(font)
         self.label_5.setObjectName("label_5")
+        self.label_7 = QtWidgets.QLabel(self.centralwidget)
+        self.label_7.setGeometry(QtCore.QRect(600, 58, 121, 73))
+        font = QtGui.QFont()
+        font.setFamily("DejaVu Sans")
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_7.setFont(font)
+        self.label_7.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_7.setObjectName("label_7")
         self.frame_6 = QtWidgets.QFrame(self.centralwidget)
         self.frame_6.setGeometry(QtCore.QRect(274, 22, 337, 111))
         self.frame_6.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -231,13 +242,13 @@ class Ui_MainWindow(object):
         self.grplot.setGeometry(QtCore.QRect(6, 6, 325, 101))
         self.grplot.setObjectName("grplot")
         self.frame_7 = QtWidgets.QFrame(self.centralwidget)
-        self.frame_7.setGeometry(QtCore.QRect(922, 20, 127, 113))
+        self.frame_7.setGeometry(QtCore.QRect(700, 20, 337, 242))
         self.frame_7.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_7.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_7.setObjectName("frame_7")
-        self.grplot_3 = PlotWidget(self.frame_7)
-        self.grplot_3.setGeometry(QtCore.QRect(6, 6, 115, 103))
-        self.grplot_3.setObjectName("grplot_3")
+        self.rawplot_5 = ImageView(self.frame_7)
+        self.rawplot_5.setGeometry(QtCore.QRect(6, 6, 327, 232))
+        self.rawplot_5.setObjectName("rawplot_5")
         self.frame_8 = QtWidgets.QFrame(self.centralwidget)
         self.frame_8.setGeometry(QtCore.QRect(274, 152, 339, 113))
         self.frame_8.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -294,6 +305,7 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "Population\n" "Average"))
         self.label_3.setText(_translate("MainWindow", "Selected\n" "Neuron"))
         self.label_4.setText(_translate("MainWindow", "Raw Frame"))
+        self.label_7.setText(_translate("MainWindow", "Barcode"))
         self.label_5.setText(
             _translate(
                 "MainWindow",

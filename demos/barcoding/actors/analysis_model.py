@@ -30,7 +30,7 @@ class ModelAnalysis(Actor):
             "hist_dim": dh,
             "numSamples": 1,
             "dt": 0.5,
-            "stim_dim": dk,
+            "stim_dim": self.num_stim,
         }  # TODO: from config file..
 
     def setup(self, param_file=None):
@@ -123,6 +123,7 @@ class ModelAnalysis(Actor):
             # t = time.time()
             self.frame = ids[-1]
             (self.coordDict, self.image, self.S) = self.client.getList(ids[:-1])
+            #logger.info("what is the coordDict? {0}".format(self.coordDict))
             self.C = self.S
             self.coords = [o["coordinates"] for o in self.coordDict]
 
@@ -342,6 +343,7 @@ class ModelAnalysis(Actor):
         h = self.theta[N * N : N * (N + dh)].reshape((N, dh))
         b = self.theta[N * (N + dh) : N * (N + dh + 1)].reshape(N)
         k = self.theta[N * (N + dh + 1) :].reshape((N, ds))
+        #logger.info("what is the w? {0}".format(w))
 
         # data length in time
         t = y.shape[1]
@@ -486,7 +488,7 @@ class ModelAnalysis(Actor):
 
         ests = self.C
         #logger.info('wHAT is the input C?, {0}, what is the size? {1}'.format(ests, ests.shape))
-        logger.info("I also want to see what's in estts, {0}".format(self.ests))
+        #logger.info("I also want to see what's in estts, {0}".format(self.ests))
         if self.ests.shape[0] < ests.shape[0]:
             diff = ests.shape[0] - self.ests.shape[0]
             # added more neurons, grow the array
@@ -502,9 +504,7 @@ class ModelAnalysis(Actor):
             
             elif self.frame in range(self.stimStart + 1, self.frame + 26):
                 if self.frame in range(self.stimStart + 1, self.stimStart + 5):
-                    logger.info("before concstance, ghe sie: {0}".format(np.shape(self.baseline_record)))
                     self.baseline_record = np.concatenate((self.baseline_record, np.expand_dims(ests[:, self.frame - 1], axis = 1)), axis = 1)
-                    logger.info("after concstance, ghe sie: {0}".format(np.shape(self.baseline_record)))
                 elif self.frame in range(self.stimStart + 5, self.stimStart + 19):
                     if self.frame == self.stimStart + 5:
                         self.onstim_counter = np.ones((self.num_stim, 2))

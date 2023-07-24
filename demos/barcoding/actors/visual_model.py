@@ -70,6 +70,7 @@ class CaimanVisual(Actor):
         self.weight = None
         self.LL = None
         self.draw = True
+        self.sort_barcode_index = None
 
         self.total_times = []
         self.timestamp = []
@@ -143,8 +144,9 @@ class CaimanVisual(Actor):
             self.C[self.selectedNeuron, :],
             self.Cpop,
             self.barcode_out,
-            self.LL,
+            self.LL
         )  # [:len(self.Cx)]
+
 
     def getFrames(self):
         """Return the raw and colored frames for display"""
@@ -263,6 +265,14 @@ class CaimanVisual(Actor):
             np.array([self.raw.shape[0] - com[nid][0], self.raw.shape[1] - com[nid][1]])
         ]
 
+        # Rearrange barcode result
+        if self.barcode is not None:
+            self.selectedBarcode = self.barcode[self.selectedNeuron]
+            sort_index = np.abs(self.w[nid]).argsort()
+            self.sort_barcode_index = sort_index
+        else:
+            self.sort_barcode_index = None
+
         # draw lines between it and 10 strongest connections in self.w
         sortInd2 = np.mean(np.abs(self.w[nid]), axis=0).argsort()
         sortInd2[:10].sort(axis=0)
@@ -343,7 +353,7 @@ class CaimanVisual(Actor):
 
         # update self.color...or add as ROIs? currently ROIs
 
-        return loc, lines, strengths
+        return loc, lines, strengths, self.sort_barcode_index
 
     def getFirstSelect(self):
         first = None

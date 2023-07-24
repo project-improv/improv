@@ -414,6 +414,30 @@ Neuron</string>
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#eeeeec;&quot;&gt;Processed Frame&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>600</x>
+      <y>38</y>
+      <width>121</width>
+      <height>73</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>DejaVu Sans</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Barcode</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
    <widget class="QFrame" name="frame_6">
     <property name="geometry">
      <rect>
@@ -443,10 +467,10 @@ Neuron</string>
    <widget class="QFrame" name="frame_7">
     <property name="geometry">
      <rect>
-      <x>922</x>
-      <y>20</y>
-      <width>127</width>
-      <height>113</height>
+      <x>700</x>
+      <y>30</y>
+      <width>337</width>
+      <height>242</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -460,8 +484,8 @@ Neuron</string>
       <rect>
        <x>6</x>
        <y>6</y>
-       <width>115</width>
-       <height>103</height>
+       <width>415</width>
+       <height>303</height>
       </rect>
      </property>
     </widget>
