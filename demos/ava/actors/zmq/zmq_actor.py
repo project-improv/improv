@@ -37,6 +37,9 @@ class ZMQActor(Actor):
         Args:
             socket_type (int): The socket type, for example:
                 REQ, REP, PUB, SUB, PAIR, DEALER, ROUTER, PULL, PUSH, etc.
+                
+                NOTE: for socket type int values:
+                https://pyzmq.readthedocs.io/en/latest/api/zmq.html#zmq.SocketType
             
             socket_class (zmq.Socket, optional): The socket class to instantiate, if different from the default for this Context, e.g., for creating an asyncio socket attached to a default Context or vice versa.
                 Defaults to None.
@@ -45,6 +48,12 @@ class ZMQActor(Actor):
             socket (zmq.Socket): ZMQ socket
         """
         
+        # default is to use socket type int values
+        # if socket_type == "PUB":
+        #     socket_type = 1
+        
+        # if socket_type == "SUB":
+        #     socket_type = 2
         logger.info(f"Setting up {socket_type} socket.")
         socket = self.context.socket(socket_type, socket_class)
         return socket
@@ -79,7 +88,8 @@ class ZMQActor(Actor):
         socket.connect(address)
         logger.info(f"Socket connected: {address}")
         # TODO: options, choice?
-        if socket.socket_type == SUB:
+        # PUB=1, SUB = 2, always connect with SUB, and more, but not PUB
+        if socket.socket_type == 2:
             socket.setsockopt(SUBSCRIBE, b"")
 
     def sendMsg(self, socket, msg, msg_type=None):
