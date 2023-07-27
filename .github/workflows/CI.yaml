@@ -70,7 +70,8 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
         run: |
-          pytest test/test_actor.py -vv --cov=improv
+          echo $PATH
+          plasma_store -m 1000000 -s /tmp/plasma
       - name: Coveralls
         uses: coverallsapp/github-action@v2
 
