@@ -106,7 +106,7 @@ class PlasmaStoreInterface(StoreInterface):
         """
         logger.warning("attempting to connect to store")
         try:
-            self.client = plasma.connect(store_loc, 1)
+            self.client = plasma.connect(store_loc, 0)
             # Is plasma.PlasmaClient necessary?
             # 20 in plasma.connect(store_loc, 20) = 20 retries
             # self.client: plasma.PlasmaClient = plasma.connect(store_loc, 20)
