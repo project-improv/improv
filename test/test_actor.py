@@ -27,6 +27,7 @@ def setup_store(set_store_loc, scope="module"):
         stderr=subprocess.DEVNULL,
     )
     yield p
+
     p.kill()
     p.wait()
 
