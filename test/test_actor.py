@@ -2,12 +2,15 @@ import os
 import psutil
 import pytest
 import subprocess
+import logging
 from improv.link import Link  # , AsyncQueue
 from improv.actor import AbstractActor as Actor
 from improv.store import StoreInterface
 
 
 # set global_variables
+
+LOGGER = logging.getLogger(__name__)
 
 pytest.example_string_links = {}
 pytest.example_links = {}
@@ -16,7 +19,8 @@ pytest.example_links = {}
 @pytest.fixture()
 def setup_store(set_store_loc, scope="module"):
     """Fixture to set up the store subprocess with 10 mb."""
-    print(f"set store loc: {set_store_loc}")
+    #print(f"set store loc: {set_store_loc}")
+    LOGGER.info(f"set store loc: {set_store_loc}")
     p = subprocess.Popen(
         ["plasma_store", "-s", set_store_loc, "-m", str(10000000)],
         stdout=subprocess.DEVNULL,
@@ -105,9 +109,11 @@ def test_repr(example_string_links, set_store_loc):
 def test_setStoreInterface(setup_store, set_store_loc):
     """Tests if the store is started and linked with the actor."""
     
-    print("HERE");
+    #print("HERE");
+    LOGGER.info("here")
     act = Actor("Acquirer", set_store_loc)
-    print(f"store_loc: {set_store_loc}")
+    #print(f"store_loc: {set_store_loc}")
+    LOGGER.info(f"store_loc: {set_store_loc}")
     store = StoreInterface(store_loc=set_store_loc)
     act.setStoreInterface(store.client)
     assert act.client is store.client
