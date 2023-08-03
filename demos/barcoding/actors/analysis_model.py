@@ -6,12 +6,12 @@ import time
 import cv2
 import colorsys
 import scipy
+import pickle
 
 import logging
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
 
 class ModelAnalysis(Actor):
     def __init__(self, *args, input_stim_num = 8):
@@ -66,6 +66,13 @@ class ModelAnalysis(Actor):
         self.allStims = {}
         self.estsAvg = None
         self.barcode = np.zeros((1, self.num_stim))
+        self.onstim_counter = np.zeros((self.num_stim, 2))
+        self.counter = np.ones((self.num_stim, 2))
+        self.estRecord = {}
+        self.baseline_record = None
+        for i in range(self.num_stim):
+            self.estRecord[i] = None
+
 
     def run(self):
         self.total_times = []
@@ -196,7 +203,7 @@ class ModelAnalysis(Actor):
         else:
             y_step = self.S[:, self.frame - model_window : self.frame]
             stim_step = self.currStimID[:, self.frame - model_window : self.frame]
-
+        #logger.info("What is the y_step and stim_step here? {0}, {1}".format(y_step, stim_step))
         y_step = np.where(
             np.isnan(y_step), 0, y_step
         )  # Why are there nans here anyway?? #TODO
@@ -216,6 +223,7 @@ class ModelAnalysis(Actor):
         ds = self.p["stim_dim"]
         dt = self.p["dt"]
         N = self.p["numNeurons"]
+        #logger.info()
         # M  = self.p['numSamples']
         eps = np.finfo(float).eps
 
@@ -281,6 +289,7 @@ class ModelAnalysis(Actor):
         )  # + 2*np.abs(self.theta[:N*N].reshape((N,N)))/(N*N)
         # self.d_abs(self.theta[:N*N].reshape((N,N)))
         np.fill_diagonal(grad["w"], 0)
+        #logger.info("get the shape of several parameters. w: {0}".format(grad["w"]))
 
         # gradient for history terms
         grad["h"] = np.zeros((N, dh))
@@ -469,26 +478,39 @@ class ModelAnalysis(Actor):
         self.puttime.append(time.time() - t)
 
 
-    def fit_line(self, frame_start, duration, stim_ests, stimID):
-        logger.info("input data shape for line fitting:{0}".format(np.shape(stim_ests)))
-        response = stim_ests.reshape(stim_ests.shape[0], -1)
-        regressor = np.linspace(frame_start, frame_start + duration, np.shape(response)[1])
-        logger.info("input regressor and response shape for line fitting:{0}, {1}".format(np.shape(regressor), np.shape(response)))
-        coefficients = np.polyfit(regressor, response.T, deg=1).T
-        logger.info("coefficnets shape for line fitting:{0}, {1}".format(np.shape(coefficients), coefficients))
-        residuals = response - [np.polyval([coefficients[i, 0],coefficients[i,1]], regressor) for i in range(np.shape(stim_ests)[0])]
-        std = np.std(residuals, axis = 1)
-        logger.info("std shape for line fitting:{0}, {1}".format(np.shape(std), std))
+    def fit_line(self, frame_start, stim_ests, stimID):
+        #logger.info("input stim_ests: {0}, {1}".format(stim_ests, np.shape(stim_ests)))
+        response = stim_ests.T
+        duration = np.shape(response)[0]
+        regressor = np.linspace(frame_start, frame_start + duration - 1, np.shape(response)[0])
+        #logger.info("input regressor and response shape for line fitting:{0}, {1}, {2}".format(regressor, np.shape(regressor), np.shape(response)))
+        coefficients = np.polyfit(regressor, response, deg=1).T
+        #logger.info("coefficnets shape for line fitting:{0}, {1}".format(np.shape(coefficients), coefficients))
+        res = stim_ests - [(regressor * coefficients[i, 0] + coefficients[i,1]) for i in range(np.shape(stim_ests)[0])]
+        std = np.std(res, axis = 1)
+        #logger.info("std shape for line fitting:{0}, {1}".format(np.shape(std), std))
         self.baseline_coefficient[:, self.currentStim, 0] = coefficients[:,0]
         self.baseline_coefficient[:, self.currentStim, 1] = coefficients[:,1]
         self.baseline_coefficient[:, self.currentStim, 2] = std
+
+    def fit_line_const(self, frame_start, stim_ests, stimID):
+        #logger.info("input stim_ests: {0}, {1}".format(stim_ests, np.shape(stim_ests)))
+        response = stim_ests.T
+        duration = np.shape(response)[0]
+        regressor = np.linspace(frame_start, frame_start + duration - 1, np.shape(response)[0])
+        #logger.info("input regressor and response shape for line fitting:{0}, {1}, {2}".format(response, np.shape(regressor), np.shape(response)))
+        coefficients = np.polyfit(regressor, response, deg=0).T
+        #logger.info("coefficnets shape for line fitting:{0}, {1}".format(np.shape(coefficients), coefficients))
+        res = stim_ests - (coefficients[:,0])[:, np.newaxis]
+        std = np.std(res, axis = 1)
+        #logger.info("std shape for line fitting:{0}, {1}".format(np.shape(std), std))
+        self.baseline_coefficient[:, self.currentStim, 0] = coefficients[:,0]
+        self.baseline_coefficient[:, self.currentStim, 1] = std
 
     def stimAvg_start(self):
         t = time.time()
 
         ests = self.C
-        #logger.info('wHAT is the input C?, {0}, what is the size? {1}'.format(ests, ests.shape))
-        #logger.info("I also want to see what's in estts, {0}".format(self.ests))
         if self.ests.shape[0] < ests.shape[0]:
             diff = ests.shape[0] - self.ests.shape[0]
             # added more neurons, grow the array
@@ -497,7 +519,7 @@ class ModelAnalysis(Actor):
             self.barcode = np.pad(self.barcode, ((0, diff), (0, 0)), mode="constant")
             # print('------------------Grew:', self.ests.shape)
 
-        if self.currentStim is not None:
+        if self.currentStim is not None:   
             if self.frame == self.stimStart:
                 self.baseline_record = np.copy(ests[:, self.frame - 10 : self.frame])
                 # baseline before the stimulus onset
@@ -508,20 +530,36 @@ class ModelAnalysis(Actor):
                 elif self.frame in range(self.stimStart + 5, self.stimStart + 19):
                     if self.frame == self.stimStart + 5:
                         self.onstim_counter = np.ones((self.num_stim, 2))
-                        self.fit_line(self.stimStart, np.shape(self.baseline_record)[0], self.baseline_record, self.currentStim)
+                        self.fit_line(self.stimStart - 9, self.baseline_record, self.currentStim)
 
+                    #frame_baseline = self.baseline_coefficient[:, self.currentStim, 0] + (1.8 * self.baseline_coefficient[:, self.currentStim, 1])
                     frame_baseline = self.frame * self.baseline_coefficient[:, self.currentStim, 0] + self.baseline_coefficient[:, self.currentStim, 1] + (1.8 * self.baseline_coefficient[:, self.currentStim, 2])
-                    logger.info("what is the baseline here?{0}, {1}".format(np.shape(frame_baseline), frame_baseline))
+                    #frame_baseline = np.where(frame_baseline < 0, 0, frame_baseline)
+                    #logger.info("what is the baseline here?{0}, {1}".format(np.shape(frame_baseline), frame_baseline))
                     self.ests[:, self.currentStim, 1] = (self.ests[:, self.currentStim, 1] * self.onstim_counter[self.currentStim, 1] + frame_baseline) / (self.onstim_counter[self.currentStim, 1] + 1)
                     self.onstim_counter[self.currentStim, 1] += 1
                     self.ests[:, self.currentStim, 0] = (self.onstim_counter[self.currentStim, 0] * self.ests[:, self.currentStim, 0] + ests[:, self.frame - 1]) / (self.onstim_counter[self.currentStim, 0] + 1)
                     self.onstim_counter[self.currentStim, 0] += 1
 
+                    # if self.frame == self.stimStart + 18:
+                    #     ests = np.copy(ests[:, self.stimStart - 10 : self.frame])
+                    #     x = np.linspace(self.stimStart - 9, self.frame, num=28)
+                    #     all_baseline = np.dot((self.baseline_coefficient[:, self.currentStim, 0]).reshape(-1, 1), x[np.newaxis, :]) + self.baseline_coefficient[:, self.currentStim, 1].reshape(-1, 1) + (1.8 * self.baseline_coefficient[:, self.currentStim, 2].reshape(-1, 1))
+                    #     #all_baseline = self.baseline_coefficient[:, self.currentStim, 0] + (1.8 * self.baseline_coefficient[:, self.currentStim, 1])                        
+                    #     logger.info("test the shape and value, ests.shape: {0}, {1}, baseline : {2}, {3}, x: {4}". format(np.shape(ests), ests, np.shape(all_baseline[:, np.newaxis]), all_baseline, x))
+                    #     if self.estRecord[self.currentStim] is None:
+                    #         self.estRecord[self.currentStim] = ests - all_baseline[:, np.newaxis]
+                    #     else:
+                    #         self.estRecord[self.currentStim] = np.concatenate((self.estRecord[self.currentStim], ests - all_baseline[:, np.newaxis]), axis = 0)
+                    #     with open(f'output/output_est_avg_baseline_{self.currentStim}.pickle', 'wb') as file:
+                    #         pickle.dump(self.estRecord[self.currentStim], file)
+                    #         logger.info("save the baseline corrected estimate for stim {0}".format(self.currentStim))
+                
         self.estsAvg = np.squeeze((self.ests[:, :, 0] - self.ests[:, :, 1]))
         self.estsAvg = np.where(np.isnan(self.estsAvg), 0, self.estsAvg)
         self.estsAvg[self.estsAvg == np.inf] = 0
         self.barcode = np.where(self.estsAvg > 0, 1, 0)
-        logger.info("test if calculation is correct: estAvg: {0}, barcode:{1}".format(self.estsAvg, self.barcode))
+        #logger.info("get the estsAvg, {0}, {1}".format(self.estsAvg, self.barcode))
         self.stimtime.append(time.time() - t)
 
     def plotColorFrame(self):
@@ -625,18 +663,18 @@ class ModelAnalysis(Actor):
             stim = 0
         elif s == 2: # left right
             stim = 1
-        elif s == 3: # left left
-            stim = 2 
-        elif s == 4:
-            stim = 3 # right right
-        elif s == 5:
-            stim = 4 # right x
-        elif s == 6:
-            stim = 5 # left x
-        elif s == 7:
-            stim = 6 # x right
-        elif s == 8:
-            stim = 7 # x left
+        elif s == 3: # right right
+            stim = 5 
+        elif s == 4: # left left
+            stim = 2
+        elif s == 5: # right x
+            stim = 6 
+        elif s == 6: # left x
+            stim = 4 
+        elif s == 7: # x left
+            stim = 3 
+        elif s == 8: # x right
+            stim = 7 
         # if s == 3:
         #     stim = 0
         # elif s == 10:

@@ -304,7 +304,7 @@ class Ui_MainWindow(object):
         self.checkBox.setText(_translate("MainWindow", " Live Update"))
         self.label_2.setText(_translate("MainWindow", "Population\n" "Average"))
         self.label_3.setText(_translate("MainWindow", "Selected\n" "Neuron"))
-        self.label_4.setText(_translate("MainWindow", "Raw Frame"))
+        self.label_4.setText(_translate("MainWindow", "Sorted Barcode"))
         self.label_7.setText(_translate("MainWindow", "Barcode"))
         self.label_5.setText(
             _translate(

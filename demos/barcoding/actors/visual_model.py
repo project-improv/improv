@@ -257,7 +257,7 @@ class CaimanVisual(Actor):
         """
         # translate back to C order of neurons
         nid = self.selectedNeuron
-        print("selected neuron ", nid)
+        logger.info("selected neuron {0}".format(nid))
 
         # highlight selected neuron
         com = np.array([o["CoM"] for o in self.coords])

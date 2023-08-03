@@ -217,7 +217,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         if (self.sort_barcode_index is not None) and (self.barcode is not None):
             barcode_copy = self.barcode[1].copy()
             sort_barcode = barcode_copy[self.sort_barcode_index, :]
-            logger.info("what is the sort_index and what is the sorted_barcode?{0}, \n {1}, the original {2}".format(self.sort_barcode_index, sort_barcode, self.barcode[1]))
+            #logger.info("what is the sort_index and what is the sorted_barcode?{0}, \n {1}, the original {2}".format(self.sort_barcode_index, sort_barcode, self.barcode[1]))
             self.rawplot.setImage(sort_barcode.T)
         elif raw is not None:
             raw = np.rot90(raw, 2)
