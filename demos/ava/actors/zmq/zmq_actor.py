@@ -160,7 +160,7 @@ class ZMQActor(Actor):
         if socket.closed is True:
             logger.info("Socket is closed.")
 
-    def termContext(self, context, linger=None):
+    def destroyContext(self, context, linger=None):
         """Wrapper for zmq.context.destroy — closes and terminated the context.
         
         NOTE: closes all sockets associated with this context, then terminates
