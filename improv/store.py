@@ -1,27 +1,23 @@
-import pickle
 import time
+import pickle
+import signal
+import logging
+import traceback
+
 import numpy as np
 import pyarrow.plasma as plasma
-from scipy.sparse import csc_matrix
-import signal
 
-from dataclasses import dataclass, make_dataclass
 from queue import Queue
 from pathlib import Path
 from random import random
 from threading import Thread
 from typing import List, Union
-
-import lmdb
+from scipy.sparse import csc_matrix
 from pyarrow.lib import ArrowIOError
 from pyarrow._plasma import PlasmaObjectExists, ObjectNotAvailable, ObjectID
 
-import logging
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
-# TODO: Use Apache Arrow for better memory usage with the Plasma store
 
 
 class StoreInterface:
@@ -50,10 +46,22 @@ class PlasmaStoreInterface(StoreInterface):
     value is object_id
     """
 
-    def __init__(
+    def __init__(self, name="default", store_loc="/tmp/store"):
+        """
+        Constructor for the StoreInterface
+
+        :param name:
+        :param store_loc: Apache Arrow Plasma client location
+        """
+
+        self.name = name
+        self.store_loc = store_loc
+        self.client = self.connect_store(store_loc)
+        self.stored = {}
+        self.use_hdd = False
+
+    def _setup_LMDB(
         self,
-        name="default",
-        store_loc="/tmp/store",
         use_lmdb=False,
         lmdb_path="../outputs/",
         lmdb_name=None,
@@ -62,11 +70,6 @@ class PlasmaStoreInterface(StoreInterface):
         commit_freq=1,
     ):
         """
-        Constructor for the StoreInterface
-
-        :param name:
-        :param store_loc: Apache Arrow Plasma client location
-
         :param use_lmdb: bool Also write data to disk using the LMDB
 
         :param hdd_maxstore:
@@ -79,13 +82,6 @@ class PlasmaStoreInterface(StoreInterface):
         :param commit_freq: If not flush_immediately,
             flush data to disk every {commit_freq} seconds.
         """
-
-        self.name = name
-        self.store_loc = store_loc
-        self.client = self.connect_store(store_loc)
-        self.stored = {}
-
-        # Offline db
         self.use_hdd = use_lmdb
         self.flush_immediately = flush_immediately
 
@@ -99,25 +95,20 @@ class PlasmaStoreInterface(StoreInterface):
             )
 
     def connect_store(self, store_loc):
-        """Connect to the store at store_loc
+        """Connect to the store at store_loc, max 20 retries to connect
         Raises exception if can't connect
         Returns the plasmaclient if successful
         Updates the client internal
         """
         try:
             self.client = plasma.connect(store_loc, 20)
-            # Is plasma.PlasmaClient necessary?
-            # 20 in plasma.connect(store_loc, 20) = 20 retries
-            # self.client: plasma.PlasmaClient = plasma.connect(store_loc, 20)
-            logger.info(
-                "Successfully connected to store at locations {0} ".format(store_loc)
-            )
+            logger.info("Successfully connected to store: {} ".format(store_loc))
         except Exception:
-            logger.exception("Cannot connect to store: {0}".format(store_loc))
+            logger.exception("Cannot connect to store: {}".format(store_loc))
             raise CannotConnectToStoreInterfaceError(store_loc)
         return self.client
 
-    def put(self, object, object_name, flush_this_immediately=False):
+    def put(self, object, object_name):
         """
         Put a single object referenced by its string name
         into the store
@@ -127,18 +118,15 @@ class PlasmaStoreInterface(StoreInterface):
         :param obj:
         :param object_name:
         :type object_name: str
-        :param flush_this_immediately:
         :return: Plasma object ID
         :rtype: class 'plasma.ObjectID'
         """
-
         object_id = None
         try:
             # Need to pickle if object is csc_matrix
             if isinstance(object, csc_matrix):
-                object_id = self.client.put(
-                    pickle.dumps(object, protocol=pickle.HIGHEST_PROTOCOL)
-                )
+                prot = pickle.HIGHEST_PROTOCOL
+                object_id = self.client.put(pickle.dumps(object, protocol=prot))
             else:
                 object_id = self.client.put(object)
 
@@ -147,93 +135,17 @@ class PlasmaStoreInterface(StoreInterface):
         except PlasmaObjectExists:
             logger.error("Object already exists. Meant to call replace?")
         except ArrowIOError as e:
-            logger.error(
-                "Could not store object "
-                + object_name
-                + ": {} {}".format(type(e).__name__, e)
-            )
+            logger.error("Could not store object {}".format(object_name))
             logger.info("Refreshing connection and continuing")
             self.reset()
         except Exception as e:
-            logger.error(
-                "Could not store object "
-                + object_name
-                + ": {} {}".format(type(e).__name__, e)
-            )
+            logger.error("Could not store object {}".format(object_name))
+            logger.error(traceback.format_exc())
 
         return object_id
 
-        # object_id = None
-
-        # try:
-        #     # Need to pickle if object is csc_matrix
-        #     # csc needed for CaImAn
-        #     # Pyarrow for csc/other sparse arrays
-        #     # All non-arrow objects must be pickle-able
-        #     # Write more general try-catch,
-        #     #  if anything user wants to put in store returns cannot put -
-        #     #  pickle first, then store
-        #     # What else could we not put in?
-        #     # List of test objects that cannot be stored
-        #     # https://stackoverflow.com/questions/17872056/
-        #       how-to-check-if-an-object-is-pickleable
-        #       #:~:text=In%20python%20you%20can%20check,(x%2C%20Number).%22
-        #     try:
-        #         pickle.dumps(object)
-        #     except pickle.PicklingError:
-        #         return False
-        #     return True
-        #     if isinstance(object, csc_matrix):
-        #         object_id = self.client.put(pickle.dumps(object,
-        #                                                  protocol=pickle.HIGHEST_PROTOCOL))
-        #     else:
-        #         object_id = self.client.put(object)
-        #     self.updateStoreInterfaced(object_name, object_id)
-
-        # except SerializationCallbackError:
-        #     if isinstance(obj, csc_matrix):  # Ignore rest
-        #         object_id = self.client.put(pickle.dumps(obj,
-        #                                                  protocol=pickle.HIGHEST_PROTOCOL))
-
-        # except PlasmaObjectExists:
-        #     logger.error('Object already exists. Meant to call replace?')
-        #     # raise PlasmaObjectExists
-
-        # except ArrowIOError as e:
-        #     logger.error('Could not store object '
-        #                  + object_name
-        #                  + ': {} {}'.format(type(e).__name__, e))
-        #     logger.info('Refreshing connection and continuing')
-        #     self.reset()
-
-        # except Exception as e:
-        #     logger.error('Could not store object '
-        #                   + object_name
-        #                   + ': {} {}'.format(type(e).__name__, e))
-
-        # if self.use_hdd:
-        #     self.lmdb_store.put(obj,
-        #                         object_name,
-        #                         obj_id=object_id,
-        #                         flush_this_immediately=flush_this_immediately)
-
-        # return object_id
-
-    # Before get or getID -
-    # check if object is present and sealed (client.contains(obj_id))
     def get(self, object_name):
-        """Get a single object from the store
-        Checks to see if it knows the object first
-        Otherwise throw CannotGetObject to request dict update
-        TODO: update for lists of objects
-        TODO: replace with getID
-        """
-        # print('trying to get ', object_name)
-        # if self.stored.get(object_name) is None:
-        #     logger.error('Never recorded storing this object: '+object_name)
-        #     # Don't know anything about this object, treat as problematic
-        #     raise CannotGetObjectError(query = object_name)
-        # else:
+        """Replaced with getID"""
         return self.getID(object_name)
 
     def getID(self, obj_id, hdd_only=False):
@@ -280,7 +192,6 @@ class PlasmaStoreInterface(StoreInterface):
     def release(self):
         self.client.disconnect()
 
-    # Necessary? How to fix for functionality?
     # Subscribe to notifications about sealed objects?
     def subscribe(self):
         """Subscribe to a section? of the ds for singals
@@ -292,9 +203,6 @@ class PlasmaStoreInterface(StoreInterface):
             logger.error("Unknown error: {}".format(e))
             raise Exception
 
-    # client.decode_notifications? Get the notification from the buffer?
-    # Or we specifically want the next notification from the notification socket?
-    # cleint.get_notification_socket first?
     def notify(self):
         try:
             notification_info = self.client.get_next_notification()
@@ -346,43 +254,9 @@ class PlasmaStoreInterface(StoreInterface):
         else:
             return res
 
-    # TODO: Likely remove all this functionality for security.
-    # def delete(self, id):
-    #     try:
-    #         self.client.delete([id])
-    #     except Exception as e:
-    #         logger.error('Couldnt delete: {}'.format(e))
 
-    # Delete below!
-    def saveStoreInterface(self, fileName="data/store_dump"):
-        """Save the entire store to disk
-        Uses pickle, should extend to mmap, hd5f, ...
-        """
-        raise NotImplementedError
-
-    def saveConfig(self, config_ids, fileName="data/config_dump"):
-        """Save current Config object containing parameters
-        to run the experiment.
-        Config is pickleable
-        TODO: move this to Nexus' domain?
-        """
-        config = self.client.get(config_ids)
-        # for object ID in list of items in config, get from store
-        # and put into dict (?)
-        with open(fileName, "wb") as output:
-            pickle.dump(config, output, -1)
-
-    def saveSubstore(self, keys, fileName="data/substore_dump"):
-        """Save portion of store based on keys
-        to disk
-        """
-        raise NotImplementedError
-
-    def saveObj(obj, name):
-        with open(
-            "/media/hawkwings/Ext Hard Drive/dump/dump" + str(name) + ".pkl", "wb"
-        ) as output:
-            pickle.dump(obj, output)
+import lmdb
+from dataclasses import dataclass, make_dataclass
 
 
 class LMDBStoreInterface(StoreInterface):

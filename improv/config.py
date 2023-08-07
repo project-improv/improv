@@ -1,12 +1,9 @@
 import yaml
+import logging
 from inspect import signature
 from importlib import import_module
-import logging
 
 logger = logging.getLogger(__name__)
-
-# TODO: Write a save function for Config objects output as YAML configFile
-# but using ConfigModule objects
 
 
 class Config:
@@ -29,6 +26,7 @@ class Config:
     def createConfig(self):
         """Read yaml config file and create config for Nexus
         TODO: check for config file compliance, error handle it
+        beyond what we have below.
         """
         with open(self.configFile, "r") as ymlfile:
             cfg = yaml.safe_load(ymlfile)
@@ -48,10 +46,7 @@ class Config:
             raise TypeError
 
         for name, actor in cfg["actors"].items():
-            # put import/name info in ConfigModule object TODO: make ordered?
-
             if name in self.actors.keys():
-                # Should be actor.keys() - self.actors.keys() is empty until update?
                 raise RepeatedActorError(name)
 
             packagename = actor.pop("package")
@@ -71,6 +66,7 @@ class Config:
             clss = getattr(mod, classname)
             sig = signature(clss)
             configModule = ConfigModule(name, packagename, classname, options=actor)
+
             try:
                 sig.bind(configModule.options)
             except TypeError:
@@ -88,20 +84,20 @@ class Config:
                 self.actors.update({name: configModule})
 
         for name, conn in cfg["connections"].items():
-            # TODO check for correctness  TODO: make more generic (not just q_out)
             if name in self.connections.keys():
                 raise RepeatedConnectionsError(name)
 
-            self.connections.update({name: conn})  # conn should be a list
+            self.connections.update({name: conn})
 
     def addParams(self, type, param):
-        """Function to add paramter param of type type"""
+        """Function to add paramter param of type type
+        TODO: Future work
+        """
+        pass
 
     def saveActors(self):
-        """Saves the config to a specific file."""
-
+        """Saves the actors config to a specific file."""
         wflag = True
-
         saveFile = self.configFile.split(".")[0]
         pathName = saveFile + "_actors.yaml"
 
@@ -122,16 +118,11 @@ class ConfigModule:
         if wflag:
             writeOption = "w"
             wflag = False
-            # cfg = {"actors": []}
         else:
             writeOption = "a"
 
-        cfg = {
-            self.name: {"package": self.packagename, "class": self.classname}
-        }  # fix indentation
+        cfg = {self.name: {"package": self.packagename, "class": self.classname}}
 
-        # for name in self.name:
-        # for b in self.name:
         for key, value in self.options.items():
             cfg[self.name].update({key: value})
 
@@ -164,14 +155,3 @@ class RepeatedConnectionsError(Exception):
 
     def __str__(self):
         return self.message
-
-
-if __name__ == "__main__":
-    config = Config(configFile="pytest/configs/good_config.yaml")
-    config.createConfig()
-    config.saveActors()
-    # for actor in config.actors:
-    #     print(actor)
-
-    # for connection in config.connections:
-    #     print(connection)
