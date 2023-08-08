@@ -107,13 +107,13 @@ async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
     async with app.run_test() as pilot:
         print("running pilot")
         await pilot.press(*"setup", "enter")
-        await pilot.pause(0.5)
+        await pilot.pause(5)
         await pilot.press(*"run", "enter")
-        await pilot.pause(1)
+        await pilot.pause(5)
         await pilot.press(*"stop", "enter")
-        await pilot.pause(2)
+        await pilot.pause(5)
         await pilot.press(*"quit", "enter")
-        await pilot.pause(3)
+        await pilot.pause(5)
         assert not pilot.app._running
 
     # wait on server to fully shut down

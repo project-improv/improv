@@ -10,7 +10,7 @@ from scipy.spatial.distance import cdist
 
 from improv.actor import Actor, Signal
 from improv.store import StoreInterface, ObjectNotFoundError
-from .front_end import BasicFrontEnd
+from .onep_front_end import BasicFrontEnd
 
 import logging
 

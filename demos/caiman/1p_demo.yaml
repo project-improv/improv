@@ -1,6 +1,6 @@
 actors:
   GUI:
-    package: actors.visual
+    package: actors.1p_visual
     class: BasicVisual
     visual: Visual
 
@@ -17,7 +17,7 @@ actors:
     config_file: demo_1p_params.txt
 
   Visual:
-    package: actors.visual
+    package: actors.1p_visual
     class: BasicCaimanVisual
   
   Analysis:

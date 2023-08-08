@@ -6,7 +6,7 @@ import traceback
 
 import numpy as np
 
-from caiman.source_extraction import cnmf
+# from caiman.source_extraction import cnmf
 from caiman.source_extraction.cnmf.online_cnmf import OnACID
 from caiman.source_extraction.cnmf.params import CNMFParams
 from caiman.motion_correction import motion_correct_iteration_fast, tile_and_correct
@@ -189,7 +189,7 @@ class CaimanProcessor(Actor):
                 "show_movie": False,
                 "minibatch_shape": 100,
             }
-        self.client.put(params_dict, "params_dict")
+        # self.client.put(params_dict, "params_dict")
 
         return params_dict
 

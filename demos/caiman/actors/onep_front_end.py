@@ -9,7 +9,7 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
-from . import improv_basic
+from . import onep_improv_basic as improv_basic
 from improv.actor import Signal
 
 import logging
