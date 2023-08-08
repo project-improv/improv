@@ -1,7 +1,7 @@
 import time
+import signal
 import asyncio
 import traceback
-import signal
 from queue import Empty
 from improv.store import StoreInterface
 
@@ -30,8 +30,9 @@ class AbstractActor:
         self.store_loc = store_loc
         self.lower_priority = False
 
-        # start with no explicit data queues.
-        # q_in and q_out are for passing ID information to access data in the store
+        # Start with no explicit data queues.
+        # q_in and q_out are reserved for passing ID information
+        # to access data in the store
         self.q_in = None
         self.q_out = None
 
@@ -39,19 +40,13 @@ class AbstractActor:
         """Internal representation of the Actor mostly for printing purposes.
 
         Returns:
-            [str]: _description_
-        """
-        """ Return this instance name and links dict
+            [str]: instance name and links dict
         """
         return self.name + ": " + str(self.links.keys())
 
     def setStoreInterface(self, client):
         """Sets the client interface to the store
-
-        Args:
-            client (improv.nexus.Link): _description_
-        """
-        """ Set client interface to the store
+        Used specifically for actors not inheriting Nexus' memory
         """
         self.client = client
 
@@ -64,6 +59,10 @@ class AbstractActor:
     def setLinks(self, links):
         """General full dict set for links"""
         self.links = links
+
+    def getLinks(self):
+        """Returns dictionary of links"""
+        return self.links
 
     def setCommLinks(self, q_comm, q_sig):
         """Set explicit communication links to/from Nexus (q_comm, q_sig)
@@ -85,7 +84,7 @@ class AbstractActor:
         self.links.update({"q_out": self.q_out})
 
     def setLinkWatch(self, q_watch):
-        """ """
+        """Set the queue for the Watcher, if used"""
         self.q_watchout = q_watch
         self.links.update({"q_watchout": self.q_watchout})
 
@@ -98,11 +97,8 @@ class AbstractActor:
         # User can then use: self.my_queue = self.links['my_queue'] in a setup fcn,
         # or continue to reference it using self.links['my_queue']
 
-    def getLinks(self):
-        """Returns dictionary of links"""
-        return self.links
-
     def put(self, idnames, q_out=None, save=None):
+        """TODO: This is deprecated? Prefer using Links explicitly"""
         if save is None:
             save = [False] * len(idnames)
 
@@ -119,18 +115,26 @@ class AbstractActor:
                 if self.q_watchout:
                     self.q_watchout.put(idnames[i])
 
+    def setup(self):
+        """Essenitally the registration process
+        Can also be an initialization for the actor
+        options is a list of options, can be empty
+        """
+        pass
+
     def run(self):
         """Must run in continuous mode
         Also must check q_sig either at top of a run-loop
         or as async with the primary function
+
+        Suggested implementation for synchronous running: see RunManager class below
         """
         raise NotImplementedError
 
-        """ Suggested implementation for synchronous running: see RunManager class below
-        """
-
     def stop(self):
-        """Specify method for momentarily stopping the run and saving data."""
+        """Specify method for momentarily stopping the run and saving data.
+        Not used by default
+        """
         pass
 
     def changePriority(self):
@@ -162,18 +166,8 @@ class ManagedActor(AbstractActor):
         with RunManager(self.name, self.actions, self.links):
             pass
 
-    def setup(self):
-        """Essenitally the registration process
-        Can also be an initialization for the actor
-        options is a list of options, can be empty
-        """
-        pass
-
     def runStep(self):
         raise NotImplementedError
-
-    def stop(self):
-        pass
 
 
 class AsyncActor(AbstractActor):
@@ -187,9 +181,7 @@ class AsyncActor(AbstractActor):
         self.actions["stop"] = self.stop
 
     def run(self):
-        """
-        Run the actor in an async loop
-        """
+        """Run the actor in an async loop"""
         result = asyncio.run(
             AsyncRunManager(self.name, self.actions, self.links).run_actor()
         )
@@ -214,8 +206,6 @@ Actor = ManagedActor
 
 
 class RunManager:
-    """ """
-
     def __init__(self, name, actions, links, runStoreInterface=None, timeout=1e-6):
         self.run = False
         self.stop = False
@@ -234,6 +224,7 @@ class RunManager:
 
     def __enter__(self):
         self.start = time.time()
+        an = self.actorName
 
         while True:
             # Run any actions given a received Signal
@@ -241,21 +232,13 @@ class RunManager:
                 try:
                     self.actions["run"]()
                 except Exception as e:
-                    logger.error(
-                        "Actor "
-                        + self.actorName
-                        + " exception during run: {}".format(e)
-                    )
+                    logger.error("Actor {} error in run: {}".format(an, e))
                     logger.error(traceback.format_exc())
             elif self.stop:
                 try:
                     self.actions["stop"]()
                 except Exception as e:
-                    logger.error(
-                        "Actor "
-                        + self.actorName
-                        + " exception during stop: {}".format(e)
-                    )
+                    logger.error("Actor {} error in stop: {}".format(an, e))
                     logger.error(traceback.format_exc())
                 self.stop = False  # Run once
             elif self.config:
@@ -265,11 +248,7 @@ class RunManager:
                     self.actions["setup"]()
                     self.q_comm.put([Signal.ready()])
                 except Exception as e:
-                    logger.error(
-                        "Actor "
-                        + self.actorName
-                        + " exception during setup: {}".format(e)
-                    )
+                    logger.error("Actor {} error in setup: {}".format(an, e))
                     logger.error(traceback.format_exc())
                 self.config = False
 
@@ -309,18 +288,12 @@ class RunManager:
 
 
 class AsyncRunManager:
-    """
-    Asynchronous run manager. Communicates with nexus core using q_sig and q_comm.
-
+    """Asynchronous run manager. Communicates with nexus core using q_sig and q_comm.
     To be used with [async with]
-
     Afterwards, the run manager listens for signals without blocking.
-
     """
 
-    def __init__(
-        self, name, actions, links, runStore=None, timeout=1e-6
-    ):  # q_sig, q_comm are AsyncQueue.
+    def __init__(self, name, actions, links, runStore=None, timeout=1e-6):
         self.run = False
         self.config = False
         self.stop = False
@@ -328,6 +301,7 @@ class AsyncRunManager:
         logger.debug("AsyncRunManager for {} created".format(self.actorName))
         self.actions = actions
         self.links = links
+        # q_sig, q_comm are AsyncQueue
         self.q_sig = self.links["q_sig"]
         self.q_comm = self.links["q_comm"]
 
@@ -342,27 +316,20 @@ class AsyncRunManager:
             self.loop.add_signal_handler(s, lambda s=s: self.loop.stop())
 
     async def run_actor(self):
+        an = self.actorName
         while True:
             # Run any actions given a received Signal
             if self.run:
                 try:
                     await self.actions["run"]()
                 except Exception as e:
-                    logger.error(
-                        "Actor "
-                        + self.actorName
-                        + " exception during run: {}".format(e)
-                    )
+                    logger.error("Actor {} error in run: {}".format(an, e))
                     logger.error(traceback.format_exc())
             elif self.stop:
                 try:
                     await self.actions["stop"]()
                 except Exception as e:
-                    logger.error(
-                        "Actor "
-                        + self.actorName
-                        + " exception during stop: {}".format(e)
-                    )
+                    logger.error("Actor {} error in stop: {}".format(an, e))
                     logger.error(traceback.format_exc())
                 self.stop = False  # Run once
             elif self.config:
@@ -372,11 +339,7 @@ class AsyncRunManager:
                     await self.actions["setup"]()
                     self.q_comm.put([Signal.ready()])
                 except Exception as e:
-                    logger.error(
-                        "Actor "
-                        + self.actorName
-                        + " exception during setup: {}".format(e)
-                    )
+                    logger.error("Actor {} error in setup: {}".format(an, e))
                     logger.error(traceback.format_exc())
                 self.config = False
 

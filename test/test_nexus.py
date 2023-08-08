@@ -273,7 +273,7 @@ def test_startstore(caplog, set_store_loc):
     nex._startStoreInterface(10000)  # 10 kb store
 
     assert any(
-        "StoreInterface started successfully" in record.msg for record in caplog.records
+        "StoreInterface start successful" in record.msg for record in caplog.records
     )
 
     nex._closeStoreInterface()
@@ -287,7 +287,7 @@ def test_closestore(caplog):
     nex._closeStoreInterface()
 
     assert any(
-        "StoreInterface closed successfully" in record.msg for record in caplog.records
+        "StoreInterface close successful" in record.msg for record in caplog.records
     )
 
     # write to store
@@ -307,10 +307,7 @@ def test_store_already_deleted_issues_warning(caplog):
     os.remove(nex.store_loc)
     nex.destroyNexus()
     assert any(
-        "StoreInterface file at location {0} has already been deleted".format(
-            store_location
-        )
-        in record.msg
+        "StoreInterface file {} is already deleted".format(store_location) in record.msg
         for record in caplog.records
     )
 
