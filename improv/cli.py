@@ -62,7 +62,6 @@ def is_valid_ip_addr(addr):
         port = addr
 
     port = str(is_valid_port(port))
-
     return ip + ":" + port
 
 
@@ -294,7 +293,7 @@ def run_cleanup(args, headless=False):
             print("No running processes found.")
 
 
-def run(args):
+def run(args, timeout=10):
     apath_opts = []
     for p in args.actor_path:
         if p:
@@ -316,37 +315,54 @@ def run(args):
     server_opts.extend(apath_opts)
     server_opts.append(args.configfile)
 
-    # save current datetime so we can see when server has started up
-    curr_dt = datetime.datetime.now().replace(microsecond=0)
-
     with open(args.logfile, mode="a+") as logfile:
         server = subprocess.Popen(server_opts, stdout=logfile, stderr=logfile)
 
     # wait for server to start up
-    timeout = 10
-    increment = 0.05
-    time_now = 0
-    while time_now < timeout:
-        server_start_time = _server_start_logged(args.logfile)
-        if server_start_time and server_start_time >= curr_dt:
-            control_port, output_port, logging_port = _get_ports(args.logfile)
-            break
-        else:
-            time.sleep(increment)
-            time_now += increment
-
-    args.logging_port = logging_port
-    args.control_port = control_port
-    args.server_port = output_port
-    run_client(args)
+    ports = get_server_ports(args, timeout)
+    if ports:
+        control_port, output_port, logging_port = ports
+        args.logging_port = logging_port
+        args.control_port = control_port
+        args.server_port = output_port
+        run_client(args)
 
     try:
         server.wait(timeout=2)
     except subprocess.TimeoutExpired:
         print("Cleaning up the hard way. May have exited dirty.")
         server.terminate()
-        server.wait(10)
+        server.wait(timeout)
         run_cleanup(args, headless=True)
+
+
+def get_server_ports(args, timeout):
+    # save current datetime so we can see when server has started up
+    curr_dt = datetime.datetime.now().replace(microsecond=0)
+
+    increment = 0.05
+    time_now = 0
+    ports = None
+    while time_now < timeout:
+        server_start_time = _server_start_logged(args.logfile)
+        if server_start_time and server_start_time >= curr_dt:
+            ports = _get_ports(args.logfile)
+            if ports:
+                break
+
+        time.sleep(increment)
+        time_now += increment
+
+    if not server_start_time:
+        print(
+            f"Unable to read server start time from {args.logfile}.\n"
+            "This may be because the server could not be started or"
+            "did not log its activity."
+        )
+    elif not ports:
+        print(f"Unable to read ports from {args.logfile}.")
+
+    return ports
 
 
 def _server_start_logged(logfile):

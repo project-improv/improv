@@ -3,8 +3,7 @@ import asyncio
 import traceback
 import signal
 from queue import Empty
-from typing import Awaitable, Callable
-from improv.store import Store
+from improv.store import StoreInterface
 
 import logging
 
@@ -46,7 +45,7 @@ class AbstractActor:
         """
         return self.name + ": " + str(self.links.keys())
 
-    def setStore(self, client):
+    def setStoreInterface(self, client):
         """Sets the client interface to the store
 
         Args:
@@ -59,8 +58,8 @@ class AbstractActor:
     def _getStoreInterface(self):
         # TODO: Where do we require this be run? Add a Signal and include in RM?
         if not self.client:
-            store = Store(self.name, self.store_loc)
-            self.setStore(store)
+            store = StoreInterface(self.name, self.store_loc)
+            self.setStoreInterface(store)
 
     def setLinks(self, links):
         """General full dict set for links"""
@@ -188,8 +187,13 @@ class AsyncActor(AbstractActor):
         self.actions["stop"] = self.stop
 
     def run(self):
-        with AsyncRunManager(self.name, self.actions, self.links):
-            pass
+        """
+        Run the actor in an async loop
+        """
+        result = asyncio.run(
+            AsyncRunManager(self.name, self.actions, self.links).run_actor()
+        )
+        return result
 
     async def setup(self):
         """Essenitally the registration process
@@ -212,7 +216,7 @@ Actor = ManagedActor
 class RunManager:
     """ """
 
-    def __init__(self, name, actions, links, runStore=None, timeout=1e-6):
+    def __init__(self, name, actions, links, runStoreInterface=None, timeout=1e-6):
         self.run = False
         self.stop = False
         self.config = False
@@ -225,7 +229,7 @@ class RunManager:
         self.q_sig = self.links["q_sig"]
         self.q_comm = self.links["q_comm"]
 
-        self.runStore = runStore
+        self.runStoreInterface = runStoreInterface
         self.timeout = timeout
 
     def __enter__(self):
@@ -256,8 +260,8 @@ class RunManager:
                 self.stop = False  # Run once
             elif self.config:
                 try:
-                    if self.runStore:
-                        self.runStore()
+                    if self.runStoreInterface:
+                        self.runStoreInterface()
                     self.actions["setup"]()
                     self.q_comm.put([Signal.ready()])
                 except Exception as e:
@@ -315,15 +319,21 @@ class AsyncRunManager:
     """
 
     def __init__(
-        self, name, run_method: Callable[[], Awaitable[None]], setup, q_sig, q_comm
+        self, name, actions, links, runStore=None, timeout=1e-6
     ):  # q_sig, q_comm are AsyncQueue.
         self.run = False
         self.config = False
-        self.run_method = run_method
-        self.setup = setup
-        self.q_sig = q_sig
-        self.q_comm = q_comm
-        self.module_name = name
+        self.stop = False
+        self.actorName = name
+        logger.debug("AsyncRunManager for {} created".format(self.actorName))
+        self.actions = actions
+        self.links = links
+        self.q_sig = self.links["q_sig"]
+        self.q_comm = self.links["q_comm"]
+
+        self.runStore = runStore
+        self.timeout = timeout
+
         self.loop = asyncio.get_event_loop()
         self.start = time.time()
 
@@ -331,29 +341,82 @@ class AsyncRunManager:
         for s in signals:
             self.loop.add_signal_handler(s, lambda s=s: self.loop.stop())
 
-    async def __aenter__(self):
+    async def run_actor(self):
         while True:
-            signal = await self.q_sig.get_async()
-            if signal == Signal.run() or signal == Signal.resume():
-                if not self.run:
+            # Run any actions given a received Signal
+            if self.run:
+                try:
+                    await self.actions["run"]()
+                except Exception as e:
+                    logger.error(
+                        "Actor "
+                        + self.actorName
+                        + " exception during run: {}".format(e)
+                    )
+                    logger.error(traceback.format_exc())
+            elif self.stop:
+                try:
+                    await self.actions["stop"]()
+                except Exception as e:
+                    logger.error(
+                        "Actor "
+                        + self.actorName
+                        + " exception during stop: {}".format(e)
+                    )
+                    logger.error(traceback.format_exc())
+                self.stop = False  # Run once
+            elif self.config:
+                try:
+                    if self.runStore:
+                        self.runStore()
+                    await self.actions["setup"]()
+                    self.q_comm.put([Signal.ready()])
+                except Exception as e:
+                    logger.error(
+                        "Actor "
+                        + self.actorName
+                        + " exception during setup: {}".format(e)
+                    )
+                    logger.error(traceback.format_exc())
+                self.config = False
+
+            # Check for new Signals received from Nexus
+            try:
+                signal = self.q_sig.get(timeout=self.timeout)
+                logger.debug("{} received Signal {}".format(self.actorName, signal))
+                if signal == Signal.run():
                     self.run = True
-                    asyncio.create_task(self.run_method(), loop=self.loop)
-                    print("Received run signal, begin running")
-            elif signal == Signal.setup():
-                self.setup()
-                await self.q_comm.put_async([Signal.ready()])
-            elif signal == Signal.quit():
-                logger.warning("Received quit signal, aborting")
-                self.loop.stop()
+                    logger.warning("Received run signal, begin running")
+                elif signal == Signal.setup():
+                    self.config = True
+                elif signal == Signal.stop():
+                    self.run = False
+                    self.stop = True
+                    logger.warning(f"actor {self.actorName} received stop signal")
+                elif signal == Signal.quit():
+                    logger.warning("Received quit signal, aborting")
+                    break
+                elif signal == Signal.pause():
+                    logger.warning("Received pause signal, pending...")
+                    self.run = False
+                elif signal == Signal.resume():  # currently treat as same as run
+                    logger.warning("Received resume signal, resuming")
+                    self.run = True
+            except KeyboardInterrupt:
                 break
-            elif signal == Signal.pause():
-                logger.warning("Received pause signal, pending...")
-                while self.q_sig.get() != Signal.resume():  # Intentionally blocking
-                    time.sleep(1e-3)
+            except Empty:
+                pass  # No signal from Nexus
+
+        return None
+
+    async def __aenter__(self):
+        self.start = time.time()
+        return self
 
     async def __aexit__(self, type, value, traceback):
         logger.info("Ran for {} seconds".format(time.time() - self.start))
         logger.warning("Exiting AsyncRunManager")
+        return None
 
 
 class Signal:

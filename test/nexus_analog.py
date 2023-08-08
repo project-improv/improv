@@ -5,7 +5,7 @@ import math
 import uuid
 import os
 from improv.link import Link
-from improv.store import Store
+from improv.store import StoreInterface
 import subprocess
 
 
@@ -25,7 +25,7 @@ def setup_store():
     location of the store socket.
 
     Yields:
-        Store: An instance of the store.
+        StoreInterface: An instance of the store.
 
     TODO:
         Figure out the scope.
@@ -36,7 +36,7 @@ def setup_store():
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    store = Store(store_loc=store_loc)
+    store = StoreInterface(store_loc=store_loc)
     return store
 
 

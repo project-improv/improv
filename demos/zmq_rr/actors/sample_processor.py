@@ -1,13 +1,16 @@
-from improv.actor import Actor
+from improv.actor import Actor, AsyncActor
 import numpy as np
 import logging
+
+from demos.basic.actors.zmqActor import ZmqPSActor, ZmqRRActor
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
 class Processor(Actor):
-    """Sample processor used to calculate the average of an array of integers.
+    """Sample processor used to calculate the average of an array of integers
+    using async ZMQ to communicate.
 
     Intended for use with sample_generator.py.
     """
@@ -17,9 +20,10 @@ class Processor(Actor):
 
     def setup(self):
         """Initializes all class variables.
+        Sets up a ZmqRRActor to receive data from the generator.
 
         self.name (string): name of the actor.
-        self.frame (ObjectID): StoreInterface object id referencing data from the store.
+        self.frame (ObjectID): Store object id referencing data from the store.
         self.avg_list (list): list that contains averages of individual vectors.
         self.frame_num (int): index of current frame.
         """
@@ -28,6 +32,7 @@ class Processor(Actor):
         self.frame = None
         self.avg_list = []
         self.frame_num = 1
+        self.subscribe = ZmqRRActor("processor", self.store_loc)
         logger.info("Completed setup for Processor")
 
     def stop(self):
@@ -37,6 +42,7 @@ class Processor(Actor):
 
     def runStep(self):
         """Gets from the input queue and calculates the average.
+        Receives data from the generator using a ZmqRRActor.
 
         Receives an ObjectID, references data in the store using that
         ObjectID, calculates the average of that data, and finally prints
@@ -44,8 +50,13 @@ class Processor(Actor):
         """
 
         frame = None
+
         try:
-            frame = self.q_in.get(timeout=0.001)
+            # frame = self.q_in.get(timeout=0.001)
+            self.subscribe.setRepSocket(ip="127.0.0.1", port=5556)
+            reply = "received"
+            frame = self.subscribe.replyMsg(reply)
+            # logger.info(f"Received frame: {frame}")
 
         except:
             logger.error("Could not get frame!")
@@ -56,8 +67,8 @@ class Processor(Actor):
             self.frame = self.client.getID(frame[0][0])
             avg = np.mean(self.frame[0])
 
-            # print(f"Average: {avg}")
+            logger.info(f"Average: {avg}")
             self.avg_list.append(avg)
-            # print(f"Overall Average: {np.mean(self.avg_list)}")
-            # print(f"Frame number: {self.frame_num}")
+            logger.info(f"Overall Average: {np.mean(self.avg_list)}")
+            logger.info(f"Frame number: {self.frame_num}")
             self.frame_num += 1

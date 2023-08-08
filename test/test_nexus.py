@@ -6,11 +6,11 @@ import subprocess
 import signal
 
 from improv.nexus import Nexus
-from improv.store import Store
+from improv.store import StoreInterface
 
 
 # from improv.actor import Actor
-# from improv.store import Store
+# from improv.store import StoreInterface
 
 SERVER_COUNTER = 0
 
@@ -59,7 +59,7 @@ def sample_nex(setdir, ports):
 #     location of the store socket.
 
 #     Yields:
-#         Store: An instance of the store.
+#         StoreInterface: An instance of the store.
 
 #     TODO:
 #         Figure out the scope.
@@ -68,7 +68,7 @@ def sample_nex(setdir, ports):
 #     p = subprocess.Popen(
 #         ['plasma_store', '-s', '/tmp/store/', '-m', str(10000000)],\
 #         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-#     store = Store(store_loc = "/tmp/store/")
+#     store = StoreInterface(store_loc = "/tmp/store/")
 #     yield store
 #     p.kill()
 
@@ -270,28 +270,30 @@ def test_usehdd_False():
 
 def test_startstore(caplog, set_store_loc):
     nex = Nexus("test")
-    nex._startStore(10000)  # 10 kb store
+    nex._startStoreInterface(10000)  # 10 kb store
 
     assert any(
-        ["Store started successfully" in record.msg for record in caplog.records]
+        "StoreInterface started successfully" in record.msg for record in caplog.records
     )
 
-    nex._closeStore()
+    nex._closeStoreInterface()
     nex.destroyNexus()
     assert True
 
 
 def test_closestore(caplog):
     nex = Nexus("test")
-    nex._startStore(10000)
-    nex._closeStore()
+    nex._startStoreInterface(10000)
+    nex._closeStoreInterface()
 
-    assert any("Store closed successfully" in record.msg for record in caplog.records)
+    assert any(
+        "StoreInterface closed successfully" in record.msg for record in caplog.records
+    )
 
     # write to store
 
     with pytest.raises(AttributeError):
-        nex.p_Store.put("Message in", "Message in Label")
+        nex.p_StoreInterface.put("Message in", "Message in Label")
 
     nex.destroyNexus()
     assert True
@@ -299,13 +301,15 @@ def test_closestore(caplog):
 
 def test_store_already_deleted_issues_warning(caplog):
     nex = Nexus("test")
-    nex._startStore(10000)
+    nex._startStoreInterface(10000)
     store_location = nex.store_loc
-    Store(store_loc=nex.store_loc)
+    StoreInterface(store_loc=nex.store_loc)
     os.remove(nex.store_loc)
     nex.destroyNexus()
     assert any(
-        "Store file at location {0} has already been deleted".format(store_location)
+        "StoreInterface file at location {0} has already been deleted".format(
+            store_location
+        )
         in record.msg
         for record in caplog.records
     )
