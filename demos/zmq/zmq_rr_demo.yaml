@@ -1,0 +1,11 @@
+actors:
+  Generator:
+    package: actors.zmq_rr_sample_generator
+    class: Generator
+
+  Processor:
+    package: actors.zmq_rr_sample_processor
+    class: Processor
+
+connections:
+  Generator.q_out: [Processor.q_in]
