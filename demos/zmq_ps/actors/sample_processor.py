@@ -2,7 +2,7 @@ from improv.actor import Actor
 import numpy as np
 import logging
 
-from demos.basic.actors.zmqActor import ZmqPSActor, ZmqRRActor
+from demos.sample_actors.zmqActor import ZmqPSActor, ZmqRRActor, ZmqActor
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -32,7 +32,7 @@ class Processor(Actor):
         self.frame = None
         self.avg_list = []
         self.frame_num = 1
-        self.subscribe = ZmqPSActor("processor", self.store_loc)
+        self.publish = ZmqActor("processor", self.store_loc, pub_sub=True , rep_req=False)
         logger.info("Completed setup for Processor")
 
     def stop(self):

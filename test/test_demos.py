@@ -3,8 +3,13 @@ import os
 import asyncio
 import subprocess
 import improv.tui as tui
-from demos.basic.actors.zmqActor import ZmqPSActor, ZmqRRActor
+#from demos.sample_actors.zmqActor import ZmqPSActor, ZmqRRActor, ZmqActor
+from demos.basic.actors.zmqActor import ZmqActor
 import concurrent.futures
+import logging
+
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.DEBUG)
 
 from test_nexus import ports
 
@@ -129,22 +134,27 @@ async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
 
 def test_zmq_ps(ip, unused_tcp_port):
     """Tests if we can set the zmq PUB/SUB socket and send message."""
-
-    act1 = ZmqPSActor("act1", "/tmp/store")
-    act2 = ZmqPSActor("act2", "/tmp/store")
+    LOGGER.info("beginning test")
+    act1 = ZmqActor("act1", "/tmp/store", pub_sub=True, rep_req=False)
+    act2 = ZmqActor("act2", "/tmp/store", pub_sub=True, rep_req=False)
+    LOGGER.info("ZMQ Actors constructed")
     act1.setSendSocket(ip, unused_tcp_port)
+    LOGGER.info("set send socket")
     act2.setRecvSocket(ip, unused_tcp_port)
+    LOGGER.info("set recv socket")
     msg = "hello"
     act1.sendMsg(msg)
+    LOGGER.info("sent message")
     recvmsg = act2.recvMsg()
+    LOGGER.info("received message")
     assert recvmsg == msg
 
 
 def test_zmq_rr(ip, unused_tcp_port):
     """Tests if we can set the zmq REQ/REP socket and send message."""
 
-    act1 = ZmqRRActor("act1", "/tmp/store")
-    act2 = ZmqRRActor("act2", "/tmp/store")
+    act1 = ZmqActor("act1", "/tmp/store", pub_sub=False, rep_req=True)
+    act2 = ZmqActor("act2", "/tmp/store", pub_sub=False, rep_req=True)
     act1.setReqSocket(ip, unused_tcp_port)
     act2.setRepSocket(ip, unused_tcp_port)
     msg = "hello"
@@ -175,7 +185,7 @@ def test_zmq_rr(ip, unused_tcp_port):
 
 def test_zmq_rr_timeout(ip, unused_tcp_port):
     """Test for requestMsg where we timeout or fail to send"""
-    act1 = ZmqRRActor("act1", "/tmp/store")
+    act1 = ZmqActor("act1", "/tmp/store", pub_sub=False, rep_req=True)
     act1.setReqSocket(ip, unused_tcp_port)
     msg = "hello"
     replymsg = act1.requestMsg(msg)

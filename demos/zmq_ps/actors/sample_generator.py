@@ -3,7 +3,7 @@ from datetime import date  # used for saving
 import numpy as np
 import logging
 
-from demos.basic.actors.zmqActor import ZmqPSActor, ZmqRRActor
+from demos.sample_actors.zmqActor import ZmqPSActor, ZmqRRActor, ZmqActor
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -35,7 +35,8 @@ class Generator(Actor):
 
         logger.info("Beginning setup for Generator")
         self.data = np.asmatrix(np.random.randint(100, size=(100, 5)))
-        self.publish = ZmqPSActor("generator", self.store_loc)
+        # self.publish = ZmqPSActor("generator", self.store_loc)
+        self.publish = ZmqActor("generator", self.store_loc, pub_sub=True , rep_req=False)
         logger.info("Completed setup for Generator")
 
     def stop(self):
