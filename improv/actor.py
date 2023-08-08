@@ -31,7 +31,8 @@ class AbstractActor:
         self.lower_priority = False
 
         # Start with no explicit data queues.
-        # q_in and q_out are reserved for passing ID information to access data in the store
+        # q_in and q_out are reserved for passing ID information
+        # to access data in the store
         self.q_in = None
         self.q_out = None
 

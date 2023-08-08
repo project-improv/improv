@@ -1,3 +1,4 @@
+import lmdb
 import time
 import pickle
 import signal
@@ -12,6 +13,7 @@ from pathlib import Path
 from random import random
 from threading import Thread
 from typing import List, Union
+from dataclasses import dataclass, make_dataclass
 from scipy.sparse import csc_matrix
 from pyarrow.lib import ArrowIOError
 from pyarrow._plasma import PlasmaObjectExists, ObjectNotAvailable, ObjectID
@@ -134,11 +136,11 @@ class PlasmaStoreInterface(StoreInterface):
                 self.lmdb_store.put(object, object_name, obj_id=object_id)
         except PlasmaObjectExists:
             logger.error("Object already exists. Meant to call replace?")
-        except ArrowIOError as e:
+        except ArrowIOError:
             logger.error("Could not store object {}".format(object_name))
             logger.info("Refreshing connection and continuing")
             self.reset()
-        except Exception as e:
+        except Exception:
             logger.error("Could not store object {}".format(object_name))
             logger.error(traceback.format_exc())
 
@@ -253,10 +255,6 @@ class PlasmaStoreInterface(StoreInterface):
             raise ObjectNotFoundError(obj_id_or_name=object_name)  # TODO: Don't raise?
         else:
             return res
-
-
-import lmdb
-from dataclasses import dataclass, make_dataclass
 
 
 class LMDBStoreInterface(StoreInterface):

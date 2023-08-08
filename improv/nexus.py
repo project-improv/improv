@@ -446,7 +446,7 @@ class Nexus:
         for q in self.sig_queues.values():
             try:
                 q.put_nowait(Signal.quit())
-            except Full as f:
+            except Full:
                 logger.warning("Signal queue {} full, cannot quit".format(q.name))
             except FileNotFoundError:
                 logger.warning("Queue {} corrupted.".format(q.name))

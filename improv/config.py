@@ -41,7 +41,7 @@ class Config:
             if cfg is None:
                 logger.error("Error: The config file is empty")
 
-        if type(cfg) != dict:
+        if type(cfg) is not dict:
             logger.error("Error: The config file is not in dictionary format")
             raise TypeError
 
