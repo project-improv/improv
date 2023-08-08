@@ -1,9 +1,9 @@
+from demos.sample_actors.zmqActor import ZmqActor
 import pytest
 import os
 import asyncio
 import subprocess
 import improv.tui as tui
-from demos.sample_actors.zmqActor import ZmqActor
 import concurrent.futures
 import logging
 
