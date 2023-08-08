@@ -1,4 +1,3 @@
-from demos.sample_actors.zmqActor import ZmqActor
 import pytest
 import os
 import asyncio
@@ -7,10 +6,12 @@ import improv.tui as tui
 import concurrent.futures
 import logging
 
+from demos.sample_actors.zmqActor import ZmqActor
+from test_nexus import ports
+
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.DEBUG)
 
-from test_nexus import ports
 
 SERVER_WARMUP = 10
 
