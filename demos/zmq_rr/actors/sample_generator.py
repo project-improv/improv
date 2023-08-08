@@ -3,7 +3,7 @@ from datetime import date  # used for saving
 import numpy as np
 import logging
 
-from demos.sample_actors.zmqActor import ZmqPSActor, ZmqRRActor
+from demos.sample_actors.zmqActor import ZmqActor
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

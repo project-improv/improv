@@ -1,0 +1,531 @@
+improv.nexus ************ new improv server session 2023-08-08 13:20:15 ************
+improv.nexus StoreInterface started successfully at location: /tmp/df655c94-b06b-4b2f-87ba-638a303ff1a1
+asyncio Using selector: EpollSelector
+improv.nexus Create new store object
+improv.store attempting to connect to store
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/df655c94-b06b-4b2f-87ba-638a303ff1a1, retrying 1 more times
+improv.store Cannot connect to store: /tmp/df655c94-b06b-4b2f-87ba-638a303ff1a1
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/df655c94-b06b-4b2f-87ba-638a303ff1a1, retrying 1 more times
+improv.store Cannot connect to store: /tmp/df655c94-b06b-4b2f-87ba-638a303ff1a1
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/df655c94-b06b-4b2f-87ba-638a303ff1a1, retrying 1 more times
+improv.store Successfully connected to store at locations /tmp/df655c94-b06b-4b2f-87ba-638a303ff1a1 
+improv.store attempting to connect to store
+improv.store Successfully connected to store at locations /tmp/df655c94-b06b-4b2f-87ba-638a303ff1a1 
+improv.nexus setup the actor Generator
+improv.store attempting to connect to store
+improv.store Successfully connected to store at locations /tmp/df655c94-b06b-4b2f-87ba-638a303ff1a1 
+improv.nexus setup the actor Processor
+improv.nexus Starting processes
+improv.nexus <ForkProcess name='Generator' parent=9029 initial daemon>
+2023-08-08 13:20:16 Server running on (control, output, log) ports (5555, 5556, 5557).
+Press Ctrl-C to quit.
+improv.nexus <ForkProcess name='Processor' parent=9029 initial daemon>
+improv.nexus All processes started
+improv.nexus Visual is not started: 'Visual'
+improv.nexus Received signal from user: setup
+improv.nexus Running setup
+improv.nexus Starting setup: Link Generator_sig
+improv.nexus Starting setup: Link Processor_sig
+actors.sample_generator Beginning setup for Generator
+improv.nexus t.result = None
+actors.sample_processor Completed setup for Processor
+actors.sample_generator Completed setup for Generator
+improv.nexus Received signal ready from Generator_comm
+improv.nexus Received signal ready from Processor_comm
+improv.nexus Allowing start
+improv.nexus Received signal from user: run
+improv.nexus Begin run!
+improv.actor Received run signal, begin running
+improv.nexus t.result = None
+improv.actor Received run signal, begin running
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_processor Could not get frame!
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+actors.sample_generator Sent message on
+improv.actor Ran for 9.916168451309204 seconds
+improv.nexus Shutting down via signal handler for 2.                 Steps may be out of order or dirty.
+improv.actor Exiting RunManager
+improv.nexus Received shutdown order
+improv.nexus Stop signal: 2
+improv.nexus Canceling outstanding tasks
+improv.nexus Polling has stopped.
+improv.nexus Killing child processes
+improv.nexus Actors terminated
+improv.nexus Destroying Nexus
+improv.nexus StoreInterface closed successfully at location: /tmp/df655c94-b06b-4b2f-87ba-638a303ff1a1
+improv.nexus Delete the store at location /tmp/df655c94-b06b-4b2f-87ba-638a303ff1a1
+improv.nexus Received signal ready from Generator_comm
+improv.nexus Allowing start
+improv.nexus Received signal ready from Processor_comm
+improv.nexus Allowing start
+improv.nexus Loop is cancelled
+improv.nexus Res failed to await: local variable 'res' referenced before assignment
+improv.nexus Current loop: <_UnixSelectorEventLoop running=False closed=False debug=False>
+improv.nexus Shutdown loop
+improv.nexus ************ new improv server session 2023-08-08 13:20:32 ************
+improv.nexus StoreInterface started successfully at location: /tmp/b0c062ec-9532-432e-9b94-1314d7220531
+asyncio Using selector: EpollSelector
+improv.nexus Create new store object
+improv.store attempting to connect to store
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b0c062ec-9532-432e-9b94-1314d7220531, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b0c062ec-9532-432e-9b94-1314d7220531
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b0c062ec-9532-432e-9b94-1314d7220531, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b0c062ec-9532-432e-9b94-1314d7220531
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b0c062ec-9532-432e-9b94-1314d7220531, retrying 1 more times
+improv.store Successfully connected to store at locations /tmp/b0c062ec-9532-432e-9b94-1314d7220531 
+improv.store attempting to connect to store
+improv.store Successfully connected to store at locations /tmp/b0c062ec-9532-432e-9b94-1314d7220531 
+improv.nexus setup the actor Generator
+improv.store attempting to connect to store
+improv.store Successfully connected to store at locations /tmp/b0c062ec-9532-432e-9b94-1314d7220531 
+improv.nexus setup the actor Processor
+improv.nexus Starting processes
+improv.nexus <ForkProcess name='Generator' parent=9163 initial daemon>
+2023-08-08 13:20:33 Server running on (control, output, log) ports (5555, 5556, 5557).
+Press Ctrl-C to quit.
+improv.nexus <ForkProcess name='Processor' parent=9163 initial daemon>
+improv.nexus All processes started
+improv.nexus Visual is not started: 'Visual'
+improv.nexus ************ new improv server session 2023-08-08 13:20:51 ************
+improv.nexus StoreInterface started successfully at location: /tmp/de28c3b5-10bc-4781-b953-1e7073f47294
+asyncio Using selector: EpollSelector
+improv.nexus Create new store object
+improv.store attempting to connect to store
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/de28c3b5-10bc-4781-b953-1e7073f47294, retrying 1 more times
+improv.store Cannot connect to store: /tmp/de28c3b5-10bc-4781-b953-1e7073f47294
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/de28c3b5-10bc-4781-b953-1e7073f47294, retrying 1 more times
+improv.store Cannot connect to store: /tmp/de28c3b5-10bc-4781-b953-1e7073f47294
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/de28c3b5-10bc-4781-b953-1e7073f47294, retrying 1 more times
+improv.store Successfully connected to store at locations /tmp/de28c3b5-10bc-4781-b953-1e7073f47294 
+improv.store attempting to connect to store
+improv.store Successfully connected to store at locations /tmp/de28c3b5-10bc-4781-b953-1e7073f47294 
+improv.nexus setup the actor Generator
+improv.store attempting to connect to store
+improv.store Successfully connected to store at locations /tmp/de28c3b5-10bc-4781-b953-1e7073f47294 
+improv.nexus setup the actor Processor
+improv.nexus Starting processes
+improv.nexus <ForkProcess name='Generator' parent=9263 initial daemon>
+2023-08-08 13:20:51 Server running on (control, output, log) ports (5558, 5559, 5560).
+Press Ctrl-C to quit.
+improv.nexus <ForkProcess name='Processor' parent=9263 initial daemon>
+improv.nexus All processes started
+improv.nexus Visual is not started: 'Visual'
+improv.nexus ************ new improv server session 2023-08-08 13:22:01 ************
+improv.nexus StoreInterface started successfully at location: /tmp/c4b4e4d7-c941-4090-bdf8-263cef9c2d0a
+asyncio Using selector: EpollSelector
+improv.nexus Create new store object
+improv.store attempting to connect to store
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/c4b4e4d7-c941-4090-bdf8-263cef9c2d0a, retrying 1 more times
+improv.store Cannot connect to store: /tmp/c4b4e4d7-c941-4090-bdf8-263cef9c2d0a
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/c4b4e4d7-c941-4090-bdf8-263cef9c2d0a, retrying 1 more times
+improv.store Cannot connect to store: /tmp/c4b4e4d7-c941-4090-bdf8-263cef9c2d0a
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/c4b4e4d7-c941-4090-bdf8-263cef9c2d0a, retrying 1 more times
+improv.store Successfully connected to store at locations /tmp/c4b4e4d7-c941-4090-bdf8-263cef9c2d0a 
+improv.store attempting to connect to store
+improv.store Successfully connected to store at locations /tmp/c4b4e4d7-c941-4090-bdf8-263cef9c2d0a 
+improv.nexus setup the actor Generator
+improv.store attempting to connect to store
+improv.store Successfully connected to store at locations /tmp/c4b4e4d7-c941-4090-bdf8-263cef9c2d0a 
+improv.nexus setup the actor Processor
+improv.nexus Starting processes
+improv.nexus <ForkProcess name='Generator' parent=9430 initial daemon>
+2023-08-08 13:22:01 Server running on (control, output, log) ports (5555, 5556, 5557).
+Press Ctrl-C to quit.
+improv.nexus <ForkProcess name='Processor' parent=9430 initial daemon>
+improv.nexus All processes started
+improv.nexus Visual is not started: 'Visual'
+improv.nexus ************ new improv server session 2023-08-08 13:22:20 ************
+improv.nexus StoreInterface started successfully at location: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+asyncio Using selector: EpollSelector
+improv.nexus Create new store object
+improv.store attempting to connect to store
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Successfully connected to store at locations /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407 
+improv.store attempting to connect to store
+improv.store Successfully connected to store at locations /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407 
+improv.nexus Shutting down via signal handler for 2.                 Steps may be out of order or dirty.
+improv.nexus Received shutdown order
+improv.nexus Stop signal: 2
+improv.actor Ran for 19.059264421463013 seconds
+improv.actor Ran for 18.996647357940674 seconds
+improv.actor Exiting RunManager
+improv.actor Exiting RunManager
+improv.nexus Canceling outstanding tasks
+improv.nexus Polling has stopped.
+improv.nexus Killing child processes
+improv.nexus Actors terminated
+improv.nexus Destroying Nexus
+improv.nexus StoreInterface closed successfully at location: /tmp/c4b4e4d7-c941-4090-bdf8-263cef9c2d0a
+improv.nexus Delete the store at location /tmp/c4b4e4d7-c941-4090-bdf8-263cef9c2d0a
+improv.nexus Loop is cancelled
+improv.nexus Res failed to await: local variable 'res' referenced before assignment
+improv.nexus Current loop: <_UnixSelectorEventLoop running=False closed=False debug=False>
+improv.nexus Shutdown loop
+Exception ignored in: <function _releaseLock at 0x7f15c25fd280>
+Traceback (most recent call last):
+  File "/home/chrisunix/anaconda3/envs/improv_test/lib/python3.9/logging/__init__.py", line 227, in _releaseLock
+    def _releaseLock():
+KeyboardInterrupt: 
+improv.nexus setup the actor Generator
+improv.store attempting to connect to store
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+/arrow/cpp/src/plasma/io.cc:177: Connection to IPC socket failed for pathname /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407, retrying 1 more times
+improv.store Cannot connect to store: /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+improv.store All attempts to connect to the store have failed
+Traceback (most recent call last):
+  File "/home/chrisunix/improv/improv/store.py", line 112, in connect_store
+    client = plasma.connect(store_loc, 1)
+  File "pyarrow/_plasma.pyx", line 872, in pyarrow._plasma.connect
+  File "pyarrow/_plasma.pyx", line 288, in pyarrow._plasma.plasma_check_status
+  File "pyarrow/error.pxi", line 115, in pyarrow.lib.check_status
+OSError: Could not connect to socket /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+Traceback (most recent call last):
+  File "/home/chrisunix/improv/improv/store.py", line 112, in connect_store
+    client = plasma.connect(store_loc, 1)
+  File "pyarrow/_plasma.pyx", line 872, in pyarrow._plasma.connect
+  File "pyarrow/_plasma.pyx", line 288, in pyarrow._plasma.plasma_check_status
+  File "pyarrow/error.pxi", line 115, in pyarrow.lib.check_status
+OSError: Could not connect to socket /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/chrisunix/anaconda3/envs/improv_test/bin/improv", line 8, in <module>
+    sys.exit(default_invocation())
+  File "/home/chrisunix/improv/improv/cli.py", line 202, in default_invocation
+    args.func(args)
+  File "/home/chrisunix/improv/improv/cli.py", line 235, in run_server
+    control_port, output_port = server.createNexus(
+  File "/home/chrisunix/improv/improv/nexus.py", line 95, in createNexus
+    self.loadConfig(file=file)
+  File "/home/chrisunix/improv/improv/nexus.py", line 165, in loadConfig
+    self.createActor(name, actor)
+  File "/home/chrisunix/improv/improv/nexus.py", line 636, in createActor
+    store = self.createStoreInterface(actor.name)
+  File "/home/chrisunix/improv/improv/nexus.py", line 561, in createStoreInterface
+    return StoreInterface(name, self.store_loc)
+  File "/home/chrisunix/improv/improv/store.py", line 85, in __init__
+    self.client = self.connect_store(store_loc)
+  File "/home/chrisunix/improv/improv/store.py", line 120, in connect_store
+    raise CannotConnectToStoreInterfaceError(store_loc)
+improv.store.CannotConnectToStoreInterfaceError: Cannot connect to store at /tmp/b53f70a3-f52d-4f10-9d7f-b831d1eaa407
+sys:1: ResourceWarning: Unclosed socket <zmq.asyncio.Socket(zmq.PUB) at 0x7f158d8f4940>
+sys:1: ResourceWarning: Unclosed socket <zmq.asyncio.Socket(zmq.REP) at 0x7f158d8f4ac0>
+/home/chrisunix/anaconda3/envs/improv_test/lib/python3.9/subprocess.py:1052: ResourceWarning: subprocess 9550 is still running
+  _warn("subprocess %s is still running" % self.pid,

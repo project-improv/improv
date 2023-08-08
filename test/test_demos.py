@@ -3,8 +3,7 @@ import os
 import asyncio
 import subprocess
 import improv.tui as tui
-#from demos.sample_actors.zmqActor import ZmqPSActor, ZmqRRActor, ZmqActor
-from demos.basic.actors.zmqActor import ZmqActor
+from demos.sample_actors.zmqActor import ZmqActor
 import concurrent.futures
 import logging
 

@@ -19,10 +19,11 @@ class ZmqActor(Actor):
     """
     Zmq actor with pub/sub or rep/req pattern.
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, pub_sub=True, rep_req=False, **kwargs):
         super().__init__(*args, **kwargs)
-        self.pub_sub = true; #default
-        self.rep_req = false;
+        logger.info("constructed Zmq Actor")
+        self.pub_sub_flag = pub_sub #default
+        self.rep_req_flag = rep_req
 
         self.send_socket = None
         self.recv_socket = None
@@ -158,32 +159,32 @@ class ZmqActor(Actor):
         return msg
 
     def put(self, msg=None):
-        if pub_sub and rep_req:
-            logger.error("EXACTLY ONE of pub_sub and rep_req may be set to true")
+        if pub_sub_flag and rep_req_flag:
+            logger.error("EXACTLY ONE of pub_sub_flag and rep_req_flag may be set to true")
             return
-        elif (not pubsub) and (not rep_req):
-            logger.error("EXACTLY ONE of pub_sub and rep_req may be set to false")
+        elif (not pubsub) and (not rep_req_flag):
+            logger.error("EXACTLY ONE of pub_sub_flag and rep_req_flag may be set to false")
             return
 
-        if (pub_sub):
+        if (pub_sub_flag):
             logger.info(f"putting message {msg} using pub/sub")
             return sendMsg(msg)
-        elif (rep_req):
+        elif (rep_req_flag):
             logger.info(f"putting message {msg} using rep/req")
             return requestMsg(msg)
         
     def get(self, reply=None):
-        if pub_sub and rep_req:
-            logger.error("EXACTLY ONE of pub_sub and rep_req may be set to true")
+        if pub_sub_flag and rep_req_flag:
+            logger.error("EXACTLY ONE of pub_sub_flag and rep_req_flag may be set to true")
             return
-        elif (not pubsub) and (not rep_req):
-            logger.error("EXACTLY ONE of pub_sub and rep_req may be set to false")
+        elif (not pubsub) and (not rep_req_flag):
+            logger.error("EXACTLY ONE of pub_sub_flag and rep_req_flag may be set to false")
             return
     
-        if (pub_sub):
+        if (pub_sub_flag):
             logger.info(f"getting message with pub/sub")
             return recvMsg()
-        elif (rep_req):
+        elif (rep_req_flag):
             logger.info(f"getting message using reply {reply} with pub/sub")
             return replyMsg(reply)
         
