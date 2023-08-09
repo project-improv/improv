@@ -32,8 +32,9 @@ classifiers = ['Development Status :: 1 - Planning']
 tests = ["pytest", "async-timeout", "pytest-asyncio", "pytest-cov", "scikit-image",]
 docs = ["jupyter-book"]
 lint = ["black", "flake8", "Flake8-pyproject", "flake8-pytest-style"]
+bw_demo = ["pyqtgraph", "mat73", "jax[cpu]", "proSVD",  
+           "bubblewrap@git+https://github.com/pearsonlab/Bubblewrap",]
 caiman = []
-bw_demo = ["pyqtgraph", "mat73"]
 
 [project.scripts]
 improv = "improv.cli:default_invocation"
