@@ -1,11 +1,10 @@
-from improv.actor import Actor, RunManager
-import time
+from improv.actor import Actor
 import numpy as np
-from scipy import io as sio
-from sklearn import random_projection as rp
-from proSVD import proSVD
+import scipy.signal as signal
+from proSVD.proSVD import proSVD
 from queue import Empty
 import logging
+import traceback
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -16,85 +15,73 @@ class DimReduction(Actor):
         super().__init__(*args, **kwargs)
 
     def setup(self):
-        self.dataloc = "./"
-        self.file = "WaksmanwithFaces_KS2.mat"
-        self.shape = 15000
-        matdict = sio.loadmat(self.dataloc + self.file, squeeze_me=True)
-        spks = matdict["stall"][:, :10]
+        """Load initial data from Acquirer, performs initalization and send to bubblewrap"""
+        init_id = None
+        while init_id is None:
+            try:
+                init_id = self.q_in.get(timeout = 0.0005)
+            except Empty: pass
+        logger.info("Got init data")
+        my_list = self.client.getID(init_id)
+        dat_shape_0 = my_list[0]
+        dat_init = np.array(my_list[1])
 
-        k = 10
-        l1 = k
-        self.l = 10
-        rp_dim = 200
+        bw_id = self.client.put(dat_shape_0, "dat_shape_bw")
+        self.q_out.put(bw_id)
 
-        num_iters = np.ceil((self.shape - l1) / self.l).astype("int")
+        # proSVD params
+        k = 6 # reduced dimension
+        trueSVD = True # whether proSVD should track true SVD basis (a little slower)
+        l = 1 # columns per update
+        l1 = 100 # columns used to initialize
+        decay = 1 # 1 = effective window is all of data
+        bin_size_ms = 10
+        M = 20
 
-        self.pro_proj = np.zeros((k, self.shape))
-        self.pro = proSVD.proSVD(k, history=num_iters, trueSVD=True)
-        self.pro.initialize(spks)
-        self.pro_proj[:, :l1] = self.pro.Q.T @ spks
+        # smoothing params
+        kern_sd = 50
+        self.smooth_filt = signal.gaussian(int(6 * kern_sd / bin_size_ms), int(kern_sd / bin_size_ms), sym=True)
+        self.smooth_filt /=  np.sum(self.smooth_filt)
+        data_init_smooth = np.apply_along_axis(lambda x, filt: np.convolve(x, filt, 'same'), 
+                                            0, dat_init, filt=self.smooth_filt)
+        
+        # initialize proSVD
+        self.pro = proSVD(k=k, decay_alpha=decay, trueSVD=trueSVD, history=0)
+        self.pro.initialize(data_init_smooth.T)
+        # storing dimension-reduced data
+        self.data_red = np.zeros((dat_shape_0, k))
+        self.data_red[:l1, :] = data_init_smooth @ self.pro.Q
+        bw_id = self.client.put(self.data_red[:M], "bw_data")
+        #send to bubblewrap
+        self.q_out.put(bw_id)
+        self.pro_diffs = []
+        self.smooth_window = dat_init[l1-len(self.smooth_filt):l1, :]
 
-        self.proj_stream_ssSVD = np.zeros(
-            (self.pro.Qs.shape[1], self.pro.Qs.shape[2] * self.l)
-        )
-        proj_stream_SVD = np.zeros(
-            (self.pro.Us.shape[1], self.pro.Us.shape[2] * self.l)
-        )
-        self.projs = [self.proj_stream_ssSVD, proj_stream_SVD]
-        self.bases = [self.pro.Qs, self.pro.Us]
-
-        self.transformer = rp.SparseRandomProjection(n_components=rp_dim)
-
-        # X_rp = self.reduce_sparseRP(spks, transformer=self.transformer)
-        self.pro.updateSVD(spks)
-
-        for i, basis in enumerate(self.bases):
-            curr_basis = basis[:, :, i]  # has first k components
-            curr_neural = spks
-            self.projs[i][:, :l1] = curr_basis.T @ curr_neural
-
-    def run(self):
-        print("Starting receiver loop ...")
-        print("run proSVD")
-        with RunManager(
-            self.name, self.runProcess, self.setup, self.q_sig, self.q_comm
-        ) as rm:
-            print(rm)
-
-    def runProcess(self):
-        self.runProSVD()
-        return
-
-    def runProSVD(self):
+    def runStep(self):
+        """update proSVD at each step using data from Acquirer and send to bubblewrap"""
         try:
             res = self.q_in.get(timeout=0.0005)
-            self.spks = self.client.getID(res[1])[1]
+            data_curr = self.client.getID(res[1])[1]
             self.t = self.client.getID(res[1])[0]
+            start, end = self.t, self.t+self.pro.w_len
+            self.smooth_window[:-1, :] = self.smooth_window[1:, :]
+            self.smooth_window[-1, :] = data_curr
+            dat_smooth = self.smooth_filt @ self.smooth_window
+            # update proSVD
+            self.pro.preupdate()
+            self.pro.updateSVD(dat_smooth[:, None])
+            self.pro.postupdate()
+            self.pro_diffs.append(np.linalg.norm(self.pro.Q-self.pro.Q_prev, axis=0))
 
-            # X_rp = self.reduce_sparseRP(self.spks, transformer=self.transformer)
-            self.pro.updateSVD(self.spks)
-
-            for i, basis in enumerate(self.bases):
-                curr_basis = basis[:, :, i]  # has first k components
-                # aligning neural to Q (depends on l1 and l)
-                curr_neural = self.spks
-                # projecting curr_neural onto curr_Q (our tracked subspace) and on full svd u
-                self.projs[i][:, self.t : self.t + self.l] = curr_basis.T @ curr_neural
-                id = self.client.put(
-                    [self.t, self.projs[i][:, self.t : self.t + self.l]],
-                    "dim_bubble" + str(self.t),
-                )
-                try:
-                    self.q_out.put([str(self.t), id])
-                except Exception as e:
-                    logger.error("Acquirer general exception: {}".format(e))
-
+            self.data_red[start:end, :] = dat_smooth @ self.pro.Q
+            # send to bubblewrap
+            try:
+                id = self.client.put(self.data_red[self.t], "dim_bubble" + str(self.t))
+                self.q_out.put([int(self.t), id])
+                self.links['v_out'].put([int(self.t), id])
+            except Exception as e:
+                logger.error("Dimension reduction general exception: {}".format(e))
+                logger.error(traceback.format_exc())
         except Empty:
             return None
 
-    def reduce_sparseRP(X, comps=100, eps=0.1, transformer=None):
-        np.random.seed(42)
-        if transformer is None:
-            transformer = rp.SparseRandomProjection(n_components=comps, eps=eps)
-        X_new = transformer.fit_transform(X)
-        return X_new

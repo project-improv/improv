@@ -50,11 +50,10 @@ class AsyncQueue(object):
         Args:
             q (Queue): A queue from the Manager class
             name (str): String description of this queue
-            start (str): The producer (input) actor for the queue
-            end (str): The consumer (output) actor for the queue
+            start (str): The producer (input) actor name for the queue
+            end (str): The consumer (output) actor name for the queue
 
         """
-
         self.queue = q
         self.real_executor = None
         self.cancelled_join = False
@@ -73,9 +72,8 @@ class AsyncQueue(object):
         This actor is the one that gives output.
 
         Returns:
-            start (Actor): The starting actor.
+            start (str): The starting actor name
         """
-
         return self.start
 
     def getEnd(self):
@@ -85,9 +83,8 @@ class AsyncQueue(object):
         This actor is the one that takes input.
 
         Returns:
-            end (Actor): The ending actor.
+            end (str): The ending actor name
         """
-
         return self.end
 
     @property
@@ -105,7 +102,6 @@ class AsyncQueue(object):
         Returns:
             self_dict (dict): A dictionary containing attributes.
         """
-
         self_dict = self.__dict__
         self_dict["_real_executor"] = None
         return self_dict
@@ -127,13 +123,11 @@ class AsyncQueue(object):
         Returns:
             (object): Value of the attribute specified by "name".
         """
-
         if name in ["qsize", "empty", "full", "get", "get_nowait", "close"]:
             return getattr(self.queue, name)
         else:
-            raise AttributeError(
-                "'%s' object has no attribute '%s'" % (self.__class__.__name__, name)
-            )
+            cn = self.__class__.__name__
+            raise AttributeError("{} object has no attribute {}".format(cn, name))
 
     def __repr__(self):
         """String representation for Link.
@@ -141,7 +135,6 @@ class AsyncQueue(object):
         Returns:
             (str): "Link" followed by the name given in the constructor.
         """
-
         return "Link " + self.name
 
     def put(self, item):
@@ -150,7 +143,6 @@ class AsyncQueue(object):
         Args:
             item (object): Any item that can be sent through a queue
         """
-
         self.queue.put(item)
 
     def put_nowait(self, item):
@@ -159,7 +151,6 @@ class AsyncQueue(object):
         Args:
             item (object): Any item that can be sent through a queue
         """
-
         self.queue.put_nowait(item)
 
     async def put_async(self, item):
@@ -173,7 +164,6 @@ class AsyncQueue(object):
         Returns:
             Awaitable or result of the put
         """
-
         loop = asyncio.get_event_loop()
         try:
             res = await loop.run_in_executor(self._executor, self.put, item)
@@ -197,7 +187,6 @@ class AsyncQueue(object):
             Explicitly passes any exceptions to not hinder execution.
             Errors are logged with the get_async tag.
         """
-
         loop = asyncio.get_event_loop()
         self.status = "pending"
         try:
@@ -215,13 +204,11 @@ class AsyncQueue(object):
 
     def cancel_join_thread(self):
         """Function wrapper for cancel_join_thread."""
-
         self._cancelled_join = True
         self._queue.cancel_join_thread()
 
     def join_thread(self):
         """Function wrapper for join_thread."""
-
         self._queue.join_thread()
         if self._real_executor and not self._cancelled_join:
             self._real_executor.shutdown()
@@ -237,7 +224,6 @@ def MultiLink(name, start, end):
         MultiAsyncQueue: Producer end of the queue
         List: AsyncQueues for consumers
     """
-
     m = Manager()
 
     q_out = []

@@ -10,7 +10,7 @@ from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
 from . import improv_basic
-from improv.actor import Spike
+from improv.actor import Signal
 
 import logging
 
@@ -21,7 +21,7 @@ logger.setLevel(logging.INFO)
 # TODO: Add ability to receive signals like pause updating ...?
 
 
-class BasicFrontEnd(QtGui.QMainWindow, improv_basic.Ui_MainWindow):
+class BasicFrontEnd(QtWidgets.QMainWindow, improv_basic.Ui_MainWindow):
     def __init__(self, visual, comm, parent=None):
         """Setup GUI
         Setup and start Nexus controls
@@ -171,12 +171,12 @@ class BasicFrontEnd(QtGui.QMainWindow, improv_basic.Ui_MainWindow):
     def _runProcess(self):
         """Run ImageProcessor in separate thread"""
         # self.flag = True
-        self.comm.put([Spike.run()])
+        self.comm.put([Signal.run()])
         logger.info("-------------------------   put run in comm")
         # TODO: grey out button until self.t is done, but allow other buttons to be active
 
     def _setup(self):
-        self.comm.put([Spike.setup()])
+        self.comm.put([Signal.setup()])
         self.visual.setup()
 
     def _loadConfig(self, file):
