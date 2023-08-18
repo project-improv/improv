@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
         self.widget.setGeometry(QtCore.QRect(150, 0, 611, 431))
         self.widget.setObjectName("widget")
         self.frame = QtWidgets.QFrame(self.centralwidget)
-        self.frame.setGeometry(QtCore.QRect(20, 140, 117, 151))
+        self.frame.setGeometry(QtCore.QRect(20, 140, 117, 100))
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
@@ -40,12 +40,6 @@ class Ui_MainWindow(object):
         self.pushButton_2 = QtWidgets.QPushButton(self.widget_2)
         self.pushButton_2.setObjectName("pushButton_2")
         self.verticalLayout.addWidget(self.pushButton_2)
-        self.radioButton = QtWidgets.QRadioButton(self.widget_2)
-        self.radioButton.setObjectName("radioButton")
-        self.verticalLayout.addWidget(self.radioButton)
-        self.radioButton_2 = QtWidgets.QRadioButton(self.widget_2)
-        self.radioButton_2.setObjectName("radioButton_2")
-        self.verticalLayout.addWidget(self.radioButton_2)
         self.verticalLayout_2.addWidget(self.widget_2)
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -60,8 +54,6 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "Bubblewrap Demo"))
         self.pushButton.setText(_translate("MainWindow", "Setup"))
         self.pushButton_2.setText(_translate("MainWindow", "Run"))
-        self.radioButton.setText(_translate("MainWindow", "Scatter"))
-        self.radioButton_2.setText(_translate("MainWindow", "Line"))
 
 
 from pyqtgraph import PlotWidget
