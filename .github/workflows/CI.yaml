@@ -28,7 +28,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          pip list | grep pyarrow
           python -m pip install --upgrade pip build
       - name: Install package (Ubuntu)
         if: startsWith(matrix.os, 'ubuntu')
