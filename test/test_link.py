@@ -333,7 +333,7 @@ def test_get(example_link, message):
 
     lnk = example_link
 
-    if type(message) == list:
+    if type(message) is list:
         for i in message:
             lnk.put(i)
         expected = message[0]
@@ -368,7 +368,7 @@ def test_get_nowait(example_link, message):
 
     lnk = example_link
 
-    if type(message) == list:
+    if type(message) is list:
         for i in message:
             lnk.put(i)
         expected = message[0]
