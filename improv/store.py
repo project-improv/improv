@@ -105,18 +105,24 @@ class PlasmaStoreInterface(StoreInterface):
         Updates the client internal
         """
         logger.warning("attempting to connect to store")
-        try:
-            self.client = plasma.connect(store_loc, 0)
-            # Is plasma.PlasmaClient necessary?
-            # 20 in plasma.connect(store_loc, 20) = 20 retries
-            # self.client: plasma.PlasmaClient = plasma.connect(store_loc, 20)
-            logger.info(
-                "Successfully connected to store at locations {0} ".format(store_loc)
-            )
-        except Exception:
-            logger.exception("Cannot connect to store: {0}".format(store_loc))
-            raise CannotConnectToStoreInterfaceError(store_loc)
-        return self.client
+        num_attempts = 20
+        client = None;
+        for i in range(num_attempts):
+            time.sleep(1)
+            try:
+                client = plasma.connect(store_loc, 1)
+                logger.info(
+                    "Successfully connected to store at locations {0} ".format(store_loc)
+                )
+            except Exception:
+                logger.warning("Cannot connect to store: {0}".format(store_loc))
+                if (i == num_attempts - 1):
+                    logger.exception("All attempts to connect to the store have failed")
+                    raise CannotConnectToStoreInterfaceError(store_loc)
+            if (client != None):
+                break;
+
+        return client
 
     def put(self, object, object_name, flush_this_immediately=False):
         """
