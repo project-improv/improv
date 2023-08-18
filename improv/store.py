@@ -108,9 +108,11 @@ class PlasmaStoreInterface(StoreInterface):
         num_attempts = 20
         client = None;
         for i in range(num_attempts):
+            logger.info("starting loop")
             time.sleep(1)
             try:
-                client = plasma.connect(store_loc, 1)
+                logger.info("beginning connect")
+                client = plasma.connect(store_loc, 0)
                 logger.info(
                     "Successfully connected to store at locations {0} ".format(store_loc)
                 )
