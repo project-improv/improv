@@ -103,12 +103,20 @@ class PlasmaStoreInterface(StoreInterface):
         Updates the client internal
         """
 
-        logger.warning("attempting to connect to store")
+        logger.info("attempting to connect to store")
         num_attempts = 20
         client = None;
         for i in range(num_attempts):
             logger.info("starting loop")
-            time.sleep(1)
+            #time.sleep(1)
+            start_time = time.time()
+            for i in range(20000000): #time.sleep() does not work for some reason
+                j = i % 20009
+                k = j % 1009
+
+            end_time = time.time()
+            logger.info(f"time: {-1 * start_time + end_time}")
+            logger.info("finished sleep")
             try:
                 logger.info("beginning connect")
                 client = plasma.connect(store_loc, 0)
