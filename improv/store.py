@@ -109,13 +109,13 @@ class PlasmaStoreInterface(StoreInterface):
         for i in range(num_attempts):
             logger.info("starting loop")
             #time.sleep(1)
-            start_time = time.time()
+            #start_time = time.time()
             for i in range(20000000): #time.sleep() does not work for some reason
                 j = i % 20009
                 k = j % 1009
 
-            end_time = time.time()
-            logger.info(f"time: {-1 * start_time + end_time}")
+            #end_time = time.time()
+            #logger.info(f"time: {-1 * start_time + end_time}")
             logger.info("finished sleep")
             try:
                 logger.info("beginning connect")
