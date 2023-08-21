@@ -133,7 +133,7 @@ class ZMQAcquirer(ZMQActor):
 
                 if self.seg_num == 0:
                     self.ns_dropped.append(int(len(self.buffer) - self.n_per_seg))
-                    self.ns_overlap.append(0)
+                    self.ns_overlap.append(int(0))
 
                 # if n < self.n_lag:
                 #     msg = self.recvMsg(self.msg_type)
@@ -179,9 +179,9 @@ class ZMQAcquirer(ZMQActor):
                 self.seg_num += 1
                 
             elif len(self.buffer) < self.n_per_seg:
-                self.get_data.append(0)
-                self.put_seg_to_store.append(0)
-                self.put_out_time.append(0)
+                self.get_data.append(np.nan)
+                self.put_seg_to_store.append(np.nan)
+                self.put_out_time.append(np.nan)
 
             if self.time_opt:
                 self.recv_msg.append((t2 - t1) * 10**-3)
