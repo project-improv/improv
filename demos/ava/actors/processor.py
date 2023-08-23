@@ -41,8 +41,9 @@ class AudioProcessor(Actor):
             logger.error("Must specify a model path.")
         else:
             self.model_path = model_path
+            logger.info(f"Model path: {self.model_path}")
 
-        if gpu is True:
+        if gpu:
             self.device = torch.device("cuda:{}".format(gpu_num))
             torch.jit.fuser('fuser2')
         else:
@@ -62,43 +63,68 @@ class AudioProcessor(Actor):
         self.out_path = out_path
 
         self.time_opt = time_opt
-        if self.time_opt is True:
+        if self.time_opt:
             self.timing = timing
             self.timing_path = os.path.join(out_path, 'timing')
+            logger.info(f"{self.name} timing directory: {self.timing_path}")
 
+    def __str__(self):
+        return f"Name: {self.name}, Data: {self.data}"
+    
     def setup(self):
+        """Setup for AVA AudioProcessor.
+        """
+
+        logger.info(f"Running setup for {self.name}.")
+
         if self.time_opt:
             os.makedirs(self.timing_path, exist_ok=True)
+
+            logger.info(f"Initializing lists for {self.name} timing.")
+    
+            self.proc_timestamps = []
+            self.get_wav_out = []
+            self.get_spec = []
+            self.spec_to_store = []
+            self.to_device = []
+            self.inference_time = []
+            self.z_to_np = []
+            self.z_to_store = []
+            self.put_q_out = []
+            self.proc_total_times = []
+
         if self.save_latent:
             self.latents_path = os.path.join(self.out_path, 'latents')
             os.makedirs(self.latents_path, exist_ok=True)
+            logger.info(f"Latents directory: {self.latents_path}")
         if self.save_spec:
             self.specs_path = os.path.join(self.out_path, 'specs')
             os.makedirs(self.specs_path, exist_ok=True)
+            logger.info(f"Spectrograms directory: {self.specs_path}")
         if self.save_stft:
             self.stfts_path = os.path.join(self.out_path, 'stft')
+            logger.info(f"STFTs directory: {self.stfts_path}")
             os.makedirs(self.stfts_path, exist_ok=True)
-    
 
         self.dropped_wav = []
 
-        logger.info('Loading model for ' + self.name)
+        logger.info(f"{self.name} loading model: {self.model_path}")
 
-        t = time.time()
+        t = time.perf_counter_ns()
         self.model = VAE().eval().to(self.device)
         self.model.load_state(self.model_path)
         # self.model = torch.jit.load(self.model_path).eval().to(self.device)
         # self.model = torch.load(self.model_path).eval().to(self.device)
         torch.cuda.synchronize()
-        load_model_time = (time.time() - t)*1000.0
+        load_model_time = (time.perf_counter_ns() - t) * 10**-6
 
-        print('Time to load model:', load_model_time)
+        print(f"Time to load model: {load_model_time} ms")
         if self.time_opt:
             with open(os.path.join(self.timing_path, "load_model_time.txt"), "w") as text_file:
                 text_file.write("%s" % load_model_time)
                 text_file.close()
 
-        t = time.time()
+        t = time.perf_counter_ns()
         sample_input = torch.rand(size=(1,128,128), device=self.device)
         # self.model = torch.jit.optimize_for_inference(self.model)
         # Still have the high first run??? Why even though warmup in setup?
@@ -107,39 +133,23 @@ class AudioProcessor(Actor):
                 self.model(sample_input).to(self.device)
                 torch.cuda.synchronize()
                 
-        warmup_time = (time.time() - t)*1000.0
-        print('Time to warmup:', warmup_time)
+        warmup_time = (time.perf_counter_ns() - t) * 10**-6
+        print(f"Time to warmup model: {warmup_time} ms")
         if self.time_opt:
             with open(os.path.join(self.timing_path, "warmup_time.txt"), "w") as text_file:
                 text_file.write("%s" % warmup_time)
                 text_file.close()
 
-    def run(self):
-        '''
-        '''
-        self.proc_timestamps = []
-        self.get_wav_out = []
-        self.get_spec = []
-        self.spec_to_store = []
-        self.to_device = []
-        self.inference_time = []
-        self.z_to_np = []
-        self.z_to_store = []
-        self.put_q_out = []
-        self.proc_total_times = []
-
-        self.label = []
-
-        with RunManager(self.name, self.runProcessor, self.setup, self.q_sig, self.q_comm, self.stop) as rm:
-            print(rm)
-
-        print('Processor broke, avg time per segment:', np.mean(self.proc_total_times))
-        print('Processor got through', self.seg_num, ' segments')
-
     def stop(self):
-        '''
-        '''
-        if self.time_opt is True:
+        """_summary_
+
+        Returns:
+            _type_: _description_
+        """
+
+        logger.info(f"{self.name} stopping.")
+
+        if self.time_opt:
             keys = self.timing
             values = [self.proc_timestamps, self.get_wav_out, self.get_spec, self.spec_to_store, self.to_device, self.inference_time, self.z_to_np, self.z_to_store, self.put_q_out, self.proc_total_times]
 
@@ -147,30 +157,33 @@ class AudioProcessor(Actor):
             df = pd.DataFrame.from_dict(timing_dict, orient='index').transpose()
             df.to_csv(os.path.join(self.timing_path, 'proc_timing_' + str(self.n_segs) + '.csv'), index=False, header=True)
 
+        logger.info(f"{self.name} stopped.")
+
         return 0
         
-    def runProcessor(self):
-        '''
-        '''
+    def runStep(self):
+        """Run step for AVA AudioProcessor.
+        """
         if self.done:
             pass
 
-        self.proc_timestamps.append((time.time(), int(self.seg_num)))
+        self.proc_timestamps.append(time.perf_counter_ns())
 
         ids = self._checkInput()
 
         if ids is not None:
-            t = time.time()
+            t = time.perf_counter_ns()
             self.done = False
             try:
-                t1 = time.time()
+                t1 = time.perf_counter_ns()
                 audio = self.client.getID(ids[0])
-                fs = self.client.getID(ids[1])
-                t2 = time.time()
+                t2 = time.perf_counter_ns()
+
                 # Get only filename of segment w/o extension...do in acquire.py instead?
                 fpath = Path(os.path.split(self.client.getID(ids[2]))[1]).stem
                 fname =  '_'.join(fpath.split('_')[:-1])
                 seg = fpath.split('_')[-1]
+                
                 spec, dt, f = get_spec(audio, self.params)
                 if self.save_stft:
                     stft_path = os.path.join(self.stfts_path, fname)
@@ -194,7 +207,7 @@ class AudioProcessor(Actor):
                 # if amps.max() < self.params['amp_threshold']:
                 #     seg = seg + str('_skip')
                 t3 = time.time()
-                spec = self._genSpec(0, self.win_len, audio, fs, self.params)
+                spec = self._genSpec(0, self.win_len, audio, self.params['fs'], self.params)
                 t4 = time.time()
                 # if self.shoulder_spec:
                 #     shoulder_spec = self._genSpec(self.shoulder, self.shoulder+len(audio), audio, , self.params)
@@ -232,24 +245,26 @@ class AudioProcessor(Actor):
 
             # Insert exceptions here...ERROR HANDLING, SEE ANNE'S ACTORS - from 1p demo
             except ObjectNotFoundError:
-                logger.error('Processor: Audio {} unavailable from store, dropping'.format(self.seg_num))
+                logger.error(f"Processor: Audio {self.seg_num} unavailable from store, dropping")
                 self.dropped_wav.append(self.seg_num)
                 # self.q_out.put([1])
             except KeyError as e:
-                logger.error('Processor: Key error... {0}'.format(e))
+                logger.error(f"Processor: Key error... {e}")
                 # Proceed at all costs
                 self.dropped_wav.append(self.seg_num)
             except Exception as e:
-                logger.error('Processor error: {}: {} during segment number {}'.format(type(e).__name__,
-                                                                                            e, self.seg_num))
-                print(traceback.format_exc())
+                logger.error(f"Processor error: {type(e).__name__}: {e} during segment number {self.seg_num}")
+                logger.info(traceback.format_exc())
                 self.dropped_wav.append(self.seg_num)
-            self.proc_total_times.append((time.time() - t)*1000.0)
+            self.proc_total_times.append((time.perf_counter_ns() - t) * 10**-6)
         else:
             pass
 
+        logger.info(f"Processor broke, avg time per segment: {np.mean(self.proc_total_times)}")
+        logger.info(f"Processor got through {self.seg_num} segments.")
+
         if self.seg_num == self.n_segs:
-            logger.error('Done processing all available data: {}'.format(self.seg_num))
+            logger.error(f"Done processing all available data: {self.seg_num}")
             self.data = None
             self.q_comm.put(None)
             self.done = True  # stay awake in case we get a shutdown signal
@@ -269,8 +284,6 @@ class AudioProcessor(Actor):
     # def _skipSilence(self, audio, amp_threshold):
     #     '''
     #     '''
-
-        
 
     def _genSpec(self, onset, offset, audio, fs, params, target_times=None):
         '''
@@ -312,15 +325,15 @@ class AudioProcessor(Actor):
     def _runInference(self, spec):
         '''
         '''
-        t = time.time()
+        t = time.perf_counter_ns()
         spec = torch.Tensor(spec).to(self.device)
         torch.cuda.synchronize()
-        to_device = time.time() - t
+        to_device = (time.perf_counter_ns() - t) * 10**-6
         with torch.no_grad():
-            t = time.time()
+            t = time.perf_counter_ns()
             output = self.model.encode(spec.unsqueeze(0))
             torch.cuda.synchronize()
-            inf_time = time.time() - t
+            inf_time = (time.perf_counter_ns() - t) * 10**-6
 
         return output, to_device, inf_time
 
