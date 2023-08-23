@@ -59,28 +59,36 @@ class ZmqPSActor(Actor):
         elif msg_type == None: 
             self.send_socket.send(msg)
 
-    def recvMsg(self, msg_type="pyobj", flags=NOBLOCK):
+    def recvMsg(self, msg_type="pyobj", flags=0):
         """
         Receives a message from the controller.
+
+        NOTE: if no message is received, recv_msg is still defined and returned as an empty string
         """
 
-        try:
-            if msg_type == "multipart":
-                recv_msg = self.recv_socket.recv_multipart(flags=flags)
-            if msg_type == "pyobj":
-                recv_msg = self.recv_socket.recv_pyobj(flags=flags)
-            elif msg_type == None: 
-                recv_msg = self.recv_socket.recv(flags=flags)
-        except ZMQError as e:
-            logger.info(f"ZMQ error: {e}")
-            if e.errno == ETERM:
-                pass  # interrupted  - pass or break if in try loop
-            if e.errno == EAGAIN:
-                pass  # no message was ready (yet!)
-            else:
-                raise  # raise real error
+        recv_msg = ""
+
+        while True:
+            try:  # keep trying until break or pass
+                if msg_type == "multipart":
+                    recv_msg = self.recv_socket.recv_multipart(flags=flags)
+                    break
+                if msg_type == "pyobj":
+                    recv_msg = self.recv_socket.recv_pyobj(flags=flags)
+                    break
+                elif msg_type == None: 
+                    recv_msg = self.recv_socket.recv(flags=flags)
+                    break
+            except ZMQError as e:
+                logger.info(f"ZMQ error: {e}")
+                if e.errno == ETERM:
+                    pass  # interrupted  - pass or break if in try loop
+                if e.errno == EAGAIN:
+                    pass  # no message was ready (yet!)
+                else:
+                    raise  # raise real error  
         return recv_msg
-    
+  
 
 class ZmqRRActor(Actor):
     """
@@ -173,3 +181,4 @@ class ZmqRRActor(Actor):
         self.rep_socket.send_pyobj(reply)
         self.rep_socket.close()
         return msg
+    
