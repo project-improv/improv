@@ -78,7 +78,11 @@ class ZMQAcquirer(ZMQActor):
     def stop(self):
         
         logger.info(f"{self.name} stopping.")
-        # # Close subscriber socket
+
+        logger.info(f"Acquirer avg time per segment: {np.mean(self.zmq_acq_total_times)}")
+        logger.info(f"Acquirer got through {self.msg_num} messages and {self.seg_num} segments.")
+
+        # Close subscriber socket
         self.recv_socket.close()
 
         if self.time_opt:
@@ -88,7 +92,7 @@ class ZMQAcquirer(ZMQActor):
 
             timing_dict = dict(zip(keys, values))
             df = pd.DataFrame.from_dict(timing_dict, orient='index').transpose()
-            df.to_csv(os.path.join(self.timing_path, 'zmq_acq_timing.csv'), index=False, header=True)
+            df.to_csv(os.path.join(self.timing_path, 'acq_timing_' + str(self.seg_num) + '.csv'), index=False, header=True)
         
         logger.info(f"{self.name} stopped.")
         

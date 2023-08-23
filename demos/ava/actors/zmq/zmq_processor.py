@@ -151,6 +151,9 @@ class AudioProcessor(Actor):
 
         logger.info(f"{self.name} stopping.")
 
+        logger.info(f"Processor avg time per segment: {np.mean(self.proc_total_times)}")
+        logger.info(f"Processor got through {self.seg_num} segments.")
+
         if self.time_opt:
             logger.info(f"Saving timing info for {self.name}.")
             keys = self.timing
@@ -158,7 +161,7 @@ class AudioProcessor(Actor):
 
             timing_dict = dict(zip(keys, values))
             df = pd.DataFrame.from_dict(timing_dict, orient='index').transpose()
-            df.to_csv(os.path.join(self.timing_path, 'proc_timing_' + str(self.n_segs) + '.csv'), index=False, header=True)
+            df.to_csv(os.path.join(self.timing_path, 'proc_timing_' + str(self.seg_num) + '.csv'), index=False, header=True)
 
         logger.info(f"{self.name} stopped.")
 
@@ -173,6 +176,8 @@ class AudioProcessor(Actor):
         self.proc_timestamps.append(time.perf_counter_ns())
 
         ids = self._checkInput()
+
+        t = time.perf_counter_ns()
 
         if ids is not None:
             t = time.perf_counter_ns()
@@ -232,9 +237,10 @@ class AudioProcessor(Actor):
 
                 t10 = time.perf_counter_ns()
                 # self.q_out.put([spec_obj_id, latents_obj_id, str(self.seg_num)])
+                t11 = time.perf_counter_ns()
 
                 if self.time_opt:
-                    self.put_q_out.append((time.perf_counter_ns() - t10) * 10**-6)
+                    self.put_q_out.append((t11 - t10) * 10**-6)
                     self.get_wav_out.append((t2 - t1) * 10**-6)
                     self.get_spec.append((t4 - t3) * 10**-6)
                     self.spec_to_store.append((t6 - t5) * 10**-6)
@@ -264,8 +270,18 @@ class AudioProcessor(Actor):
         else:
             pass
 
-        logger.info(f"Processor avg time per segment: {np.mean(self.proc_total_times)}")
-        logger.info(f"Processor got through {self.seg_num} segments.")
+        if ids is None:
+            if self.time_opt:
+                self.put_q_out.append(np.nan)
+                self.get_wav_out.append(np.nan)
+                self.get_spec.append(np.nan)
+                self.spec_to_store.append(np.nan)
+                self.to_device.append(np.nan)
+                self.inference_time.append(np.nan)
+                self.z_to_np.append(np.nan)
+                self.z_to_store.append(np.nan)
+            
+            self.proc_total_times.append((time.perf_counter_ns() - t) * 10**-6)
 
         if self.seg_num == self.n_segs:
             logger.error(f"Done processing all available data: {self.seg_num}")
