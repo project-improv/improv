@@ -1,7 +1,7 @@
 from improv.actor import Actor
 
 import zmq
-from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER, Again, NOBLOCK
+from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER, Again, NOBLOCK, ZMQError, EAGAIN, ETERM
 from zmq.log.handlers import PUBHandler
 import traceback
 
@@ -22,9 +22,7 @@ class ZmqPSActor(Actor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.send_socket = None
-        self.recv_socket = None
-        self.address = None
+
         self.context = zmq.Context()
 
     def setSendSocket(self, ip, port, timeout=0.001):
@@ -34,7 +32,7 @@ class ZmqPSActor(Actor):
 
         self.send_socket = self.context.socket(PUB)
         # bind to the socket according to the ip and port
-        self.address = "tcp://{}:{}".format(ip, port)
+        self.address = f"tcp://{ip}:{port}"
         self.send_socket.bind(self.address)
         time.sleep(timeout)
 
@@ -44,34 +42,45 @@ class ZmqPSActor(Actor):
         """
 
         self.recv_socket = self.context.socket(SUB)
-        self.address = "tcp://{}:{}".format(ip, port)
+        self.address = f"tcp://{ip}:{port}"
         self.recv_socket.connect(self.address)
         self.recv_socket.setsockopt(SUBSCRIBE, b"")
         time.sleep(timeout)
 
-    def sendMsg(self, msg):
+    def sendMsg(self, msg, msg_type="pyobj"):
         """
         Sends a message to the controller.
         """
 
-        self.send_socket.send_pyobj(msg)
-        self.send_socket.close()
+        if msg_type == "multipart":
+            self.send_socket.send_multipart(msg)
+        if msg_type == "pyobj":
+            self.send_socket.send_pyobj(msg)
+        elif msg_type == None: 
+            self.send_socket.send(msg)
 
-    def recvMsg(self):
+    def recvMsg(self, msg_type="pyobj", flags=NOBLOCK):
         """
         Receives a message from the controller.
         """
 
-        recv_msg = ""
-        while True:
-            try:
-                recv_msg = self.recv_socket.recv_pyobj(flags=NOBLOCK)
-                break
-            except Again:
-                pass
-        self.recv_socket.close()
+        try:
+            if msg_type == "multipart":
+                recv_msg = self.recv_socket.recv_multipart(flags=flags)
+            if msg_type == "pyobj":
+                recv_msg = self.recv_socket.recv_pyobj(flags=flags)
+            elif msg_type == None: 
+                recv_msg = self.recv_socket.recv(flags=flags)
+        except ZMQError as e:
+            logger.info(f"ZMQ error: {e}")
+            if e.errno == ETERM:
+                pass  # interrupted  - pass or break if in try loop
+            if e.errno == EAGAIN:
+                pass  # no message was ready (yet!)
+            else:
+                raise  # raise real error
         return recv_msg
-
+    
 
 class ZmqRRActor(Actor):
     """
@@ -92,7 +101,7 @@ class ZmqRRActor(Actor):
 
         self.req_socket = self.context.socket(REQ)
         # bind to the socket according to the ip and port
-        self.address = "tcp://{}:{}".format(ip, port)
+        self.address = f"tcp://{format}:{ip}"
         time.sleep(timeout)
 
     def setRepSocket(self, ip, port, timeout=0.001):
@@ -101,7 +110,7 @@ class ZmqRRActor(Actor):
         """
 
         self.rep_socket = self.context.socket(REP)
-        self.address = "tcp://{}:{}".format(ip, port)
+        self.address = f"tcp://{ip}:{port}"
         self.rep_socket.bind(self.address)
         time.sleep(timeout)
 
