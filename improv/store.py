@@ -104,17 +104,15 @@ class PlasmaStoreInterface(StoreInterface):
         """
 
         logger.info("attempting to connect to store")
-        num_attempts = 20
+        num_attempts = 2
         client = None;
         for i in range(num_attempts):
             logger.info("starting loop")
             #time.sleep(1)
             #start_time = time.time()
-            for i in range(20000000): #time.sleep() does not work for some reason
-                j = i % 20009
-                k = j % 1009
-                if (k % 208743 == 0):
-                    logger.info(f"in delay loop {k}")
+            for j in range(20000000): #time.sleep() does not work for some reason
+                if (j % 2087431 == 0):
+                    logger.info(f"in delay loop \t{j} of iteration \t{i}")
 
 
             #end_time = time.time()
@@ -122,7 +120,7 @@ class PlasmaStoreInterface(StoreInterface):
             logger.info("finished sleep")
             try:
                 logger.info("beginning connect")
-                client = plasma.connect(store_loc, 0)
+                # client = plasma.connect(store_loc, 0)
                 logger.info(
                     "Successfully connected to store at locations {0} ".format(store_loc)
                 )
