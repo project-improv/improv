@@ -112,7 +112,7 @@ class PlasmaStoreInterface(StoreInterface):
             #start_time = time.time()
             delay = 40000000;
             for j in range(delay): #time.sleep() does not work for some reason
-                out = j / 17
+                pass
             logger.info("exited for loop")
 
 
