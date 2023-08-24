@@ -137,6 +137,8 @@ def test_zmq_ps(ip, unused_tcp_port):
     msg = "hello"
     act1.sendMsg(msg)
     recvmsg = act2.recvMsg()
+    act1.send_socket.close()
+    act2.recv_socket.close()
     assert recvmsg == msg
 
 
