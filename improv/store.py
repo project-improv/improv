@@ -111,12 +111,9 @@ class PlasmaStoreInterface(StoreInterface):
             #time.sleep(1)
             #start_time = time.time()
             delay = 20000000;
-            for j in range(delay): #time.sleep() does not work for some reason
-                if (j % 2087431 == 0):
-                    logger.info(f"in delay loop \t{j} of iteration \t{i}")
-                if (j > delay - 2):
-                    logger.info("breaking")
-                    break;
+        #    for j in range(delay): #time.sleep() does not work for some reason
+        #        if (j % 2087431 == 0):
+        #            logger.info(f"in delay loop \t{j} of iteration \t{i}")
             logger.info("exited for loop")
 
 
