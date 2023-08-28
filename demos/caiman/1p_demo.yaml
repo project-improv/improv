@@ -7,13 +7,13 @@ actors:
   Acquirer:
     package: demos.sample_actors.acquire
     class: TiffAcquirer
-    filename: data/Data_200001.tif
+    filename: data/data_endoscope.tif
     framerate: 20
 
   Processor:
     package: actors.1p_processor
     class: OnePProcessor
-    init_filename: data/Data_200001.tif
+    init_filename: data/data_endoscope.tif
     config_file: demo_1p_params.txt
 
   Visual:

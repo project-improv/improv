@@ -19,8 +19,8 @@ logger.setLevel(logging.INFO)
 class OnePProcessor(CaimanProcessor):
     """Using 1p method from Caiman"""
 
-    def __init__(self, *args, init_filename="data/tmp.hdf5", config_file=None):
-        super().__init__(*args, init_filename, config_file)
+    def __init__(self, *args, init_filename=None, config_file=None):
+        super().__init__(*args, init_filename=init_filename, config_file=config_file)
 
     def setup(self):
         """Using #2 method from the realtime demo, with short init

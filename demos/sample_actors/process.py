@@ -25,12 +25,13 @@ logger.setLevel(logging.INFO)
 class CaimanProcessor(Actor):
     """Wraps CaImAn/OnACID functionality to
     interface with our pipeline.
-    Uses code from caiman/source_extraction/cnmf/online_cnmf.py
+    Uses some code from caiman/source_extraction/cnmf/online_cnmf.py
     """
 
-    def __init__(
-        self, *args, init_filename="data/Tolias_mesoscope_2.hdf5", config_file=None
-    ):
+    def __init__(self, *args, init_filename=None, config_file=None):
+        if not all([init_filename, config_file]):
+            logger.error('Unable to start CaimanProcessor without file information')
+
         super().__init__(*args)
         logger.info("initfile {}, config file {}".format(init_filename, config_file))
         self.param_file = config_file
@@ -148,7 +149,7 @@ class CaimanProcessor(Actor):
         else:
             pass
 
-    def loadParams(self, param_file=None):
+    def loadParams(self, param_file):
         """Load parameters from file or 'defaults' into store
         TODO: accept user input from GUI
         This also effectively registers specific params
@@ -156,40 +157,11 @@ class CaimanProcessor(Actor):
         TODO: Wrap init_filename into caiman params if params exist
         """
         cwd = os.getcwd() + "/"
-        if param_file is not None:
-            try:
-                params_dict = self._load_params_from_file(param_file)
-                params_dict["fnames"] = [cwd + self.init_filename]
-            except Exception as e:
-                logger.exception("File cannot be loaded. {0}".format(e))
-        else:
-            # defaults from demo scripts; CNMFParams does not set
-            # each parameter needed by default (TODO change that?)
-            # TODO add parameter validation inside Config
-            params_dict = {
-                "fnames": [cwd + self.init_filename],
-                "fr": 2,
-                "decay_time": 0.8,
-                "gSig": (3, 3),
-                "p": 1,
-                "min_SNR": 1.5,
-                "rval_thr": 1,
-                "ds_factor": 1,
-                "nb": 2,
-                "motion_correct": True,
-                "init_batch": 100,
-                "init_method": "bare",
-                "normalize": True,
-                "sniper_mode": True,
-                "K": 10,
-                "epochs": 1,
-                "max_shifts_online": 10,
-                "pw_rigid": False,
-                "dist_shape_update": True,
-                "show_movie": False,
-                "minibatch_shape": 100,
-            }
-        # self.client.put(params_dict, "params_dict")
+        try:
+            params_dict = self._load_params_from_file(param_file)
+            params_dict["fnames"] = [cwd + self.init_filename]
+        except Exception as e:
+            logger.exception("File cannot be loaded. {0}".format(e))
 
         return params_dict
 

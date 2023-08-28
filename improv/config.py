@@ -73,8 +73,9 @@ class Config:
                 logger.error("Error: Invalid arguments passed")
                 params = ""
                 for parameter in sig.parameters:
-                    params = params + " " + parameter.name
+                    params = params + " " + parameter
                 logger.warning("Expected Parameters:" + params)
+                
             if "GUI" in name:
                 logger.info("Config detected a GUI actor: {}".format(name))
                 self.hasGUI = True
