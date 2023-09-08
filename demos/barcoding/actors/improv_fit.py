@@ -304,8 +304,8 @@ class Ui_MainWindow(object):
         self.checkBox.setText(_translate("MainWindow", " Live Update"))
         self.label_2.setText(_translate("MainWindow", "Population\n" "Average"))
         self.label_3.setText(_translate("MainWindow", "Selected\n" "Neuron"))
-        self.label_4.setText(_translate("MainWindow", "Sorted Barcode"))
-        self.label_7.setText(_translate("MainWindow", "Barcode"))
+        self.label_4.setText(_translate("MainWindow", "Raw plot"))
+        self.label_7.setText(_translate("MainWindow", "Select\n" "Barcode"))
         self.label_5.setText(
             _translate(
                 "MainWindow",
@@ -315,7 +315,7 @@ class Ui_MainWindow(object):
         self.label_6.setText(
             _translate(
                 "MainWindow",
-                '<html><head/><body><p><span style=" color:#eeeeec;">Model Fitting</span></p></body></html>',
+                '<html><head/><body><p><span style=" color:#eeeeec;">Barcode</span></p></body></html>',
             )
         )
         self.menuRASP_Display.setTitle(_translate("MainWindow", "Nexus Display"))

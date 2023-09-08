@@ -1,6 +1,6 @@
 import time
 import numpy as np
-from improv.store import Store, ObjectNotFoundError
+from improv.store import StoreInterface, ObjectNotFoundError
 from scipy.spatial.distance import cdist
 from math import floor
 import colorsys
@@ -71,7 +71,7 @@ class CaimanVisual(Actor):
         self.LL = None
         self.draw = True
         self.sort_barcode_index = None
-
+        self.i2 = None
         self.total_times = []
         self.timestamp = []
 
@@ -108,8 +108,6 @@ class CaimanVisual(Actor):
                     self.color,
                     self.coords,
                     self.allStims,
-                    self.w,
-                    self.LL,
                 ) = self.client.getList(ids[:-1])
                 self.total_times.append([time.time(), time.time() - t])
             self.timestamp.append([time.time(), self.frame_num])
@@ -137,14 +135,12 @@ class CaimanVisual(Actor):
             # self.Cx = self.Cx[-self.window:]
             self.C = self.C[:, -len(self.Cx) :]
             self.Cpop = self.Cpop[-len(self.Cx) :]
-            # self.LL = self.LL[-len(self.Cx):]
 
         return (
             self.Cx,
             self.C[self.selectedNeuron, :],
             self.Cpop,
             self.barcode_out,
-            self.LL
         )  # [:len(self.Cx)]
 
 
@@ -161,9 +157,9 @@ class CaimanVisual(Actor):
             self.sortInd2 = np.mean(np.abs(self.w[self.sortInd]), axis=1).argsort()
             self.sortInd2[:10].sort(axis=0)
             self.i2 = self.sortInd2[:10]
-            self.weight = (
-                self.w[self.i2[:, None], self.i2] * 10
-            )  # scaling factor for visualization
+            # self.weight = (
+            #     self.w[self.i2[:, None], self.i2] * 10
+            # )  # scaling factor for visualization
 
         return self.raw, self.color, self.weight
 
@@ -221,33 +217,10 @@ class CaimanVisual(Actor):
                         ]
                     )
                     lines[i] = ar
-                    strengths[i] = self.w[nid][n]
+                    #strengths[i] = self.w[nid][n]
                 else:
                     strengths[i] = 0
                 i += 1
-
-        sortInd3 = np.abs(self.w[:, nid]).argsort(axis=0)
-        sortInd3[:10].sort(axis=0)
-        i3 = sortInd3[:10]
-        i = 9
-        for n in np.nditer(i3):
-            if n != nid and i < 18:
-                if n < com.shape[0]:
-                    ar = np.array(
-                        [
-                            self.raw.shape[0] - com[nid][0],
-                            self.raw.shape[0] - com[n][0],
-                            self.raw.shape[1] - com[nid][1],
-                            self.raw.shape[1] - com[n][1],
-                        ]
-                    )
-                    lines[i] = ar
-                    strengths[i] = self.w[n][nid]
-                else:
-                    strengths[i] = 0
-                i += 1
-
-        logger.info("Strengths of connections of selected neuron: {}".format(strengths))
 
         return loc, lines, strengths
 
@@ -268,90 +241,12 @@ class CaimanVisual(Actor):
         # Rearrange barcode result
         if self.barcode is not None:
             self.selectedBarcode = self.barcode[self.selectedNeuron]
-            sort_index = np.abs(self.w[nid]).argsort()
-            self.sort_barcode_index = sort_index
         else:
             self.sort_barcode_index = None
-
-        # draw lines between it and 10 strongest connections in self.w
-        sortInd2 = np.mean(np.abs(self.w[nid]), axis=0).argsort()
-        sortInd2[:10].sort(axis=0)
-        i2 = sortInd2[:10]
-
-        # sortInd3 = np.mean(np.abs(self.w[:,nid]), axis=0).argsort()
-        # sortInd3[:10].sort(axis=0)
-        # i3 = sortInd3[:10]
-
-        # lines = np.zeros((18,4))
-        # strengths = np.zeros(18)
-        # i=0
-        # for n in np.nditer(i2):
-        #     # print('connected n', n)
-        #     if n!=nid and i<9:
-        #         if n<com.shape[0]:
-        #             ar = np.array([self.raw.shape[0]-com[nid][0], self.raw.shape[0]-com[n][0], self.raw.shape[1]-com[nid][1], self.raw.shape[1]-com[n][1]])
-        #             lines[i] = ar
-        #             strengths[i] = self.w[nid][n]
-        #         else:
-        #             strengths[i] = 0
-        #         i+=1
-        # i=9
-        # for n in np.nditer(i3):
-        #     print('connected n', n)
-        #     if n!=nid and i<18:
-        #         if n<com.shape[0]:
-        #             ar = np.array([self.raw.shape[0]-com[nid][0], self.raw.shape[0]-com[n][0], self.raw.shape[1]-com[nid][1], self.raw.shape[1]-com[n][1]])
-        #             lines[i] = ar
-        #             strengths[i] = self.w[n][nid]
-        #         else:
-        #             strengths[i] = 0
-        #         i+=1
 
         lines = np.zeros((18, 4))
         strengths = np.zeros(18)
         i = 0
-        for n in np.nditer(self.i2):
-            # print('connected n', n)
-            if n != nid and i < 9:
-                if n < com.shape[0]:
-                    ar = np.array(
-                        [
-                            self.raw.shape[0] - com[nid][0],
-                            self.raw.shape[0] - com[n][0],
-                            self.raw.shape[1] - com[nid][1],
-                            self.raw.shape[1] - com[n][1],
-                        ]
-                    )
-                    lines[i] = ar
-                    strengths[i] = self.w[nid][n]
-                else:
-                    strengths[i] = 0
-                i += 1
-
-        sortInd3 = np.abs(self.w[:, nid]).argsort(axis=0)
-        sortInd3[:10].sort(axis=0)
-        i3 = sortInd3[:10]
-        i = 9
-        for n in np.nditer(i3):
-            if n != nid and i < 18:
-                if n < com.shape[0]:
-                    ar = np.array(
-                        [
-                            self.raw.shape[0] - com[nid][0],
-                            self.raw.shape[0] - com[n][0],
-                            self.raw.shape[1] - com[nid][1],
-                            self.raw.shape[1] - com[n][1],
-                        ]
-                    )
-                    lines[i] = ar
-                    strengths[i] = self.w[n, nid]
-                else:
-                    strengths[i] = 0
-                i += 1
-
-        print("strengths ", strengths)
-
-        # update self.color...or add as ROIs? currently ROIs
 
         return loc, lines, strengths, self.sort_barcode_index
 

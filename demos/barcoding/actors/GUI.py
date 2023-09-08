@@ -3,7 +3,7 @@ from PyQt5.QtGui import QColor, QPixmap
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 from . import improv_fit
-from improv.store import Store
+from improv.store import StoreInterface
 from improv.actor import Signal
 import numpy as np
 from math import floor
@@ -214,12 +214,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         image = None
         raw, color, weight = self.visual.getFrames()
         
-        if (self.sort_barcode_index is not None) and (self.barcode is not None):
-            barcode_copy = self.barcode[1].copy()
-            sort_barcode = barcode_copy[self.sort_barcode_index, :]
-            #logger.info("what is the sort_index and what is the sorted_barcode?{0}, \n {1}, the original {2}".format(self.sort_barcode_index, sort_barcode, self.barcode[1]))
-            self.rawplot.setImage(sort_barcode.T)
-        elif raw is not None:
+        if raw is not None:
             raw = np.rot90(raw, 2)
             if np.unique(raw).size > 1:
                 self.rawplot.setImage(raw, autoHistogramRange=False)
@@ -229,16 +224,6 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
             self.rawplot_2.setImage(color)
             self.rawplot_2.ui.histogram.vb.setLimits(yMin=8, yMax=255)
 
-        if self.visual.showConnectivity and weight is not None:
-            if np.sum(np.abs(weight)) > 0.1:
-                self.rawplot_3.setImage(weight * 100)
-            # colordata = (np.array(cmapToColormap(cm.viridis).color) * 255).astype(np.uint8)
-            # cmap = ColorMap(pos=np.linspace(0, 1, len(colordata)), color=colordata)
-            # self.rawplot_3.setColorMap(cmap)
-            # self.rawplot_3.ui.histogram.vb.setLimits(yMin=0.1, yMax=1)
-        
-        else:
-            pass
             # self.rawplot_3.ui.histogram.vb.setLimits(yMin=8, yMax=255)
 
     def updateLines(self):
@@ -254,7 +239,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         barcode = None
         LL = None
         try:
-            (Cx, C, Cpop, barcode, LL) = self.visual.getCurves()
+            (Cx, C, Cpop, barcode) = self.visual.getCurves()
             self.barcode = barcode
         except TypeError:
             pass
@@ -290,17 +275,24 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
                 if self.selected is not None:
                     self._updateRedCirc()
 
-        if LL is not None and Cx is not None:
-            self.llPlot.setData(np.arange(0, len(LL)), LL, pen=penG)
+
+        if barcode is not None:
+            barcode_copy = barcode[1].copy()
+            #logger.info("what is the sort_index and what is the sorted_barcode?{0}, \n {1}, the original {2}".format(self.sort_barcode_index, sort_barcode, self.barcode[1]))
+            self.rawplot_3.setImage(barcode_copy[:15].T)
+            select_barcode_copy = barcode[0].copy()
+            self.allBarcode.setImage(select_barcode_copy[:, np.newaxis])
+        else:
+            pass
 
         #Tune: selectedTune(1, 8), overall tune(num, 8)
-        if barcode is not None:
-            barcodes = [self.allBarcode]
-            pens = [penG]
-            for i, t in enumerate(barcodes):
-                if t is not None:
-                    y = barcode[1]
-                    barcodes[i].setImage(y.T)
+        # if barcode is not None:
+        #     barcodes = [self.allBarcode]
+        #     pens = [penG]
+        #     for i, t in enumerate(barcodes):
+        #         if t is not None:
+        #             y = barcode[0]
+        #             barcodes[i].setImage(y.T)
         # else:
         #     print('tune is none')
 

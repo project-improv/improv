@@ -34,14 +34,14 @@ class FileAcquirer(Actor):
            #TODO: implement more than h5 files
         ''' 
         logger.info("Running setup for " + self.name)       
-        print('Looking for ', self.filename)
+        logger.info('Looking for {0}'.format(self.filename))
         if os.path.exists(self.filename):
             n, ext = os.path.splitext(self.filename)[:2]
             if ext == '.h5' or ext == '.hdf5':
                 with h5py.File(self.filename, 'r') as file:
                     keys = list(file.keys())
                     self.data = file[keys[0]].value 
-                    print('Data length is ', len(self.data))
+                    logger.info('Data from h5 file length is {0}'.format(len(self.data)))
 
         else: raise FileNotFoundError
 

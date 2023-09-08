@@ -7,7 +7,7 @@ import cv2
 import colorsys
 import scipy
 import pickle
-
+from scipy import stats
 import logging
 
 logger = logging.getLogger(__name__)
@@ -47,6 +47,13 @@ class ModelAnalysis(Actor):
             (1, self.num_stim, 2)
         )  # number of neurons, number of stim, on and baseline
         self.baseline_coefficient = np.zeros((1, self.num_stim, 3))
+        self.baseline_const_coefficient = np.zeros((1, self.num_stim, 2))
+        self.trial_avg_ptvalue = np.zeros((1, self.num_stim, 2))
+        self.trial_avg_max_ptvalue = np.zeros((1, self.num_stim, 2))
+        self.trial_slope_ptvalue = np.zeros((1, self.num_stim, 2))
+        self.trial_avg_record = {}
+        self.trial_avg_max_record = {}
+        self.trial_slope_record = {}
         self.onstim_counter = np.ones((self.num_stim, 2))
         self.window = 500  # TODO: make user input, choose scrolling window for Visual
         self.C = None
@@ -70,8 +77,12 @@ class ModelAnalysis(Actor):
         self.counter = np.ones((self.num_stim, 2))
         self.estRecord = {}
         self.baseline_record = None
+        self.baseline_const_record = None
         for i in range(self.num_stim):
             self.estRecord[i] = None
+            self.trial_avg_record[i] = None
+            self.trial_avg_max_record[i] = None
+            self.trial_slope_record[i] = None
 
 
     def run(self):
@@ -132,6 +143,7 @@ class ModelAnalysis(Actor):
             (self.coordDict, self.image, self.S) = self.client.getList(ids[:-1])
             #logger.info("what is the coordDict? {0}".format(self.coordDict))
             self.C = self.S
+            logger.info("What is the size of input frame? {0}".format(np.shape(self.C)))
             self.coords = [o["coordinates"] for o in self.coordDict]
 
             # Compute tuning curves based on input stimulus
@@ -143,12 +155,6 @@ class ModelAnalysis(Actor):
             except Empty as e:
                 pass  # no change in input stimulus
             self.stimAvg_start()
-
-            # fit to model once we have enough neurons
-            if self.C.shape[0] >= self.p["numNeurons"] and self.frame > (
-                self.p["hist_dim"] + 1
-            ):
-                self.fit()
 
 
             # N  = self.p['numNeurons']
@@ -187,223 +193,6 @@ class ModelAnalysis(Actor):
         except Exception as e:
             logger.exception("Error in analysis: {}".format(e))
 
-    def fit(self):
-        """ """
-        t = time.time()
-        if self.p["numNeurons"] < self.S.shape[0]:  # check for more neurons
-            self.updateTheta()
-
-        self.p["numSamples"] = self.frame
-
-        model_window = 5
-
-        if self.frame < model_window:
-            y_step = self.S[:, : self.frame]
-            stim_step = self.currStimID[:, : self.frame]
-        else:
-            y_step = self.S[:, self.frame - model_window : self.frame]
-            stim_step = self.currStimID[:, self.frame - model_window : self.frame]
-        #logger.info("What is the y_step and stim_step here? {0}, {1}".format(y_step, stim_step))
-        y_step = np.where(
-            np.isnan(y_step), 0, y_step
-        )  # Why are there nans here anyway?? #TODO
-
-        # t0 = time.time()
-        self.theta -= 1e-5 * self.ll_grad(y_step, stim_step)
-        self.LL.append(self.ll(y_step, stim_step))
-        # print(time.time()-t0, self.p['numNeurons'], self.LL[-1])
-        self.fit_times.append(time.time() - t)
-
-    def ll(self, y, s):
-        """
-        log-likelihood objective and gradient
-        """
-        # get parameters
-        dh = self.p["hist_dim"]
-        ds = self.p["stim_dim"]
-        dt = self.p["dt"]
-        N = self.p["numNeurons"]
-        #logger.info()
-        # M  = self.p['numSamples']
-        eps = np.finfo(float).eps
-
-        # run model at theta
-        data = {}
-        data["y"] = y
-        data["s"] = s
-        rhat = self.runModel(data)
-        # try:
-        #     rhat = rhat*dt
-        # except FloatingPointError:
-        #     print('FPE in rhat*dt; likely underflow')
-
-        # model parameters
-        # w = self.theta[:N*N].reshape((N,N))
-        # h = self.theta[N*N:N*(N+dh)].reshape((N,dh))
-        # b = self.theta[N*(N+dh):].reshape(N)
-
-        # compute negative log-likelihood
-        # include l1 or l2 penalty on weights
-        # l2 = scipy.linalg.norm(w) #100*np.sqrt(np.sum(np.square(theta['w'])))
-        # l1 = np.sum(np.sum(np.abs(w)))/(N*N)
-
-        ll_val = ((np.sum(rhat) - np.sum(y * np.log(rhat + eps)))) / (
-            y.shape[1] * N**2
-        )  # + l1
-        # if np.isnan(ll_val):
-        #     logger.error('------------ nans in LL')
-
-        return ll_val
-
-    def ll_grad(self, y, s):
-        # get parameters
-        dh = self.p["hist_dim"]
-        dt = self.p["dt"]
-        N = self.p["numNeurons"]
-        M = y.shape[1]  # params['numSamples'] #TODO: should be equal
-
-        # run model at theta
-        data = {}
-        data["y"] = y
-        data["s"] = s
-        rhat = self.runModel(data)  # TODO: rewrite without dicts
-        # rhat = rhat*dt
-
-        # compute gradient
-        grad = dict()
-
-        # difference in computed rate vs. observed spike count
-        rateDiff = rhat - data["y"]
-
-        # graident for baseline
-        grad["b"] = np.sum(rateDiff, axis=1) / M
-
-        # gradient for stim
-        grad["k"] = rateDiff.dot(data["s"].T) / M
-
-        # gradient for coupling terms
-        yr = np.roll(data["y"], 1)
-        # yr[0,:] = 0
-        grad["w"] = (
-            rateDiff.dot(yr.T) / M
-        )  # + 2*np.abs(self.theta[:N*N].reshape((N,N)))/(N*N)
-        # self.d_abs(self.theta[:N*N].reshape((N,N)))
-        np.fill_diagonal(grad["w"], 0)
-        #logger.info("get the shape of several parameters. w: {0}".format(grad["w"]))
-
-        # gradient for history terms
-        grad["h"] = np.zeros((N, dh))
-        # grad['h'][:,0] = rateDiff[:,0].dot(data['y'][:,0].T)/M
-        for i in np.arange(0, N):
-            for j in np.arange(0, dh):
-                grad["h"][i, j] = (
-                    np.sum(np.flip(data["y"], 1)[i, :] * rateDiff[i, :]) / M
-                )
-
-        # flatten grad
-        grad_flat = (
-            np.concatenate(
-                (grad["w"], grad["h"], grad["b"], grad["k"]), axis=None
-            ).flatten()
-            / N
-        )
-
-        return grad_flat
-
-    def d_abs(self, weights):
-        pos = (weights >= 0) * 1
-        neg = (weights < 0) * -1
-        return pos + neg
-
-    def runModel(self, data):
-        """
-        Generates the output of the model given some theta
-        Returns data dict like generateData()
-        """
-
-        # constants
-        dh = self.p["hist_dim"]
-        N = self.p["numNeurons"]
-
-        # nonlinearity (exp)
-        f = np.exp
-
-        expo = np.zeros((N, data["y"].shape[1]))
-        # simulate the model for t samples (time steps)
-        for j in np.arange(0, data["y"].shape[1]):
-            expo[:, j] = self.runModelStep(data["y"][:, j - dh : j], data["s"][:, j])
-
-        # computed rates
-        rates = f(expo)
-
-        return rates
-
-    def runModelStep(self, y, s):
-        """Runs the model forward one point in time
-        y should contain only up to t-dh:t points per neuron
-        """
-        # constants
-        N = self.p["numNeurons"]
-        dh = self.p["hist_dim"]
-        ds = self.p["stim_dim"]
-
-        # model parameters
-        w = self.theta[: N * N].reshape((N, N))
-        h = self.theta[N * N : N * (N + dh)].reshape((N, dh))
-        b = self.theta[N * (N + dh) : N * (N + dh + 1)].reshape(N)
-        k = self.theta[N * (N + dh + 1) :].reshape((N, ds))
-        #logger.info("what is the w? {0}".format(w))
-
-        # data length in time
-        t = y.shape[1]
-
-        expo = np.zeros(N)
-        for i in np.arange(0, N):  # step through neurons
-            ## NOTE: brief benchmarking showed this faster than matrix ops
-            # compute model firing rate
-            if t < 1:
-                hist = 0
-            else:
-                hist = np.sum(np.flip(h[i, :]) * y[i, :])
-
-            if t > 0:
-                w[i, i] = 0  # diagonals zero
-                weights = w[i, :].dot(y[:, -1])
-            else:
-                weights = 0
-
-            stim = k[i, :].dot(s)
-
-            expo[i] = b[i] + hist + weights + stim  # + eps #remove log 0 errors
-
-        return expo
-
-    def updateTheta(self):
-        """TODO: Currently terribly inefficient growth
-        Probably initialize large and index into it however many N we have
-        """
-        N = self.p["numNeurons"]
-        dh = self.p["hist_dim"]
-        ds = self.p["stim_dim"]
-
-        old_w = self.theta[: N * N].reshape((N, N))
-        old_h = self.theta[N * N : N * (N + dh)].reshape((N, dh))
-        old_b = self.theta[N * (N + dh) : N * (N + dh + 1)].reshape(N)
-        old_k = self.theta[N * (N + dh + 1) :].reshape((N, ds))
-
-        self.p["numNeurons"] = self.S.shape[0]  # confirm this
-        M = self.p["numNeurons"]
-
-        w = np.zeros((M, M))
-        w[:N, :N] = old_w
-        h = np.zeros((M, dh))
-        h[:N, :] = old_h
-        b = np.zeros(M)
-        b[:N] = old_b
-        k = np.zeros((M, ds))
-        k[:N, :] = old_k
-
-        self.theta = np.concatenate((w, h, b, k), axis=None).flatten()
 
     def updateStim_start(self, stim):
         """Rearrange the info about stimulus into
@@ -466,12 +255,10 @@ class ModelAnalysis(Actor):
         ids.append(self.client.put(self.Cx, "Cx" + str(self.frame)))
         ids.append(self.client.put(self.Call, "Call" + str(self.frame)))
         ids.append(self.client.put(self.Cpop, "Cpop" + str(self.frame)))
-        ids.append(self.client.put(self.barcode, "barcode" + str(self.frame)))
+        ids.append(self.client.put(self.barcode_fitline, "barcode" + str(self.frame)))
         ids.append(self.client.put(self.color, "color" + str(self.frame)))
         ids.append(self.client.put(self.coordDict, "analys_coords" + str(self.frame)))
         ids.append(self.client.put(self.allStims, "stim" + str(self.frame)))
-        ids.append(self.client.put(w, "w" + str(self.frame)))
-        ids.append(self.client.put(np.array(self.LL), "LL" + str(self.frame)))
         ids.append(self.frame)
 
         self.q_out.put(ids)
@@ -504,8 +291,63 @@ class ModelAnalysis(Actor):
         res = stim_ests - (coefficients[:,0])[:, np.newaxis]
         std = np.std(res, axis = 1)
         #logger.info("std shape for line fitting:{0}, {1}".format(np.shape(std), std))
-        self.baseline_coefficient[:, self.currentStim, 0] = coefficients[:,0]
-        self.baseline_coefficient[:, self.currentStim, 1] = std
+        self.baseline_const_coefficient[:, self.currentStim, 0] = coefficients[:,0]
+        self.baseline_const_coefficient[:, self.currentStim, 1] = std
+    
+    def trial_avg_t_p(self, baseline_part, onstim_part, stimID):
+        assert(self.currentStim == stimID)
+        baseline_mean = np.mean(baseline_part, axis = 1)
+        onstim_mean = np.mean(onstim_part, axis = 1)
+        onstim_max = np.mean(onstim_part, axis = 1)
+        rvs = onstim_mean - baseline_mean
+        rvs_max = onstim_max - baseline_mean
+        if self.trial_avg_record[stimID] is None:
+            self.trial_avg_record[stimID] = rvs[:, np.newaxis]
+        else:
+            self.trial_avg_record[stimID] = np.concatenate((self.trial_avg_record[stimID], rvs[:, np.newaxis]), axis = 1)
+            logger.info("test the shape of avg_record: {0}".format(np.shape(self.trial_avg_record[stimID])))
+        if self.trial_avg_max_record[stimID] is None:
+            self.trial_avg_max_record[stimID] = rvs_max[:, np.newaxis]
+            logger.info("test the shape of avg_record: {0}".format(np.shape(self.trial_avg_max_record[stimID])))
+        else:
+            self.trial_avg_max_record[stimID] = np.concatenate((self.trial_avg_max_record[stimID], rvs_max[:, np.newaxis]), axis = 1)
+            logger.info("test the shape of avg_record: {0}".format(np.shape(self.trial_avg_max_record[stimID])))
+        
+        invalid_neuron_mean = np.where(np.mean(self.trial_avg_record[stimID], axis = 1) < 0)
+        #print("the shape of rvs: ", np.shape(rvs))
+        stat_res = stats.ttest_1samp(self.trial_avg_record[stimID], popmean=0, axis = 1)
+        t_stat_mean = np.array(stat_res[0])
+        p_value_mean = np.array(stat_res[1])
+        p_value_mean[invalid_neuron_mean] = -1
+        self.trial_avg_ptvalue[:, stimID, 0] = np.copy(t_stat_mean)
+        self.trial_avg_ptvalue[:, stimID, 1] = np.copy(p_value_mean)
+
+        invalid_neuron_max = np.where(np.mean(self.trial_avg_max_record[stimID], axis = 1) < 0)
+        #print("the shape of rvs: ", np.shape(rvs))
+        stat_res = stats.ttest_1samp(self.trial_avg_max_record[stimID], popmean=0, axis = 1)
+        t_stat_max = np.array(stat_res[0])
+        p_value_max = np.array(stat_res[1])
+        p_value_max[invalid_neuron_max] = -1
+        self.trial_avg_max_ptvalue[:, stimID, 0] = np.copy(t_stat_max)
+        self.trial_avg_max_ptvalue[:, stimID, 1] = np.copy(p_value_max)
+
+    def trial_slope_t_p(self, onstim_part, stimID):
+        regressor = np.linspace(0, np.shape(onstim_part)[1], np.shape(onstim_part)[1])
+        #print("input regressor and response shape for line fitting: ", np.shape(regressor), np.shape(response))
+        coefficients = np.polyfit(regressor, onstim_part.T, deg=1).T
+        #print("??????? coefficients shape", np.shape(coefficients))
+        slope = coefficients[:,0]
+        if self.trial_slope_record[stimID] is None:
+            self.trial_slope_record[stimID] = slope[:, np.newaxis]
+        else:
+            self.trial_slope_record[stimID] = np.concatenate((self.trial_slope_record[stimID], slope[:, np.newaxis]), axis = 1)
+        res = stats.ttest_1samp(self.trial_slope_record[stimID], popmean=0, axis = 1)
+        t_value = np.copy(res[0])
+        p_value = np.copy(res[1])
+        invalid_index = np.where(np.mean(self.trial_slope_record[stimID], axis = 1) < 0)
+        p_value[invalid_index] = -1
+        self.trial_slope_ptvalue[:, stimID, 0] = np.copy(t_value)
+        self.trial_slope_ptvalue[:, stimID, 1] = np.copy(p_value)
 
     def stimAvg_start(self):
         t = time.time()
@@ -516,6 +358,10 @@ class ModelAnalysis(Actor):
             # added more neurons, grow the array
             self.ests = np.pad(self.ests, ((0, diff), (0, 0), (0, 0)), mode="constant")
             self.baseline_coefficient = np.pad(self.baseline_coefficient, ((0, diff), (0, 0), (0, 0)), mode="constant")
+            self.baseline_const_coefficient = np.pad(self.baseline_const_coefficient, ((0, diff), (0, 0), (0, 0)), mode="constant")
+            self.trial_avg_ptvalue = np.pad(self.trial_avg_ptvalue, ((0, diff), (0, 0), (0, 0)), mode="constant")
+            self.trial_avg_max_ptvalue = np.pad(self.trial_avg_max_ptvalue, ((0, diff), (0, 0), (0, 0)), mode="constant")
+            self.trial_slope_ptvalue = np.pad(self.trial_slope_ptvalue, ((0, diff), (0, 0), (0, 0)), mode="constant")
             self.barcode = np.pad(self.barcode, ((0, diff), (0, 0)), mode="constant")
             # print('------------------Grew:', self.ests.shape)
 
@@ -531,6 +377,7 @@ class ModelAnalysis(Actor):
                     if self.frame == self.stimStart + 5:
                         self.onstim_counter = np.ones((self.num_stim, 2))
                         self.fit_line(self.stimStart - 9, self.baseline_record, self.currentStim)
+                        self.trial_avg = np.ones((self.num_stim, 2))
 
                     #frame_baseline = self.baseline_coefficient[:, self.currentStim, 0] + (1.8 * self.baseline_coefficient[:, self.currentStim, 1])
                     frame_baseline = self.frame * self.baseline_coefficient[:, self.currentStim, 0] + self.baseline_coefficient[:, self.currentStim, 1] + (1.8 * self.baseline_coefficient[:, self.currentStim, 2])
@@ -541,24 +388,29 @@ class ModelAnalysis(Actor):
                     self.ests[:, self.currentStim, 0] = (self.onstim_counter[self.currentStim, 0] * self.ests[:, self.currentStim, 0] + ests[:, self.frame - 1]) / (self.onstim_counter[self.currentStim, 0] + 1)
                     self.onstim_counter[self.currentStim, 0] += 1
 
-                    # if self.frame == self.stimStart + 18:
-                    #     ests = np.copy(ests[:, self.stimStart - 10 : self.frame])
-                    #     x = np.linspace(self.stimStart - 9, self.frame, num=28)
-                    #     all_baseline = np.dot((self.baseline_coefficient[:, self.currentStim, 0]).reshape(-1, 1), x[np.newaxis, :]) + self.baseline_coefficient[:, self.currentStim, 1].reshape(-1, 1) + (1.8 * self.baseline_coefficient[:, self.currentStim, 2].reshape(-1, 1))
-                    #     #all_baseline = self.baseline_coefficient[:, self.currentStim, 0] + (1.8 * self.baseline_coefficient[:, self.currentStim, 1])                        
-                    #     logger.info("test the shape and value, ests.shape: {0}, {1}, baseline : {2}, {3}, x: {4}". format(np.shape(ests), ests, np.shape(all_baseline[:, np.newaxis]), all_baseline, x))
-                    #     if self.estRecord[self.currentStim] is None:
-                    #         self.estRecord[self.currentStim] = ests - all_baseline[:, np.newaxis]
-                    #     else:
-                    #         self.estRecord[self.currentStim] = np.concatenate((self.estRecord[self.currentStim], ests - all_baseline[:, np.newaxis]), axis = 0)
-                    #     with open(f'output/output_est_avg_baseline_{self.currentStim}.pickle', 'wb') as file:
-                    #         pickle.dump(self.estRecord[self.currentStim], file)
-                    #         logger.info("save the baseline corrected estimate for stim {0}".format(self.currentStim))
+                    if self.frame == self.stimStart + 18:
+                        baseline = np.copy(ests[:, self.stimStart - 10 : self.stimStart + 5])
+                        ests = np.copy(ests[:, self.stimStart +5 : self.frame])
+                        self.trial_avg_t_p(baseline, ests, self.currentStim)
+                        self.trial_slope_t_p(ests, self.currentStim)
+                        # ests = np.copy(ests[:, self.stimStart - 10 : self.frame])
+                        # x = np.linspace(self.stimStart - 9, self.frame, num=28)
+                        # all_baseline = np.dot((self.baseline_coefficient[:, self.currentStim, 0]).reshape(-1, 1), x[np.newaxis, :]) + self.baseline_coefficient[:, self.currentStim, 1].reshape(-1, 1) + (1.8 * self.baseline_coefficient[:, self.currentStim, 2].reshape(-1, 1))
+                        # #all_baseline = self.baseline_coefficient[:, self.currentStim, 0] + (1.8 * self.baseline_coefficient[:, self.currentStim, 1])                        
+                        # logger.info("test the shape and value, ests.shape: {0}, {1}, baseline : {2}, {3}, x: {4}". format(np.shape(ests), ests, np.shape(all_baseline[:, np.newaxis]), all_baseline, x))
+                        # if self.estRecord[self.currentStim] is None:
+                        #     self.estRecord[self.currentStim] = ests# - all_baseline[:, np.newaxis]
+                        # else:
+                        #     self.estRecord[self.currentStim] = np.concatenate((self.estRecord[self.currentStim], ests), axis = 0) # - all_baseline[:, np.newaxis]
+                        # with open(f'output/output_est_avg_baseline_{self.currentStim}.pickle', 'wb') as file:
+                        #     pickle.dump(self.estRecord[self.currentStim], file)
+                        #     logger.info("save the baseline corrected estimate for stim {0}, shape of the section is {1}".format(self.currentStim, np.shape(ests)))
                 
         self.estsAvg = np.squeeze((self.ests[:, :, 0] - self.ests[:, :, 1]))
         self.estsAvg = np.where(np.isnan(self.estsAvg), 0, self.estsAvg)
         self.estsAvg[self.estsAvg == np.inf] = 0
-        self.barcode = np.where(self.estsAvg > 0, 1, 0)
+        #logger.info("why there is no barcode??{0}".format(self.estsAvg))
+        self.barcode_fitline = np.where(self.estsAvg > 0, 1, 0)
         #logger.info("get the estsAvg, {0}, {1}".format(self.estsAvg, self.barcode))
         self.stimtime.append(time.time() - t)
 
