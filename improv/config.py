@@ -54,32 +54,37 @@ class Config:
 
             try:
                 __import__(packagename, fromlist=[classname])
+                mod = import_module(packagename)
 
+                clss = getattr(mod, classname)
+                sig = signature(clss)
+                configModule = ConfigModule(name, packagename, classname, options=actor)
+                sig.bind(configModule.options)
+
+            except SyntaxError:
+                logger.error("Error: syntax error happens during initialization of actor {0}".format(name))
+                return -1
+            
             except ModuleNotFoundError:
                 logger.error("Error: Packagename not valid")
+                return -1
 
-            except AttributeError:
+            except AttributeError: #sp: used to be in the last try catch block but cannot catach the class import error
                 logger.error("Error: Classname not valid within package")
+                return -1
 
-            mod = import_module(packagename)
-
-            clss = getattr(mod, classname)
-            sig = signature(clss)
-            configModule = ConfigModule(name, packagename, classname, options=actor)
-
-            try:
-                sig.bind(configModule.options)
             except TypeError:
                 logger.error("Error: Invalid arguments passed")
                 params = ""
                 for parameter in sig.parameters:
                     params = params + " " + parameter.name
                 logger.warning("Expected Parameters:" + params)
+                return -1
+            
             if "GUI" in name:
                 logger.info("Config detected a GUI actor: {}".format(name))
                 self.hasGUI = True
                 self.gui = configModule
-
             else:
                 self.actors.update({name: configModule})
 
@@ -88,6 +93,7 @@ class Config:
                 raise RepeatedConnectionsError(name)
 
             self.connections.update({name: conn})
+        return 0
 
     def addParams(self, type, param):
         """Function to add paramter param of type type

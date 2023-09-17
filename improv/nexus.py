@@ -117,8 +117,10 @@ class Nexus:
         # TODO load from file or user input, as in dialogue through FrontEnd?
 
         self.config = Config(configFile=file)
-        self.config.createConfig()
-
+        flag = self.config.createConfig()
+        if flag == -1:
+            logger.error("errors happen in loading config file, please check the global.log for more details")
+            
         # create all data links requested from Config config
         self.createConnections()
 
@@ -160,8 +162,13 @@ class Nexus:
         for name, actor in self.config.actors.items():
             if name not in self.actors.keys():
                 # Check for actors being instantiated twice
-                self.createActor(name, actor)
-                logger.info("setup the actor {0}".format(name))
+                try:
+                    self.createActor(name, actor)
+                    logger.info("setup the actor {0}".format(name))
+                except Exception as e:
+                    logger.error("Exception in setting up actor {}: {}. ".format(name, e))
+                    self.quit()
+
 
         # Second set up each connection b/t actors
         # TODO: error handling for if a user tries to use q_in without defining it
