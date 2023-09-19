@@ -63,6 +63,7 @@ class CaimanVisual(Actor):
         self.Cx = None
         self.C = None
         self.barcode = None
+        self.barcode_category = None
         self.raw = None
         self.color = None
         self.coords = None
@@ -105,17 +106,19 @@ class CaimanVisual(Actor):
                     self.C,
                     self.Cpop,
                     self.barcode,
+                    self.barcode_categoy,
                     self.color,
                     self.coords,
                     self.allStims,
                 ) = self.client.getList(ids[:-1])
                 self.total_times.append([time.time(), time.time() - t])
             self.timestamp.append([time.time(), self.frame_num])
+            logger.info("what is the coords here? {0}, {1}".format(np.shape(self.coords), self.coords))
         except Empty as e:
             pass
         except ObjectNotFoundError as e:
             logger.error("Object not found, continuing anyway...")
-        except Exception as e:
+        except Exception as e: 
             logger.error("Visual: Exception in get frame data: {}".format(e))
 
     def getCurves(self):
@@ -141,8 +144,7 @@ class CaimanVisual(Actor):
             self.C[self.selectedNeuron, :],
             self.Cpop,
             self.barcode_out,
-        )  # [:len(self.Cx)]
-
+        ) 
 
     def getFrames(self):
         """Return the raw and colored frames for display"""
@@ -241,8 +243,6 @@ class CaimanVisual(Actor):
         # Rearrange barcode result
         if self.barcode is not None:
             self.selectedBarcode = self.barcode[self.selectedNeuron]
-        else:
-            self.sort_barcode_index = None
 
         lines = np.zeros((18, 4))
         strengths = np.zeros(18)

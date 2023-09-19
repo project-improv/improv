@@ -46,6 +46,9 @@ class ModelAnalysis(Actor):
         self.ests = np.zeros(
             (1, self.num_stim, 2)
         )  # number of neurons, number of stim, on and baseline
+        self.ests_avg = np.zeros(
+            (1, self.num_stim, 2)
+        )
         self.baseline_coefficient = np.zeros((1, self.num_stim, 3))
         self.baseline_const_coefficient = np.zeros((1, self.num_stim, 2))
         self.trial_avg_ptvalue = np.zeros((1, self.num_stim, 2))
@@ -78,6 +81,7 @@ class ModelAnalysis(Actor):
         self.estRecord = {}
         self.baseline_record = None
         self.baseline_const_record = None
+        self.barcode_category = {}
         for i in range(self.num_stim):
             self.estRecord[i] = None
             self.trial_avg_record[i] = None
@@ -256,6 +260,7 @@ class ModelAnalysis(Actor):
         ids.append(self.client.put(self.Call, "Call" + str(self.frame)))
         ids.append(self.client.put(self.Cpop, "Cpop" + str(self.frame)))
         ids.append(self.client.put(self.barcode_fitline, "barcode" + str(self.frame)))
+        ids.append(self.client.put(self.barcode_category, "barcode_category" + str(self.frame)))
         ids.append(self.client.put(self.color, "color" + str(self.frame)))
         ids.append(self.client.put(self.coordDict, "analys_coords" + str(self.frame)))
         ids.append(self.client.put(self.allStims, "stim" + str(self.frame)))
@@ -363,7 +368,7 @@ class ModelAnalysis(Actor):
             self.trial_avg_max_ptvalue = np.pad(self.trial_avg_max_ptvalue, ((0, diff), (0, 0), (0, 0)), mode="constant")
             self.trial_slope_ptvalue = np.pad(self.trial_slope_ptvalue, ((0, diff), (0, 0), (0, 0)), mode="constant")
             self.barcode = np.pad(self.barcode, ((0, diff), (0, 0)), mode="constant")
-            # print('------------------Grew:', self.ests.shape)
+            self.ests_avg = np.pad(self.ests_avg, ((0, diff), (0, 0), (0, 0)), mode="constant")
 
         if self.currentStim is not None:   
             if self.frame == self.stimStart:
@@ -379,13 +384,14 @@ class ModelAnalysis(Actor):
                         self.fit_line(self.stimStart - 9, self.baseline_record, self.currentStim)
                         self.trial_avg = np.ones((self.num_stim, 2))
 
-                    #frame_baseline = self.baseline_coefficient[:, self.currentStim, 0] + (1.8 * self.baseline_coefficient[:, self.currentStim, 1])
-                    frame_baseline = self.frame * self.baseline_coefficient[:, self.currentStim, 0] + self.baseline_coefficient[:, self.currentStim, 1] + (1.8 * self.baseline_coefficient[:, self.currentStim, 2])
-                    #frame_baseline = np.where(frame_baseline < 0, 0, frame_baseline)
+                    frame_baseline_avg = self.baseline_coefficient[:, self.currentStim, 0] + (1.8 * self.baseline_coefficient[:, self.currentStim, 1])
+                    frame_baseline_fit = self.frame * self.baseline_coefficient[:, self.currentStim, 0] + self.baseline_coefficient[:, self.currentStim, 1] + (1.8 * self.baseline_coefficient[:, self.currentStim, 2])
                     #logger.info("what is the baseline here?{0}, {1}".format(np.shape(frame_baseline), frame_baseline))
-                    self.ests[:, self.currentStim, 1] = (self.ests[:, self.currentStim, 1] * self.onstim_counter[self.currentStim, 1] + frame_baseline) / (self.onstim_counter[self.currentStim, 1] + 1)
+                    self.ests[:, self.currentStim, 1] = (self.ests[:, self.currentStim, 1] * self.onstim_counter[self.currentStim, 1] + frame_baseline_fit) / (self.onstim_counter[self.currentStim, 1] + 1)
+                    self.ests_avg[:, self.currentStim, 1] = (self.ests_avg[:, self.currentStim, 1] * self.onstim_counter[self.currentStim, 1] + frame_baseline_avg) / (self.onstim_counter[self.currentStim, 1] + 1)
                     self.onstim_counter[self.currentStim, 1] += 1
                     self.ests[:, self.currentStim, 0] = (self.onstim_counter[self.currentStim, 0] * self.ests[:, self.currentStim, 0] + ests[:, self.frame - 1]) / (self.onstim_counter[self.currentStim, 0] + 1)
+                    self.ests_avg[:, self.currentStim, 0] = (self.onstim_counter[self.currentStim, 0] * self.ests_avg[:, self.currentStim, 0] + ests[:, self.frame - 1]) / (self.onstim_counter[self.currentStim, 0] + 1)
                     self.onstim_counter[self.currentStim, 0] += 1
 
                     if self.frame == self.stimStart + 18:
@@ -393,6 +399,7 @@ class ModelAnalysis(Actor):
                         ests = np.copy(ests[:, self.stimStart +5 : self.frame])
                         self.trial_avg_t_p(baseline, ests, self.currentStim)
                         self.trial_slope_t_p(ests, self.currentStim)
+
                         # ests = np.copy(ests[:, self.stimStart - 10 : self.frame])
                         # x = np.linspace(self.stimStart - 9, self.frame, num=28)
                         # all_baseline = np.dot((self.baseline_coefficient[:, self.currentStim, 0]).reshape(-1, 1), x[np.newaxis, :]) + self.baseline_coefficient[:, self.currentStim, 1].reshape(-1, 1) + (1.8 * self.baseline_coefficient[:, self.currentStim, 2].reshape(-1, 1))
@@ -406,13 +413,92 @@ class ModelAnalysis(Actor):
                         #     pickle.dump(self.estRecord[self.currentStim], file)
                         #     logger.info("save the baseline corrected estimate for stim {0}, shape of the section is {1}".format(self.currentStim, np.shape(ests)))
                 
-        self.estsAvg = np.squeeze((self.ests[:, :, 0] - self.ests[:, :, 1]))
-        self.estsAvg = np.where(np.isnan(self.estsAvg), 0, self.estsAvg)
-        self.estsAvg[self.estsAvg == np.inf] = 0
-        #logger.info("why there is no barcode??{0}".format(self.estsAvg))
-        self.barcode_fitline = np.where(self.estsAvg > 0, 1, 0)
-        #logger.info("get the estsAvg, {0}, {1}".format(self.estsAvg, self.barcode))
-        self.stimtime.append(time.time() - t)
+                self.estsAvg_fitline = np.squeeze((self.ests[:, :, 0] - self.ests[:, :, 1]))
+                self.estsAvg_fitline = np.where(np.isnan(self.estsAvg_fitline), 0, self.estsAvg_fitline)
+                self.estsAvg_fitline[self.estsAvg_fitline == np.inf] = 0
+                self.barcode_fitline = np.where(self.estsAvg_fitline > 0, 1, 0)
+
+                self.estsAvg_avg = np.squeeze((self.ests_avg[:, :, 0] - self.ests_avg[:, :, 1]))
+                self.estsAvg_avg = np.where(np.isnan(self.estsAvg_avg), 0, self.estsAvg_avg)
+                self.estsAvg_avg[self.estsAvg_avg == np.inf] = 0
+                self.barcode_avg = np.where(self.estsAvg_avg > 0, 1, 0)
+                
+                # general of getting index and corresponding barcode 
+                num_neurons = np.shape(self.ests)[0]
+                mean_barcode_both = np.zeros((num_neurons, 8))
+                mean_barcode_slope = np.zeros((num_neurons, 8))
+                mean_barcode_avg = np.zeros((num_neurons, 8))
+                both_mean_on = np.zeros(8)
+                both_mean = {}
+                fitting_barcode = np.zeros((num_neurons, 8))
+                fitting = {}
+                fitting_on = np.zeros(8)
+                rest_barcode = np.zeros((num_neurons, 8))
+                rest = {}
+                rest_on = np.zeros(8)
+
+                for i in range(num_neurons):
+                    for j in range(8):
+                        # Save all the index that are at least three tests said yes
+                        if ((self.estsAvg_fitline[i, j] + self.estsAvg_avg[i, j]) > 0) and ((self.trial_slope_ptvalue[i, j, 1] > 0) and (self.trial_slope_ptvalue[i, j, 1] < 0.2)) and (((self.trial_avg_max_ptvalue[i, j, 1] > 0) and (self.trial_avg_max_ptvalue[i, j, 1] < 0.2)) or ((self.trial_avg_ptvalue[i, j, 1] > 0) and (self.trial_avg_ptvalue[i, j, 1] < 0.2))):
+                            mean_barcode_both[i, j] = 1
+                            both_mean_on[j] += 1
+                            if both_mean_on[j] == 1:
+                                both_mean[j] = []
+                                both_mean[j].append(i)
+                            else:
+                                both_mean[j].append(i)
+                        elif ((self.trial_slope_ptvalue[i, j, 1] > 0) and (self.trial_slope_ptvalue[i, j, 1] < 0.2)):
+                            mean_barcode_slope[i, j] = 1
+                        elif (((self.trial_avg_max_ptvalue[i, j, 1] > 0) and (self.trial_avg_max_ptvalue[i, j, 1] < 0.2)) or ((self.trial_avg_ptvalue[i, j, 1] > 0) and (self.trial_avg_ptvalue[i, j, 1] < 0.2))):
+                            mean_barcode_avg[i, j] = 1
+                        if (self.estsAvg_fitline[i, j] + self.estsAvg_avg[i, j]) > 0.05:
+                            fitting_barcode[i, j] = 1
+                            fitting_on[j] += 1
+                            if fitting_on[j] == 1:
+                                fitting[j] = []
+                                fitting[j].append(i)
+                            else:
+                                fitting[j].append(i)
+                        if ((mean_barcode_slope[i, j] == 1 and (self.trial_avg_ptvalue[i, j, 1] + self.trial_avg_max_ptvalue[i, j, 1] > 0)) or (mean_barcode_avg[i, j] == 1 and self.trial_avg_ptvalue[i, j, 1] > 0)):
+                            if (fitting_barcode[i, j] == 1 and ((((self.trial_slope_ptvalue[i, j, 0] + self.trial_avg_max_ptvalue[i, j, 0]) / 2) > 2.92) or (((self.trial_avg_ptvalue[i, j, 0] + self.trial_slope_ptvalue[i, j, 0]) / 2) > 2.92))):
+                                rest_barcode[i, j] = 1
+                                rest_on[j] += 1
+                                if rest_on[j] == 1:
+                                    rest[j] = []
+                                    rest[j].append(i)
+                                else:
+                                    rest[j].append(i)
+
+                            
+                final_barcode = np.zeros((num_neurons, 8))
+                index = np.where(mean_barcode_both + rest_barcode > 0)
+                final_barcode[index] = 1
+                category = np.unique(final_barcode, axis = 0)
+                index_record = {}
+                barcode_bytes_record = {}
+                for i in range(len(category)):
+                    cl = category[i]
+                    bytestr = cl.tobytes()
+                    index_record[bytestr] = []
+                    barcode_bytes_record[bytestr] = np.copy(cl)
+                #print(barcode_bytes_record)
+                #print(len(category))
+
+                for neuron in range(num_neurons):
+                    current_barcode = final_barcode[neuron]
+                    index_record[current_barcode.tobytes()].append(neuron)
+                    
+                self.barcode_category['index_record'] = index_record
+                self.barcode_category['bytes_record'] = barcode_bytes_record
+
+                # count_record = []
+                # for key in index_record.keys():
+                #     current_number = len(index_record[key])
+                #     count_record.append(current_number)
+                #     print(barcode_bytes_record[key], ":  ", current_number)
+
+                self.stimtime.append(time.time() - t)
 
     def plotColorFrame(self):
         """Computes colored nicer background+components frame"""
@@ -527,47 +613,5 @@ class ModelAnalysis(Actor):
             stim = 3 
         elif s == 8: # x right
             stim = 7 
-        # if s == 3:
-        #     stim = 0
-        # elif s == 10:
-        #     stim = 1
-        # elif s == 9:
-        #     stim = 2
-        # elif s == 16:
-        #     stim = 3
-        # elif s == 4:
-        #     stim = 4
-        # elif s == 14:
-        #     stim = 5
-        # elif s == 13:
-        #     stim = 6
-        # elif s == 12:
-        #     stim = 7
-        # # add'l stim for specific coloring
-        # elif s == 5:
-        #     stim = 8
-        # elif s == 6:
-        #     stim = 9
-        # elif s == 7:
-        #     stim = 10
-        # elif s == 8:
-        #     stim = 11
-
-        # if s == 3:
-        #     stim = 0
-        # elif s == 9:
-        #     stim = 1
-        # elif s == 15:
-        #     stim = 2
-        # elif s == 21:
-        #     stim = 3
-        # elif s == 27:
-        #     stim = 4
-        # elif s == 33:
-        #     stim = 5
-        # elif s == 39:
-        #     stim = 6
-        # elif s == 45:
-        #     stim = 7
 
         return stim
