@@ -66,7 +66,7 @@ class Config:
                 return -1
             
             except ModuleNotFoundError:
-                logger.error("Error: Packagename not valid")
+                logger.error("Error: Packagename not valid, please check the import module in each actor and the package name in the yaml file")
                 return -1
 
             except AttributeError: #sp: used to be in the last try catch block but cannot catach the class import error
@@ -80,6 +80,11 @@ class Config:
                     params = params + " " + parameter.name
                 logger.warning("Expected Parameters:" + params)
                 return -1
+            
+            except Exception as e:
+                logger.error("Error: {}".format(e))
+                return -1 
+
             
             if "GUI" in name:
                 logger.info("Config detected a GUI actor: {}".format(name))

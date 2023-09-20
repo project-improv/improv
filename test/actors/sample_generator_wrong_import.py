@@ -1,6 +1,6 @@
 from improv.actor import Actor, RunManager
 from datetime import date  # used for saving
-import numpys as np
+import numpysssss as np
 import logging
 
 logger = logging.getLogger(__name__)
