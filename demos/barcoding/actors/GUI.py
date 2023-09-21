@@ -67,9 +67,9 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         self.rawplot_2.getImageItem().mouseClickEvent = (
             self.mouseClick
         )  # Select a neuron
-        self.rawplot_3.getImageItem().mouseClickEvent = (
-            self.weightClick
-        )  # select a neuron by weight
+        # self.rawplot_3.getImageItem().mouseClickEvent = (
+        #     self.weightClick
+        # )  # select a neuron by weight
 
     def update(self):
         """Update visualization while running"""
@@ -135,7 +135,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
             self.grplot.plot(clipToView=True) for _ in range(len(self.COLOR))
         ]
         self.c2 = self.grplot_2.plot()
-        self.llPlot = self.grplot_5.plot()
+        self.scrollableListPlot = self.grplot_5.plot()
         grplot = [self.grplot, self.grplot_2]
         for plt in grplot:
             plt.getAxis("bottom").setTickSpacing(major=50, minor=50)
@@ -212,7 +212,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
     def updateVideo(self):
         """TODO: Bug on clicking ROI --> trace and report to pyqtgraph"""
         image = None
-        raw, color, weight = self.visual.getFrames()
+        raw, color = self.visual.getFrames()
         
         if raw is not None:
             raw = np.rot90(raw, 2)
@@ -236,11 +236,14 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         penG = pyqtgraph.mkPen(width=3, color="g")
         C = None
         Cx = None
-        barcode = None
+        barcode_list = None
         LL = None
         try:
-            (Cx, C, Cpop, barcode) = self.visual.getCurves()
-            self.barcode = barcode
+            (Cx, C, Cpop, barcode_list) = self.visual.getCurves()
+            self.selected_barcode = barcode_list[0]
+            self.barcode = barcode_list[1]
+            self.barcode_index_record = (barcode_list[2])['index_record']
+            self.barcode_bytes_record = (barcode_list[2])['bytes_record']
         except TypeError:
             pass
         except Exception as e:
@@ -296,6 +299,12 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         # else:
         #     print('tune is none')
 
+    def mouseSelectCategory(self, event):
+        """Clicked on a scrollable list to select barcode category"""
+        event.accept()
+        select_category
+        neurons_locations = self.visual.selectCategory(select_category)
+
     def mouseClick(self, event):
         """Clicked on processed image to select neurons"""
         # TODO: make this unclickable until finished updated plot (?)
@@ -313,7 +322,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
             self.last_n = self.visual.selectedNeuron
 
         if self.flagW:  # nothing drawn yet
-            loc, lines, strengths, self.sort_barcode_index = self.visual.selectNW(selectedraw[0], selectedraw[1])
+            loc, lines, strengths = self.visual.selectNW(selectedraw[0], selectedraw[1])
             # print('clicked lines ', lines)
             self.lines = []
             self.pens = []
@@ -353,128 +362,128 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
                 self.rawplot_2.getView().removeItem(self.lines[i])
             self.flagW = True
 
-    def weightClick(self, event):
-        """Clicked on weight matrix to select neurons"""
-        event.accept()
-        mousePoint = event.pos()
-        print("mousepoint: ", int(mousePoint.x()), int(mousePoint.y()))
-        if self.last_x is None:
-            self.last_x = int(mousePoint.x())
-            self.last_y = int(mousePoint.y())
-        pen = pyqtgraph.mkPen(width=2, color="r")
-        pen2 = pyqtgraph.mkPen(width=2, color="r")
+    # def weightClick(self, event):
+    #     """Clicked on weight matrix to select neurons"""
+    #     event.accept()
+    #     mousePoint = event.pos()
+    #     print("mousepoint: ", int(mousePoint.x()), int(mousePoint.y()))
+    #     if self.last_x is None:
+    #         self.last_x = int(mousePoint.x())
+    #         self.last_y = int(mousePoint.y())
+    #     pen = pyqtgraph.mkPen(width=2, color="r")
+    #     pen2 = pyqtgraph.mkPen(width=2, color="r")
 
-        loc, lines, strengths = self.visual.selectWeights(
-            int(mousePoint.x()), int(mousePoint.y())
-        )
+    #     loc, lines, strengths = self.visual.selectWeights(
+    #         int(mousePoint.x()), int(mousePoint.y())
+    #     )
 
-        if self.flagW:  # need to draw, currently off
-            self.rect = ROI(
-                pos=(int(mousePoint.x()), 0), size=(1, 10), pen=pen, movable=False
-            )
-            self.rect2 = ROI(
-                pos=(0, int(mousePoint.y())), size=(10, 1), pen=pen2, movable=False
-            )
-            self.rawplot_3.getView().addItem(self.rect)
-            self.rawplot_3.getView().addItem(self.rect2)
+    #     if self.flagW:  # need to draw, currently off
+    #         self.rect = ROI(
+    #             pos=(int(mousePoint.x()), 0), size=(1, 10), pen=pen, movable=False
+    #         )
+    #         self.rect2 = ROI(
+    #             pos=(0, int(mousePoint.y())), size=(10, 1), pen=pen2, movable=False
+    #         )
+    #         self.rawplot_3.getView().addItem(self.rect)
+    #         self.rawplot_3.getView().addItem(self.rect2)
 
-            pen = pyqtgraph.mkPen(width=1, color="g")
-            self.green_circ = CircleROI(
-                pos=np.array([loc[0][0], loc[0][1]]) - 5,
-                size=10,
-                movable=False,
-                pen=pen,
-            )
-            self.rawplot_2.getView().addItem(self.green_circ)
-            self.lines = []
-            self.pens = []
-            colors = ["g"] * 9 + ["r"] * 9
-            for i in range(18):
-                n = lines[i]
-                if strengths[i] > 1e-6:
-                    if strengths[i] > 1e-4:
-                        self.pens.append(pyqtgraph.mkPen(width=2, color=colors[i]))
-                    else:
-                        self.pens.append(pyqtgraph.mkPen(width=1, color=colors[i]))
-                    self.lines.append(
-                        LineSegmentROI(
-                            positions=([n[0], n[2]], [n[1], n[3]]),
-                            handles=(None, None),
-                            pen=self.pens[i],
-                            movable=False,
-                        )
-                    )
-                    self.rawplot_2.getView().addItem(self.lines[i])
-                else:
-                    self.pens.append(pyqtgraph.mkPen(width=1, color=colors[i]))
-                    self.lines.append(
-                        LineSegmentROI(
-                            positions=([n[0], n[0]], [n[0], n[0]]),
-                            handles=(None, None),
-                            pen=self.pens[i],
-                            movable=False,
-                        )
-                    )
-                    self.rawplot_2.getView().addItem(self.lines[i])
+    #         pen = pyqtgraph.mkPen(width=1, color="g")
+    #         self.green_circ = CircleROI(
+    #             pos=np.array([loc[0][0], loc[0][1]]) - 5,
+    #             size=10,
+    #             movable=False,
+    #             pen=pen,
+    #         )
+    #         self.rawplot_2.getView().addItem(self.green_circ)
+    #         self.lines = []
+    #         self.pens = []
+    #         colors = ["g"] * 9 + ["r"] * 9
+    #         for i in range(18):
+    #             n = lines[i]
+    #             if strengths[i] > 1e-6:
+    #                 if strengths[i] > 1e-4:
+    #                     self.pens.append(pyqtgraph.mkPen(width=2, color=colors[i]))
+    #                 else:
+    #                     self.pens.append(pyqtgraph.mkPen(width=1, color=colors[i]))
+    #                 self.lines.append(
+    #                     LineSegmentROI(
+    #                         positions=([n[0], n[2]], [n[1], n[3]]),
+    #                         handles=(None, None),
+    #                         pen=self.pens[i],
+    #                         movable=False,
+    #                     )
+    #                 )
+    #                 self.rawplot_2.getView().addItem(self.lines[i])
+    #             else:
+    #                 self.pens.append(pyqtgraph.mkPen(width=1, color=colors[i]))
+    #                 self.lines.append(
+    #                     LineSegmentROI(
+    #                         positions=([n[0], n[0]], [n[0], n[0]]),
+    #                         handles=(None, None),
+    #                         pen=self.pens[i],
+    #                         movable=False,
+    #                     )
+    #                 )
+    #                 self.rawplot_2.getView().addItem(self.lines[i])
 
-            self.last_x = int(mousePoint.x())
-            self.last_y = int(mousePoint.y())
+    #         self.last_x = int(mousePoint.x())
+    #         self.last_y = int(mousePoint.y())
 
-            self.flagW = False
-        else:
-            self.rawplot_3.getView().removeItem(self.rect)
-            self.rawplot_3.getView().removeItem(self.rect2)
+    #         self.flagW = False
+    #     else:
+    #         self.rawplot_3.getView().removeItem(self.rect)
+    #         self.rawplot_3.getView().removeItem(self.rect2)
 
-            self.rawplot_2.getView().removeItem(self.green_circ)
-            for i in range(18):
-                self.rawplot_2.getView().removeItem(self.lines[i])
+    #         self.rawplot_2.getView().removeItem(self.green_circ)
+    #         for i in range(18):
+    #             self.rawplot_2.getView().removeItem(self.lines[i])
 
-            if self.last_x != int(mousePoint.x()) or self.last_y != int(mousePoint.y()):
-                self.rect = ROI(
-                    pos=(int(mousePoint.x()), 0), size=(1, 10), pen=pen, movable=False
-                )
-                self.rect2 = ROI(
-                    pos=(0, int(mousePoint.y())), size=(10, 1), pen=pen2, movable=False
-                )
-                self.rawplot_3.getView().addItem(self.rect)
-                self.rawplot_3.getView().addItem(self.rect2)
+    #         if self.last_x != int(mousePoint.x()) or self.last_y != int(mousePoint.y()):
+    #             self.rect = ROI(
+    #                 pos=(int(mousePoint.x()), 0), size=(1, 10), pen=pen, movable=False
+    #             )
+    #             self.rect2 = ROI(
+    #                 pos=(0, int(mousePoint.y())), size=(10, 1), pen=pen2, movable=False
+    #             )
+    #             self.rawplot_3.getView().addItem(self.rect)
+    #             self.rawplot_3.getView().addItem(self.rect2)
 
-                pen = pyqtgraph.mkPen(width=1, color="g")
-                self.green_circ = CircleROI(
-                    pos=np.array([loc[0][0], loc[0][1]]) - 5,
-                    size=10,
-                    movable=False,
-                    pen=pen,
-                )
-                self.rawplot_2.getView().addItem(self.green_circ)
+    #             pen = pyqtgraph.mkPen(width=1, color="g")
+    #             self.green_circ = CircleROI(
+    #                 pos=np.array([loc[0][0], loc[0][1]]) - 5,
+    #                 size=10,
+    #                 movable=False,
+    #                 pen=pen,
+    #             )
+    #             self.rawplot_2.getView().addItem(self.green_circ)
 
-                colors = ["g"] * 9 + ["r"] * 9
-                for i in range(18):
-                    n = lines[i]
-                    if strengths[i] > 1e-6:
-                        if strengths[i] > 1e-4:
-                            self.pens[i] = pyqtgraph.mkPen(width=2, color=colors[i])
-                        else:
-                            self.pens[i] = pyqtgraph.mkPen(width=1, color=colors[i])
-                        self.lines[i] = LineSegmentROI(
-                            positions=([n[0], n[2]], [n[1], n[3]]),
-                            handles=(None, None),
-                            pen=self.pens[i],
-                            movable=False,
-                        )
-                    else:
-                        self.pens[i] = pyqtgraph.mkPen(width=1, color=colors[i])
-                        self.lines[i] = LineSegmentROI(
-                            positions=([n[0], n[0]], [n[0], n[0]]),
-                            handles=(None, None),
-                            pen=self.pens[i],
-                            movable=False,
-                        )
-                    self.rawplot_2.getView().addItem(self.lines[i])
-                self.last_x = int(mousePoint.x())
-                self.last_y = int(mousePoint.y())
-            else:
-                self.flagW = True
+    #             colors = ["g"] * 9 + ["r"] * 9
+    #             for i in range(18):
+    #                 n = lines[i]
+    #                 if strengths[i] > 1e-6:
+    #                     if strengths[i] > 1e-4:
+    #                         self.pens[i] = pyqtgraph.mkPen(width=2, color=colors[i])
+    #                     else:
+    #                         self.pens[i] = pyqtgraph.mkPen(width=1, color=colors[i])
+    #                     self.lines[i] = LineSegmentROI(
+    #                         positions=([n[0], n[2]], [n[1], n[3]]),
+    #                         handles=(None, None),
+    #                         pen=self.pens[i],
+    #                         movable=False,
+    #                     )
+    #                 else:
+    #                     self.pens[i] = pyqtgraph.mkPen(width=1, color=colors[i])
+    #                     self.lines[i] = LineSegmentROI(
+    #                         positions=([n[0], n[0]], [n[0], n[0]]),
+    #                         handles=(None, None),
+    #                         pen=self.pens[i],
+    #                         movable=False,
+    #                     )
+    #                 self.rawplot_2.getView().addItem(self.lines[i])
+    #             self.last_x = int(mousePoint.x())
+    #             self.last_y = int(mousePoint.y())
+    #         else:
+    #             self.flagW = True
 
     def _updateRedCirc(self):
         """Circle neuron whose activity is in top (red) graph

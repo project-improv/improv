@@ -130,7 +130,7 @@ class CaimanVisual(Actor):
         """
         if self.barcode is not None:
             self.selectedBarcode = self.barcode[self.selectedNeuron]
-            self.barcode_out = [self.selectedBarcode, self.barcode]
+            self.barcode_out = [self.selectedBarcode, self.barcode, self.barcode_category]
         else:
             self.barcode_out = None
 
@@ -153,17 +153,7 @@ class CaimanVisual(Actor):
         if self.color is not None and self.color.shape[0] > self.color.shape[1]:
             self.color = np.rot90(self.color, 1)
 
-        if self.w is not None:
-            # Get top 10 highly connected neurons
-            self.sortInd = np.mean(np.abs(self.w), axis=0).argsort()
-            self.sortInd2 = np.mean(np.abs(self.w[self.sortInd]), axis=1).argsort()
-            self.sortInd2[:10].sort(axis=0)
-            self.i2 = self.sortInd2[:10]
-            # self.weight = (
-            #     self.w[self.i2[:, None], self.i2] * 10
-            # )  # scaling factor for visualization
-
-        return self.raw, self.color, self.weight
+        return self.raw, self.color 
 
     def selectNeurons(self, x, y):
         """x and y are coordinates
@@ -190,7 +180,7 @@ class CaimanVisual(Actor):
             self.com1 = [com[0]]
         return self.com1
 
-    def selectWeights(self, x, y):
+    # def selectWeights(self, x, y):
         """x, y coordinates for neurons
         returns lines as 4 entry array: selected n_x, other_x, selected n_y, other_y
         """
@@ -248,7 +238,26 @@ class CaimanVisual(Actor):
         strengths = np.zeros(18)
         i = 0
 
-        return loc, lines, strengths, self.sort_barcode_index
+        return loc, lines, strengths
+    
+    def selectCategory(self, category_str):
+        """x, y int
+        lines 4 entry array: selected n_x, other_x, selected n_y, other_y
+        """
+        # translate back to C order of neurons
+        index_record = self.barcode_category['index_record']
+        byte_record = self.barcode_category['byte_record']
+        selected_neuron_index = index_record[category_str]
+
+        logger.info("selected barcode {0}".format(byte_record[category_str]))
+
+        # highlight selected neuron
+        com = np.array([o["CoM"] for o in self.coords])
+        neuron_locs = [
+            np.array([self.raw.shape[0] - com[i][0], self.raw.shape[1] - com[i][1]]) for i in selected_neuron_index
+        ]
+        
+        return neuron_locs
 
     def getFirstSelect(self):
         first = None
