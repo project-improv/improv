@@ -1,5 +1,4 @@
-from improv.actor import Actor, RunManager
-from datetime import date  # used for saving
+from improv.actor import Actor
 import numpysssss as np
 import logging
 
