@@ -62,14 +62,22 @@ class Config:
                 sig.bind(configModule.options)
 
             except SyntaxError:
-                logger.error("Error: syntax error happens during initialization of actor {0}".format(name))
-                return -1
-            
-            except ModuleNotFoundError:
-                logger.error("Error: Packagename not valid, please check the import module in each actor and the package name in the yaml file")
+                logger.error(
+                    "Error: syntax error happens during initialization of actor {0}".format(
+                        name
+                    )
+                )
                 return -1
 
-            except AttributeError: #sp: used to be in the last try catch block but cannot catach the class import error
+            except ModuleNotFoundError as e:
+                logger.error(
+                    "Error: Packagename not valid, check the import module in each actor and the package name in the yaml file, {0}".format(
+                        e
+                    )
+                )
+                return -1
+
+            except AttributeError:
                 logger.error("Error: Classname not valid within package")
                 return -1
 
@@ -80,12 +88,11 @@ class Config:
                     params = params + " " + parameter.name
                 logger.warning("Expected Parameters:" + params)
                 return -1
-            
+
             except Exception as e:
                 logger.error("Error: {}".format(e))
-                return -1 
+                return -1
 
-            
             if "GUI" in name:
                 logger.info("Config detected a GUI actor: {}".format(name))
                 self.hasGUI = True

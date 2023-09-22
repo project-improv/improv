@@ -75,6 +75,30 @@ def test_createConfig_settings(set_configdir):
     assert cfg.settings == {"use_watcher": None}
 
 
+def test_createConfig_init_typo(set_configdir):
+    """Tests if createConfig can catch actors with errors in init function.
+
+    Asserts:
+        If createConfig raise any errors.
+    """
+
+    cfg = config("minimal_wrong_init.yaml")
+    res = cfg.createConfig()
+    assert res == -1
+
+
+def test_createConfig_wrong_import(set_configdir):
+    """Tests if createConfig can catch actors with errors during import.
+
+    Asserts:
+        If createConfig raise any errors.
+    """
+
+    cfg = config("minimal_wrong_import.yaml")
+    res = cfg.createConfig()
+    assert res == -1
+
+
 def test_createConfig_clean(set_configdir):
     """Tests if createConfig runs without error given a good config.
 
@@ -101,32 +125,32 @@ def test_createConfig_ModuleNotFound(set_configdir):
     """Tests if an error is raised when the package can"t be found."""
 
     cfg = config("bad_package.yaml")
-    with pytest.raises(ModuleNotFoundError):
-        cfg.createConfig()
+    res = cfg.createConfig()
+    assert res == -1
 
 
 def test_createConfig_class_ImportError(set_configdir):
     """Tests if an error is raised when the class name is invalid."""
 
     cfg = config("bad_class.yaml")
-    with pytest.raises(AttributeError):
-        cfg.createConfig()
+    res = cfg.createConfig()
+    assert res == -1
 
 
 def test_createConfig_AttributeError(set_configdir):
     """Tests if AttributeError is raised."""
 
     cfg = config("bad_class.yaml")
-    with pytest.raises(AttributeError):
-        cfg.createConfig()
+    res = cfg.createConfig()
+    assert res == -1
 
 
 def test_createConfig_blank_file(set_configdir):
     """Tests if a blank config file raises an error."""
 
     cfg = config("blank_file.yaml")
-    with pytest.raises(TypeError):
-        cfg.createConfig()
+    res = cfg.createConfig()
+    assert res == -1
 
 
 def test_createConfig_nonsense_file(set_configdir, caplog):

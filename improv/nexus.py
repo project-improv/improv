@@ -119,8 +119,10 @@ class Nexus:
         self.config = Config(configFile=file)
         flag = self.config.createConfig()
         if flag == -1:
-            logger.error("errors happen in loading config file, please check the global.log for more details")
-            
+            logger.error(
+                "errors happen in loading config file, see global.log for more details"
+            )
+
         # create all data links requested from Config config
         self.createConnections()
 
@@ -166,9 +168,10 @@ class Nexus:
                     self.createActor(name, actor)
                     logger.info("setup the actor {0}".format(name))
                 except Exception as e:
-                    logger.error("Exception in setting up actor {}: {}. ".format(name, e))
+                    logger.error(
+                        "Exception in setting up actor {}: {}. ".format(name, e)
+                    )
                     self.quit()
-
 
         # Second set up each connection b/t actors
         # TODO: error handling for if a user tries to use q_in without defining it

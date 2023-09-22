@@ -333,7 +333,7 @@ def run(args, timeout=10):
         print("Cleaning up the hard way. May have exited dirty.")
         server.terminate()
         server.wait(timeout)
-        run_cleanup(args, headless=True)#sp: change this to false or not?
+        run_cleanup(args, headless=True)
 
 
 def get_server_ports(args, timeout):
@@ -356,7 +356,7 @@ def get_server_ports(args, timeout):
     if not server_start_time:
         print(
             f"Unable to read server start time from {args.logfile}.\n"
-            "This may be because the server could not be started or "
+            "This may be because the server could not be started or"
             "did not log its activity."
         )
     elif not ports:

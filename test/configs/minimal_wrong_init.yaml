@@ -1,10 +1,10 @@
 actors:
   Generator:
-    package: test/actors.sample_generator_wrong_init
+    package: actors.sample_generator_wrong_init
     class: Generator
 
   Processor:
-    package: test/actors.sample_processor
+    package: actors.sample_processor
     class: Processor
 
 connections:
