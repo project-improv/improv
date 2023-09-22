@@ -1,0 +1,11 @@
+actors:
+  Generator:
+    package: test/actors.sample_generator_wrong_init
+    class: Generator
+
+  Processor:
+    package: test/actors.sample_processor
+    class: Processor
+
+connections:
+  Generator.q_out: [Processor.q_in]
