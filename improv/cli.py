@@ -333,7 +333,7 @@ def run(args, timeout=10):
         print("Cleaning up the hard way. May have exited dirty.")
         server.terminate()
         server.wait(timeout)
-        run_cleanup(args, headless=True)#sp: change this to false or not?
+        run_cleanup(args, headless=True)
 
 
 def get_server_ports(args, timeout):
