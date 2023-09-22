@@ -63,7 +63,8 @@ class Config:
 
             except SyntaxError:
                 logger.error(
-                    "Error: syntax error happens during initialization of actor {0}".format(
+                    "Error: syntax error happens during \
+                        initialization of actor {0}".format(
                         name
                     )
                 )
@@ -71,7 +72,8 @@ class Config:
 
             except ModuleNotFoundError as e:
                 logger.error(
-                    "Error: Packagename not valid, check the import module in each actor and the package name in the yaml file, {0}".format(
+                    "Error: Packagename not valid, check the import module in each \
+                    actor and the package name in the yaml file, {0}".format(
                         e
                     )
                 )
