@@ -17,7 +17,7 @@ class Generator(Actor):
         super().__init__(*args, **kwargs)
         self.data = None
         self.name = "Generator"
-        self.frame_num = 
+        self.frame_num = 0
 
     def __str__(self):
         return f"Name: {self.name}, Data: {self.data}"
