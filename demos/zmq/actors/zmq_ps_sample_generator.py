@@ -1,5 +1,3 @@
-from improv.actor import Actor, RunManager
-from datetime import date  # used for saving
 import numpy as np
 import logging
 
@@ -9,7 +7,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Generator(Actor):
+class Generator(ZmqActor):
     """Sample actor to generate data to pass into a sample processor
     using sync ZMQ to communicate.
 
@@ -36,7 +34,7 @@ class Generator(Actor):
         logger.info("Beginning setup for Generator")
         self.data = np.asmatrix(np.random.randint(100, size=(100, 5)))
         # self.publish = ZmqPSActor("generator", self.store_loc)
-        self.publish = ZmqActor("generator", self.store_loc, pub_sub=True , rep_req=False)
+        # self.publish = ZmqActor("generator", self.store_loc, pub_sub=True , rep_req=False)
         logger.info("Completed setup for Generator")
 
     def stop(self):
@@ -56,21 +54,17 @@ class Generator(Actor):
         converge to 5.5.
         """
         if self.frame_num < np.shape(self.data)[0]:
-            data_id = self.client.put(
-                self.data[self.frame_num], str(f"Gen_raw: {self.frame_num}")
-            )
+            data_id = self.client.put(self.data[self.frame_num], str(f"Gen_raw: {self.frame_num}"))
             # logger.info('Put data in store')
             try:
                 # self.q_out.put([[data_id, str(self.frame_num)]])
-                self.publish.setSendSocket(ip="127.0.0.1", port=5556)
-                self.publish.sendMsg([[data_id, str(self.frame_num)]])
+                # self.publish.setSendSocket(ip="127.0.0.1", port=5556)
+                # self.publish.sendMsg([[data_id, str(self.frame_num)]])
+                self.put([[data_id, str(self.frame_num)]])
                 # logger.info("Sent message on")
                 self.frame_num += 1
             except Exception as e:
-                logger.error(
-                    f"--------------------------------Generator Exception: {e}"
-                )
+                logger.error(f"---------Generator Exception: {e}")
         else:
-            self.data = np.concatenate(
-                (self.data, np.asmatrix(np.random.randint(10, size=(1, 5)))), axis=0
-            )
+            new_data = np.asmatrix(np.random.randint(10, size=(1, 5)))
+            self.data = np.concatenate((self.data, new_data), axis=0)

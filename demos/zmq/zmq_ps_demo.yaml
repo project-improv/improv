@@ -2,10 +2,16 @@ actors:
   Generator:
     package: actors.zmq_ps_sample_generator
     class: Generator
+    ip: 127.0.0.1
+    port: 5555
+    type: PUB
 
   Processor:
     package: actors.zmq_ps_sample_processor
     class: Processor
+    ip: 127.0.0.1
+    port: 5555
+    type: SUB
 
 connections:
   Generator.q_out: [Processor.q_in]

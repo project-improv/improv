@@ -1,4 +1,3 @@
-from improv.actor import Actor
 import numpy as np
 import logging
 
@@ -8,7 +7,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Processor(Actor):
+class Processor(ZmqActor):
     """Sample processor used to calculate the average of an array of integers
     using sync ZMQ to communicate.
 
@@ -27,18 +26,16 @@ class Processor(Actor):
         self.avg_list (list): list that contains averages of individual vectors.
         self.frame_num (int): index of current frame.
         """
-
         self.name = "Processor"
         self.frame = None
         self.avg_list = []
         self.frame_num = 1
-        self.publish = ZmqActor("processor", self.store_loc, pub_sub=True , rep_req=False)
+        # self.publish = ZmqActor("processor", self.store_loc, pub_sub=True , rep_req=False)
         logger.info("Completed setup for Processor")
 
     def stop(self):
         """Trivial stop function for testing purposes."""
-
-        logger.info("Processor stopping")
+        logger.info("Processor stopping; have received {} frames so far".format(self.frame_num))
 
     def runStep(self):
         """Gets from the input queue and calculates the average.
@@ -53,9 +50,9 @@ class Processor(Actor):
 
         try:
             # frame = self.q_in.get(timeout=0.001)
-            self.subscribe.setRecvSocket(ip="127.0.0.1", port=5556)
-            frame = self.subscribe.recvMsg()
-            # logger.info(f"Received frame: {frame}")
+            # self.subscribe.setRecvSocket(ip="127.0.0.1", port=5556)
+            frame = self.get() #self.subscribe.recvMsg()
+            logger.info(f"Received frame: {frame}")
 
         except:
             logger.error("Could not get frame!")
