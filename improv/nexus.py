@@ -120,7 +120,8 @@ class Nexus:
         flag = self.config.createConfig()
         if flag == -1:
             logger.error(
-                "errors happen in loading config file, see global.log for more details"
+                "An error occurred when loading the configuration file. "
+                "Please see the log file for more details."
             )
 
         # create all data links requested from Config config
@@ -153,7 +154,7 @@ class Nexus:
                 self.p_GUI.start()
 
             except Exception as e:
-                logger.error("Exception in setting up GUI {}: {}".format(name, e))
+                logger.error("Exception in setting up GUI {name}: {e}")
 
         else:
             # have fake GUI for communications
@@ -166,11 +167,9 @@ class Nexus:
                 # Check for actors being instantiated twice
                 try:
                     self.createActor(name, actor)
-                    logger.info("setup the actor {0}".format(name))
+                    logger.info(f"Setting up actor {name}")
                 except Exception as e:
-                    logger.error(
-                        "Exception in setting up actor {}: {}. ".format(name, e)
-                    )
+                    logger.error(f"Exception in setting up actor {name}: {e}.")
                     self.quit()
 
         # Second set up each connection b/t actors

@@ -61,21 +61,14 @@ class Config:
                 configModule = ConfigModule(name, packagename, classname, options=actor)
                 sig.bind(configModule.options)
 
-            except SyntaxError:
-                logger.error(
-                    "Error: syntax error happens during \
-                        initialization of actor {0}".format(
-                        name
-                    )
-                )
+            except SyntaxError as e:
+                logger.error(f"Error: syntax error when initializing actor {name}: {e}")
                 return -1
 
             except ModuleNotFoundError as e:
                 logger.error(
-                    "Error: Packagename not valid, check the import module in each \
-                    actor and the package name in the yaml file, {0}".format(
-                        e
-                    )
+                    f"Error: failed to import packages, {e}. Please check both each "
+                    f"actor's imports and the package name in the yaml file."
                 )
 
                 return -1
@@ -93,11 +86,11 @@ class Config:
                 return -1
 
             except Exception as e:
-                logger.error("Error: {}".format(e))
+                logger.error(f"Error: {e}")
                 return -1
 
             if "GUI" in name:
-                logger.info("Config detected a GUI actor: {}".format(name))
+                logger.info(f"Config detected a GUI actor: {name}")
                 self.hasGUI = True
                 self.gui = configModule
             else:
