@@ -75,9 +75,10 @@ class Config:
                         e
                     )
                 )
+
                 return -1
 
-            except AttributeError:
+            except AttributeError: #sp: used to be in the last try catch block but cannot catach the class import error
                 logger.error("Error: Classname not valid within package")
                 return -1
 
