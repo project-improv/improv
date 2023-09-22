@@ -154,7 +154,7 @@ class Nexus:
                 self.p_GUI.start()
 
             except Exception as e:
-                logger.error("Exception in setting up GUI {name}: {e}")
+                logger.error(f"Exception in setting up GUI {name}: {e}")
 
         else:
             # have fake GUI for communications
@@ -220,7 +220,7 @@ class Nexus:
         try:
             logger.info(f"Result of run_until_complete: {res}")
         except Exception as e:
-            logger.info("Res failed to await: {0}".format(e))
+            logger.info(f"Res failed to await: {e}")
 
         logger.info(f"Current loop: {asyncio.get_event_loop()}")
 
