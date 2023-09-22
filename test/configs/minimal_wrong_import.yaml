@@ -1,0 +1,11 @@
+actors:
+  Generator:
+    package: actors.sample_generator_wrong_import
+    class: Generator
+
+  Processor:
+    package: actors.sample_processor
+    class: Processor
+
+connections:
+  Generator.q_out: [Processor.q_in]
