@@ -74,6 +74,7 @@ def test_createConfig_settings(set_configdir):
     cfg.createConfig()
     assert cfg.settings == {"use_watcher": None}
 
+
 # File with syntax error cannot pass the format check
 # def test_createConfig_init_typo(set_configdir):
 #     """Tests if createConfig can catch actors with errors in init function.
@@ -97,6 +98,7 @@ def test_createConfig_wrong_import(set_configdir):
     cfg = config("minimal_wrong_import.yaml")
     res = cfg.createConfig()
     assert res == -1
+
 
 def test_createConfig_clean(set_configdir):
     """Tests if createConfig runs without error given a good config.
