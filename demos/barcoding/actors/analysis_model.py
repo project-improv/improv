@@ -400,105 +400,92 @@ class ModelAnalysis(Actor):
                         self.trial_avg_t_p(baseline, ests, self.currentStim)
                         self.trial_slope_t_p(ests, self.currentStim)
 
-                        # ests = np.copy(ests[:, self.stimStart - 10 : self.frame])
-                        # x = np.linspace(self.stimStart - 9, self.frame, num=28)
-                        # all_baseline = np.dot((self.baseline_coefficient[:, self.currentStim, 0]).reshape(-1, 1), x[np.newaxis, :]) + self.baseline_coefficient[:, self.currentStim, 1].reshape(-1, 1) + (1.8 * self.baseline_coefficient[:, self.currentStim, 2].reshape(-1, 1))
-                        # #all_baseline = self.baseline_coefficient[:, self.currentStim, 0] + (1.8 * self.baseline_coefficient[:, self.currentStim, 1])                        
-                        # logger.info("test the shape and value, ests.shape: {0}, {1}, baseline : {2}, {3}, x: {4}". format(np.shape(ests), ests, np.shape(all_baseline[:, np.newaxis]), all_baseline, x))
-                        # if self.estRecord[self.currentStim] is None:
-                        #     self.estRecord[self.currentStim] = ests# - all_baseline[:, np.newaxis]
-                        # else:
-                        #     self.estRecord[self.currentStim] = np.concatenate((self.estRecord[self.currentStim], ests), axis = 0) # - all_baseline[:, np.newaxis]
-                        # with open(f'output/output_est_avg_baseline_{self.currentStim}.pickle', 'wb') as file:
-                        #     pickle.dump(self.estRecord[self.currentStim], file)
-                        #     logger.info("save the baseline corrected estimate for stim {0}, shape of the section is {1}".format(self.currentStim, np.shape(ests)))
+        self.estsAvg_fitline = np.squeeze((self.ests[:, :, 0] - self.ests[:, :, 1]))
+        self.estsAvg_fitline = np.where(np.isnan(self.estsAvg_fitline), 0, self.estsAvg_fitline)
+        self.estsAvg_fitline[self.estsAvg_fitline == np.inf] = 0
+        self.barcode_fitline = np.where(self.estsAvg_fitline > 0, 1, 0)
+
+        self.estsAvg_avg = np.squeeze((self.ests_avg[:, :, 0] - self.ests_avg[:, :, 1]))
+        self.estsAvg_avg = np.where(np.isnan(self.estsAvg_avg), 0, self.estsAvg_avg)
+        self.estsAvg_avg[self.estsAvg_avg == np.inf] = 0
+        self.barcode_avg = np.where(self.estsAvg_avg > 0, 1, 0)
+            
+        # general of getting index and corresponding barcode 
+        num_neurons = np.shape(self.ests)[0]
+        mean_barcode_both = np.zeros((num_neurons, 8))
+        mean_barcode_slope = np.zeros((num_neurons, 8))
+        mean_barcode_avg = np.zeros((num_neurons, 8))
+        both_mean_on = np.zeros(8)
+        both_mean = {}
+        fitting_barcode = np.zeros((num_neurons, 8))
+        fitting = {}
+        fitting_on = np.zeros(8)
+        rest_barcode = np.zeros((num_neurons, 8))
+        rest = {}
+        rest_on = np.zeros(8)
+
+        for i in range(num_neurons):
+            for j in range(8):
+                # Save all the index that are at least three tests said yes
+                if ((self.estsAvg_fitline[i, j] + self.estsAvg_avg[i, j]) > 0) and ((self.trial_slope_ptvalue[i, j, 1] > 0) and (self.trial_slope_ptvalue[i, j, 1] < 0.2)) and (((self.trial_avg_max_ptvalue[i, j, 1] > 0) and (self.trial_avg_max_ptvalue[i, j, 1] < 0.2)) or ((self.trial_avg_ptvalue[i, j, 1] > 0) and (self.trial_avg_ptvalue[i, j, 1] < 0.2))):
+                    mean_barcode_both[i, j] = 1
+                    both_mean_on[j] += 1
+                    if both_mean_on[j] == 1:
+                        both_mean[j] = []
+                        both_mean[j].append(i)
+                    else:
+                        both_mean[j].append(i)
+                elif ((self.trial_slope_ptvalue[i, j, 1] > 0) and (self.trial_slope_ptvalue[i, j, 1] < 0.2)):
+                    mean_barcode_slope[i, j] = 1
+                elif (((self.trial_avg_max_ptvalue[i, j, 1] > 0) and (self.trial_avg_max_ptvalue[i, j, 1] < 0.2)) or ((self.trial_avg_ptvalue[i, j, 1] > 0) and (self.trial_avg_ptvalue[i, j, 1] < 0.2))):
+                    mean_barcode_avg[i, j] = 1
+                if (self.estsAvg_fitline[i, j] + self.estsAvg_avg[i, j]) > 0.05:
+                    fitting_barcode[i, j] = 1
+                    fitting_on[j] += 1
+                    if fitting_on[j] == 1:
+                        fitting[j] = []
+                        fitting[j].append(i)
+                    else:
+                        fitting[j].append(i)
+                if ((mean_barcode_slope[i, j] == 1 and (self.trial_avg_ptvalue[i, j, 1] + self.trial_avg_max_ptvalue[i, j, 1] > 0)) or (mean_barcode_avg[i, j] == 1 and self.trial_avg_ptvalue[i, j, 1] > 0)):
+                    if (fitting_barcode[i, j] == 1 and ((((self.trial_slope_ptvalue[i, j, 0] + self.trial_avg_max_ptvalue[i, j, 0]) / 2) > 2.92) or (((self.trial_avg_ptvalue[i, j, 0] + self.trial_slope_ptvalue[i, j, 0]) / 2) > 2.92))):
+                        rest_barcode[i, j] = 1
+                        rest_on[j] += 1
+                        if rest_on[j] == 1:
+                            rest[j] = []
+                            rest[j].append(i)
+                        else:
+                            rest[j].append(i)
+
                 
-                self.estsAvg_fitline = np.squeeze((self.ests[:, :, 0] - self.ests[:, :, 1]))
-                self.estsAvg_fitline = np.where(np.isnan(self.estsAvg_fitline), 0, self.estsAvg_fitline)
-                self.estsAvg_fitline[self.estsAvg_fitline == np.inf] = 0
-                self.barcode_fitline = np.where(self.estsAvg_fitline > 0, 1, 0)
+        final_barcode = np.zeros((num_neurons, 8))
+        index = np.where(mean_barcode_both + rest_barcode > 0)
+        final_barcode[index] = 1
+        category = np.unique(final_barcode, axis = 0)
+        index_record = {}
+        barcode_bytes_record = {}
+        for i in range(len(category)):
+            cl = category[i]
+            bytestr = cl.tobytes()
+            index_record[bytestr] = []
+            barcode_bytes_record[bytestr] = np.copy(cl)
+        #print(barcode_bytes_record)
+        #print(len(category))
 
-                self.estsAvg_avg = np.squeeze((self.ests_avg[:, :, 0] - self.ests_avg[:, :, 1]))
-                self.estsAvg_avg = np.where(np.isnan(self.estsAvg_avg), 0, self.estsAvg_avg)
-                self.estsAvg_avg[self.estsAvg_avg == np.inf] = 0
-                self.barcode_avg = np.where(self.estsAvg_avg > 0, 1, 0)
-                
-                # general of getting index and corresponding barcode 
-                num_neurons = np.shape(self.ests)[0]
-                mean_barcode_both = np.zeros((num_neurons, 8))
-                mean_barcode_slope = np.zeros((num_neurons, 8))
-                mean_barcode_avg = np.zeros((num_neurons, 8))
-                both_mean_on = np.zeros(8)
-                both_mean = {}
-                fitting_barcode = np.zeros((num_neurons, 8))
-                fitting = {}
-                fitting_on = np.zeros(8)
-                rest_barcode = np.zeros((num_neurons, 8))
-                rest = {}
-                rest_on = np.zeros(8)
+        for neuron in range(num_neurons):
+            current_barcode = final_barcode[neuron]
+            index_record[current_barcode.tobytes()].append(neuron)
+            
+        self.barcode_category['index_record'] = index_record
+        self.barcode_category['bytes_record'] = barcode_bytes_record
 
-                for i in range(num_neurons):
-                    for j in range(8):
-                        # Save all the index that are at least three tests said yes
-                        if ((self.estsAvg_fitline[i, j] + self.estsAvg_avg[i, j]) > 0) and ((self.trial_slope_ptvalue[i, j, 1] > 0) and (self.trial_slope_ptvalue[i, j, 1] < 0.2)) and (((self.trial_avg_max_ptvalue[i, j, 1] > 0) and (self.trial_avg_max_ptvalue[i, j, 1] < 0.2)) or ((self.trial_avg_ptvalue[i, j, 1] > 0) and (self.trial_avg_ptvalue[i, j, 1] < 0.2))):
-                            mean_barcode_both[i, j] = 1
-                            both_mean_on[j] += 1
-                            if both_mean_on[j] == 1:
-                                both_mean[j] = []
-                                both_mean[j].append(i)
-                            else:
-                                both_mean[j].append(i)
-                        elif ((self.trial_slope_ptvalue[i, j, 1] > 0) and (self.trial_slope_ptvalue[i, j, 1] < 0.2)):
-                            mean_barcode_slope[i, j] = 1
-                        elif (((self.trial_avg_max_ptvalue[i, j, 1] > 0) and (self.trial_avg_max_ptvalue[i, j, 1] < 0.2)) or ((self.trial_avg_ptvalue[i, j, 1] > 0) and (self.trial_avg_ptvalue[i, j, 1] < 0.2))):
-                            mean_barcode_avg[i, j] = 1
-                        if (self.estsAvg_fitline[i, j] + self.estsAvg_avg[i, j]) > 0.05:
-                            fitting_barcode[i, j] = 1
-                            fitting_on[j] += 1
-                            if fitting_on[j] == 1:
-                                fitting[j] = []
-                                fitting[j].append(i)
-                            else:
-                                fitting[j].append(i)
-                        if ((mean_barcode_slope[i, j] == 1 and (self.trial_avg_ptvalue[i, j, 1] + self.trial_avg_max_ptvalue[i, j, 1] > 0)) or (mean_barcode_avg[i, j] == 1 and self.trial_avg_ptvalue[i, j, 1] > 0)):
-                            if (fitting_barcode[i, j] == 1 and ((((self.trial_slope_ptvalue[i, j, 0] + self.trial_avg_max_ptvalue[i, j, 0]) / 2) > 2.92) or (((self.trial_avg_ptvalue[i, j, 0] + self.trial_slope_ptvalue[i, j, 0]) / 2) > 2.92))):
-                                rest_barcode[i, j] = 1
-                                rest_on[j] += 1
-                                if rest_on[j] == 1:
-                                    rest[j] = []
-                                    rest[j].append(i)
-                                else:
-                                    rest[j].append(i)
+            # count_record = []
+            # for key in index_record.keys():
+            #     current_number = len(index_record[key])
+            #     count_record.append(current_number)
+            #     print(barcode_bytes_record[key], ":  ", current_number)
 
-                            
-                final_barcode = np.zeros((num_neurons, 8))
-                index = np.where(mean_barcode_both + rest_barcode > 0)
-                final_barcode[index] = 1
-                category = np.unique(final_barcode, axis = 0)
-                index_record = {}
-                barcode_bytes_record = {}
-                for i in range(len(category)):
-                    cl = category[i]
-                    bytestr = cl.tobytes()
-                    index_record[bytestr] = []
-                    barcode_bytes_record[bytestr] = np.copy(cl)
-                #print(barcode_bytes_record)
-                #print(len(category))
-
-                for neuron in range(num_neurons):
-                    current_barcode = final_barcode[neuron]
-                    index_record[current_barcode.tobytes()].append(neuron)
-                    
-                self.barcode_category['index_record'] = index_record
-                self.barcode_category['bytes_record'] = barcode_bytes_record
-
-                # count_record = []
-                # for key in index_record.keys():
-                #     current_number = len(index_record[key])
-                #     count_record.append(current_number)
-                #     print(barcode_bytes_record[key], ":  ", current_number)
-
-                self.stimtime.append(time.time() - t)
+        self.stimtime.append(time.time() - t)
 
     def plotColorFrame(self):
         """Computes colored nicer background+components frame"""
@@ -523,7 +510,7 @@ class ModelAnalysis(Actor):
 
     def _tuningColor(self, ind, inten):
         """ind identifies the neuron by number"""
-        ests = self.estsAvg
+        ests = self.estsAvg_fitline
         # ests = self.tune_k[0]
         if ests[ind] is not None:
             try:

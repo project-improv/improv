@@ -43,8 +43,11 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         self.comm = comm  # Link back to Nexus for transmitting signals
 
         self.total_times = []
-        self.sort_barcode_index = None
-
+        self.barcode_list = None
+        self.selected_barcode = None
+        self.barcode = None
+        self.barcode_bytes_record = None
+        self.barcode_index_record = None
         pyqtgraph.setConfigOption("background", QColor(100, 100, 100))
         super(FrontEnd, self).__init__(parent)
         self.setupUi(self)
@@ -240,11 +243,17 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         LL = None
         try:
             (Cx, C, Cpop, barcode_list) = self.visual.getCurves()
-            self.selected_barcode = barcode_list[0]
-            self.barcode = barcode_list[1]
-            self.barcode_index_record = (barcode_list[2])['index_record']
-            self.barcode_bytes_record = (barcode_list[2])['bytes_record']
-        except TypeError:
+            logger.info("what is the type error here? {0}".format(barcode_list))
+            self.barcode_list = barcode_list
+            if barcode_list is not None:
+                self.selected_barcode = barcode_list[0]
+                self.barcode = barcode_list[1]
+                if barcode_list[2] is not None:
+                    self.barcode_index_record = (barcode_list[2])['index_record']
+                    self.barcode_bytes_record = (barcode_list[2])['bytes_record']
+                logger.info("aaaaaaah some test: {0}, {1}, {2}".format(np.shape(self.selected_barcode), self.barcode_bytes_record, self.barcode_index_record))
+        except TypeError as e:
+            logger.error("There is a type error! {0}".format(e))
             pass
         except Exception as e:
             logger.error("Output does not likely exist. Error: {}".format(e))
@@ -279,11 +288,10 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
                     self._updateRedCirc()
 
 
-        if barcode is not None:
-            barcode_copy = barcode[1].copy()
-            #logger.info("what is the sort_index and what is the sorted_barcode?{0}, \n {1}, the original {2}".format(self.sort_barcode_index, sort_barcode, self.barcode[1]))
-            self.rawplot_3.setImage(barcode_copy[:15].T)
-            select_barcode_copy = barcode[0].copy()
+        if self.barcode_list is not None:
+            barcode_copy = self.barcode_list[1].copy()
+            self.rawplot_3.setImage(barcode_copy.T)
+            select_barcode_copy = self.barcode[0].copy()
             self.allBarcode.setImage(select_barcode_copy[:, np.newaxis])
         else:
             pass
@@ -299,11 +307,11 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         # else:
         #     print('tune is none')
 
-    def mouseSelectCategory(self, event):
-        """Clicked on a scrollable list to select barcode category"""
-        event.accept()
-        select_category
-        neurons_locations = self.visual.selectCategory(select_category)
+    # def mouseSelectCategory(self, event):
+    #     """Clicked on a scrollable list to select barcode category"""
+    #     event.accept()
+    #     select_category
+    #     neurons_locations = self.visual.selectCategory(select_category)
 
     def mouseClick(self, event):
         """Clicked on processed image to select neurons"""
