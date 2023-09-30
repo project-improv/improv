@@ -243,7 +243,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         LL = None
         try:
             (Cx, C, Cpop, barcode_list) = self.visual.getCurves()
-            logger.info("what is the type error here? {0}".format(barcode_list))
+            #logger.info("what is the type error here? {0}".format(barcode_list))
             self.barcode_list = barcode_list
             if barcode_list is not None:
                 self.selected_barcode = barcode_list[0]
@@ -251,9 +251,9 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
                 if barcode_list[2] is not None:
                     self.barcode_index_record = (barcode_list[2])['index_record']
                     self.barcode_bytes_record = (barcode_list[2])['bytes_record']
-                logger.info("aaaaaaah some test: {0}, {1}, {2}".format(np.shape(self.selected_barcode), self.barcode_bytes_record, self.barcode_index_record))
+                #logger.info("aaaaaaah some test: {0}, {1}, {2}".format(np.shape(self.selected_barcode), self.barcode_bytes_record, self.barcode_index_record))
         except TypeError as e:
-            logger.error("There is a type error! {0}".format(e))
+            #logger.error("There is a type error! {0}".format(e))
             pass
         except Exception as e:
             logger.error("Output does not likely exist. Error: {}".format(e))

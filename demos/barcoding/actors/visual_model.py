@@ -111,7 +111,9 @@ class CaimanVisual(Actor):
                     self.coords,
                     self.allStims,
                 ) = self.client.getList(ids[:-1])
+                self.barcode_category = self.barcode_categoy[0]
                 logger.info(f"check the barcode category!!!!, {self.barcode_category}")
+                logger.info(f"check the barcode dict!!!!, {self.coords}")
                 self.total_times.append([time.time(), time.time() - t])
             self.timestamp.append([time.time(), self.frame_num])
             #logger.info("what is the coords here? {0}, {1}".format(np.shape(self.coords), self.coords))
@@ -139,7 +141,7 @@ class CaimanVisual(Actor):
             # self.Cx = self.Cx[-self.window:]
             self.C = self.C[:, -len(self.Cx) :]
             self.Cpop = self.Cpop[-len(self.Cx) :]
-        logger.info('why there are nonobject, {0}'.format(self.barcode_out))
+        #logger.info('why there are nonobject, {0}'.format(self.barcode_out))
 
         return (
             self.Cx,
