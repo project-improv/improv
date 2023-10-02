@@ -104,7 +104,7 @@ class PlasmaStoreInterface(StoreInterface):
         """
 
         logger.info("attempting to connect to store")
-        num_attempts = 2
+        num_attempts = 100
         client = None;
         for i in range(num_attempts):
             logger.info("starting loop")
@@ -120,17 +120,18 @@ class PlasmaStoreInterface(StoreInterface):
             #end_time = time.time()
             #logger.info(f"time: {-1 * start_time + end_time}")
             logger.info("finished sleep")
-           # try:
-           #     logger.info("beginning connect")
-           #     # client = plasma.connect(store_loc, 0)
-           #     logger.info(
-           #         "Successfully connected to store at locations {0} ".format(store_loc)
-           #     )
-           # except Exception:
-           #     logger.warning("Cannot connect to store: {0}".format(store_loc))
-           #     if (i == num_attempts - 1):
-           #         logger.exception("All attempts to connect to the store have failed")
-           #         raise CannotConnectToStoreInterfaceError(store_loc)
+            try:
+                logger.info("beginning connect")
+                client = plasma.connect(store_loc, 1)
+                print(client)
+                logger.info(
+                    "Successfully connected to store at locations {0} ".format(store_loc)
+                )
+            except Exception:
+                logger.warning("Cannot connect to store: {0}".format(store_loc))
+                if (i == num_attempts - 1):
+                    logger.exception("All attempts to connect to the store have failed")
+                    raise CannotConnectToStoreInterfaceError(store_loc)
             if (client != None):
 
                 break;
