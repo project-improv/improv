@@ -268,7 +268,7 @@ class ModelAnalysis(Actor):
         stim = [self.lastOnOff, self.currStim]
         N = self.p["numNeurons"]
         w = self.theta[: N * N].reshape((N, N))
-        barcode_cat = np.array(self.barcode_category)
+        barcode_cat = [self.barcode_category]
         ids.append(self.client.put(self.Cx, "Cx" + str(self.frame)))
         ids.append(self.client.put(self.Call, "Call" + str(self.frame)))
         ids.append(self.client.put(self.Cpop, "Cpop" + str(self.frame)))
@@ -484,7 +484,7 @@ class ModelAnalysis(Actor):
             # general of getting index and corresponding barcode
 
             for i in range(num_neurons):
-                logger.info("well.....{0}, \n {1}".format(self.trial_count, self.trial_count[self.currentStim]))
+                #logger.info("well.....{0}, \n {1}".format(self.trial_count, self.trial_count[self.currentStim]))
                 if (self.trial_count[self.currentStim]< 2):
                     self.baselines_methods(i, self.currentStim)
                 else:
@@ -495,7 +495,7 @@ class ModelAnalysis(Actor):
         barcode_bytes_record = {}
         for i in range(len(category)):
             cl = category[i]
-            bytestr = cl.tobytes()
+            bytestr = np.array2string(cl)
             index_record[bytestr] = []
             barcode_bytes_record[bytestr] = np.copy(cl)
         #print(barcode_bytes_record)
@@ -503,7 +503,7 @@ class ModelAnalysis(Actor):
 
         for neuron in range(num_neurons):
             current_barcode = self.final_barcode[neuron]
-            index_record[current_barcode.tobytes()].append(neuron)
+            index_record[np.array2string(cl)].append(neuron)
             
         self.barcode_category['index_record'] = index_record
         self.barcode_category['bytes_record'] = barcode_bytes_record
