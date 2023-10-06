@@ -105,7 +105,7 @@ class PlasmaStoreInterface(StoreInterface):
 
         logger.info("attempting to connect to store")
         num_attempts = 100
-        client = None;
+        client = None
         for i in range(num_attempts):
             logger.info("starting loop")
             #time.sleep(1)
@@ -127,14 +127,15 @@ class PlasmaStoreInterface(StoreInterface):
                 logger.info(
                     "Successfully connected to store at locations {0} ".format(store_loc)
                 )
-            except Exception:
+            except Exception as e:
+                logger.warning(e)
                 logger.warning("Cannot connect to store: {0}".format(store_loc))
                 if (i == num_attempts - 1):
                     logger.exception("All attempts to connect to the store have failed")
                     raise CannotConnectToStoreInterfaceError(store_loc)
             if (client != None):
 
-                break;
+                break
 
         return client
 
