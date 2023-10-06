@@ -123,7 +123,7 @@ class PlasmaStoreInterface(StoreInterface):
             try:
                 logger.info("beginning connect")
                 client = plasma.connect(store_loc, 1)
-                print(client)
+                logger.info(client)
                 logger.info(
                     "Successfully connected to store at locations {0} ".format(store_loc)
                 )
