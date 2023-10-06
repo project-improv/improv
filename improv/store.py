@@ -106,36 +106,47 @@ class PlasmaStoreInterface(StoreInterface):
         logger.info("attempting to connect to store")
         num_attempts = 100
         client = None
-        for i in range(num_attempts):
-            logger.info("starting loop")
-            #time.sleep(1)
-            #start_time = time.time()
-            # delay = 4000;
-            # for j in range(delay): #time.sleep() does not work for some reason
-            #     logger.info(f"delay tick {j}");
-            # logger.info("exited for loop")
+        try:
+            logger.info("beginning connect")
+            client = plasma.connect(store_loc, num_attempts)
+            logger.info(client)
+            logger.info(
+                "Successfully connected to store at locations {0} ".format(store_loc)
+            )
+        except Exception as e:
+            logger.warning(e)
+            logger.warning("Cannot connect to store: {0}".format(store_loc))
+
+        # for i in range(num_attempts):
+        #     logger.info("starting loop")
+        #     #time.sleep(1)
+        #     #start_time = time.time()
+        #     # delay = 4000;
+        #     # for j in range(delay): #time.sleep() does not work for some reason
+        #     #     logger.info(f"delay tick {j}");
+        #     # logger.info("exited for loop")
 
 
 
-            #end_time = time.time()
-            #logger.info(f"time: {-1 * start_time + end_time}")
-            logger.info("finished sleep")
-            try:
-                logger.info("beginning connect")
-                client = plasma.connect(store_loc, 1)
-                logger.info(client)
-                logger.info(
-                    "Successfully connected to store at locations {0} ".format(store_loc)
-                )
-            except Exception as e:
-                logger.warning(e)
-                logger.warning("Cannot connect to store: {0}".format(store_loc))
-                if (i == num_attempts - 1):
-                    logger.exception("All attempts to connect to the store have failed")
-                    raise CannotConnectToStoreInterfaceError(store_loc)
-            if (client != None):
+        #     #end_time = time.time()
+        #     #logger.info(f"time: {-1 * start_time + end_time}")
+        #     logger.info("finished sleep")
+        #     try:
+        #         logger.info("beginning connect")
+        #         client = plasma.connect(store_loc, 1)
+        #         logger.info(client)
+        #         logger.info(
+        #             "Successfully connected to store at locations {0} ".format(store_loc)
+        #         )
+        #     except Exception as e:
+        #         logger.warning(e)
+        #         logger.warning("Cannot connect to store: {0}".format(store_loc))
+        #         if (i == num_attempts - 1):
+        #             logger.exception("All attempts to connect to the store have failed")
+        #             raise CannotConnectToStoreInterfaceError(store_loc)
+        #     if (client != None):
 
-                break
+        #         break
 
         return client
 
