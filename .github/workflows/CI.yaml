@@ -21,6 +21,22 @@ jobs:
         os: [windows-latest] # [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
+      - name: Setup WSL (Windows)
+        if: startsWith(matrix.os, 'windows')
+        uses: Vampire/setup-wsl@v2.0.1
+        with:
+          distribution: Ubuntu-22.04
+      - name: Setup Python on WSL
+        if: startsWith(matrix.os, 'windows')
+        shell: wsl-bash {0}
+        run: | 
+          cd ~
+          pwd
+          echo $GITHUB_WORKSPACE
+          sudo apt-get update -y
+          sudo apt-get install -y python3 
+          sudo apt-get install -y python3-pip  
+      - name: clone repo
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -37,19 +53,6 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         run: |
           pip install -e .[tests] 
-      - name: Setup WSL (Windows)
-        if: startsWith(matrix.os, 'windows')
-        uses: Vampire/setup-wsl@v2.0.1
-        with:
-          distribution: Ubuntu-22.04
-      - name: Setup Python on WSL
-        if: startsWith(matrix.os, 'windows')
-        shell: wsl-bash {0}
-        run: | 
-          pwd
-          sudo apt-get update -y
-          sudo apt-get install -y python3 
-          sudo apt-get install -y python3-pip  
       - name: Install package (Windows)
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
