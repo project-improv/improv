@@ -59,10 +59,13 @@ jobs:
         shell: wsl-bash {0}
         run: |
           pwd
+          cd /home
           pip install --upgrade pip
           pip install build
           pip install flake8 pytest
           pip install -e .[tests] --no-binary pyzmq 
+        env: 
+          GITHUB_WORKSPACE: "/home"
           
       - name: Test with pytest (Mac)
         if: startsWith(matrix.os, 'macos')
