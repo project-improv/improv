@@ -29,7 +29,7 @@ def setup_store(set_store_loc, scope="module"):
     yield p
 
     p.kill()
-    p.wait()
+    p.wait(10)
 
 
 @pytest.fixture()
