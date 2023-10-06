@@ -56,7 +56,7 @@ jobs:
           pip install --upgrade pip
           pip install build
           pip install flake8 pytest
-          pip install -e .[tests, lint] --no-binary pyzmq 
+          pip install -e .[tests] --no-binary pyzmq 
           
       - name: Test with pytest (Mac)
         if: startsWith(matrix.os, 'macos')
