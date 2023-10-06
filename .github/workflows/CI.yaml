@@ -27,7 +27,7 @@ jobs:
         with:
           distribution: Ubuntu-22.04
       - name: downgrade WSL
-        run: wsl --set-version Ubuntu-22.04 1
+        run: wsl --set-version Ubuntu 1
       - name: Setup Python on WSL
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
