@@ -40,6 +40,8 @@ jobs:
       - name: Setup WSL (Windows)
         if: startsWith(matrix.os, 'windows')
         uses: Vampire/setup-wsl@v2.0.1
+        with:
+          distribution: Ubuntu-22.04
       - name: Setup Python on WSL
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
