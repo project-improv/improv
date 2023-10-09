@@ -71,7 +71,6 @@ class CaimanVisual(Actor):
         self.weight = None
         self.LL = None
         self.draw = True
-        self.sort_barcode_index = None
         self.i2 = None
         self.total_times = []
         self.timestamp = []
@@ -106,17 +105,14 @@ class CaimanVisual(Actor):
                     self.C,
                     self.Cpop,
                     self.barcode,
-                    self.barcode_categoy,
+                    self.barcode_category,
                     self.color,
                     self.coords,
                     self.allStims,
                 ) = self.client.getList(ids[:-1])
-                self.barcode_category = self.barcode_categoy[0]
-                logger.info(f"check the barcode category!!!!, {self.barcode_category}")
-                logger.info(f"check the barcode dict!!!!, {self.coords}")
                 self.total_times.append([time.time(), time.time() - t])
             self.timestamp.append([time.time(), self.frame_num])
-            #logger.info("what is the coords here? {0}, {1}".format(np.shape(self.coords), self.coords))
+            #logger.info("what is the barcode_category here? {0}".format(self.barcode_category[0]))
         except Empty as e:
             pass
         except ObjectNotFoundError as e:
@@ -131,23 +127,35 @@ class CaimanVisual(Actor):
         C is indexed for selected neuron and Cpop is the population avg
         tune is a similar list to C
         """
+
         if self.barcode is not None:
             self.selectedBarcode = self.barcode[self.selectedNeuron]
-            self.barcode_out = [self.selectedBarcode, self.barcode, self.barcode_category]
+            self.barcode_out = [self.selectedBarcode, self.barcode]
         else:
             self.barcode_out = None
 
+        if self.barcode_category is not None:
+            #logger.info("ok let's see {0}".format(self.barcode_category))
+            self.barcode_index_record = (self.barcode_category[0])['index_record']
+            self.barcode_bytes_record = (self.barcode_category[0])['bytes_record']
+
+        else:
+            self.barcode_index_record = None
+            self.barcode_bytes_record = None
+
+  
         if self.frame_num > self.window:
             # self.Cx = self.Cx[-self.window:]
             self.C = self.C[:, -len(self.Cx) :]
             self.Cpop = self.Cpop[-len(self.Cx) :]
-        #logger.info('why there are nonobject, {0}'.format(self.barcode_out))
 
         return (
             self.Cx,
             self.C[self.selectedNeuron, :],
             self.Cpop,
             self.barcode_out,
+            self.barcode_index_record,
+            self.barcode_bytes_record,
         ) 
 
     def getFrames(self):
@@ -184,41 +192,6 @@ class CaimanVisual(Actor):
             self.com1 = [com[0]]
         return self.com1
 
-    # def selectWeights(self, x, y):
-        """x, y coordinates for neurons
-        returns lines as 4 entry array: selected n_x, other_x, selected n_y, other_y
-        """
-        # translate back to C order of neurons from Caiman
-        nid = self.i2[x]
-
-        # highlight selected neuron
-        com = np.array([o["CoM"] for o in self.coords])
-        loc = [
-            np.array([self.raw.shape[0] - com[nid][0], self.raw.shape[1] - com[nid][1]])
-        ]
-
-        # draw lines between it and all other in self.weight
-        lines = np.zeros((18, 4))
-        strengths = np.zeros(18)
-        i = 0
-        for n in np.nditer(self.i2):
-            if n != nid and i < 9:
-                if n < com.shape[0]:
-                    ar = np.array(
-                        [
-                            self.raw.shape[0] - com[nid][0],
-                            self.raw.shape[0] - com[n][0],
-                            self.raw.shape[1] - com[nid][1],
-                            self.raw.shape[1] - com[n][1],
-                        ]
-                    )
-                    lines[i] = ar
-                    #strengths[i] = self.w[nid][n]
-                else:
-                    strengths[i] = 0
-                i += 1
-
-        return loc, lines, strengths
 
     def selectNW(self, x, y):
         """x, y int

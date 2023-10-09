@@ -1,7 +1,11 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtGui import QColor, QPixmap
 from PyQt5.QtCore import pyqtSignal, Qt
-from PyQt5.QtWidgets import QMessageBox, QFileDialog
+from PyQt5.QtWidgets import QMessageBox, QFileDialog, QFrame
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QGridLayout, QWidget, QListWidget, QListWidgetItem
+from PyQt5.QtWidgets import QHBoxLayout, QPushButton
+from multiprocessing import Process, Queue
+from functools import partial
 from . import improv_fit
 from improv.store import StoreInterface
 from improv.actor import Signal
@@ -13,6 +17,19 @@ from pyqtgraph import EllipseROI, PolyLineROI, ColorMap, ROI, LineSegmentROI
 from queue import Empty
 from matplotlib import cm
 from matplotlib.colors import ListedColormap
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+import pandas as pd
+import sys
+
+#grplot: population avg
+#grplot2: selected neuron
+#grplot5: scoll list
+#rawplot1: raw
+#rawplot2: processedframe
+#rawplot3: barcode/barchart
+#rawplot5: select barcode
+
 
 import logging
 
@@ -21,6 +38,87 @@ logger.setLevel(logging.INFO)
 
 # NOTE: GUI only gives comm signals to Nexus, does not receive any. Visual serves that role
 # TODO: Add ability to receive signals like pause updating ...?
+
+class ButtonListApp(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.init_ui()
+        self.button_clicks = []
+
+    def init_ui(self):
+        layout = QGridLayout()
+        button_texts = ['→|←','←|→','←|←','-|←','←|-','→|→','→|-','-|→']
+        for i, text in enumerate(button_texts):
+            button = QPushButton(text, self)
+            button.clicked.connect(lambda checked, t=text: self.button_clicked(t))
+            layout.addWidget(button, i // 2, i % 2)
+
+        self.confirm_button = QPushButton("Confirm", self)
+        layout.addWidget(self.confirm_button, len(button_texts) // 2, 0, 1, 2)
+
+        self.setLayout(layout)
+
+    def button_clicked(self, text):
+        button = self.sender()  # Get the button that emitted the signal
+        button.setStyleSheet("background-color: darkblue; color: white;")
+        self.button_clicks.append(text)
+
+
+class BarGraphWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.layout = QVBoxLayout(self)
+
+        self.frame = QFrame(self)
+        self.layout.addWidget(self.frame)
+        self.frame.setFixedSize(400, 500)
+
+        self.figure = Figure()
+        self.canvas = FigureCanvas(self.figure)
+        self.frame_layout = QVBoxLayout(self.frame)
+        self.frame_layout.addWidget(self.canvas)
+        self.ax = self.figure.add_subplot(111)
+        self.ax.set_xlabel("number of neurons")
+
+    def add_labels(self, labels, counts, bars):
+        for bar, value, label in zip(bars, counts, labels):
+            self.ax.text(1.02, bar.get_y() + bar.get_height() / 2, label, ha='left', va='center')
+
+    def setup_ui(self, categories, values):
+        self.ax.clear()
+        bars = self.ax.barh(categories, values, color='skyblue')
+        self.ax.set_yticks([])
+
+        self.add_labels(categories, values, bars)
+        self.canvas.draw()
+
+
+class CustomWidgetSrollList(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        # Create a vertical layout
+        self.layout = QVBoxLayout(self)
+
+        # Create a scrollable list
+        self.list_widget = QListWidget(self)
+        self.layout.addWidget(self.list_widget)
+        self.list_widget.itemClicked.connect(self.on_item_clicked)
+        
+    def get_data(self, list_of_options):
+        self.list_of_options = list_of_options
+        self._load_list()
+
+    def _load_list(self):
+        #logger.info("items!!!{0}".format(self.list_of_options))
+        self.list_widget.clear()
+        for option in self.list_of_options:
+            item = QListWidgetItem(option)
+            self.list_widget.addItem(item)
+    
+    def on_item_clicked(self, item):
+        logger.info(f"Clicked on: {item.text()}")
+
 
 
 class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
@@ -52,6 +150,9 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         super(FrontEnd, self).__init__(parent)
         self.setupUi(self)
         pyqtgraph.setConfigOptions(leftButtonPan=False)
+        self.button_list = ButtonListApp()
+        (self.button_list).confirm_button.clicked.connect(self.user_select_barcode_confirm_clicked)
+        self.custom_barchart = BarGraphWidget()
 
         self.customizePlots()
 
@@ -73,6 +174,8 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         # self.rawplot_3.getImageItem().mouseClickEvent = (
         #     self.weightClick
         # )  # select a neuron by weight
+        self.grplot_5.addWidget(self.button_list)
+
 
     def update(self):
         """Update visualization while running"""
@@ -88,21 +191,21 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
             except Exception:
                 import traceback
 
-                print(
-                    "---------------------Exception in update lines: ",
-                    traceback.format_exc(),
+                logger.info(
+                    "---------------------Exception in update lines: {0}".format(
+                    traceback.format_exc())
                 )
 
             # plot video
             try:
                 self.updateVideo()
             except Exception as e:
-                logger.error("Error in FrontEnd update Video:  {}".format(e))
+                logger.error("Error in FrontEnd update Video: {0}".format(e))
                 import traceback
 
-                print(
-                    "---------------------Exception in update video: ",
-                    traceback.format_exc(),
+                logger.error(
+                    "---------------------Exception in update video: {0}".format(
+                    traceback.format_exc())
                 )
 
         # re-update
@@ -115,6 +218,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         QtCore.QTimer.singleShot(10, self.update)
 
         self.total_times.append([self.visual.frame_num, time.time() - t])
+
 
     def customizePlots(self):
         self.checkBox.setChecked(True)
@@ -138,7 +242,6 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
             self.grplot.plot(clipToView=True) for _ in range(len(self.COLOR))
         ]
         self.c2 = self.grplot_2.plot()
-        self.scrollableListPlot = self.grplot_5.plot()
         grplot = [self.grplot, self.grplot_2]
         for plt in grplot:
             plt.getAxis("bottom").setTickSpacing(major=50, minor=50)
@@ -157,34 +260,11 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         x = radius * np.cos(theta)
         y = radius * np.sin(theta)
 
-        # polar plots
-        self.allBarcode = self.rawplot_5
-        # for barcode in barcodes:
-        #     barcode.setAspectLocked(True)
-            
-        #     # Add polar grid lines
-        #     # barcode.addLine(x=0, pen=0.2)
-        #     # barcode.addLine(y=0, pen=0.2)
-        #     # for r in range(0, 4, 1):
-        #     #     circle = pyqtgraph.QtGui.QGraphicsEllipseItem(-r, -r, r * 2, r * 2)
-        #     #     circle.setPen(pyqtgraph.mkPen(0.1))
-        #     #     barcode.addItem(circle)
-            
-        #     barcode.hideAxis("bottom")
-        #     barcode.hideAxis("left")
-        # self.allBarcode.setData(x, y)
-
-        # videos
-        # self.rawplot.ui.histogram.vb.disableAutoRange()
-        # self.rawplot.ui.histogram.vb.setLimits(
-        #     yMin=-0.1, yMax=200
-        # )  # 0-255 needed, saturated here for easy viewing
-
-        self.grplot_5.setLabel("bottom", "Frames")
-        self.grplot_5.setLabel("left", " - Log Likelihood")
+        self.select_Barcode = self.rawplot_5
 
         # if self.visual.showConnectivity:
         #     self.rawplot_3.setColorMap(cmapToColormap(cm.inferno))
+
 
     def _loadParams(self):
         """Button event to load parameters from file
@@ -199,18 +279,22 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
             logger.error("File not found {}".format(e))
             # raise FileNotFoundError
 
+
     def _runProcess(self):
         """Run ImageProcessor in separate thread"""
         self.comm.put([Signal.run()])
         logger.info("-------------------------   put run in comm")
         # TODO: grey out button until self.t is done, but allow other buttons to be active
 
+
     def _setup(self):
         self.comm.put([Signal.setup()])
         self.visual.setup()
 
+
     def _loadConfig(self, file):
         self.comm.put(["load", file])
+
 
     def updateVideo(self):
         """TODO: Bug on clicking ROI --> trace and report to pyqtgraph"""
@@ -227,7 +311,29 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
             self.rawplot_2.setImage(color)
             self.rawplot_2.ui.histogram.vb.setLimits(yMin=8, yMax=255)
 
-            # self.rawplot_3.ui.histogram.vb.setLimits(yMin=8, yMax=255)
+    def user_select_barcode_confirm_clicked(self):
+        logger.info("Button clicks: {0}".format((self.button_list).button_clicks))
+        sample_list = ['→|←','←|→','←|←','-|←','←|-','→|→','→|-','-|→']
+        barcode_index = []
+
+        for button in (self.button_list).button_clicks:
+            for i in range(len(sample_list)):
+                if button == sample_list[i]:
+                    barcode_index.append(i)
+                    break
+
+        self.user_select_barcode = np.zeros(8)
+        self.user_select_barcode[barcode_index] = 1
+        logger.info("user selected barcode like {0}".format(self.user_select_barcode))
+        for button in (self.button_list).findChildren(QPushButton):
+            button.setStyleSheet("")
+
+        (self.button_list).button_clicks = []
+        self.barcode_click()
+
+    def barcode_click(self):
+
+        return None
 
     def updateLines(self):
         """Helper function to plot the line traces
@@ -242,19 +348,16 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         barcode_list = None
         LL = None
         try:
-            (Cx, C, Cpop, barcode_list) = self.visual.getCurves()
-            #logger.info("what is the type error here? {0}".format(barcode_list))
+            (Cx, C, Cpop, barcode_list, barcode_index_record, barcode_bytes_record) = self.visual.getCurves()
             self.barcode_list = barcode_list
             if barcode_list is not None:
                 self.selected_barcode = barcode_list[0]
                 self.barcode = barcode_list[1]
-                if barcode_list[2] is not None:
-                    self.barcode_index_record = (barcode_list[2])['index_record']
-                    self.barcode_bytes_record = (barcode_list[2])['bytes_record']
-                #logger.info("aaaaaaah some test: {0}, {1}, {2}".format(np.shape(self.selected_barcode), self.barcode_bytes_record, self.barcode_index_record))
+                self.barcode_index_record = barcode_index_record
+                self.barcode_bytes_record = barcode_bytes_record
+                logger.info("aaaaaaah some test: {0}, {1}".format(self.barcode_bytes_record, self.barcode_index_record))
         except TypeError as e:
-            #logger.error("There is a type error! {0}".format(e))
-            pass
+            logger.error("type error1!!!!!{0}".format(e))
         except Exception as e:
             logger.error("Output does not likely exist. Error: {}".format(e))
 
@@ -290,28 +393,27 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
 
         if self.barcode_list is not None:
             barcode_copy = self.barcode_list[1].copy()
-            self.rawplot_3.setImage(barcode_copy.T)
+            #self.rawplot_3.setImage(barcode_copy.T)
+            sorted_categories = self.process_list(self.barcode_index_record)
+            counts = sorted_categories.keys()
+            categories = sorted_categories.values
+            self.custom_barchart.setup_ui(categories = categories, values = counts)
+            self.rawplot_3.addWidget(self.custom_barchart)
             select_barcode_copy = self.barcode[0].copy()
-            self.allBarcode.setImage(select_barcode_copy[:, np.newaxis])
+            self.select_Barcode.setImage(select_barcode_copy[:, np.newaxis])
         else:
             pass
+            
 
-        #Tune: selectedTune(1, 8), overall tune(num, 8)
-        # if barcode is not None:
-        #     barcodes = [self.allBarcode]
-        #     pens = [penG]
-        #     for i, t in enumerate(barcodes):
-        #         if t is not None:
-        #             y = barcode[0]
-        #             barcodes[i].setImage(y.T)
-        # else:
-        #     print('tune is none')
+    def process_list(self, index_record):
+        count_record = []
+        for key in index_record.keys():
+            current_number = len(index_record[key])
+            count_record.append(current_number)
+        s = pd.Series(index_record.keys(), index=count_record)
+        s.sort_index()
+        return s
 
-    # def mouseSelectCategory(self, event):
-    #     """Clicked on a scrollable list to select barcode category"""
-    #     event.accept()
-    #     select_category
-    #     neurons_locations = self.visual.selectCategory(select_category)
 
     def mouseClick(self, event):
         """Clicked on processed image to select neurons"""
@@ -370,128 +472,6 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
                 self.rawplot_2.getView().removeItem(self.lines[i])
             self.flagW = True
 
-    # def weightClick(self, event):
-    #     """Clicked on weight matrix to select neurons"""
-    #     event.accept()
-    #     mousePoint = event.pos()
-    #     print("mousepoint: ", int(mousePoint.x()), int(mousePoint.y()))
-    #     if self.last_x is None:
-    #         self.last_x = int(mousePoint.x())
-    #         self.last_y = int(mousePoint.y())
-    #     pen = pyqtgraph.mkPen(width=2, color="r")
-    #     pen2 = pyqtgraph.mkPen(width=2, color="r")
-
-    #     loc, lines, strengths = self.visual.selectWeights(
-    #         int(mousePoint.x()), int(mousePoint.y())
-    #     )
-
-    #     if self.flagW:  # need to draw, currently off
-    #         self.rect = ROI(
-    #             pos=(int(mousePoint.x()), 0), size=(1, 10), pen=pen, movable=False
-    #         )
-    #         self.rect2 = ROI(
-    #             pos=(0, int(mousePoint.y())), size=(10, 1), pen=pen2, movable=False
-    #         )
-    #         self.rawplot_3.getView().addItem(self.rect)
-    #         self.rawplot_3.getView().addItem(self.rect2)
-
-    #         pen = pyqtgraph.mkPen(width=1, color="g")
-    #         self.green_circ = CircleROI(
-    #             pos=np.array([loc[0][0], loc[0][1]]) - 5,
-    #             size=10,
-    #             movable=False,
-    #             pen=pen,
-    #         )
-    #         self.rawplot_2.getView().addItem(self.green_circ)
-    #         self.lines = []
-    #         self.pens = []
-    #         colors = ["g"] * 9 + ["r"] * 9
-    #         for i in range(18):
-    #             n = lines[i]
-    #             if strengths[i] > 1e-6:
-    #                 if strengths[i] > 1e-4:
-    #                     self.pens.append(pyqtgraph.mkPen(width=2, color=colors[i]))
-    #                 else:
-    #                     self.pens.append(pyqtgraph.mkPen(width=1, color=colors[i]))
-    #                 self.lines.append(
-    #                     LineSegmentROI(
-    #                         positions=([n[0], n[2]], [n[1], n[3]]),
-    #                         handles=(None, None),
-    #                         pen=self.pens[i],
-    #                         movable=False,
-    #                     )
-    #                 )
-    #                 self.rawplot_2.getView().addItem(self.lines[i])
-    #             else:
-    #                 self.pens.append(pyqtgraph.mkPen(width=1, color=colors[i]))
-    #                 self.lines.append(
-    #                     LineSegmentROI(
-    #                         positions=([n[0], n[0]], [n[0], n[0]]),
-    #                         handles=(None, None),
-    #                         pen=self.pens[i],
-    #                         movable=False,
-    #                     )
-    #                 )
-    #                 self.rawplot_2.getView().addItem(self.lines[i])
-
-    #         self.last_x = int(mousePoint.x())
-    #         self.last_y = int(mousePoint.y())
-
-    #         self.flagW = False
-    #     else:
-    #         self.rawplot_3.getView().removeItem(self.rect)
-    #         self.rawplot_3.getView().removeItem(self.rect2)
-
-    #         self.rawplot_2.getView().removeItem(self.green_circ)
-    #         for i in range(18):
-    #             self.rawplot_2.getView().removeItem(self.lines[i])
-
-    #         if self.last_x != int(mousePoint.x()) or self.last_y != int(mousePoint.y()):
-    #             self.rect = ROI(
-    #                 pos=(int(mousePoint.x()), 0), size=(1, 10), pen=pen, movable=False
-    #             )
-    #             self.rect2 = ROI(
-    #                 pos=(0, int(mousePoint.y())), size=(10, 1), pen=pen2, movable=False
-    #             )
-    #             self.rawplot_3.getView().addItem(self.rect)
-    #             self.rawplot_3.getView().addItem(self.rect2)
-
-    #             pen = pyqtgraph.mkPen(width=1, color="g")
-    #             self.green_circ = CircleROI(
-    #                 pos=np.array([loc[0][0], loc[0][1]]) - 5,
-    #                 size=10,
-    #                 movable=False,
-    #                 pen=pen,
-    #             )
-    #             self.rawplot_2.getView().addItem(self.green_circ)
-
-    #             colors = ["g"] * 9 + ["r"] * 9
-    #             for i in range(18):
-    #                 n = lines[i]
-    #                 if strengths[i] > 1e-6:
-    #                     if strengths[i] > 1e-4:
-    #                         self.pens[i] = pyqtgraph.mkPen(width=2, color=colors[i])
-    #                     else:
-    #                         self.pens[i] = pyqtgraph.mkPen(width=1, color=colors[i])
-    #                     self.lines[i] = LineSegmentROI(
-    #                         positions=([n[0], n[2]], [n[1], n[3]]),
-    #                         handles=(None, None),
-    #                         pen=self.pens[i],
-    #                         movable=False,
-    #                     )
-    #                 else:
-    #                     self.pens[i] = pyqtgraph.mkPen(width=1, color=colors[i])
-    #                     self.lines[i] = LineSegmentROI(
-    #                         positions=([n[0], n[0]], [n[0], n[0]]),
-    #                         handles=(None, None),
-    #                         pen=self.pens[i],
-    #                         movable=False,
-    #                     )
-    #                 self.rawplot_2.getView().addItem(self.lines[i])
-    #             self.last_x = int(mousePoint.x())
-    #             self.last_y = int(mousePoint.y())
-    #         else:
-    #             self.flagW = True
 
     def _updateRedCirc(self):
         """Circle neuron whose activity is in top (red) graph
@@ -517,6 +497,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
                 pen=ROIpen1,
             )
             self.rawplot_2.getView().addItem(self.red_circ)
+
 
     def closeEvent(self, event):
         """Clicked x/close on window
