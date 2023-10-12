@@ -135,17 +135,13 @@ async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
 def test_zmq_ps(ip, unused_tcp_port):
     """Tests if we can set the zmq PUB/SUB socket and send message."""
     LOGGER.info("beginning test")
-    act1 = ZmqActor("act1", "/tmp/store", pub_sub=True, rep_req=False)
-    act2 = ZmqActor("act2", "/tmp/store", pub_sub=True, rep_req=False)
+    act1 = ZmqActor("act1", "/tmp/store", type='PUB', ip=ip, port=unused_tcp_port)
+    act2 = ZmqActor("act2", "/tmp/store", type='SUB', ip=ip, port=unused_tcp_port)
     LOGGER.info("ZMQ Actors constructed")
-    act1.setSendSocket(ip, unused_tcp_port)
-    LOGGER.info("set send socket")
-    act2.setRecvSocket(ip, unused_tcp_port)
-    LOGGER.info("set recv socket")
     msg = "hello"
-    act1.sendMsg(msg)
+    act1.put(msg)
     LOGGER.info("sent message")
-    recvmsg = act2.recvMsg()
+    recvmsg = act2.get()
     LOGGER.info("received message")
     assert recvmsg == msg
 
@@ -153,18 +149,16 @@ def test_zmq_ps(ip, unused_tcp_port):
 def test_zmq_rr(ip, unused_tcp_port):
     """Tests if we can set the zmq REQ/REP socket and send message."""
 
-    act1 = ZmqActor("act1", "/tmp/store", pub_sub=False, rep_req=True)
-    act2 = ZmqActor("act2", "/tmp/store", pub_sub=False, rep_req=True)
-    act1.setReqSocket(ip, unused_tcp_port)
-    act2.setRepSocket(ip, unused_tcp_port)
+    act1 = ZmqActor("act1", "/tmp/store", type='REQ', ip=ip, port=unused_tcp_port)
+    act2 = ZmqActor("act2", "/tmp/store", type='REP', ip=ip, port=unused_tcp_port)
     msg = "hello"
     reply = "world"
 
     def handle_request():
-        return act1.requestMsg(msg)
+        return act1.put(msg)
 
     def handle_reply():
-        return act2.replyMsg(reply)
+        return act2.get(reply)
 
     # Use a ThreadPoolExecutor to run handle_request()
     # and handle_reply() in separate threads.
@@ -185,8 +179,7 @@ def test_zmq_rr(ip, unused_tcp_port):
 
 def test_zmq_rr_timeout(ip, unused_tcp_port):
     """Test for requestMsg where we timeout or fail to send"""
-    act1 = ZmqActor("act1", "/tmp/store", pub_sub=False, rep_req=True)
-    act1.setReqSocket(ip, unused_tcp_port)
+    act1 = ZmqActor("act1", "/tmp/store", type='REQ', ip=ip, port=unused_tcp_port)
     msg = "hello"
-    replymsg = act1.requestMsg(msg)
+    replymsg = act1.put(msg)
     assert replymsg is None

@@ -18,7 +18,7 @@ class ZmqActor(Actor):
     """
     Zmq actor with pub/sub or rep/req pattern.
     """
-    def __init__(self, *args, type='PUB', ip='localhost', port=5555, **kwargs):
+    def __init__(self, *args, type='PUB', ip='127.0.0.1', port=5555, **kwargs):
         super().__init__(*args, **kwargs)
         logger.info("Constructed Zmq Actor")
         if str(type) in 'PUB' or str(type) in 'SUB':
@@ -41,27 +41,12 @@ class ZmqActor(Actor):
         elif str(type) in 'SUB':
             self.setRecvSocket()
 
-    def setSendSocket(self, timeout=0.001):
-        """
-        Sets up the send socket for the actor.
-        """
-        self.send_socket = self.context.socket(PUB)
-        self.send_socket.bind(self.address)
-        time.sleep(timeout)
-
-    def setRecvSocket(self, timeout=0.001):
-        """
-        Sets up the receive socket for the actor.
-        """
-        self.recv_socket = self.context.socket(SUB)
-        self.recv_socket.connect(self.address)
-        self.recv_socket.setsockopt(SUBSCRIBE, b"")
-        time.sleep(timeout)
-
     def sendMsg(self, msg):
         """
         Sends a message to the controller.
         """
+        if not self.send_socket: self.setSendSocket()
+
         self.send_socket.send_pyobj(msg)
         self.send_socket.close()
 
@@ -69,6 +54,9 @@ class ZmqActor(Actor):
         """
         Receives a message from the controller.
         """
+
+        if not self.recv_socket: self.setRecvSocket()
+
         recv_msg = ""
         while True:
             try:
@@ -76,39 +64,25 @@ class ZmqActor(Actor):
                 break
             except Again:
                 pass
+
         self.recv_socket.close()
         return recv_msg
-    
-    def setReqSocket(self, timeout=0.0001):
-        """
-        Sets up the request socket for the actor.
-        """
-        self.req_socket = self.context.socket(REQ)
-        time.sleep(timeout)
-
-    def setRepSocket(self, timeout=0.0001):
-        """
-        Sets up the reply socket for the actor.
-        """
-
-        self.rep_socket = self.context.socket(REP)
-        self.rep_socket.bind(self.address)
-        time.sleep(timeout)
 
     def requestMsg(self, msg):
         """Safe version of send/receive with controller.
         Based on the Lazy Pirate pattern [here]
         (https://zguide.zeromq.org/docs/chapter4/#Client-Side-Reliability-Lazy-Pirate-Pattern)
         """
-        REQUEST_TIMEOUT = 2500
+        REQUEST_TIMEOUT = 5
         REQUEST_RETRIES = 3
         retries_left = REQUEST_RETRIES
 
+        self.setReqSocket()
+
+        reply = None
         try:
-            self.req_socket.connect(self.address)
             logger.debug(f"Sending {msg} to controller.")
             self.req_socket.send_pyobj(msg)
-            reply = None
 
             while True:
                 ready = self.req_socket.poll(REQUEST_TIMEOUT)
@@ -130,8 +104,7 @@ class ZmqActor(Actor):
 
                 logger.debug("Attempting to reconnect to server...")
 
-                self.req_socket = self.context.socket(REQ)
-                self.req_socket.connect(self.address)
+                self.setReqSocket()
 
                 logger.debug(f"Resending {msg} to controller.")
                 self.req_socket.send_pyobj(msg)
@@ -146,13 +119,18 @@ class ZmqActor(Actor):
         """
         Safe version of receive/reply with controller.
         """
+
+        self.setRepSocket()
+
         msg = self.rep_socket.recv_pyobj()
         time.sleep(delay)  
         self.rep_socket.send_pyobj(reply)
         self.rep_socket.close()
+
         return msg
 
     def put(self, msg=None):
+        logger.info(f'Putting message {msg}')
         if self.pub_sub_flag:
             logger.debug(f"putting message {msg} using pub/sub")
             return self.sendMsg(msg)
@@ -167,6 +145,40 @@ class ZmqActor(Actor):
         else:
             logger.debug(f"getting message using reply {reply} with pub/sub")
             return self.replyMsg(reply)
+    
+    def setSendSocket(self, timeout=0.001):
+        """
+        Sets up the send socket for the actor.
+        """
+        self.send_socket = self.context.socket(PUB)
+        self.send_socket.bind(self.address)
+        time.sleep(timeout)
+
+    def setRecvSocket(self, timeout=0.001):
+        """
+        Sets up the receive socket for the actor.
+        """
+        self.recv_socket = self.context.socket(SUB)
+        self.recv_socket.connect(self.address)
+        self.recv_socket.setsockopt(SUBSCRIBE, b"")
+        time.sleep(timeout)
+    
+    def setReqSocket(self, timeout=0.0001):
+        """
+        Sets up the request socket for the actor.
+        """
+        self.req_socket = self.context.socket(REQ)
+        self.req_socket.connect(self.address)
+        time.sleep(timeout)
+
+    def setRepSocket(self, timeout=0.0001):
+        """
+        Sets up the reply socket for the actor.
+        """
+
+        self.rep_socket = self.context.socket(REP)
+        self.rep_socket.bind(self.address)
+        time.sleep(timeout)
         
 
 # class ZmqPSActor(Actor):
