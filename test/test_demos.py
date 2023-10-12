@@ -139,8 +139,8 @@ def test_zmq_ps(ip, unused_tcp_port):
     act1 = ZmqActor("act1", "/tmp/store", type="PUB", ip=ip, port=port)
     act2 = ZmqActor("act2", "/tmp/store", type="SUB", ip=ip, port=port)
     LOGGER.info("ZMQ Actors constructed")
-    ## Note these sockets must be set up for testing
-    ## this is not needed for running in improv
+    # Note these sockets must be set up for testing
+    # this is not needed for running in improv
     act1.setSendSocket()
     act2.setRecvSocket()
 
