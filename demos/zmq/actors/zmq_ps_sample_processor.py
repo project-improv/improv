@@ -30,7 +30,6 @@ class Processor(ZmqActor):
         self.frame = None
         self.avg_list = []
         self.frame_num = 1
-        # self.publish = ZmqActor("processor", self.store_loc, pub_sub=True , rep_req=False)
         logger.info("Completed setup for Processor")
 
     def stop(self):
@@ -48,16 +47,13 @@ class Processor(ZmqActor):
 
         frame = None
         try:
-            # frame = self.q_in.get(timeout=0.001)
-            # self.subscribe.setRecvSocket(ip="127.0.0.1", port=5556)
-            frame = self.get() #self.subscribe.recvMsg()
-            # logger.info(f"Received object: {frame}")
+            frame = self.get()
 
         except:
             logger.error("Could not get frame!")
             pass
 
-        if frame is not None: # and self.frame_num is not None:
+        if frame is not None:
             self.done = False
             self.frame = self.client.getID(frame)
             avg = np.mean(self.frame[0])

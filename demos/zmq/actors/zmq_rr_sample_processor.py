@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Processor(Actor):
+class Processor(ZmqActor):
     """Sample processor used to calculate the average of an array of integers
     using async ZMQ to communicate.
 
@@ -32,8 +32,6 @@ class Processor(Actor):
         self.frame = None
         self.avg_list = []
         self.frame_num = 1
-        #self.subscribe = ZmqRRActor("processor", self.store_loc)
-        self.subscribe = ZmqActor("processor", self.store_loc, pub_sub=False, rep_req=True)
         logger.info("Completed setup for Processor")
 
     def stop(self):
@@ -53,11 +51,7 @@ class Processor(Actor):
         frame = None
 
         try:
-            # frame = self.q_in.get(timeout=0.001)
-            self.subscribe.setRepSocket(ip="127.0.0.1", port=5556)
-            reply = "received"
-            frame = self.subscribe.replyMsg(reply)
-            # logger.info(f"Received frame: {frame}")
+            frame = self.get(reply='received') 
 
         except:
             logger.error("Could not get frame!")
@@ -65,11 +59,11 @@ class Processor(Actor):
 
         if frame is not None and self.frame_num is not None:
             self.done = False
-            self.frame = self.client.getID(frame[0][0])
+            self.frame = self.client.getID(frame)
             avg = np.mean(self.frame[0])
 
-            logger.info(f"Average: {avg}")
+            # logger.info(f"Average: {avg}")
             self.avg_list.append(avg)
             logger.info(f"Overall Average: {np.mean(self.avg_list)}")
-            logger.info(f"Frame number: {self.frame_num}")
+            # logger.info(f"Frame number: {self.frame_num}")
             self.frame_num += 1

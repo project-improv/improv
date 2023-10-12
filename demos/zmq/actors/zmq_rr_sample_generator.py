@@ -31,7 +31,6 @@ class Generator(ZmqActor):
         """
         logger.info("Beginning setup for Generator")
         self.data = np.asmatrix(np.random.randint(100, size=(100, 5)))
-        self.publish = ZmqActor("generator", self.store_loc, pub_sub=False , rep_req=True)
         logger.info("Completed setup for Generator")
 
     def stop(self):
@@ -51,10 +50,8 @@ class Generator(ZmqActor):
         """
         if self.frame_num < np.shape(self.data)[0]:
             data_id = self.client.put(self.data[self.frame_num], str(f"Gen_raw_{self.frame_num}"))
-            # logger.info('Put data in store')
             try:
-                self.publish.setReqSocket(ip="127.0.0.1", port=5556)
-                self.publish.requestMsg([[data_id, str(self.frame_num)]])
+                self.put(data_id)
                 self.frame_num += 1
             except Exception as e:
                 logger.error(f"Generator Exception: {e}")
