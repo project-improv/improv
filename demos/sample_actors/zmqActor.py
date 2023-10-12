@@ -36,28 +36,24 @@ class ZmqActor(Actor):
 
         self.context = zmq.Context.instance()
 
-        if str(type) in 'PUB':
-            self.setSendSocket()
-        elif str(type) in 'SUB':
-            self.setRecvSocket()
-
     def sendMsg(self, msg):
         """
         Sends a message to the controller.
         """
-        if not self.send_socket: self.setSendSocket()
+        if not self.send_socket: 
+            self.setSendSocket()
 
         self.send_socket.send_pyobj(msg)
-        self.send_socket.close()
+        # self.send_socket.close()
 
     def recvMsg(self):
         """
         Receives a message from the controller.
         """
-
         if not self.recv_socket: self.setRecvSocket()
 
         recv_msg = ""
+        
         while True:
             try:
                 recv_msg = self.recv_socket.recv_pyobj(flags=NOBLOCK)
@@ -65,7 +61,7 @@ class ZmqActor(Actor):
             except Again:
                 pass
 
-        self.recv_socket.close()
+        # self.recv_socket.close()
         return recv_msg
 
     def requestMsg(self, msg):
@@ -73,7 +69,7 @@ class ZmqActor(Actor):
         Based on the Lazy Pirate pattern [here]
         (https://zguide.zeromq.org/docs/chapter4/#Client-Side-Reliability-Lazy-Pirate-Pattern)
         """
-        REQUEST_TIMEOUT = 5
+        REQUEST_TIMEOUT = 500
         REQUEST_RETRIES = 3
         retries_left = REQUEST_RETRIES
 
@@ -130,7 +126,7 @@ class ZmqActor(Actor):
         return msg
 
     def put(self, msg=None):
-        logger.info(f'Putting message {msg}')
+        logger.debug(f'Putting message {msg}')
         if self.pub_sub_flag:
             logger.debug(f"putting message {msg} using pub/sub")
             return self.sendMsg(msg)
@@ -175,7 +171,6 @@ class ZmqActor(Actor):
         """
         Sets up the reply socket for the actor.
         """
-
         self.rep_socket = self.context.socket(REP)
         self.rep_socket.bind(self.address)
         time.sleep(timeout)

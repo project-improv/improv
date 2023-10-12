@@ -134,10 +134,16 @@ async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
 
 def test_zmq_ps(ip, unused_tcp_port):
     """Tests if we can set the zmq PUB/SUB socket and send message."""
+    port = unused_tcp_port
     LOGGER.info("beginning test")
-    act1 = ZmqActor("act1", "/tmp/store", type='PUB', ip=ip, port=unused_tcp_port)
-    act2 = ZmqActor("act2", "/tmp/store", type='SUB', ip=ip, port=unused_tcp_port)
+    act1 = ZmqActor("act1", "/tmp/store", type='PUB', ip=ip, port=port)
+    act2 = ZmqActor("act2", "/tmp/store", type='SUB', ip=ip, port=port)
     LOGGER.info("ZMQ Actors constructed")
+    ## Note these sockets must be set up for testing
+    ## this is not needed for running in improv
+    act1.setSendSocket()
+    act2.setRecvSocket()
+
     msg = "hello"
     act1.put(msg)
     LOGGER.info("sent message")
@@ -148,9 +154,9 @@ def test_zmq_ps(ip, unused_tcp_port):
 
 def test_zmq_rr(ip, unused_tcp_port):
     """Tests if we can set the zmq REQ/REP socket and send message."""
-
-    act1 = ZmqActor("act1", "/tmp/store", type='REQ', ip=ip, port=unused_tcp_port)
-    act2 = ZmqActor("act2", "/tmp/store", type='REP', ip=ip, port=unused_tcp_port)
+    port = unused_tcp_port
+    act1 = ZmqActor("act1", "/tmp/store", type='REQ', ip=ip, port=port)
+    act2 = ZmqActor("act2", "/tmp/store", type='REP', ip=ip, port=port)
     msg = "hello"
     reply = "world"
 
@@ -179,7 +185,8 @@ def test_zmq_rr(ip, unused_tcp_port):
 
 def test_zmq_rr_timeout(ip, unused_tcp_port):
     """Test for requestMsg where we timeout or fail to send"""
-    act1 = ZmqActor("act1", "/tmp/store", type='REQ', ip=ip, port=unused_tcp_port)
+    port = unused_tcp_port
+    act1 = ZmqActor("act1", "/tmp/store", type='REQ', ip=ip, port=port)
     msg = "hello"
     replymsg = act1.put(msg)
     assert replymsg is None

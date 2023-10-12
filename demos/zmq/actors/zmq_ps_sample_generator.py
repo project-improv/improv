@@ -60,8 +60,7 @@ class Generator(ZmqActor):
                 # self.q_out.put([[data_id, str(self.frame_num)]])
                 # self.publish.setSendSocket(ip="127.0.0.1", port=5556)
                 # self.publish.sendMsg([[data_id, str(self.frame_num)]])
-                self.put([[data_id, str(self.frame_num)]])
-                # logger.info("Sent message on")
+                self.put(data_id) #[data_id, str(self.frame_num)])
                 self.frame_num += 1
             except Exception as e:
                 logger.error(f"---------Generator Exception: {e}")
