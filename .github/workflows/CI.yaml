@@ -58,9 +58,7 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
         run: |
-          pwd
           ls -al ../../../../..
-          pwd
           pip install --upgrade pip
           pip install build
           pip install flake8 pytest
@@ -80,7 +78,7 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
         run: |
-          source ~/.profile
+          PATH=~/.local/bin:$PATH 
           pytest test/test_actor.py -vv --cov=improv -k "setStore" -s
       - name: Coveralls
         uses: coverallsapp/github-action@v2
