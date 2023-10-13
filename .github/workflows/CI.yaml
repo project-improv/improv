@@ -59,7 +59,8 @@ jobs:
         shell: wsl-bash {0}
         run: |
           pwd
-          cd /home
+          ls -al ../../../../..
+          pwd
           pip install --upgrade pip
           pip install build
           pip install flake8 pytest
