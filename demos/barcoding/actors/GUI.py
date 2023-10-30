@@ -54,8 +54,9 @@ class ButtonListApp(QWidget):
             layout.addWidget(button, i // 2, i % 2)
 
         self.confirm_button = QPushButton("Confirm", self)
-        layout.addWidget(self.confirm_button, len(button_texts) // 2, 0, 1, 2)
-
+        layout.addWidget(self.confirm_button, len(button_texts) // 2, 0, 1, 1)
+        self.clear_button = QPushButton("Clear", self)
+        layout.addWidget(self.clear_button, len(button_texts) // 2, 1, 1, 1)
         self.setLayout(layout)
 
     def button_clicked(self, text):
@@ -142,7 +143,8 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
 
         self.total_times = []
         self.barcode_list = None
-        self.selected_barcode = None
+        self.user_select_barcode = None
+        self.selected_neuron_barcode = None
         self.barcode = None
         self.barcode_bytes_record = None
         self.barcode_index_record = None
@@ -152,6 +154,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         pyqtgraph.setConfigOptions(leftButtonPan=False)
         self.button_list = ButtonListApp()
         (self.button_list).confirm_button.clicked.connect(self.user_select_barcode_confirm_clicked)
+        (self.button_list).clear_button.clicked.connect(self.user_clear_selected_barcode_clicked)
         self.custom_barchart = BarGraphWidget()
 
         self.customizePlots()
@@ -299,17 +302,29 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
     def updateVideo(self):
         """TODO: Bug on clicking ROI --> trace and report to pyqtgraph"""
         image = None
-        raw, color = self.visual.getFrames()
+        raw, color, select_color = self.visual.getFrames()
         
         if raw is not None:
             raw = np.rot90(raw, 2)
             if np.unique(raw).size > 1:
                 self.rawplot.setImage(raw, autoHistogramRange=False)
                 self.rawplot.ui.histogram.vb.setLimits(yMin=50)
-        if color is not None:
+        if select_color is not None and self.user_select_barcode is not None:
+            logger.info("printing the neuron in this barcode category {0}.".format(self.user_select_barcode))
+            select_color = np.rot90(select_color, 2)
+            self.rawplot_2.setImage(select_color)
+            self.rawplot_2.ui.histogram.vb.setLimits(yMin=8, yMax=255)
+        elif color is not None:
+            #logger.info("printing all neurons.")
             color = np.rot90(color, 2)
             self.rawplot_2.setImage(color)
             self.rawplot_2.ui.histogram.vb.setLimits(yMin=8, yMax=255)
+
+    def user_clear_selected_barcode_clicked(self):
+        for button in (self.button_list).findChildren(QPushButton):
+            button.setStyleSheet("")
+        (self.button_list).button_clicks = []
+        self.user_select_barcode = None
 
     def user_select_barcode_confirm_clicked(self):
         logger.info("Button clicks: {0}".format((self.button_list).button_clicks))
@@ -325,14 +340,11 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         self.user_select_barcode = np.zeros(8)
         self.user_select_barcode[barcode_index] = 1
         logger.info("user selected barcode like {0}".format(self.user_select_barcode))
-        for button in (self.button_list).findChildren(QPushButton):
-            button.setStyleSheet("")
-
-        (self.button_list).button_clicks = []
         self.barcode_click()
 
     def barcode_click(self):
-
+        logger.info("are you in it or not.")
+        neurons_locs, neurons_index = self.visual.select_color_neurons(self.user_select_barcode)
         return None
 
     def updateLines(self):
@@ -351,13 +363,14 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
             (Cx, C, Cpop, barcode_list, barcode_index_record, barcode_bytes_record) = self.visual.getCurves()
             self.barcode_list = barcode_list
             if barcode_list is not None:
-                self.selected_barcode = barcode_list[0]
+                self.selected_neuron_barcode = barcode_list[0]
                 self.barcode = barcode_list[1]
                 self.barcode_index_record = barcode_index_record
                 self.barcode_bytes_record = barcode_bytes_record
-                logger.info("aaaaaaah some test: {0}, {1}".format(self.barcode_bytes_record, self.barcode_index_record))
+                #logger.info("aaaaaaah some test: {0}, {1}".format(self.barcode_bytes_record, self.barcode_index_record))
         except TypeError as e:
-            logger.error("type error1!!!!!{0}".format(e))
+            pass
+            #logger.error("type error1!!!!!{0}".format(e))
         except Exception as e:
             logger.error("Output does not likely exist. Error: {}".format(e))
 

@@ -277,6 +277,7 @@ class ModelAnalysis(Actor):
         ids.append(self.client.put(self.color, "color" + str(self.frame)))
         ids.append(self.client.put(self.coordDict, "analys_coords" + str(self.frame)))
         ids.append(self.client.put(self.allStims, "stim" + str(self.frame)))
+        ids.append(self.client.put(self.image, "image" + str(self.frame)))
         ids.append(self.frame)
 
         self.q_out.put(ids)
@@ -468,7 +469,7 @@ class ModelAnalysis(Actor):
                         ests = np.copy(ests[:, self.stimStart +5 : self.frame])
                         self.trial_avg_t_p(baseline, ests, self.currentStim)
                         self.trial_slope_t_p(ests, self.currentStim)
-                        logger.info("testttttttt!!!{0}, \n {1}, \n{2}".format(self.trial_slope_ptvalue, self.trial_avg_ptvalue, self.trial_avg_max_ptvalue))
+                        #logger.info("testttttttt!!!{0}, \n {1}, \n{2}".format(self.trial_slope_ptvalue, self.trial_avg_ptvalue, self.trial_avg_max_ptvalue))
 
         self.estsAvg_fitline = np.squeeze((self.ests[:, :, 0] - self.ests[:, :, 1]))
         self.estsAvg_fitline = np.where(np.isnan(self.estsAvg_fitline), 0, self.estsAvg_fitline)
@@ -516,6 +517,9 @@ class ModelAnalysis(Actor):
 
         self.stimtime.append(time.time() - t)
 
+    def plotSelectedBarcodeNeuron(self):
+        return None
+
     def plotColorFrame(self):
         """Computes colored nicer background+components frame"""
         t = time.time()
@@ -526,6 +530,7 @@ class ModelAnalysis(Actor):
         if self.coords is not None:
             for i, c in enumerate(self.coords):
                 # c = np.array(c)
+                # logger.info("plzzzzzzzz, {0}, \n {1}".format(c, self.coords))
                 ind = c[~np.isnan(c).any(axis=1)].astype(int)
                 # TODO: Compute all colors simultaneously! then index in...
                 cv2.fillConvexPoly(
@@ -535,6 +540,7 @@ class ModelAnalysis(Actor):
         # TODO: keep list of neural colors. Compute tuning colors and IF NEW, fill ConvexPoly.
 
         self.colortime.append(time.time() - t)
+        #logger.info("ok let's see what's the color {0}, {1}".format(np.shape(color), color))
         return color
 
     def _tuningColor(self, ind, inten):

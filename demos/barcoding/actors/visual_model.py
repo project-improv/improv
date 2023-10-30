@@ -11,6 +11,7 @@ import sys
 from improv.actor import Actor, Signal
 from queue import Empty
 from collections import deque
+import cv2
 
 import logging
 
@@ -66,6 +67,7 @@ class CaimanVisual(Actor):
         self.barcode_category = None
         self.raw = None
         self.color = None
+        self.select_color = None
         self.coords = None
         self.w = None
         self.weight = None
@@ -74,7 +76,8 @@ class CaimanVisual(Actor):
         self.i2 = None
         self.total_times = []
         self.timestamp = []
-
+        self.image = None
+        self.neuron_coords = None
         self.window = 500
 
     def run(self):
@@ -109,9 +112,11 @@ class CaimanVisual(Actor):
                     self.color,
                     self.coords,
                     self.allStims,
+                    self.image
                 ) = self.client.getList(ids[:-1])
                 self.total_times.append([time.time(), time.time() - t])
             self.timestamp.append([time.time(), self.frame_num])
+
             #logger.info("what is the barcode_category here? {0}".format(self.barcode_category[0]))
         except Empty as e:
             pass
@@ -164,8 +169,9 @@ class CaimanVisual(Actor):
             self.raw = np.rot90(self.raw, 1)
         if self.color is not None and self.color.shape[0] > self.color.shape[1]:
             self.color = np.rot90(self.color, 1)
-
-        return self.raw, self.color 
+        if self.select_color is not None and self.select_color.shape[0] > self.select_color.shape[1]:
+            self.select_color = np.rot90(self.select_color, 1)
+        return self.raw, self.color, self.select_color 
 
     def selectNeurons(self, x, y):
         """x and y are coordinates
@@ -191,6 +197,23 @@ class CaimanVisual(Actor):
             logger.error("No neurons nearby where you clicked")
             self.com1 = [com[0]]
         return self.com1
+
+
+    def select_color_neurons(self, user_select_barcode):
+        neurons_locs = []
+        neurons_index = []
+        str_select_barcode = np.array2string(user_select_barcode)
+        com_list = []
+        com = np.array([o["CoM"] for o in self.coords])
+        if str_select_barcode in self.barcode_index_record:
+            neurons_index = self.barcode_index_record[str_select_barcode]
+            self.select_color = self.plotColorsSelectBarcode(neurons_index, user_select_barcode)
+            neuron_locs = [
+                np.array([self.raw.shape[0] - com[i][0], self.raw.shape[1] - com[i][1]]) for i in neurons_index
+            ]
+        logger.info("test if i can get the index? {0}".format(neurons_index))
+        logger.info("did i get the correct com list? {0}".format(neuron_locs))
+        return neurons_locs, neurons_index
 
 
     def selectNW(self, x, y):
@@ -238,7 +261,7 @@ class CaimanVisual(Actor):
 
     def getFirstSelect(self):
         first = None
-        if self.coords:
+        if self.coords is not None:
             com = [o["CoM"] for o in self.coords]
             # first = [np.array([self.raw.shape[0]-com[0][1], com[0][0]])]
             first = [
@@ -246,3 +269,116 @@ class CaimanVisual(Actor):
             ]
             # first = [com[0]]
         return first
+
+
+    def plotColorsSelectBarcode(self, neurons_index, user_select_barcode):
+        """Computes colored nicer background+components frame"""
+        logger.info("start the color")
+        t = time.time()
+        image = self.image
+        color = np.stack([image, image, image, image], axis=-1).astype(np.uint8).copy()
+        color[..., 3] = 255
+        # TODO: don't stack image each time?
+        if self.coords is not None:
+            # to delete: For checking if it can get the correct index
+            neurons_index = neurons_index[1:3]
+            #Problem is here.
+            try:
+                self.neuron_coords = [o["coordinates"] for o in self.coords]
+            except Exception as e:
+                logger.error("errors when indicing coords with selected neurons in barcode. {0}".format(e))
+            count = 0
+            try:
+                for i, c in enumerate(self.neuron_coords):
+                    if count >= np.shape(neurons_index)[0]:
+                        break
+                    elif i != neurons_index[count]:
+                        continue
+                    else:
+                        assert(np.isin(i, neurons_index))
+                        count += 1
+                        # c = np.array(c)
+                        ind = c[~np.isnan(c).any(axis=1)].astype(int)
+                        logger.info("check7")
+                        # TODO: Compute all colors simultaneously! then index in...
+                        cv2.fillConvexPoly(
+                            color, ind, self._defineColor(user_select_barcode)
+                        )
+
+            except Exception as e:
+                logger.error("Exception happens during get the color, {0}".format(e))
+                        
+
+        # TODO: keep list of neural colors. Compute tuning colors and IF NEW, fill ConvexPoly.
+        logger.info("ok let's see what's the color {0}".format(np.shape(color)))
+        return color
+    
+    def _defineColor(self, user_select_barcode):
+        """ind identifies the neuron by number"""
+        ests = self.barcode
+        # ests = self.tune_k[0]
+        if ests is not None and user_select_barcode is not None:
+            try:
+                return self.manual_Color_Sum(user_select_barcode)
+            except ValueError as e:
+                logger.error("Value error here: {0}".format(e))
+                return (255, 255, 255, 0)
+            except Exception:
+                print("user select barcode is ", user_select_barcode)
+        else:
+            return (255, 255, 255, 50)
+        
+
+    def manual_Color_Sum(self, x):
+        """x should be length 12 array for coloring
+        or, for k coloring, length 8
+        Using specific coloring scheme from Naumann lab
+        """
+        if x.shape[0] == 8:
+            mat_weight = np.array(
+                [
+                    [1, 0.25, 0],
+                    [0.75, 1, 0],
+                    [0, 1, 0],
+                    [0, 0.75, 1],
+                    [0, 0.25, 1],
+                    [0.25, 0, 1.0],
+                    [1, 0, 1],
+                    [1, 0, 0.25],
+                ]
+            )
+        elif x.shape[0] == 12:
+            mat_weight = np.array(
+                [
+                    [1, 0.25, 0],
+                    [0.75, 1, 0],
+                    [0, 2, 0],
+                    [0, 0.75, 1],
+                    [0, 0.25, 1],
+                    [0.25, 0, 1.0],
+                    [1, 0, 1],
+                    [1, 0, 0.25],
+                    [1, 0, 0],
+                    [0, 0, 1],
+                    [0, 0, 1],
+                    [1, 0, 0],
+                ]
+            )
+        else:
+            logger.info("Wrong shape for this coloring function")
+            return (255, 255, 255, 10)
+
+        color = x @ mat_weight
+
+        blend = 0.8
+        thresh = 0.2
+        thresh_max = blend * np.max(color)
+        color = np.clip(color, thresh, thresh_max)
+        color -= thresh
+        color /= thresh_max
+        color = np.nan_to_num(color)
+        if color.any() and np.linalg.norm(color - np.ones(3)) > 0.35:
+            color *= 255
+            return (color[0], color[1], color[2], 255)
+        else:
+            return (255, 255, 255, 10)
