@@ -99,7 +99,6 @@ class ModelAnalysis(Actor):
         self.rest_barcode = np.zeros((1, 8))
         self.rest = {}
         self.rest_on = np.zeros(8)
-        self.final_barcode = np.zeros((1, 8))
 
 
     def run(self):
@@ -160,7 +159,7 @@ class ModelAnalysis(Actor):
             (self.coordDict, self.image, self.S) = self.client.getList(ids[:-1])
             #logger.info("what is the coordDict? {0}".format(self.coordDict))
             self.C = self.S
-            logger.info("What is the size of input frame? {0}".format(np.shape(self.C)))
+            #logger.info("What is the size of input frame? {0}".format(np.shape(self.C)))
             self.coords = [o["coordinates"] for o in self.coordDict]
 
             # Compute tuning curves based on input stimulus
@@ -381,6 +380,8 @@ class ModelAnalysis(Actor):
                 self.fitting[j].append(i)
         if (self.fitting_barcode[i, j] > 0):
             self.final_barcode[i, j] = 1
+        else:
+            self.final_barcode[i, j] = 0
 
     def all_methods(self, i, j):
         # Save all the index that are at least three tests said yes
@@ -416,6 +417,8 @@ class ModelAnalysis(Actor):
                 
         if (self.mean_barcode_both[i, j] + self.rest_barcode[i, j] > 0):
             self.final_barcode[i, j] = 1
+        else:
+            self.final_barcode[i, j] = 0
 
     def stimAvg_start(self):
         t = time.time()
@@ -504,7 +507,7 @@ class ModelAnalysis(Actor):
 
         for neuron in range(num_neurons):
             current_barcode = self.final_barcode[neuron]
-            index_record[np.array2string(cl)].append(neuron)
+            index_record[np.array2string(current_barcode)].append(neuron)
             
         self.barcode_category['index_record'] = index_record
         self.barcode_category['bytes_record'] = barcode_bytes_record
@@ -516,9 +519,6 @@ class ModelAnalysis(Actor):
         #     logger.info("{0}, : {1}".format(barcode_bytes_record[key], current_number))
 
         self.stimtime.append(time.time() - t)
-
-    def plotSelectedBarcodeNeuron(self):
-        return None
 
     def plotColorFrame(self):
         """Computes colored nicer background+components frame"""

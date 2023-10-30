@@ -281,7 +281,6 @@ class CaimanVisual(Actor):
         # TODO: don't stack image each time?
         if self.coords is not None:
             # to delete: For checking if it can get the correct index
-            neurons_index = neurons_index[1:3]
             #Problem is here.
             try:
                 self.neuron_coords = [o["coordinates"] for o in self.coords]
@@ -299,7 +298,6 @@ class CaimanVisual(Actor):
                         count += 1
                         # c = np.array(c)
                         ind = c[~np.isnan(c).any(axis=1)].astype(int)
-                        logger.info("check7")
                         # TODO: Compute all colors simultaneously! then index in...
                         cv2.fillConvexPoly(
                             color, ind, self._defineColor(user_select_barcode)
@@ -308,8 +306,6 @@ class CaimanVisual(Actor):
             except Exception as e:
                 logger.error("Exception happens during get the color, {0}".format(e))
                         
-
-        # TODO: keep list of neural colors. Compute tuning colors and IF NEW, fill ConvexPoly.
         logger.info("ok let's see what's the color {0}".format(np.shape(color)))
         return color
     

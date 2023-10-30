@@ -367,7 +367,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
                 self.barcode = barcode_list[1]
                 self.barcode_index_record = barcode_index_record
                 self.barcode_bytes_record = barcode_bytes_record
-                #logger.info("aaaaaaah some test: {0}, {1}".format(self.barcode_bytes_record, self.barcode_index_record))
+                # logger.info("aaaaaaah some test: {0}, {1}".format(self.barcode_bytes_record, self.barcode_index_record))
         except TypeError as e:
             pass
             #logger.error("type error1!!!!!{0}".format(e))
@@ -420,6 +420,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
 
     def process_list(self, index_record):
         count_record = []
+        nonzero_key = []
         for key in index_record.keys():
             current_number = len(index_record[key])
             count_record.append(current_number)
