@@ -159,6 +159,7 @@ demos/ava/**/tim*
 demos/ava/**/plot*
 demos/ava/runs
 
+demos/ava/ava*
 demos/ava/zmq*
 
 demos/ava/*.zip
@@ -182,17 +183,28 @@ demos/ava/scripts/merge_bout.py
 demos/ava/scripts/data_container.py
 demos/ava/scripts/concat_wavs.py
 demos/**/**/*.npy
-demos/ava/actors/zmq/zmq*
-demos/ava/actors/zmq/lv_zmq_publisher.py
+demos/ava/actors/zmq/zmq_processor_dummy
+demos/ava/actors/zmq/zmq_actor_old
+demos/ava/actors/zmq/ava_zmq*
+demos/ava/actors/zmq/s*
+demos/ava/actors/zmq/d*
+demos/ava/actors/zmq/l*
 demos/ava/scripts/zmq_plotting.py
 demos/ava/actors/umap_visual.py
 demos/ava/actors/visual.py
-demos/ava/blu285/vae.pt
-demos/ava/blu285/embedding.pkl
-demos/ava/blu285/checkpoint_encoder_300.tar
-demos/ava/blu285/birdname_130519_103325.4.pkl
-demos/ava/globa_log_100d_100ns_no_out.txt
-demos/ava/global_log_640d_qout_save
-demos/ava/global_log_ex_07072023
-demos/ava/log_072023.txt
+demos/ava/glo*
 demos/ava/actors/visual.py
+demos/ava/actors/models/**
+demos/ava/pilot_1023_v2/*
+demos/ava/pilot_1024/*
+demos/ava/pilot_1025/*
+demos/ava/pilot_1025_v2/*
+demos/ava/params_20ms.yaml
+demos/ava/params_120ms.yaml
+1023_timing.ipynb
+1024_timing.ipynb
+1025_timing.ipynb
+clock_sync_timing.ipynb
+demos/ava/actors/save_out.py
+demos/ava/actors/visual.py
+demos/ava/actors/zmq/*
