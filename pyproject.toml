@@ -17,7 +17,7 @@ dependencies = [
     "numpy",
     "scipy",
     "matplotlib",
-    "pyarrow==9.0.0",
+    "pyarrow==14.0.1",
     "PyQt5",
     "lmdb",
     "pyyaml",
