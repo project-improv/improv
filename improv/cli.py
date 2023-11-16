@@ -69,7 +69,7 @@ def parse_cli_args(args):
     parser = argparse.ArgumentParser(description="Command line tool for improv.")
 
     subparsers = parser.add_subparsers(
-        title="subcommands", help="for launching individual components", required=False
+        title="subcommands", help="for launching individual components", required=True
     )
 
     run_parser = subparsers.add_parser(
