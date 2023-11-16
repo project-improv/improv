@@ -1,6 +1,0 @@
-improv.nexus ************ new improv server session 2023-07-21 00:15:00 ************
-improv.nexus StoreInterface started successfully at location: /tmp/e024c3f8-290c-448e-a971-e104b53dfd38
-asyncio Using selector: EpollSelector
-improv.nexus Create new store object
-improv.store Successfully connected to store at locations /tmp/e024c3f8-290c-448e-a971-e104b53dfd38 
-improv.store Unknown error: 'NoneType' object has no attribute 'subscribe'

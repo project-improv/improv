@@ -30,15 +30,12 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
         run: | 
-          cd /home
           pwd
           sudo apt-get update -y
           sudo apt-get install -y python3 
           sudo apt-get install -y python3-pip  
       - name: clone repo
         uses: actions/checkout@v3
-        env: 
-          GITHUB_WORKSPACE: "/home"
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -58,14 +55,10 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
         run: |
-          pwd
-          cd /home
           pip install --upgrade pip
           pip install build
           pip install flake8 pytest
           pip install -e .[tests] --no-binary pyzmq 
-        env: 
-          GITHUB_WORKSPACE: "/home"
           
       - name: Test with pytest (Mac)
         if: startsWith(matrix.os, 'macos')
