@@ -59,7 +59,6 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
         run: |
-          ls -al ../../../../..
           pip install --upgrade pip
           pip install build
           pip install flake8 pytest
@@ -80,7 +79,6 @@ jobs:
         shell: wsl-bash {0}
         run: |
           PATH=~/.local/bin:$PATH 
-          which plasma_store
           pytest test/test_actor.py -vv --cov=improv -k "setStore" -s
       - name: Coveralls
         uses: coverallsapp/github-action@v2
