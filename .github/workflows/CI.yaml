@@ -26,6 +26,7 @@ jobs:
         uses: Vampire/setup-wsl@v2.0.1
         with:
           distribution: Ubuntu-22.04
+          wsl-shell-command: bash
       - name: Setup Python on WSL
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
