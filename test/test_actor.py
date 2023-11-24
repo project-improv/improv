@@ -30,11 +30,9 @@ def setup_store(set_store_loc, scope="module"):
 
     print("about to wait: first time")
     print("about to kill")
-    # p.kill()
+    p.kill()
     print("about to wait")
-    p.wait(10)
-    import time
-    time.sleep(5)
+    # p.wait(10)
 
 
 @pytest.fixture()
