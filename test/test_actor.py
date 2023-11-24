@@ -17,7 +17,7 @@ pytest.example_links = {}
 
 
 @pytest.fixture()
-def setup_store(set_store_loc, scope="function"):
+def setup_store(set_store_loc, scope="module"):
     """Fixture to set up the store subprocess with 10 mb."""
     #print(f"set store loc: {set_store_loc}")
     LOGGER.info(f"set store loc: {set_store_loc}")
@@ -29,11 +29,11 @@ def setup_store(set_store_loc, scope="function"):
     yield p
 
     print("about to wait: first time")
-    p.wait(10)
-    print("about to kill")
-    p.kill()
-    print("about to wait")
-    p.wait(10)
+    # p.wait(10)
+    # print("about to kill")
+    # p.kill()
+    # print("about to wait")
+    # p.wait(10)
 
 
 @pytest.fixture()
