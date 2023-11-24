@@ -127,9 +127,10 @@ def test_setStoreInterface(setup_store, set_store_loc):
 
 from pyarrow import plasma 
 def test_foo(setup_store, set_store_loc):
-    act = Actor("Acquirer", set_store_loc)
+    # act = Actor("Acquirer", set_store_loc)
     LOGGER.info(f"store_loc: {set_store_loc}")
     store = StoreInterface(store_loc=set_store_loc)
+    del store
 
 
 @pytest.mark.parametrize(
