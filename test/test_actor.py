@@ -29,6 +29,8 @@ def setup_store(set_store_loc, scope="module"):
     yield p
 
     print("about to wait: first time")
+    import time
+    time.sleep(5)
     p.wait(10)
     print("about to kill")
     p.kill()
