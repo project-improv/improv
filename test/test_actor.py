@@ -23,11 +23,9 @@ def setup_store(set_store_loc, scope="module"):
     LOGGER.info(f"set store loc: {set_store_loc}")
     p = subprocess.Popen(
         ["plasma_store", "-s", set_store_loc, "-m", str(10000000)],
-        # stdout=subprocess.DEVNULL,
-        # stderr=subprocess.DEVNULL,
-        capture_output=True
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
     )
-    print(p.stdout, p.stderr)
     yield p
 
     p.kill()
