@@ -126,8 +126,9 @@ def test_setStoreInterface(setup_store, set_store_loc):
     print("all good!")
 
 from pyarrow import plasma 
-def test_foo(setup_store):
-    pass
+def test_foo(setup_store, set_store_loc):
+    act = Actor("Acquirer", set_store_loc)
+
 
 @pytest.mark.parametrize(
     "links", [(pytest.example_string_links), ({}), (pytest.example_links), (None)]
