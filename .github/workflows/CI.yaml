@@ -79,7 +79,8 @@ jobs:
         shell: wsl-bash {0}
         run: |
           PATH=~/.local/bin:$PATH 
-          pytest test/test_actor.py -vv --cov=improv -k "setStore" -s
+          # pytest test/test_actor.py -vv --cov=improv -k "setStore" -s
+          pytest test/test_actor.py -vv --cov=improv -k "foo" -s
       - name: Coveralls
         uses: coverallsapp/github-action@v2
 

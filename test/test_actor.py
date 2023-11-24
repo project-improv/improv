@@ -32,7 +32,7 @@ def setup_store(set_store_loc, scope="module"):
     print("about to kill")
     p.kill()
     print("about to wait")
-    # p.wait(10)
+    p.wait(10)
 
 
 @pytest.fixture()
