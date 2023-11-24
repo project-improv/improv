@@ -29,11 +29,12 @@ def setup_store(set_store_loc, scope="module"):
     yield p
 
     print("about to wait: first time")
-    # p.wait(10)
-    # print("about to kill")
-    # p.kill()
-    # print("about to wait")
-    # p.wait(10)
+    print("about to kill")
+    p.kill()
+    print("about to wait")
+    p.wait(10)
+    import time
+    time.sleep(5)
 
 
 @pytest.fixture()
