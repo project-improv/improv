@@ -119,8 +119,11 @@ def test_setStoreInterface(setup_store, set_store_loc):
     #print(f"store_loc: {set_store_loc}")
     LOGGER.info(f"store_loc: {set_store_loc}")
     store = StoreInterface(store_loc=set_store_loc)
+    print("got store interface")
+    print("about to connect actor")
     act.setStoreInterface(store.client)
     assert act.client is store.client
+    print("all good!")
 
 from pyarrow import plasma 
 def test_foo():
