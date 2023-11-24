@@ -126,7 +126,7 @@ def test_setStoreInterface(setup_store, set_store_loc):
     print("all good!")
 
 from pyarrow import plasma 
-def test_foo():
+def test_foo(setup_store):
     pass
 
 @pytest.mark.parametrize(
