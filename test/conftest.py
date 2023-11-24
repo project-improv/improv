@@ -2,7 +2,8 @@ import os
 import uuid
 import pytest
 
-store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
+# store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
+store_loc = str(uuid.uuid4())
 
 
 @pytest.fixture()
