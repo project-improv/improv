@@ -29,6 +29,7 @@ def setup_store(set_store_loc, scope="module"):
     yield p
 
     p.kill()
+    print("about to wait")
     p.wait(10)
 
 
