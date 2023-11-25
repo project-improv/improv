@@ -15,7 +15,8 @@ LOGGER = logging.getLogger(__name__)
 pytest.example_string_links = {}
 pytest.example_links = {}
 
-
+subprocess._USE_POSIX_SPAWN = False
+subprocess._USE_VFORK = False
 @pytest.fixture()
 def setup_store(set_store_loc, scope="module"):
     """Fixture to set up the store subprocess with 10 mb."""
@@ -30,10 +31,6 @@ def setup_store(set_store_loc, scope="module"):
 
     print("about to wait: first time")
     print("about to kill")
-    p.kill()
-    p.kill()
-    p.kill()
-    p.kill()
     p.kill()
     print("about to wait")
     p.wait(10)
