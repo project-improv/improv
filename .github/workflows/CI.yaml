@@ -50,7 +50,7 @@ jobs:
       - name: Install package (Ubuntu)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-          pip install -e .[tests,lint] --no-binary pyzmq
+          pip install -e .[tests,lint] --no-binary pyzmq pyarrow
       - name: Install package (Mac)
         if: startsWith(matrix.os, 'macos')
         run: |
