@@ -25,14 +25,15 @@ def setup_store(set_store_loc, scope="module"):
         ["plasma_store", "-s", set_store_loc, "-m", str(10000000)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
+        shell=True
     )
     yield p
 
     print("about to wait: first time")
     print("about to kill")
-    # p.kill()
+    p.kill()
     print("about to wait")
-    # p.wait(10)
+    p.wait(10)
 
 
 @pytest.fixture()
