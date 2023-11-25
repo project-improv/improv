@@ -29,10 +29,10 @@ def setup_store(set_store_loc, scope="module"):
 
     print("about to wait: first time")
     print("about to kill")
-    # p.kill()
-    import os
-    pid = os.getpgid(p.pid)
-    print(subprocess.check_call(["kill", "-9", pid]))
+    p.kill()
+    # import os
+    # pid = os.getpgid(p.pid)
+    # print(subprocess.check_call(["kill", "-9", pid]))
     print("about to wait")
     p.wait(10)
 
@@ -132,6 +132,8 @@ def test_foo(setup_store, set_store_loc):
     # act = Actor("Acquirer", set_store_loc)
     LOGGER.info(f"store_loc: {set_store_loc}")
     store = StoreInterface(store_loc=set_store_loc)
+    import time
+    time.sleep(5)
 
 
 @pytest.mark.parametrize(
