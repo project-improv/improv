@@ -33,8 +33,8 @@ jobs:
         run: | 
           pwd
           sudo apt-get update -y
-          sudo apt-get install -y python3 
           sudo apt-get install -y python3-pip  
+          sudo apt-get install -y python3.10-venv
       - name: clone repo
         uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -56,7 +56,7 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         shell: wsl-bash {0}
         run: |
-          pip install --upgrade pip
+          pip install --upgrade pip setuptools
           pip install build
           pip install flake8 pytest
           pip install -e .[tests] --no-binary pyzmq 
@@ -75,7 +75,7 @@ jobs:
         run: |
           # PATH=~/.local/bin:$PATH 
           # pytest test/test_actor.py -vv --cov=improv -k "setStore" -s
-          pytest test/test_actor.py -vv --cov=improv -k "foo" -s
+          python3 -m pytest test/test_actor.py -vv --cov=improv -k "foo" -s
       - name: Coveralls
         uses: coverallsapp/github-action@v2
 
