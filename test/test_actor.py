@@ -15,7 +15,6 @@ LOGGER = logging.getLogger(__name__)
 pytest.example_string_links = {}
 pytest.example_links = {}
 
-
 @pytest.fixture()
 def setup_store(set_store_loc, scope="module"):
     """Fixture to set up the store subprocess with 10 mb."""
@@ -28,7 +27,13 @@ def setup_store(set_store_loc, scope="module"):
     )
     yield p
 
+    print("about to wait: first time")
+    print("about to kill")
     p.kill()
+    # import os
+    # pid = os.getpgid(p.pid)
+    # print(subprocess.check_call(["kill", "-9", pid]))
+    print("about to wait")
     p.wait(10)
 
 
@@ -116,8 +121,17 @@ def test_setStoreInterface(setup_store, set_store_loc):
     #print(f"store_loc: {set_store_loc}")
     LOGGER.info(f"store_loc: {set_store_loc}")
     store = StoreInterface(store_loc=set_store_loc)
+    print("got store interface")
+    print("about to connect actor")
     act.setStoreInterface(store.client)
     assert act.client is store.client
+    print("all good!")
+
+from pyarrow import plasma 
+def test_foo(setup_store, set_store_loc):
+    # act = Actor("Acquirer", set_store_loc)
+    LOGGER.info(f"store_loc: {set_store_loc}")
+    store = StoreInterface(store_loc=set_store_loc)
 
 
 @pytest.mark.parametrize(
