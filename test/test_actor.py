@@ -25,14 +25,13 @@ def setup_store(set_store_loc, scope="module"):
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    return p
-    # yield p
+    yield p
 
-    # print("about to wait: first time")
-    # print("about to kill")
-    # p.kill()
-    # print("about to wait")
-    # p.wait(10)
+    print("about to wait: first time")
+    print("about to kill")
+    p.kill()
+    print("about to wait")
+    p.wait(10)
 
 
 @pytest.fixture()
