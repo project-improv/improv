@@ -44,6 +44,7 @@ exclude = ["test", "pytest", "env", "demos", "figures"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 filterwarnings = [ ]
+pythonpath = ["."]
 
 [tool.flake8]
 # Recommend matching the black line length (default 88),
