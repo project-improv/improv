@@ -1,0 +1,30 @@
+actors:
+  GUI:
+    package: actors.visual
+    class: Visual
+    visual: Visual
+
+  Acquirer:
+    package: actors.acquire
+    class: Acquirer
+    filename: data/indy_20160407_02.mat 
+
+
+  DimReduction:
+    package: actors.dimension_reduction
+    class: DimReduction
+    
+  Bubblewrap:
+    package: actors.bubble
+    class: Bubble
+
+  Visual:
+    package: actors.visual
+    class: CaimanVisual
+
+connections:
+  Acquirer.q_out: [DimReduction.q_in]
+  DimReduction.q_out: [Bubblewrap.q_in]
+  DimReduction.v_out: [Visual.q_in]
+  Bubblewrap.q_out: [Visual.bw_in]
+

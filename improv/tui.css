@@ -1,0 +1,55 @@
+#main {
+    grid-size: 1 5;
+    grid-rows: 1 1fr 1 1fr 5;
+}
+
+#dialog {
+    grid-size: 2;
+    grid-gutter: 1 2;
+    margin: 1 2;
+}
+
+#help_screen {
+    align: center middle;
+}
+
+SocketLog {
+    content-align: left top;
+}
+
+#question {
+    column-span: 2;
+    content-align: center bottom;
+    width: 100%;
+    height: 100%;
+}
+
+Label {
+    background: $primary;
+    width: 100%;
+}
+
+#input {
+    height: 1;
+    align-vertical: bottom;
+    margin: 1 0;
+}
+
+#help_table {
+    content-align: center middle;
+    width: 100%;
+    height: 70%;
+}
+
+Button {
+    width: 100%;
+}
+
+#ok {
+    width: 100%;
+    align-horizontal: center;
+}
+
+#ok_btn {
+    width: 10;
+}

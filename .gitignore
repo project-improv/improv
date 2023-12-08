@@ -43,6 +43,9 @@ pip-delete-this-directory.txt
 logs/
 data/
 
+# Demo data
+analyzed_videos/
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -124,8 +127,12 @@ dmypy.json
 *.mdb
 *.xml
 *.hdf5
-*.ipynb
 *.iml
 
-output/
 *.tif
+arrow
+
+.vscode/
+
+*.code-workspace
+

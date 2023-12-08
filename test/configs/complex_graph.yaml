@@ -1,0 +1,21 @@
+actors:
+  Acquirer:
+    package: demos.sample_actors.acquire
+    class: FileAcquirer
+    filename: data/Tolias_mesoscope_2.hdf5
+    framerate: 15
+
+  Analysis:
+    package: demos.sample_actors.simple_analysis
+    class: SimpleAnalysis
+
+  InputStim:
+    package: demos.sample_actors.acquire
+    class: BehaviorAcquirer
+
+connections:
+  Acquirer.q_out: [Analysis.q_in, InputStim.q_in]
+  Analysis.q_out: [InputStim.q_in]
+
+# settings:
+#   use_watcher: [Acquirer, Processor, Visual, Analysis]

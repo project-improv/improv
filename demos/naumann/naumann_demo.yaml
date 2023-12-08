@@ -12,7 +12,7 @@ actors:
 
   Processor:
     package: actors.processor
-    class: CaimanProcessor
+    class: Processor
     init_filename: data/tbif_ex_crop.h5
     config_file: naumann_caiman_params.txt
 

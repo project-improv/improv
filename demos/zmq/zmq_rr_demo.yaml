@@ -1,0 +1,17 @@
+actors:
+  Generator:
+    package: actors.zmq_rr_sample_generator
+    class: Generator
+    ip: 127.0.0.1
+    port: 5555
+    type: REQ
+
+  Processor:
+    package: actors.zmq_rr_sample_processor
+    class: Processor
+    ip: 127.0.0.1
+    port: 5555
+    type: REP
+
+connections:
+  Generator.q_out: [Processor.q_in]
