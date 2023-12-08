@@ -3,10 +3,15 @@ import os
 import asyncio
 import subprocess
 import improv.tui as tui
-from demos.basic.actors.zmqActor import ZmqPSActor, ZmqRRActor
 import concurrent.futures
+import logging
 
+from demos.sample_actors.zmqActor import ZmqActor
 from test_nexus import ports
+
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.DEBUG)
+
 
 SERVER_WARMUP = 10
 
@@ -129,34 +134,37 @@ async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
 
 def test_zmq_ps(ip, unused_tcp_port):
     """Tests if we can set the zmq PUB/SUB socket and send message."""
+    port = unused_tcp_port
+    LOGGER.info("beginning test")
+    act1 = ZmqActor("act1", "/tmp/store", type="PUB", ip=ip, port=port)
+    act2 = ZmqActor("act2", "/tmp/store", type="SUB", ip=ip, port=port)
+    LOGGER.info("ZMQ Actors constructed")
+    # Note these sockets must be set up for testing
+    # this is not needed for running in improv
+    act1.setSendSocket()
+    act2.setRecvSocket()
 
-    act1 = ZmqPSActor("act1", "/tmp/store")
-    act2 = ZmqPSActor("act2", "/tmp/store")
-    act1.setSendSocket(ip, unused_tcp_port)
-    act2.setRecvSocket(ip, unused_tcp_port)
     msg = "hello"
-    act1.sendMsg(msg)
-    recvmsg = act2.recvMsg()
-    act1.send_socket.close()
-    act2.recv_socket.close()
+    act1.put(msg)
+    LOGGER.info("sent message")
+    recvmsg = act2.get()
+    LOGGER.info("received message")
     assert recvmsg == msg
 
 
 def test_zmq_rr(ip, unused_tcp_port):
     """Tests if we can set the zmq REQ/REP socket and send message."""
-
-    act1 = ZmqRRActor("act1", "/tmp/store")
-    act2 = ZmqRRActor("act2", "/tmp/store")
-    act1.setReqSocket(ip, unused_tcp_port)
-    act2.setRepSocket(ip, unused_tcp_port)
+    port = unused_tcp_port
+    act1 = ZmqActor("act1", "/tmp/store", type="REQ", ip=ip, port=port)
+    act2 = ZmqActor("act2", "/tmp/store", type="REP", ip=ip, port=port)
     msg = "hello"
     reply = "world"
 
     def handle_request():
-        return act1.requestMsg(msg)
+        return act1.put(msg)
 
     def handle_reply():
-        return act2.replyMsg(reply)
+        return act2.get(reply)
 
     # Use a ThreadPoolExecutor to run handle_request()
     # and handle_reply() in separate threads.
@@ -177,8 +185,8 @@ def test_zmq_rr(ip, unused_tcp_port):
 
 def test_zmq_rr_timeout(ip, unused_tcp_port):
     """Test for requestMsg where we timeout or fail to send"""
-    act1 = ZmqRRActor("act1", "/tmp/store")
-    act1.setReqSocket(ip, unused_tcp_port)
+    port = unused_tcp_port
+    act1 = ZmqActor("act1", "/tmp/store", type="REQ", ip=ip, port=port)
     msg = "hello"
-    replymsg = act1.requestMsg(msg)
+    replymsg = act1.put(msg)
     assert replymsg is None

@@ -69,7 +69,7 @@ def parse_cli_args(args):
     parser = argparse.ArgumentParser(description="Command line tool for improv.")
 
     subparsers = parser.add_subparsers(
-        title="subcommands", help="for launching individual components", required=False
+        title="subcommands", help="for launching individual components", required=True
     )
 
     run_parser = subparsers.add_parser(
@@ -356,7 +356,7 @@ def get_server_ports(args, timeout):
     if not server_start_time:
         print(
             f"Unable to read server start time from {args.logfile}.\n"
-            "This may be because the server could not be started or"
+            "This may be because the server could not be started or "
             "did not log its activity."
         )
     elif not ports:
