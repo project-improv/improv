@@ -1,0 +1,40 @@
+improv.nexus ************ new improv server session 2023-08-08 12:15:22 ************
+improv.nexus StoreInterface started successfully at location: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+asyncio Using selector: EpollSelector
+improv.nexus Create new store object
+improv.store attempting to connect to store
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Successfully connected to store at locations /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99 
+improv.store attempting to connect to store
+improv.store Successfully connected to store at locations /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99 
+improv.nexus setup the actor Generator
+improv.store attempting to connect to store
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store Cannot connect to store: /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
+improv.store All attempts to connect to the store have failed
+Traceback (most recent call last):
+  File "/home/chrisunix/improv/improv/store.py", line 112, in connect_store
+    client = plasma.connect(store_loc, 1)
+  File "pyarrow/_plasma.pyx", line 872, in pyarrow._plasma.connect
+  File "pyarrow/_plasma.pyx", line 288, in pyarrow._plasma.plasma_check_status
+  File "pyarrow/error.pxi", line 115, in pyarrow.lib.check_status
+OSError: Could not connect to socket /tmp/8ca4dbbe-638f-4da4-a832-498864eb5a99
