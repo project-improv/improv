@@ -2,6 +2,7 @@ import os
 import psutil
 import pytest
 import subprocess
+import logging
 from improv.link import Link  # , AsyncQueue
 from improv.actor import AbstractActor as Actor
 from improv.store import StoreInterface
@@ -9,21 +10,28 @@ from improv.store import StoreInterface
 
 # set global_variables
 
+LOGGER = logging.getLogger(__name__)
+
 pytest.example_string_links = {}
 pytest.example_links = {}
-
 
 @pytest.fixture()
 def setup_store(set_store_loc, scope="module"):
     """Fixture to set up the store subprocess with 10 mb."""
+    #print(f"set store loc: {set_store_loc}")
+    LOGGER.info(f"set store loc: {set_store_loc}")
     p = subprocess.Popen(
         ["plasma_store", "-s", set_store_loc, "-m", str(10000000)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
     yield p
+
+    print("about to wait: first time")
+    print("about to kill")
     p.kill()
-    p.wait()
+    print("about to wait")
+    p.wait(10)
 
 
 @pytest.fixture()
@@ -60,6 +68,10 @@ def example_links(setup_store, set_store_loc):
     return pytest.example_links
 
 
+def test_CI_debug():
+    """ For CI debug only; delete afterwards."""
+    assert True
+
 @pytest.mark.parametrize(
     ("attribute", "expected"),
     [
@@ -79,11 +91,12 @@ def test_default_init(attribute, expected, init_actor):
     assert atr == expected
 
 
-def test_repr_default_initialization(init_actor):
+def test_repr_default_initialization(init_actor, set_store_loc):
     """Test if the actor representation has the right dict keys."""
 
     act = init_actor
     rep = act.__repr__()
+    #print(f"\nstore_loc: {set_store_loc}\n")
     assert rep == "Test: dict_keys([])"
 
 
@@ -92,16 +105,31 @@ def test_repr(example_string_links, set_store_loc):
 
     act = Actor("Test", set_store_loc)
     act.setLinks(example_string_links)
+    #print(f"set store loc: {set_store_loc}")
     assert act.__repr__() == "Test: dict_keys(['1', '2', '3'])"
 
 
 def test_setStoreInterface(setup_store, set_store_loc):
     """Tests if the store is started and linked with the actor."""
-
+    
+    #print("HERE");
+    LOGGER.info("here")
     act = Actor("Acquirer", set_store_loc)
+    #print(f"store_loc: {set_store_loc}")
+    LOGGER.info(f"store_loc: {set_store_loc}")
     store = StoreInterface(store_loc=set_store_loc)
+    print("got store interface")
+    print("about to connect actor")
     act.setStoreInterface(store.client)
     assert act.client is store.client
+    print("all good!")
+
+from pyarrow import plasma 
+def test_foo(setup_store, set_store_loc):
+    # act = Actor("Acquirer", set_store_loc)
+    LOGGER.info(f"store_loc: {set_store_loc}")
+    store = StoreInterface(store_loc=set_store_loc)
+    store.release()
 
 
 @pytest.mark.parametrize(
@@ -113,7 +141,6 @@ def test_setLinks(links, set_store_loc):
     act = Actor("test", set_store_loc)
     act.setLinks(links)
     assert act.links == links
-
 
 @pytest.mark.parametrize(
     ("qc", "qs"),
@@ -305,6 +332,7 @@ def test_actor_connection(setup_store, set_store_loc):
 
     StoreInterface(store_loc=set_store_loc)
     link = Link("L12", act1, act2)
+
     act1.setLinkIn(link)
     act2.setLinkOut(link)
 
@@ -313,3 +341,125 @@ def test_actor_connection(setup_store, set_store_loc):
     act1.q_in.put(msg)
 
     assert act2.q_out.get() == msg
+
+
+#=========================================
+#
+#
+#
+#
+#           MANAGED ACTOR TESTS
+#
+#
+#
+#
+#=========================================
+@pytest.fixture
+def init_managed_actor(init_actor):
+    """ Fixture to create a managed actor.
+    """
+    mactor = ManagedActor(init_actor)
+    yield mactor
+    mactor = None
+
+
+@pytest.fixture
+def init_custom_managed_actor():
+    """ Fixture to create and yield a managed actor that has been predefined.
+    """
+    pass
+    #TODO: Implement this
+
+
+#---------- DEFAULT -----------#
+
+@pytest.mark.skip(reason="unfinished")
+def test_default_ManagedActor_init(init_actor):
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_default_ManagedActor_setup(init_actor):
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_default_ManagedActor_run(init_actor):
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_default_ManagedActor_run_step(init_actor):
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_default_ManagedActor_stop(init_actor):
+    pass
+
+#---------- CUSTOM -----------#
+
+@pytest.mark.skip(reason="unfinished")
+def test_custom_ManagedActor_init():
+
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_custom_ManagedActor_setup():
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_custom_ManagedActor_run():
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_custom_ManagedActor_run_step():
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_custom_ManagedActor_stop():
+    pass
+
+#=========================================
+#
+#
+#
+#
+#           ASYNC ACTOR TESTS
+#
+#
+#
+#
+#=========================================
+
+@pytest.mark.skip(reason="unfinished")
+def test_AsyncActor_init():
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_AsyncActor_run():
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_AsyncActor_setup():
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_AsyncActor_run_step():
+    pass
+
+
+@pytest.mark.skip(reason="unfinished")
+def test_AsyncActor_stop():
+    pass
+
+
+
+

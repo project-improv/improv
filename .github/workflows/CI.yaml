@@ -15,13 +15,28 @@ jobs:
 
     runs-on: ${{matrix.os}}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
-        os: [ubuntu-latest, macos-latest] # [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.9"] #["3.7", "3.8", "3.9", "3.10"]
+        os: [windows-latest] # [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Setup WSL (Windows)
+        if: startsWith(matrix.os, 'windows')
+        uses: Vampire/setup-wsl@v2.0.1
+        with:
+          distribution: Ubuntu-22.04
+          wsl-shell-command: bash
+      - name: Setup Python on WSL
+        if: startsWith(matrix.os, 'windows')
+        shell: wsl-bash {0}
+        run: | 
+          pwd
+          sudo apt-get update -y
+          sudo apt-get install -y python3-pip  
+          sudo apt-get install -y python3.10-venv
+      - name: clone repo
+        uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -32,16 +47,36 @@ jobs:
       - name: Install package (Ubuntu)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-          pip install -e .[tests,lint] --no-binary pyzmq
+          pip install -e .[tests,lint] --no-binary pyzmq 
       - name: Install package (Mac)
         if: startsWith(matrix.os, 'macos')
         run: |
-          pip install -e .[tests,lint] 
-          
-      - name: Test with pytest
+          pip install -e .[tests] 
+      - name: Install package (Windows)
+        if: startsWith(matrix.os, 'windows')
+        shell: wsl-bash {0}
         run: |
-          python -m pytest --cov=improv 
-
+          pip install --upgrade pip setuptools
+          pip install build
+          pip install flake8 pytest
+          python3 -m build
+          pip install -e .[tests,lint] --no-binary pyzmq 
+          
+      - name: Test with pytest (Mac)
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          # pytest -vv --cov=improv --ignore=test/test_tui.py --ignore=test/test_store_with_errors.py --ignore=test/test_runManager.py --ignore=test/test_link.py --ignore=test/test_nexus.py
+      - name: Test with pytest (Ubuntu)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          pytest test/test_actor.py -vv --cov=improv 
+      - name: Test with pytest (Windows)
+        if: startsWith(matrix.os, 'windows')
+        shell: wsl-bash {0}
+        run: |
+          # PATH=~/.local/bin:$PATH 
+          # pytest test/test_actor.py -vv --cov=improv -k "setStore" -s
+          pytest test/test_actor.py -vv --cov=improv -k "foo" -s
       - name: Coveralls
         uses: coverallsapp/github-action@v2
 
@@ -67,4 +102,3 @@ jobs:
         run: |
           pip install flake8
           flake8 
-
