@@ -2,7 +2,7 @@ import asyncio
 import time
 
 import zmq
-from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER, Again, NOBLOCK
+from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER, Again, NOBLOCK, ZMQError, EAGAIN, ETERM
 from zmq.log.handlers import PUBHandler
 import zmq.asyncio
 
@@ -36,30 +36,45 @@ class ZmqActor(Actor):
 
         self.context = zmq.Context.instance()
 
-    def sendMsg(self, msg):
+    def sendMsg(self, msg, msg_type="pyobj"):
         """
         Sends a message to the controller.
         """
         if not self.send_socket: 
             self.setSendSocket()
 
-        self.send_socket.send_pyobj(msg)
-        # self.send_socket.close()
+        if msg_type == "multipart":
+            self.send_socket.send_multipart(msg)
+        if msg_type == "pyobj":
+            self.send_socket.send_pyobj(msg)
+        elif msg_type == "single": 
+            self.send_socket.send(msg)
 
-    def recvMsg(self):
+    def recvMsg(self, msg_type="pyobj", flags=0):
         """
         Receives a message from the controller.
+
+        NOTE: default flag=0 instead of flag=NOBLOCK
         """
         if not self.recv_socket: self.setRecvSocket()
-
-        recv_msg = ""
         
         while True:
             try:
-                recv_msg = self.recv_socket.recv_pyobj(flags=NOBLOCK)
+                if msg_type == "multipart":
+                    recv_msg = self.recv_socket.recv_multipart(flags=flags)
+                elif msg_type == "pyobj":
+                    recv_msg = self.recv_socket.recv_pyobj(flags=flags)
+                elif msg_type == "single": 
+                    recv_msg = self.recv_socket.recv(flags=flags)
                 break
             except Again:
                 pass
+            except ZMQError as e:
+                logger.info(f"ZMQ error: {e}")
+                if e.errno == ETERM:
+                    pass  # interrupted  - pass or break if in try loop
+                if e.errno == EAGAIN:
+                    pass  # no message was ready (yet!)
 
         # self.recv_socket.close()
         return recv_msg
