@@ -117,7 +117,12 @@ class Nexus:
         # TODO load from file or user input, as in dialogue through FrontEnd?
 
         self.config = Config(configFile=file)
-        self.config.createConfig()
+        flag = self.config.createConfig()
+        if flag == -1:
+            logger.error(
+                "An error occurred when loading the configuration file. "
+                "Please see the log file for more details."
+            )
 
         # create all data links requested from Config config
         self.createConnections()
@@ -149,7 +154,7 @@ class Nexus:
                 self.p_GUI.start()
 
             except Exception as e:
-                logger.error("Exception in setting up GUI {}: {}".format(name, e))
+                logger.error(f"Exception in setting up GUI {name}: {e}")
 
         else:
             # have fake GUI for communications
@@ -160,8 +165,12 @@ class Nexus:
         for name, actor in self.config.actors.items():
             if name not in self.actors.keys():
                 # Check for actors being instantiated twice
-                self.createActor(name, actor)
-                logger.info("setup the actor {0}".format(name))
+                try:
+                    self.createActor(name, actor)
+                    logger.info(f"Setting up actor {name}")
+                except Exception as e:
+                    logger.error(f"Exception in setting up actor {name}: {e}.")
+                    self.quit()
 
         # Second set up each connection b/t actors
         # TODO: error handling for if a user tries to use q_in without defining it
@@ -211,7 +220,7 @@ class Nexus:
         try:
             logger.info(f"Result of run_until_complete: {res}")
         except Exception as e:
-            logger.info("Res failed to await: {0}".format(e))
+            logger.info(f"Res failed to await: {e}")
 
         logger.info(f"Current loop: {asyncio.get_event_loop()}")
 
