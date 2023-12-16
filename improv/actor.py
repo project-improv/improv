@@ -66,10 +66,6 @@ class AbstractActor:
         """
         self.links = links
 
-    def getLinks(self):
-        """Returns dictionary of links"""
-        return self.links
-
     def setCommLinks(self, q_comm, q_sig):
         """Set explicit communication links to/from Nexus (q_comm, q_sig)
 
