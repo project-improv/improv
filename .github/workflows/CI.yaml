@@ -3,11 +3,11 @@ name: Python testing
 on:
   pull_request: 
     branches:
-      - master
+      - main
       - dev
   push:
     branches:
-      - master
+      - main
       - dev
 
 jobs:
