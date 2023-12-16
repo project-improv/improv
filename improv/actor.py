@@ -1,10 +1,9 @@
 import time
+import signal
 import asyncio
 import traceback
-import signal
 from queue import Empty
-from typing import Awaitable, Callable
-from improv.store import Store
+from improv.store import StoreInterface
 
 import logging
 
@@ -19,7 +18,7 @@ class AbstractActor:
     Also needs to be responsive to sent Signals (e.g. run, setup, etc)
     """
 
-    def __init__(self, name, method="fork"):
+    def __init__(self, name, store_loc, method="fork"):
         """Require a name for multiple instances of the same actor/class
         Create initial empty dict of Links for easier referencing
         """
@@ -28,11 +27,12 @@ class AbstractActor:
         self.links = {}
         self.method = method
         self.client = None
-
+        self.store_loc = store_loc
         self.lower_priority = False
 
-        # start with no explicit data queues.
-        # q_in and q_out are for passing ID information to access data in the store
+        # Start with no explicit data queues.
+        # q_in and q_out are reserved for passing ID information
+        # to access data in the store
         self.q_in = None
         self.q_out = None
 
@@ -40,13 +40,11 @@ class AbstractActor:
         """Internal representation of the Actor mostly for printing purposes.
 
         Returns:
-            [str]: _description_
-        """
-        """ Return this instance name and links dict
+            [str]: instance name and links dict
         """
         return self.name + ": " + str(self.links.keys())
 
-    def setStore(self, client):
+    def setStoreInterface(self, client):
         """Sets the client interface to the store
 
         Args:
@@ -57,8 +55,8 @@ class AbstractActor:
     def _getStoreInterface(self):
         # TODO: Where do we require this be run? Add a Signal and include in RM?
         if not self.client:
-            store = Store(self.name)
-            self.setStore(store)
+            store = StoreInterface(self.name, self.store_loc)
+            self.setStoreInterface(store)
 
     def setLinks(self, links):
         """General full dict set for links
@@ -67,6 +65,10 @@ class AbstractActor:
             links (dict): The dict to store all the links
         """
         self.links = links
+
+    def getLinks(self):
+        """Returns dictionary of links"""
+        return self.links
 
     def setCommLinks(self, q_comm, q_sig):
         """Set explicit communication links to/from Nexus (q_comm, q_sig)
@@ -128,6 +130,7 @@ class AbstractActor:
         return self.links
 
     def put(self, idnames, q_out=None, save=None):
+        """TODO: This is deprecated? Prefer using Links explicitly"""
         if save is None:
             save = [False] * len(idnames)
 
@@ -144,18 +147,26 @@ class AbstractActor:
                 if self.q_watchout:
                     self.q_watchout.put(idnames[i])
 
+    def setup(self):
+        """Essenitally the registration process
+        Can also be an initialization for the actor
+        options is a list of options, can be empty
+        """
+        pass
+
     def run(self):
         """Must run in continuous mode
         Also must check q_sig either at top of a run-loop
         or as async with the primary function
+
+        Suggested implementation for synchronous running: see RunManager class below
         """
         raise NotImplementedError
 
-        """ Suggested implementation for synchronous running: see RunManager class below
-        """
-
     def stop(self):
-        """Specify method for momentarily stopping the run and saving data."""
+        """Specify method for momentarily stopping the run and saving data.
+        Not used by default
+        """
         pass
 
     def changePriority(self):
@@ -187,18 +198,8 @@ class ManagedActor(AbstractActor):
         with RunManager(self.name, self.actions, self.links):
             pass
 
-    def setup(self):
-        """Essenitally the registration process
-        Can also be an initialization for the actor
-        options is a list of options, can be empty
-        """
-        pass
-
     def runStep(self):
         raise NotImplementedError
-
-    def stop(self):
-        pass
 
 
 class AsyncActor(AbstractActor):
@@ -212,8 +213,11 @@ class AsyncActor(AbstractActor):
         self.actions["stop"] = self.stop
 
     def run(self):
-        with AsyncRunManager(self.name, self.actions, self.links):
-            pass
+        """Run the actor in an async loop"""
+        result = asyncio.run(
+            AsyncRunManager(self.name, self.actions, self.links).run_actor()
+        )
+        return result
 
     async def setup(self):
         """Essenitally the registration process
@@ -234,9 +238,7 @@ Actor = ManagedActor
 
 
 class RunManager:
-    """ """
-
-    def __init__(self, name, actions, links, runStore=None, timeout=1e-6):
+    def __init__(self, name, actions, links, runStoreInterface=None, timeout=1e-6):
         self.run = False
         self.stop = False
         self.config = False
@@ -249,11 +251,12 @@ class RunManager:
         self.q_sig = self.links["q_sig"]
         self.q_comm = self.links["q_comm"]
 
-        self.runStore = runStore
+        self.runStoreInterface = runStoreInterface
         self.timeout = timeout
 
     def __enter__(self):
         self.start = time.time()
+        an = self.actorName
 
         while True:
             # Run any actions given a received Signal
@@ -261,35 +264,23 @@ class RunManager:
                 try:
                     self.actions["run"]()
                 except Exception as e:
-                    logger.error(
-                        "Actor "
-                        + self.actorName
-                        + " exception during run: {}".format(e)
-                    )
+                    logger.error("Actor {} error in run: {}".format(an, e))
                     logger.error(traceback.format_exc())
             elif self.stop:
                 try:
                     self.actions["stop"]()
                 except Exception as e:
-                    logger.error(
-                        "Actor "
-                        + self.actorName
-                        + " exception during stop: {}".format(e)
-                    )
+                    logger.error("Actor {} error in stop: {}".format(an, e))
                     logger.error(traceback.format_exc())
                 self.stop = False  # Run once
             elif self.config:
                 try:
-                    if self.runStore:
-                        self.runStore()
+                    if self.runStoreInterface:
+                        self.runStoreInterface()
                     self.actions["setup"]()
                     self.q_comm.put([Signal.ready()])
                 except Exception as e:
-                    logger.error(
-                        "Actor "
-                        + self.actorName
-                        + " exception during setup: {}".format(e)
-                    )
+                    logger.error("Actor {} error in setup: {}".format(an, e))
                     logger.error(traceback.format_exc())
                 self.config = False
 
@@ -335,16 +326,21 @@ class AsyncRunManager:
     Afterwards, the run manager listens for signals without blocking.
     """
 
-    def __init__(
-        self, name, run_method: Callable[[], Awaitable[None]], setup, q_sig, q_comm
-    ):  # q_sig, q_comm are AsyncQueue.
+    def __init__(self, name, actions, links, runStore=None, timeout=1e-6):
         self.run = False
         self.config = False
-        self.run_method = run_method
-        self.setup = setup
-        self.q_sig = q_sig
-        self.q_comm = q_comm
-        self.module_name = name
+        self.stop = False
+        self.actorName = name
+        logger.debug("AsyncRunManager for {} created".format(self.actorName))
+        self.actions = actions
+        self.links = links
+        # q_sig, q_comm are AsyncQueue
+        self.q_sig = self.links["q_sig"]
+        self.q_comm = self.links["q_comm"]
+
+        self.runStore = runStore
+        self.timeout = timeout
+
         self.loop = asyncio.get_event_loop()
         self.start = time.time()
 
@@ -352,29 +348,71 @@ class AsyncRunManager:
         for s in signals:
             self.loop.add_signal_handler(s, lambda s=s: self.loop.stop())
 
-    async def __aenter__(self):
+    async def run_actor(self):
+        an = self.actorName
         while True:
-            signal = await self.q_sig.get_async()
-            if signal == Signal.run() or signal == Signal.resume():
-                if not self.run:
+            # Run any actions given a received Signal
+            if self.run:
+                try:
+                    await self.actions["run"]()
+                except Exception as e:
+                    logger.error("Actor {} error in run: {}".format(an, e))
+                    logger.error(traceback.format_exc())
+            elif self.stop:
+                try:
+                    await self.actions["stop"]()
+                except Exception as e:
+                    logger.error("Actor {} error in stop: {}".format(an, e))
+                    logger.error(traceback.format_exc())
+                self.stop = False  # Run once
+            elif self.config:
+                try:
+                    if self.runStore:
+                        self.runStore()
+                    await self.actions["setup"]()
+                    self.q_comm.put([Signal.ready()])
+                except Exception as e:
+                    logger.error("Actor {} error in setup: {}".format(an, e))
+                    logger.error(traceback.format_exc())
+                self.config = False
+
+            # Check for new Signals received from Nexus
+            try:
+                signal = self.q_sig.get(timeout=self.timeout)
+                logger.debug("{} received Signal {}".format(self.actorName, signal))
+                if signal == Signal.run():
                     self.run = True
-                    asyncio.create_task(self.run_method(), loop=self.loop)
-                    print("Received run signal, begin running")
-            elif signal == Signal.setup():
-                self.setup()
-                await self.q_comm.put_async([Signal.ready()])
-            elif signal == Signal.quit():
-                logger.warning("Received quit signal, aborting")
-                self.loop.stop()
+                    logger.warning("Received run signal, begin running")
+                elif signal == Signal.setup():
+                    self.config = True
+                elif signal == Signal.stop():
+                    self.run = False
+                    self.stop = True
+                    logger.warning(f"actor {self.actorName} received stop signal")
+                elif signal == Signal.quit():
+                    logger.warning("Received quit signal, aborting")
+                    break
+                elif signal == Signal.pause():
+                    logger.warning("Received pause signal, pending...")
+                    self.run = False
+                elif signal == Signal.resume():  # currently treat as same as run
+                    logger.warning("Received resume signal, resuming")
+                    self.run = True
+            except KeyboardInterrupt:
                 break
-            elif signal == Signal.pause():
-                logger.warning("Received pause signal, pending...")
-                while self.q_sig.get() != Signal.resume():  # Intentionally blocking
-                    time.sleep(1e-3)
+            except Empty:
+                pass  # No signal from Nexus
+
+        return None
+
+    async def __aenter__(self):
+        self.start = time.time()
+        return self
 
     async def __aexit__(self, type, value, traceback):
         logger.info("Ran for {} seconds".format(time.time() - self.start))
         logger.warning("Exiting AsyncRunManager")
+        return None
 
 
 class Signal:

@@ -32,6 +32,8 @@ classifiers = ['Development Status :: 1 - Planning']
 tests = ["pytest", "async-timeout", "pytest-asyncio", "pytest-cov", "scikit-image",]
 docs = ["jupyter-book", "sphinx-autoapi"]
 lint = ["black", "flake8", "Flake8-pyproject", "flake8-pytest-style"]
+bw_demo = ["pyqtgraph", "mat73", "jax[cpu]", "proSVD",  
+           "bubblewrap@git+https://github.com/pearsonlab/Bubblewrap",]
 caiman = []
 
 [project.scripts]
@@ -45,6 +47,13 @@ exclude = ["test", "pytest", "env", "demos", "figures"]
 asyncio_mode = "auto"
 filterwarnings = [ ]
 
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+pythonpath = ["."]
+
 [tool.flake8]
 # Recommend matching the black line length (default 88),
 # rather than using the flake8 default of 79:
@@ -56,5 +65,16 @@ per-file-ignores = """
     test/test_cli.py:F401,F811
     test/test_tui.py:F401,F811
     test/test_link.py:PT012
+    test/test_nexus.py:PT012
+    test/test_store_with_errors.py:PT012
     """
 exclude = ["demos", "build"]
+
+[tool.black]
+line-length = 88
+exclude = '''
+/(
+    demos
+  | build
+)/
+'''

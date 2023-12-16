@@ -4,7 +4,7 @@ from typing import Callable, List
 from pyarrow.plasma import ObjectID
 
 from nexus.actor import Actor, RunManager
-from nexus.store import LMDBStore, LMDBData
+from nexus.store import LMDBStoreInterface, LMDBData
 
 
 class Replayer(Actor):
@@ -22,7 +22,7 @@ class Replayer(Actor):
         super().__init__(*args, **kwargs)
         self.resave = resave
 
-        self.lmdb = LMDBStore(path=lmdb_path, load=True)
+        self.lmdb = LMDBStoreInterface(path=lmdb_path, load=True)
         self.lmdb_values: list = self.get_lmdb_values(replay)
         assert len(self.lmdb_values) > 0
 

@@ -1,12 +1,9 @@
 import yaml
+import logging
 from inspect import signature
 from importlib import import_module
-import logging
 
 logger = logging.getLogger(__name__)
-
-# TODO: Write a save function for Config objects output as YAML configFile
-# but using ConfigModule objects
 
 
 class Config:
@@ -29,6 +26,7 @@ class Config:
     def createConfig(self):
         """Read yaml config file and create config for Nexus
         TODO: check for config file compliance, error handle it
+        beyond what we have below.
         """
         with open(self.configFile, "r") as ymlfile:
             cfg = yaml.safe_load(ymlfile)
@@ -43,15 +41,12 @@ class Config:
             if cfg is None:
                 logger.error("Error: The config file is empty")
 
-        if type(cfg) != dict:
+        if type(cfg) is not dict:
             logger.error("Error: The config file is not in dictionary format")
             raise TypeError
 
         for name, actor in cfg["actors"].items():
-            # put import/name info in ConfigModule object TODO: make ordered?
-
             if name in self.actors.keys():
-                # Should be actor.keys() - self.actors.keys() is empty until update?
                 raise RepeatedActorError(name)
 
             packagename = actor.pop("package")
@@ -59,49 +54,64 @@ class Config:
 
             try:
                 __import__(packagename, fromlist=[classname])
+                mod = import_module(packagename)
 
-            except ModuleNotFoundError:
-                logger.error("Error: Packagename not valid")
+                clss = getattr(mod, classname)
+                sig = signature(clss)
+                configModule = ConfigModule(name, packagename, classname, options=actor)
+                sig.bind(configModule.options)
+
+            except SyntaxError as e:
+                logger.error(f"Error: syntax error when initializing actor {name}: {e}")
+                return -1
+
+            except ModuleNotFoundError as e:
+                logger.error(
+                    f"Error: failed to import packages, {e}. Please check both each "
+                    f"actor's imports and the package name in the yaml file."
+                )
+
+                return -1
 
             except AttributeError:
                 logger.error("Error: Classname not valid within package")
+                return -1
 
-            mod = import_module(packagename)
-
-            clss = getattr(mod, classname)
-            sig = signature(clss)
-            configModule = ConfigModule(name, packagename, classname, options=actor)
-            try:
-                sig.bind(configModule.options)
             except TypeError:
                 logger.error("Error: Invalid arguments passed")
                 params = ""
                 for parameter in sig.parameters:
                     params = params + " " + parameter.name
                 logger.warning("Expected Parameters:" + params)
+                return -1
+
+            except Exception as e:
+                logger.error(f"Error: {e}")
+                return -1
+
             if "GUI" in name:
-                logger.info("Config detected a GUI actor: {}".format(name))
+                logger.info(f"Config detected a GUI actor: {name}")
                 self.hasGUI = True
                 self.gui = configModule
-
             else:
                 self.actors.update({name: configModule})
 
         for name, conn in cfg["connections"].items():
-            # TODO check for correctness  TODO: make more generic (not just q_out)
             if name in self.connections.keys():
                 raise RepeatedConnectionsError(name)
 
-            self.connections.update({name: conn})  # conn should be a list
+            self.connections.update({name: conn})
+        return 0
 
     def addParams(self, type, param):
-        """Function to add paramter param of type type"""
+        """Function to add paramter param of type type
+        TODO: Future work
+        """
+        pass
 
     def saveActors(self):
-        """Saves the config to a specific file."""
-
+        """Saves the actors config to a specific file."""
         wflag = True
-
         saveFile = self.configFile.split(".")[0]
         pathName = saveFile + "_actors.yaml"
 
@@ -130,16 +140,11 @@ class ConfigModule:
         if wflag:
             writeOption = "w"
             wflag = False
-            # cfg = {"actors": []}
         else:
             writeOption = "a"
 
-        cfg = {
-            self.name: {"package": self.packagename, "class": self.classname}
-        }  # fix indentation
+        cfg = {self.name: {"package": self.packagename, "class": self.classname}}
 
-        # for name in self.name:
-        # for b in self.name:
         for key, value in self.options.items():
             cfg[self.name].update({key: value})
 
@@ -172,14 +177,3 @@ class RepeatedConnectionsError(Exception):
 
     def __str__(self):
         return self.message
-
-
-if __name__ == "__main__":
-    config = Config(configFile="pytest/configs/good_config.yaml")
-    config.createConfig()
-    config.saveActors()
-    # for actor in config.actors:
-    #     print(actor)
-
-    # for connection in config.connections:
-    #     print(connection)

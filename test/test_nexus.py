@@ -6,9 +6,11 @@ import subprocess
 import signal
 
 from improv.nexus import Nexus
+from improv.store import StoreInterface
+
 
 # from improv.actor import Actor
-# from improv.store import Store
+# from improv.store import StoreInterface
 
 SERVER_COUNTER = 0
 
@@ -57,7 +59,7 @@ def sample_nex(setdir, ports):
 #     location of the store socket.
 
 #     Yields:
-#         Store: An instance of the store.
+#         StoreInterface: An instance of the store.
 
 #     TODO:
 #         Figure out the scope.
@@ -66,7 +68,7 @@ def sample_nex(setdir, ports):
 #     p = subprocess.Popen(
 #         ['plasma_store', '-s', '/tmp/store/', '-m', str(10000000)],\
 #         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-#     store = Store(store_loc = "/tmp/store/")
+#     store = StoreInterface(store_loc = "/tmp/store/")
 #     yield store
 #     p.kill()
 
@@ -75,7 +77,6 @@ def test_init(setdir):
     # store = setup_store
     nex = Nexus("test")
     assert str(nex) == "test"
-    nex.destroyNexus()
 
 
 def test_createNexus(setdir, ports):
@@ -267,34 +268,48 @@ def test_usehdd_False():
     assert True
 
 
-def test_startstore(caplog):
+def test_startstore(caplog, set_store_loc):
     nex = Nexus("test")
-    nex._startStore(10000)  # 10 kb store
+    nex._startStoreInterface(10000)  # 10 kb store
 
     assert any(
-        ["Store started successfully" in record.msg for record in caplog.records]
+        "StoreInterface start successful" in record.msg for record in caplog.records
     )
 
-    nex._closeStore()
+    nex._closeStoreInterface()
     nex.destroyNexus()
     assert True
 
 
 def test_closestore(caplog):
     nex = Nexus("test")
+    nex._startStoreInterface(10000)
+    nex._closeStoreInterface()
 
-    nex._startStore(10000)
-    nex._closeStore()
-
-    assert any("Store closed successfully" in record.msg for record in caplog.records)
+    assert any(
+        "StoreInterface close successful" in record.msg for record in caplog.records
+    )
 
     # write to store
 
     with pytest.raises(AttributeError):
-        nex.p_Store.put("Message in", "Message in Label")
+        nex.p_StoreInterface.put("Message in", "Message in Label")
 
     nex.destroyNexus()
     assert True
+
+
+def test_store_already_deleted_issues_warning(caplog):
+    nex = Nexus("test")
+    nex._startStoreInterface(10000)
+    store_location = nex.store_loc
+    StoreInterface(store_loc=nex.store_loc)
+    os.remove(nex.store_loc)
+    nex.destroyNexus()
+    assert any(
+        "StoreInterface file {} is already deleted".format(store_location) in record.msg
+        for record in caplog.records
+    )
 
 
 @pytest.mark.skip(reason="unfinished")
