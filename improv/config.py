@@ -29,7 +29,7 @@ class Config:
                 self.settings = {}
             
             if not "use_watcher" in self.settings:
-                self.settings["use_watcher"] = None
+                self.settings["use_watcher"] = False
 
         except TypeError:
             if cfg is None:

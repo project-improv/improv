@@ -72,7 +72,7 @@ def test_createConfig_settings(set_configdir):
 
     cfg = Config("good_config.yaml")
     cfg.createConfig()
-    assert cfg.settings == {"use_watcher": None}
+    assert cfg.settings == {"use_watcher": False}
 
 
 # File with syntax error cannot pass the format check

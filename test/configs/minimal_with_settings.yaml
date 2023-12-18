@@ -4,6 +4,8 @@ settings:
   control_port: 6000
   output_port: 6001
   logging_port: 6002
+  use_hdd: false
+  use_watcher: false
 
 actors:
   Generator:

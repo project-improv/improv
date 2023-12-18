@@ -38,7 +38,7 @@ class Nexus:
         self,
         file=None,
         use_hdd=False,
-        use_watcher=False,
+        use_watcher=None,
         store_size=10_000_000,
         control_port=0,
         output_port=0,
@@ -60,19 +60,18 @@ class Nexus:
                 logger.info(f.read())
         
         # set config options loaded from file
-        # in Python 3.9, can just merge dictionaries
+        # in Python 3.9, can just merge dictionaries using precedence
         cfg = self.config.settings
         if 'use_hdd' not in cfg:
-            cfg['use_hdd'] = use_hdd
-        if 'use_watcher' not in cfg:
-            cfg['use_watcher'] = use_wather
+            cfg["use_hdd"] = use_hdd
+        if "use_watcher" not in cfg:
+            cfg['use_watcher'] = use_watcher
         if 'store_size' not in cfg:
             cfg['store_size'] = store_size 
-        if control_port != 0:
+        if 'control_port' not in cfg or control_port != 0:
             cfg['control_port'] = control_port
-        if output_port != 0:
+        if 'output_port' not in cfg or output_port != 0:
             cfg['output_port'] = output_port
-        
 
         # set up socket in lieu of printing to stdout
         self.zmq_context = zmq.Context()
@@ -96,14 +95,14 @@ class Nexus:
         self.store.subscribe()
 
         # LMDB storage
-        self.use_hdd = use_hdd
+        self.use_hdd = cfg["use_hdd"]
         if self.use_hdd:
             self.lmdb_name = f'lmdb_{datetime.now().strftime("%Y%m%d_%H%M%S")}'
             self.store_dict = dict()
 
         # TODO: Better logic/flow for using watcher as an option
         self.p_watch = None
-        if use_watcher:
+        if cfg['use_watcher']:
             self.startWatcher()
 
         # Create dicts for reading config and creating actors
@@ -202,7 +201,7 @@ class Nexus:
         for name, link in self.data_queues.items():
             self.assignLink(name, link)
 
-        if self.config.settings["use_watcher"] is not None:
+        if self.config.settings["use_watcher"]:
             watchin = []
             for name in self.config.settings["use_watcher"]:
                 watch_link = Link(name + "_watch", name, "Watcher")

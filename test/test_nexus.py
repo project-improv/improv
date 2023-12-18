@@ -114,17 +114,18 @@ def test_loadConfig(sample_nex):
     )
 
 def test_argument_config_precedence(setdir, ports):
-    store_size = 11_000_000
     nex = Nexus("test")
     nex.createNexus(
         file="minimal_with_settings.yaml", control_port=ports[0], output_port=ports[1],
-        store_size=store_size
+        store_size=11_000_000, use_hdd=True, use_watcher=True
     )
     cfg = nex.config.settings
     nex.destroyNexus()
     assert cfg['control_port'] == ports[0]
     assert cfg['output_port'] == ports[1]
     assert cfg['store_size'] == 20_000_000
+    assert not cfg['use_hdd']
+    assert not cfg['use_watcher']
 
 # delete this comment later
 @pytest.mark.skip(reason="unfinished")
