@@ -27,8 +27,8 @@ class Config:
                 self.settings = cfg["settings"]
             else:
                 self.settings = {}
-            
-            if not "use_watcher" in self.settings:
+
+            if "use_watcher" not in self.settings:
                 self.settings["use_watcher"] = False
 
         except TypeError:
@@ -38,7 +38,7 @@ class Config:
         if type(cfg) is not dict:
             logger.error("Error: The config file is not in dictionary format")
             raise TypeError
-        
+
         self.config = cfg
 
         self.actors = {}

@@ -6,7 +6,7 @@ import yaml
 # from importlib import import_module
 
 # from improv.config import RepeatedActorError
-from improv.config import Config 
+from improv.config import Config
 from improv.utils import checks
 
 import logging
@@ -150,14 +150,14 @@ def test_createConfig_blank_file(set_configdir):
     """Tests if a blank config file raises an error."""
 
     with pytest.raises(TypeError):
-        cfg = Config("blank_file.yaml")
+        Config("blank_file.yaml")
 
 
 def test_createConfig_nonsense_file(set_configdir, caplog):
     """Tests if an improperly formatted config raises an error."""
 
     with pytest.raises(TypeError):
-        cfg = Config("nonsense.yaml")
+        Config("nonsense.yaml")
 
 
 def test_acyclic_graph(set_configdir):
@@ -185,8 +185,9 @@ def test_saveActors_clean(set_configdir):
 
     assert savedKeys == originalKeys
 
+
 def test_config_settings_read(set_configdir):
     cfg = Config("minimal_with_settings.yaml")
     cfg.createConfig()
 
-    assert 'store_size' in cfg.settings
+    assert "store_size" in cfg.settings

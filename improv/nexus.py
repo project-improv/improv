@@ -56,34 +56,34 @@ class Nexus:
         else:
             logger.info(f"Loading configuration file {file}:")
             self.loadConfig(file=file)
-            with open(file, 'r') as f:  #write config file to log
+            with open(file, "r") as f:  # write config file to log
                 logger.info(f.read())
-        
+
         # set config options loaded from file
         # in Python 3.9, can just merge dictionaries using precedence
         cfg = self.config.settings
-        if 'use_hdd' not in cfg:
+        if "use_hdd" not in cfg:
             cfg["use_hdd"] = use_hdd
         if "use_watcher" not in cfg:
-            cfg['use_watcher'] = use_watcher
-        if 'store_size' not in cfg:
-            cfg['store_size'] = store_size 
-        if 'control_port' not in cfg or control_port != 0:
-            cfg['control_port'] = control_port
-        if 'output_port' not in cfg or output_port != 0:
-            cfg['output_port'] = output_port
+            cfg["use_watcher"] = use_watcher
+        if "store_size" not in cfg:
+            cfg["store_size"] = store_size
+        if "control_port" not in cfg or control_port != 0:
+            cfg["control_port"] = control_port
+        if "output_port" not in cfg or output_port != 0:
+            cfg["output_port"] = output_port
 
         # set up socket in lieu of printing to stdout
         self.zmq_context = zmq.Context()
         self.out_socket = self.zmq_context.socket(PUB)
-        self.out_socket.bind("tcp://*:%s" % cfg['output_port'])
+        self.out_socket.bind("tcp://*:%s" % cfg["output_port"])
         out_port_string = self.out_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
-        cfg['output_port'] = int(out_port_string.split(":")[-1])
+        cfg["output_port"] = int(out_port_string.split(":")[-1])
 
         self.in_socket = self.zmq_context.socket(REP)
-        self.in_socket.bind("tcp://*:%s" % cfg['control_port'])
+        self.in_socket.bind("tcp://*:%s" % cfg["control_port"])
         in_port_string = self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
-        cfg['control_port'] = int(in_port_string.split(":")[-1])
+        cfg["control_port"] = int(in_port_string.split(":")[-1])
 
         # default size should be system-dependent
         self._startStoreInterface(store_size)
@@ -102,7 +102,7 @@ class Nexus:
 
         # TODO: Better logic/flow for using watcher as an option
         self.p_watch = None
-        if cfg['use_watcher']:
+        if cfg["use_watcher"]:
             self.startWatcher()
 
         # Create dicts for reading config and creating actors
@@ -120,9 +120,9 @@ class Nexus:
         self.stopped = False
 
         return (control_port, output_port)
-    
+
     def loadConfig(self, file):
-        """Load configuration file. 
+        """Load configuration file.
         file: a YAML configuration file name
         """
         self.config = Config(configFile=file)
@@ -269,7 +269,7 @@ class Nexus:
         logger.warning("Destroying Nexus")
         self._closeStoreInterface()
 
-        if hasattr(self, 'store_loc'):
+        if hasattr(self, "store_loc"):
             try:
                 os.remove(self.store_loc)
             except FileNotFoundError:

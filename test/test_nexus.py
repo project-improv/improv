@@ -7,7 +7,6 @@ import signal
 
 from improv.nexus import Nexus
 from improv.store import StoreInterface
-from subprocess import TimeoutExpired
 
 
 # from improv.actor import Actor
@@ -98,13 +97,20 @@ def test_createNexus(setdir, ports):
     nex.destroyNexus()
     assert True
 
+
 def test_config_logged(setdir, ports, caplog):
     nex = Nexus("test")
     nex.createNexus(
         file="minimal_with_settings.yaml", control_port=ports[0], output_port=ports[1]
     )
     nex.destroyNexus()
-    assert any(["not_relevant: for testing purposes" in record.msg for record in caplog.records])
+    assert any(
+        [
+            "not_relevant: for testing purposes" in record.msg
+            for record in caplog.records
+        ]
+    )
+
 
 def test_loadConfig(sample_nex):
     nex = sample_nex
@@ -113,19 +119,25 @@ def test_loadConfig(sample_nex):
         ["Acquirer_comm", "Analysis_comm", "GUI_comm"]
     )
 
+
 def test_argument_config_precedence(setdir, ports):
     nex = Nexus("test")
     nex.createNexus(
-        file="minimal_with_settings.yaml", control_port=ports[0], output_port=ports[1],
-        store_size=11_000_000, use_hdd=True, use_watcher=True
+        file="minimal_with_settings.yaml",
+        control_port=ports[0],
+        output_port=ports[1],
+        store_size=11_000_000,
+        use_hdd=True,
+        use_watcher=True,
     )
     cfg = nex.config.settings
     nex.destroyNexus()
-    assert cfg['control_port'] == ports[0]
-    assert cfg['output_port'] == ports[1]
-    assert cfg['store_size'] == 20_000_000
-    assert not cfg['use_hdd']
-    assert not cfg['use_watcher']
+    assert cfg["control_port"] == ports[0]
+    assert cfg["output_port"] == ports[1]
+    assert cfg["store_size"] == 20_000_000
+    assert not cfg["use_hdd"]
+    assert not cfg["use_watcher"]
+
 
 # delete this comment later
 @pytest.mark.skip(reason="unfinished")
