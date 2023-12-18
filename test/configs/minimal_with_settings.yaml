@@ -1,0 +1,18 @@
+settings:
+  store_size: 20_000_000
+  not_relevant: for testing purposes
+  control_port: 6000
+  output_port: 6001
+  logging_port: 6002
+
+actors:
+  Generator:
+    package: actors.sample_generator
+    class: Generator
+
+  Processor:
+    package: actors.sample_processor
+    class: Processor
+
+connections:
+  Generator.q_out: [Processor.q_in]
