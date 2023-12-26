@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "improv"
 version = "0.0.2"
 description = "Platform for adaptive neuroscience experiments"
-authors = [{name = "Anne Draelos", email = "amw73@duke.edu"}, 
+authors = [{name = "Anne Draelos", email = "adraelos@umich.edu"}, 
             {name = "John Pearson", email = "john.pearson@duke.edu"}]
 
 license = {file = "LICENSE"}
@@ -32,9 +32,6 @@ classifiers = ['Development Status :: 1 - Planning']
 tests = ["pytest", "async-timeout", "pytest-asyncio", "pytest-cov", "scikit-image",]
 docs = ["jupyter-book"]
 lint = ["black", "flake8", "Flake8-pyproject", "flake8-pytest-style"]
-bw_demo = ["pyqtgraph", "mat73", "jax[cpu]", "proSVD",  
-           "bubblewrap@git+https://github.com/pearsonlab/Bubblewrap",]
-caiman = []
 
 [project.scripts]
 improv = "improv.cli:default_invocation"
