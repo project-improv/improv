@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "improv"
-version = "0.0.2"
+version = "0.2"
 description = "Platform for adaptive neuroscience experiments"
 authors = [{name = "Anne Draelos", email = "adraelos@umich.edu"}, 
             {name = "John Pearson", email = "john.pearson@duke.edu"}]
