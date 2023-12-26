@@ -1,9 +1,10 @@
 # based on https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
 name: Publish Python 🐍 distribution 📦 to PyPI 
 
-on: push
-  tags: 
-    - 'v[0-9]+.[0-9]+.[0-9]+'
+on: 
+  push:
+    tags: 
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   build:
