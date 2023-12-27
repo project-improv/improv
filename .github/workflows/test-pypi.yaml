@@ -22,7 +22,11 @@ jobs:
         build
         --user
     - name: Git Version
-      run: git --version
+      run: >- 
+        git --version
+        git describe
+        git describe --tags
+        git tag
     - name: Build a binary wheel and a source tarball
       run: python3 -m build
     - name: Store the distribution packages
