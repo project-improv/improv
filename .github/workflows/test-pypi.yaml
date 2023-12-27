@@ -22,7 +22,7 @@ jobs:
         build
         --user
     - name: Git Version
-      run: >- 
+      run: |
         git --version
         git describe
         git describe --tags
