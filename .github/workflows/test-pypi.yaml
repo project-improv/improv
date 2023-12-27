@@ -24,7 +24,6 @@ jobs:
     - name: Git Version
       run: |
         git --version
-        git describe
         git describe --tags
         git tag
     - name: Build a binary wheel and a source tarball
