@@ -79,6 +79,7 @@ exclude = '''
 [tool.versioningit]
 
 [tool.versioningit.vcs]
+vcs = "git-archive"
 match = ["v*"]
 
 [tool.versioningit.write]
