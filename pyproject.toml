@@ -81,5 +81,21 @@ exclude = '''
 [tool.versioningit.vcs]
 match = ["v*"]
 
+[tool.versioningit.next-version]
+method = "smallest"
+
+[tool.versioningit.format]
+# Format used when there have been commits since the most recent tag:
+distance = "{next_version}.dev{distance}"
+# Example formatted version: 1.2.4.dev42+ge174a1f
+
+# Format used when there are uncommitted changes:
+dirty = "{base_version}+d{build_date:%Y%m%d}"
+# Example formatted version: 1.2.3+d20230922
+
+# Format used when there are both commits and uncommitted changes:
+distance-dirty = "{next_version}.dev{distance}+{vcs}{rev}.d{build_date:%Y%m%d}"
+# Example formatted version: 1.2.4.dev42+ge174a1f.d20230922
+
 [tool.versioningit.write]
 file = "improv/_version.py"
