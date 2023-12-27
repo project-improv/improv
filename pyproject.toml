@@ -80,7 +80,7 @@ exclude = '''
 
 [tool.versioningit.vcs]
 method = "git-archive"
-match = ["v*"]
+describe-subst = "$Format:%(describe:match=v*)$"
 
 [tool.versioningit.write]
 file = "improv/_version.py"
