@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        fetch-tags: true
+        fetch-depth: 0
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -26,6 +26,7 @@ jobs:
     - name: Git Version
       run: |
         git --version
+        git describe --tags
         git tag
     - name: Build a binary wheel and a source tarball
       run: python3 -m build
