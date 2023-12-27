@@ -1,10 +1,9 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = ["setuptools", "setuptools-scm", "versioningit"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "improv"
-version = "0.2"
 description = "Platform for adaptive neuroscience experiments"
 authors = [{name = "Anne Draelos", email = "adraelos@umich.edu"}, 
             {name = "John Pearson", email = "john.pearson@duke.edu"}]
@@ -27,6 +26,7 @@ dependencies = [
     "h5py",
 ]
 classifiers = ['Development Status :: 1 - Planning']
+dynamic = ["version"]
 
 [project.optional-dependencies]
 tests = ["pytest", "async-timeout", "pytest-asyncio", "pytest-cov", "scikit-image",]
@@ -75,3 +75,11 @@ exclude = '''
   | build
 )/
 '''
+
+[tool.versioningit]
+
+[tool.versioningit.vcs]
+match = ["v*"]
+
+[tool.versioningit.write]
+file = "improv/_version.py"
