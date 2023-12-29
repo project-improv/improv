@@ -112,6 +112,7 @@ def test_config_logged(setdir, ports, caplog):
         ]
     )
 
+
 def test_loadConfig(sample_nex):
     nex = sample_nex
     nex.loadConfig("good_config.yaml")
@@ -137,6 +138,7 @@ def test_argument_config_precedence(setdir, ports):
     assert cfg["store_size"] == 20_000_000
     assert not cfg["use_hdd"]
     assert not cfg["use_watcher"]
+
 
 def test_settings_override_random_ports(setdir, ports):
     config_file = "minimal_with_settings.yaml"
