@@ -72,17 +72,25 @@ class PlasmaStoreInterface(StoreInterface):
         commit_freq=1,
     ):
         """
-        :param use_lmdb: bool Also write data to disk using the LMDB
+        Constructor for the Store
 
-        :param hdd_maxstore:
-            Maximum size database may grow to; used to size the memory mapping.
-            If the database grows larger than map_size, a MapFullError will be raised.
-            On 64-bit there is no penalty for making this huge. Must be <2GB on 32-bit.
+        Args:
+            name (string):
+            store_loc (stirng): Apache Arrow Plasma client location
 
-        :param hdd_path: Path to LMDB folder.
-        :param flush_immediately: Save objects to disk immediately
-        :param commit_freq: If not flush_immediately,
-            flush data to disk every {commit_freq} seconds.
+            use_lmdb (bool): Also write data to disk using the LMDB
+
+            hdd_maxstore:
+                Maximum size database may grow to; used to size the memory mapping.
+                If the database grows larger than map_size,
+                a MapFullError will be raised.
+                On 64-bit there is no penalty for making this huge.
+                Must be <2GB on 32-bit.
+
+            hdd_path: Path to LMDB folder.
+            flush_immediately (bool): Save objects to disk immediately
+            commit_freq (int): If not flush_immediately,
+                flush data to disk every {commit_freq} seconds.
         """
         self.use_hdd = use_lmdb
         self.flush_immediately = flush_immediately
@@ -101,6 +109,9 @@ class PlasmaStoreInterface(StoreInterface):
         Raises exception if can't connect
         Returns the plasmaclient if successful
         Updates the client internal
+
+        Args:
+            store_loc: store location
         """
         try:
             self.client = plasma.connect(store_loc, 20)
@@ -117,11 +128,17 @@ class PlasmaStoreInterface(StoreInterface):
         Raises PlasmaObjectExists if we are overwriting
         Unknown error
 
-        :param obj:
-        :param object_name:
-        :type object_name: str
-        :return: Plasma object ID
-        :rtype: class 'plasma.ObjectID'
+        Args:
+            object:
+            object_name (str):
+            flush_this_immediately (bool):
+
+        Returns:
+            class 'plasma.ObjectID': Plasma object ID
+
+        Raises:
+            PlasmaObjectExists: if we are overwriting \
+            unknown error
         """
         object_id = None
         try:
@@ -147,20 +164,36 @@ class PlasmaStoreInterface(StoreInterface):
         return object_id
 
     def get(self, object_name):
-        """Replaced with getID"""
+        """Get a single object from the store by object name
+        Checks to see if it knows the object first
+        Otherwise throw CannotGetObject to request dict update
+        TODO: update for lists of objects
+        TODO: replace with getID
+
+        Returns:
+            Stored object
+        """
+        # print('trying to get ', object_name)
+        # if self.stored.get(object_name) is None:
+        #     logger.error('Never recorded storing this object: '+object_name)
+        #     # Don't know anything about this object, treat as problematic
+        #     raise CannotGetObjectError(query = object_name)
+        # else:
         return self.getID(object_name)
 
     def getID(self, obj_id, hdd_only=False):
         """
         Get object by object ID
 
-        :param obj_id:
-        :type obj_id: class 'plasma.ObjectID'
-        :param hdd_only:
+        Args:
+            obj_id (class 'plasma.ObjectID'): the id of the object
+            hdd_only (bool):
 
-        :raises ObjectNotFoundError
+        Returns:
+            Stored object
 
-        :return: StoreInterfaced object
+        Raises:
+            ObjectNotFoundError: If the id is not found
         """
         # Check in RAM
         if not hdd_only:
@@ -178,12 +211,23 @@ class PlasmaStoreInterface(StoreInterface):
         raise ObjectNotFoundError
 
     def getList(self, ids):
-        """Get multiple objects from the store"""
+        """Get multiple objects from the store
+
+        Args:
+            ids (list): of type plasma.ObjectID
+
+        Returns:
+            list of the objects
+        """
         # self._get()
         return self.client.get(ids)
 
     def get_all(self):
-        """Get a listing of all objects in the store"""
+        """Get a listing of all objects in the store
+
+        Returns:
+            list of all the objects in the store
+        """
         return self.client.list()
 
     def reset(self):
@@ -197,7 +241,9 @@ class PlasmaStoreInterface(StoreInterface):
     # Subscribe to notifications about sealed objects?
     def subscribe(self):
         """Subscribe to a section? of the ds for singals
-        Throws unknown errors
+
+        Raises:
+            Exception: Unknown error
         """
         try:
             self.client.subscribe()
@@ -227,12 +273,19 @@ class PlasmaStoreInterface(StoreInterface):
     def updateStoreInterfaced(self, object_name, object_id):
         """Update local dict with info we need locally
         Report to Nexus that we updated the store
-            (did a put or delete/replace)
+        (did a put or delete/replace)
+
+        Args:
+            object_name (str): the name of the object to update
+            object_id (): the id of the object to update
         """
         self.stored.update({object_name: object_id})
 
-    def getStoreInterfaced(self):
-        """returns its info about what it has stored"""
+    def getStored(self):
+        """
+        Returns:
+            its info about what it has stored
+        """
         return self.stored
 
     def _put(self, obj, id):
@@ -242,7 +295,9 @@ class PlasmaStoreInterface(StoreInterface):
     def _get(self, object_name):
         """Get an object from the store using its name
         Assumes we know the id for the object_name
-        Raises ObjectNotFound if object_id returns no object from the store
+
+        Raises:
+            ObjectNotFound: if object_id returns no object from the store
         """
         # Most errors not shown to user.
         # Maintain separation between external and internal function calls.
@@ -270,16 +325,17 @@ class LMDBStoreInterface(StoreInterface):
         """
         Constructor for LMDB store
 
-        :param path: Path to folder containing LMDB folder.
-        :param name: Name of LMDB. Required if not {load].
-        :param max_size:
+        Args:
+            path (string): Path to folder containing LMDB folder.
+            name (string): Name of LMDB. Required if not {load].
+            max_size (float):
             Maximum size database may grow to; used to size the memory mapping.
             If the database grows larger than map_size, a MapFullError will be raised.
             On 64-bit there is no penalty for making this huge. Must be <2GB on 32-bit.
-        :param load: For Replayer use. Informs the class that we're loading
+            load (bool): For Replayer use. Informs the class that we're loading
                     from a previous LMDB, not create a new one.
-        :param flush_immediately: Save objects to disk immediately
-        :param commit_freq: If not flush_immediately,
+            flush_immediately (bool): Save objects to disk immediately
+            commit_freq (int): If not flush_immediately,
                             flush data to disk every {commit_freq} seconds.
         """
 
@@ -319,10 +375,12 @@ class LMDBStoreInterface(StoreInterface):
         """
         Get object using key (could be any byte string or plasma.ObjectID)
 
-        :param key:
-        :param include_metadata: returns whole LMDBData if true else LMDBData.obj
+        Args:
+            key:
+            include_metadata (bool): returns whole LMDBData if true else LMDBData.obj
                                 (just the stored object).
-        :rtype: object or LMDBData
+        Returns:
+            object or LMDBData
         """
         while True:
             try:
@@ -368,15 +426,15 @@ class LMDBStoreInterface(StoreInterface):
         """
         Put object ID / object pair into LMDB.
 
-        :param obj: Object to be saved
-        :param obj_name:
-        :type obj_name: str
-        :param obj_id: Object_id from Plasma client
-        :type obj_id: class 'plasma.ObjectID'
-        :param flush_this_immediately: Override self.flush_immediately.
+        Args:
+            obj: Object to be saved
+            obj_name (str): the name of the object
+            obj_id ('plasma.ObjectID'): Object_id from Plasma client
+            flush_this_immediately (bool): Override self.flush_immediately.
                                         For storage of critical objects.
 
-        :return: None
+        Returns:
+            None
         """
         # TODO: Duplication check
         if self.commit_thread is None:
@@ -430,12 +488,15 @@ class LMDBStoreInterface(StoreInterface):
         """
         Delete object from LMDB.
 
-        :param obj_id:
-        :type obj_id: class 'plasma.ObjectID'
-        :raises: ObjectNotFoundError
-        :return:
-        """
+        Args:
+            obj_id (class 'plasma.ObjectID'): the object_id to be deleted
 
+        Returns:
+            None
+
+        Raises:
+            ObjectNotFoundError: If the id is not found
+        """
         with self.lmdb_env.begin(write=True) as txn:
             out = txn.pop(LMDBStoreInterface._convert_obj_id_to_bytes(obj_id))
         if out is None:
@@ -473,7 +534,8 @@ class LMDBData:
     @property
     def queue(self):
         """
-        :return: Queue name if object is a queue else None
+        Returns:
+            Queue name if object is a queue else None
         """
         # Expected: 'q__Acquirer.q_out__124' -> {'q_out'}
         if self.is_queue:
