@@ -4,6 +4,7 @@ import pytest
 import logging
 import subprocess
 import signal
+import yaml
 
 from improv.nexus import Nexus
 from improv.store import StoreInterface
@@ -111,7 +112,6 @@ def test_config_logged(setdir, ports, caplog):
         ]
     )
 
-
 def test_loadConfig(sample_nex):
     nex = sample_nex
     nex.loadConfig("good_config.yaml")
@@ -137,6 +137,18 @@ def test_argument_config_precedence(setdir, ports):
     assert cfg["store_size"] == 20_000_000
     assert not cfg["use_hdd"]
     assert not cfg["use_watcher"]
+
+def test_settings_override_random_ports(setdir, ports):
+    config_file = "minimal_with_settings.yaml"
+    nex = Nexus("test")
+    with open(config_file, "r") as ymlfile:
+        cfg = yaml.safe_load(ymlfile)["settings"]
+    control_port, output_port = nex.createNexus(
+        file=config_file, control_port=0, output_port=0
+    )
+    nex.destroyNexus()
+    assert control_port == cfg["control_port"]
+    assert output_port == cfg["output_port"]
 
 
 # delete this comment later
