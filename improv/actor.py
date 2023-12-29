@@ -48,7 +48,7 @@ class AbstractActor:
         """Sets the client interface to the store
 
         Args:
-            client (improv.nexus.Link): Set client interface to the store
+            client (improv.store.StoreInterface): Set client interface to the store
         """
         self.client = client
 

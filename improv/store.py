@@ -214,7 +214,7 @@ class PlasmaStoreInterface(StoreInterface):
         """Get multiple objects from the store
 
         Args:
-            ids (list):
+            ids (list): of type plasma.ObjectID
 
         Returns:
             list of the objects

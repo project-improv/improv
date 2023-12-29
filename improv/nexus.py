@@ -347,8 +347,8 @@ class Nexus:
         quit the process and stop polling signals from queues
 
         Args:
-            signal (signal.signal): Signal for signal handler.
-            queues (AsyncQueue): Comm queues for links.
+            signal (): Signal for signal handler.
+            queues (improv.link.AsyncQueue): Comm queues for links.
         """
         logger.warn(
             "Shutting down via signal handler for {}. \
@@ -527,8 +527,8 @@ class Nexus:
         the next run of the event loop.
 
         Args:
-            stop_signal (signal.signal): Signal for signal handler.
-            queues (AsyncQueue): Comm queues for links.
+            stop_signal (): Signal for signal handler.
+            queues (improv.link.AsyncQueue): Comm queues for links.
         """
         logger.info("Received shutdown order")
 
@@ -566,7 +566,7 @@ class Nexus:
         #TODO: Generalize this to non-plasma stores
 
         Args:
-            size:
+            size: in bytes
 
         Raises:
             RuntimeError: if the size is undefined
@@ -611,7 +611,7 @@ class Nexus:
 
         Args:
             name: name of the actor
-            actor:
+            actor: improv.actor.Actor
         """
         # Instantiate selected class
         mod = import_module(actor.packagename)
