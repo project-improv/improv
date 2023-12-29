@@ -133,7 +133,7 @@ class Nexus:
         self.allowStart = False
         self.stopped = False
 
-        return (control_port, output_port)
+        return (cfg["control_port"], cfg["output_port"])
 
     def loadConfig(self, file):
         """Load configuration file.
