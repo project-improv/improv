@@ -1,0 +1,1118 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>improv.nexus &#8212; improv documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../_static/sphinx-thebe.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/improv/nexus';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../../intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.png" class="logo__image only-light" alt="improv documentation - Home"/>
+    <script>document.write(`<img src="../../_static/logo.png" class="logo__image only-dark" alt="improv documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../intro.html">
+                    Welcome to your Jupyter Book
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../markdown.html">Markdown Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks.html">Content with notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../markdown-notebooks.html">Notebooks with MyST Markdown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../content.html">Content in Jupyter Book</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../autoapi/improv/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/improv/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/improv/utils/checks/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.checks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/improv/utils/reader/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.reader</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/improv/utils/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.utils</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/actor/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.actor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/cli/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.cli</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/config/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.config</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/link/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.link</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/nexus/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.nexus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/replayer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.replayer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.store</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/tui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.tui</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/watcher/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.watcher</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/project-improv/improv" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/project-improv/improv/issues/new?title=Issue%20on%20page%20%2F_modules/improv/nexus.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for improv.nexus</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">concurrent</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+
+<span class="kn">from</span> <span class="nn">queue</span> <span class="kn">import</span> <span class="n">Full</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">get_context</span>
+<span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">import_module</span>
+
+<span class="kn">import</span> <span class="nn">zmq.asyncio</span> <span class="k">as</span> <span class="nn">zmq</span>
+<span class="kn">from</span> <span class="nn">zmq</span> <span class="kn">import</span> <span class="n">PUB</span><span class="p">,</span> <span class="n">REP</span><span class="p">,</span> <span class="n">SocketOption</span>
+
+<span class="kn">from</span> <span class="nn">improv.store</span> <span class="kn">import</span> <span class="n">StoreInterface</span>
+<span class="kn">from</span> <span class="nn">improv.actor</span> <span class="kn">import</span> <span class="n">Signal</span>
+<span class="kn">from</span> <span class="nn">improv.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">improv.link</span> <span class="kn">import</span> <span class="n">Link</span><span class="p">,</span> <span class="n">MultiLink</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+
+<span class="c1"># TODO: Set up store.notify in async function (?)</span>
+
+
+<div class="viewcode-block" id="Nexus"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus">[docs]</a><span class="k">class</span> <span class="nc">Nexus</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main server class for handling objects in improv&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Server&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+<div class="viewcode-block" id="Nexus.createNexus"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.createNexus">[docs]</a>    <span class="k">def</span> <span class="nf">createNexus</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">use_hdd</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">use_watcher</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">store_size</span><span class="o">=</span><span class="mi">10000000</span><span class="p">,</span>
+        <span class="n">control_port</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">output_port</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Function to initialize class variables based on config file.</span>
+
+<span class="sd">        Starts a store of class Limbo, and then loads the config file.</span>
+<span class="sd">        The config file specifies the specific actors that nexus will</span>
+<span class="sd">        be connected to, as well as their links.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file (string): Name of the config file.</span>
+<span class="sd">            use_hdd (bool): Whether to use hdd for the store.</span>
+<span class="sd">            use_watcher (bool): Whether to use watcher for the store.</span>
+<span class="sd">            store_size (int): initial store size</span>
+<span class="sd">            control_port (int): port number for input socket</span>
+<span class="sd">            output_port (int): port number for output socket</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            string: &quot;Shutting down&quot;, to notify start() that pollQueues has completed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">curr_dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;************ new improv server session </span><span class="si">{</span><span class="n">curr_dt</span><span class="si">}</span><span class="s2"> ************&quot;</span><span class="p">)</span>
+
+        <span class="c1"># set up socket in lieu of printing to stdout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zmq_context</span> <span class="o">=</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Context</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmq_context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">PUB</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_socket</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;tcp://*:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">output_port</span><span class="p">)</span>
+        <span class="n">out_port_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_socket</span><span class="o">.</span><span class="n">getsockopt_string</span><span class="p">(</span><span class="n">SocketOption</span><span class="o">.</span><span class="n">LAST_ENDPOINT</span><span class="p">)</span>
+        <span class="n">output_port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">out_port_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmq_context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">REP</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_socket</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;tcp://*:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">control_port</span><span class="p">)</span>
+        <span class="n">in_port_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_socket</span><span class="o">.</span><span class="n">getsockopt_string</span><span class="p">(</span><span class="n">SocketOption</span><span class="o">.</span><span class="n">LAST_ENDPOINT</span><span class="p">)</span>
+        <span class="n">control_port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">in_port_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># default size should be system-dependent; this is 40 GB</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_startStoreInterface</span><span class="p">(</span><span class="n">store_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_socket</span><span class="o">.</span><span class="n">send_string</span><span class="p">(</span><span class="s2">&quot;StoreInterface started&quot;</span><span class="p">)</span>
+
+        <span class="c1"># connect to store and subscribe to notifications</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Create new store object&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">StoreInterface</span><span class="p">(</span><span class="n">store_loc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">store_loc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">subscribe</span><span class="p">()</span>
+
+        <span class="c1"># LMDB storage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_hdd</span> <span class="o">=</span> <span class="n">use_hdd</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_hdd</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lmdb_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;lmdb_</span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">_%H%M%S&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">store_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="c1"># TODO: Better logic/flow for using watcher as an option</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_watch</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">use_watcher</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">startWatcher</span><span class="p">()</span>
+
+        <span class="c1"># Create dicts for reading config and creating actors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comm_queues</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sig_queues</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_queues</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actors</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processes</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Need a config file!&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>  <span class="c1"># TODO</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loadConfig</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">file</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;quit&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;load&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allowStart</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stopped</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">control_port</span><span class="p">,</span> <span class="n">output_port</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Nexus.loadConfig"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.loadConfig">[docs]</a>    <span class="k">def</span> <span class="nf">loadConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;For each connection:</span>
+<span class="sd">        create a Link with a name (purpose), start, and end</span>
+<span class="sd">        Start links to one actor&#39;s name, end to the other.</span>
+<span class="sd">        Nexus gives start_actor the Link as a q_in,</span>
+<span class="sd">        and end_actor the Link as a q_out.</span>
+<span class="sd">        Nexus maintains dict of name and associated Link.</span>
+<span class="sd">        Nexus also has list of Links that it is itself connected to</span>
+<span class="sd">        for communication purposes.</span>
+
+<span class="sd">        OR</span>
+<span class="sd">        For each connection, create 2 Links. Nexus acts as intermediary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file (string): input config filepath</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO load from file or user input, as in dialogue through FrontEnd?</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">configFile</span><span class="o">=</span><span class="n">file</span><span class="p">)</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">createConfig</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;An error occurred when loading the configuration file. &quot;</span>
+                <span class="s2">&quot;Please see the log file for more details.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># create all data links requested from Config config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">createConnections</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">hasGUI</span><span class="p">:</span>
+            <span class="c1"># Have to load GUI first (at least with Caiman)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">gui</span>  <span class="c1"># m is ConfigModule</span>
+            <span class="c1"># treat GUI uniquely since user communication comes from here</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">visualClass</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;visual&quot;</span><span class="p">]</span>
+                <span class="c1"># need to instantiate this actor</span>
+                <span class="n">visualActor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">visualClass</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">createActor</span><span class="p">(</span><span class="n">visualClass</span><span class="p">,</span> <span class="n">visualActor</span><span class="p">)</span>
+                <span class="c1"># then add links for visual</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">{</span>
+                    <span class="n">key</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_queues</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_queues</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">visualClass</span> <span class="ow">in</span> <span class="n">key</span>
+                <span class="p">}</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assignLink</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+
+                <span class="c1"># then give it to our GUI</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">createActor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">visual</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">visualClass</span><span class="p">])</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">p_GUI</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">run</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">p_GUI</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">p_GUI</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exception in setting up GUI </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># have fake GUI for communications</span>
+            <span class="n">q_comm</span> <span class="o">=</span> <span class="n">Link</span><span class="p">(</span><span class="s2">&quot;GUI_comm&quot;</span><span class="p">,</span> <span class="s2">&quot;GUI&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comm_queues</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">q_comm</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">q_comm</span><span class="p">})</span>
+
+        <span class="c1"># First set up each class/actor</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">actor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">actors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="c1"># Check for actors being instantiated twice</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">createActor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">actor</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting up actor </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exception in setting up actor </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+
+        <span class="c1"># Second set up each connection b/t actors</span>
+        <span class="c1"># TODO: error handling for if a user tries to use q_in without defining it</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_queues</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assignLink</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">link</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;use_watcher&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">watchin</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;use_watcher&quot;</span><span class="p">]:</span>
+                <span class="n">watch_link</span> <span class="o">=</span> <span class="n">Link</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_watch&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;Watcher&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assignLink</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.watchout&quot;</span><span class="p">,</span> <span class="n">watch_link</span><span class="p">)</span>
+                <span class="n">watchin</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">watch_link</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">createWatcher</span><span class="p">(</span><span class="n">watchin</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Nexus.startNexus"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.startNexus">[docs]</a>    <span class="k">def</span> <span class="nf">startNexus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Puts all actors in separate processes and begins polling</span>
+<span class="sd">        to listen to comm queues</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s2">&quot;GUI&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>  <span class="c1"># GUI already started</span>
+                <span class="k">if</span> <span class="s2">&quot;method&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
+                    <span class="n">meth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;This actor wants: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">meth</span><span class="p">))</span>
+                    <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_context</span><span class="p">(</span><span class="n">meth</span><span class="p">)</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">run</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_context</span><span class="p">(</span><span class="s2">&quot;fork&quot;</span><span class="p">)</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">runActor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">m</span><span class="p">,))</span>
+                    <span class="k">if</span> <span class="s2">&quot;Watcher&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="s2">&quot;daemon&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
+                            <span class="n">p</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;daemon&quot;</span><span class="p">]</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Setting daemon for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">p</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># default behavior</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out_socket</span><span class="o">.</span><span class="n">send_string</span><span class="p">(</span><span class="s2">&quot;Awaiting input:&quot;</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_until_complete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pollQueues</span><span class="p">())</span>
+        <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loop is cancelled&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Result of run_until_complete: </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Res failed to await: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current loop: </span><span class="si">{</span><span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">loop</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="n">loop</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Shutdown loop&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zmq_context</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Nexus.start"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start all the processes in Nexus</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting processes&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">processes</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;All processes started&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Nexus.destroyNexus"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.destroyNexus">[docs]</a>    <span class="k">def</span> <span class="nf">destroyNexus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Method that calls the internal method</span>
+<span class="sd">        to kill the process running the store (plasma server)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Destroying Nexus&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_closeStoreInterface</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">store_loc</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;StoreInterface file </span><span class="si">{}</span><span class="s2"> is already deleted&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">store_loc</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Delete the store at location </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">store_loc</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Nexus.pollQueues"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.pollQueues">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">pollQueues</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Listens to links and processes their signals.</span>
+
+<span class="sd">        For every communications queue connected to Nexus, a task is</span>
+<span class="sd">        created that gets from the queue. Throughout runtime, when these</span>
+<span class="sd">        queues output a signal, they are processed by other functions.</span>
+<span class="sd">        At the end of runtime (when the gui has been closed), polling is</span>
+<span class="sd">        stopped.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            string: &quot;Shutting down&quot;, Notifies start() that pollQueues has completed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actorStates</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">hasGUI</span><span class="p">:</span>
+            <span class="c1"># Since Visual is not started, it cannot send a ready signal.</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">actorStates</span><span class="p">[</span><span class="s2">&quot;Visual&quot;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Visual is not started: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                <span class="k">pass</span>
+        <span class="n">polling</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comm_queues</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">pollingNames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comm_queues</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">polling</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">get_async</span><span class="p">()))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">remote_input</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">early_exit</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># add signal handlers</span>
+        <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span>
+        <span class="n">signals</span> <span class="o">=</span> <span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGHUP</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">:</span>
+            <span class="n">loop</span><span class="o">.</span><span class="n">add_signal_handler</span><span class="p">(</span>
+                <span class="n">s</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_polling_and_quit</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">polling</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">[</span><span class="s2">&quot;quit&quot;</span><span class="p">]:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">done</span><span class="p">,</span> <span class="n">pending</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">,</span> <span class="n">return_when</span><span class="o">=</span><span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">FIRST_COMPLETED</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">CancelledError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="c1"># sort through tasks to see where we got input from</span>
+            <span class="c1"># (so we can choose a handler)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">polling</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">done</span> <span class="ow">or</span> <span class="n">polling</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;done&quot;</span><span class="p">:</span>
+                        <span class="c1"># catch tasks that complete await wait/gather</span>
+                        <span class="n">r</span> <span class="o">=</span> <span class="n">polling</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">result</span>
+                        <span class="k">if</span> <span class="n">r</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="s2">&quot;GUI&quot;</span> <span class="ow">in</span> <span class="n">pollingNames</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">processGuiSignal</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pollingNames</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">processActorSignal</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pollingNames</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">polling</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">get_async</span><span class="p">())</span>
+                <span class="k">elif</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">done</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;t.result = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">result</span><span class="p">()))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">remote_input</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">early_exit</span><span class="p">:</span>  <span class="c1"># don&#39;t run this again if we already have</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stop_polling</span><span class="p">(</span><span class="s2">&quot;quit&quot;</span><span class="p">,</span> <span class="n">polling</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Shutting down polling&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;Shutting Down&quot;</span></div>
+
+<div class="viewcode-block" id="Nexus.stop_polling_and_quit"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.stop_polling_and_quit">[docs]</a>    <span class="k">def</span> <span class="nf">stop_polling_and_quit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">queues</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        quit the process and stop polling signals from queues</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            signal (): Signal for signal handler.</span>
+<span class="sd">            queues (improv.link.AsyncQueue): Comm queues for links.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Shutting down via signal handler for </span><span class="si">{}</span><span class="s2">. </span><span class="se">\</span>
+<span class="s2">                Steps may be out of order or dirty.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">signal</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_polling</span><span class="p">(</span><span class="n">signal</span><span class="p">,</span> <span class="n">queues</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">[</span><span class="s2">&quot;quit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">early_exit</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Nexus.remote_input"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.remote_input">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">remote_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_socket</span><span class="o">.</span><span class="n">recv_multipart</span><span class="p">()</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">msg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_socket</span><span class="o">.</span><span class="n">send_string</span><span class="p">(</span><span class="s2">&quot;Awaiting input:&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="n">Signal</span><span class="o">.</span><span class="n">quit</span><span class="p">():</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_socket</span><span class="o">.</span><span class="n">send_string</span><span class="p">(</span><span class="s2">&quot;QUIT&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processGuiSignal</span><span class="p">([</span><span class="n">command</span><span class="p">],</span> <span class="s2">&quot;TUI_Nexus&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Nexus.processGuiSignal"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.processGuiSignal">[docs]</a>    <span class="k">def</span> <span class="nf">processGuiSignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Receive flags from the Front End as user input&quot;&quot;&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Received signal from user: &quot;</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Signal</span><span class="o">.</span><span class="n">run</span><span class="p">():</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Begin run!&quot;</span><span class="p">)</span>
+                <span class="c1"># self.flags[&#39;run&#39;] = True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Signal</span><span class="o">.</span><span class="n">setup</span><span class="p">():</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running setup&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Signal</span><span class="o">.</span><span class="n">ready</span><span class="p">():</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;GUI ready&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">actorStates</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Signal</span><span class="o">.</span><span class="n">quit</span><span class="p">():</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Quitting the program!&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">[</span><span class="s2">&quot;quit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Signal</span><span class="o">.</span><span class="n">load</span><span class="p">():</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading Config config from file &quot;</span> <span class="o">+</span> <span class="n">flag</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loadConfig</span><span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Signal</span><span class="o">.</span><span class="n">pause</span><span class="p">():</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Pausing processes&quot;</span><span class="p">)</span>
+                <span class="c1"># TODO. Also resume, reset</span>
+
+            <span class="c1"># temporary WiP</span>
+            <span class="k">elif</span> <span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Signal</span><span class="o">.</span><span class="n">kill</span><span class="p">():</span>
+                <span class="c1"># TODO: specify actor to kill</span>
+                <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processes</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Signal</span><span class="o">.</span><span class="n">revive</span><span class="p">():</span>
+                <span class="n">dead</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processes</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">exitcode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">pro</span> <span class="ow">in</span> <span class="n">dead</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">pro</span><span class="o">.</span><span class="n">name</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">pro</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+                    <span class="n">actor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="s2">&quot;GUI&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>  <span class="c1"># GUI hard to revive independently</span>
+                        <span class="k">if</span> <span class="s2">&quot;method&quot;</span> <span class="ow">in</span> <span class="n">actor</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
+                            <span class="n">meth</span> <span class="o">=</span> <span class="n">actor</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;This actor wants: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">meth</span><span class="p">))</span>
+                            <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_context</span><span class="p">(</span><span class="n">meth</span><span class="p">)</span>
+                            <span class="n">p</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">run</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_context</span><span class="p">(</span><span class="s2">&quot;fork&quot;</span><span class="p">)</span>
+                            <span class="n">p</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">runActor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">m</span><span class="p">,))</span>
+                            <span class="k">if</span> <span class="s2">&quot;Watcher&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="s2">&quot;daemon&quot;</span> <span class="ow">in</span> <span class="n">actor</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
+                                    <span class="n">p</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="n">actor</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;daemon&quot;</span><span class="p">]</span>
+                                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Setting daemon for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">p</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span>
+
+                    <span class="c1"># Setting the stores for each actor to be the same</span>
+                    <span class="c1"># TODO: test if this works for fork -- don&#39;t think it does?</span>
+                    <span class="n">al</span> <span class="o">=</span> <span class="p">[</span><span class="n">act</span> <span class="k">for</span> <span class="n">act</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">act</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">pro</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+                    <span class="n">m</span><span class="o">.</span><span class="n">setStoreInterface</span><span class="p">(</span><span class="n">al</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">client</span><span class="p">)</span>
+                    <span class="n">m</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">m</span><span class="o">.</span><span class="n">_getStoreInterface</span><span class="p">()</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                    <span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                    <span class="n">m</span><span class="o">.</span><span class="n">q_sig</span><span class="o">.</span><span class="n">put_nowait</span><span class="p">(</span><span class="n">Signal</span><span class="o">.</span><span class="n">setup</span><span class="p">())</span>
+                    <span class="c1"># TODO: ensure waiting for ready before run?</span>
+                    <span class="n">m</span><span class="o">.</span><span class="n">q_sig</span><span class="o">.</span><span class="n">put_nowait</span><span class="p">(</span><span class="n">Signal</span><span class="o">.</span><span class="n">run</span><span class="p">())</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">processes</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processes</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">exitcode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Signal</span><span class="o">.</span><span class="n">stop</span><span class="p">():</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Nexus received stop signal&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unknown signal received from Nexus: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">flag</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Nexus.processActorSignal"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.processActorSignal">[docs]</a>    <span class="k">def</span> <span class="nf">processActorSignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sig</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">sig</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Received signal &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sig</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; from &quot;</span> <span class="o">+</span> <span class="n">name</span><span class="p">)</span>
+            <span class="n">state_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">actorStates</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopped</span> <span class="ow">and</span> <span class="n">sig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Signal</span><span class="o">.</span><span class="n">ready</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">actorStates</span><span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">sig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">val</span> <span class="o">==</span> <span class="n">Signal</span><span class="o">.</span><span class="n">ready</span><span class="p">()</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">state_val</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">allowStart</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="c1"># TODO: replace with q_sig to FE/Visual</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Allowing start&quot;</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopped</span> <span class="ow">and</span> <span class="n">sig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Signal</span><span class="o">.</span><span class="n">stop_success</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">actorStates</span><span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">sig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">val</span> <span class="o">==</span> <span class="n">Signal</span><span class="o">.</span><span class="n">stop_success</span><span class="p">()</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">state_val</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">allowStart</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># TODO: replace with q_sig to FE/Visual</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">stoppped</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;All stops were successful. Allowing start.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Nexus.setup"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig_queues</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting setup: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+                <span class="n">q</span><span class="o">.</span><span class="n">put_nowait</span><span class="p">(</span><span class="n">Signal</span><span class="o">.</span><span class="n">setup</span><span class="p">())</span>
+            <span class="k">except</span> <span class="n">Full</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Signal queue&quot;</span> <span class="o">+</span> <span class="n">q</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;is full&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Nexus.run"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowStart</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig_queues</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">q</span><span class="o">.</span><span class="n">put_nowait</span><span class="p">(</span><span class="n">Signal</span><span class="o">.</span><span class="n">run</span><span class="p">())</span>
+                <span class="k">except</span> <span class="n">Full</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Signal queue&quot;</span> <span class="o">+</span> <span class="n">q</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;is full&quot;</span><span class="p">)</span>
+                    <span class="c1"># queue full, keep going anyway</span>
+                    <span class="c1"># TODO: add repeat trying as async task</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Not all actors ready yet, please wait and then try again.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Nexus.quit"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.quit">[docs]</a>    <span class="k">def</span> <span class="nf">quit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Killing child processes&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_socket</span><span class="o">.</span><span class="n">send_string</span><span class="p">(</span><span class="s2">&quot;QUIT&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig_queues</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">q</span><span class="o">.</span><span class="n">put_nowait</span><span class="p">(</span><span class="n">Signal</span><span class="o">.</span><span class="n">quit</span><span class="p">())</span>
+            <span class="k">except</span> <span class="n">Full</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Signal queue </span><span class="si">{}</span><span class="s2"> full, cannot quit&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Queue </span><span class="si">{}</span><span class="s2"> corrupted.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">hasGUI</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_GUI</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_watch</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_watch</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">processes</span><span class="p">:</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Actors terminated&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">destroyNexus</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Nexus.stop"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Starting stop procedure&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allowStart</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sig_queues</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">q</span><span class="o">.</span><span class="n">put_nowait</span><span class="p">(</span><span class="n">Signal</span><span class="o">.</span><span class="n">stop</span><span class="p">())</span>
+            <span class="k">except</span> <span class="n">Full</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Signal queue&quot;</span> <span class="o">+</span> <span class="n">q</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;is full&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allowStart</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Nexus.revive"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.revive">[docs]</a>    <span class="k">def</span> <span class="nf">revive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Starting revive&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Nexus.stop_polling"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.stop_polling">[docs]</a>    <span class="k">def</span> <span class="nf">stop_polling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stop_signal</span><span class="p">,</span> <span class="n">queues</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cancels outstanding tasks and fills their last request.</span>
+
+<span class="sd">        Puts a string into all active queues, then cancels their</span>
+<span class="sd">        corresponding tasks. These tasks are not fully cancelled until</span>
+<span class="sd">        the next run of the event loop.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            stop_signal (): Signal for signal handler.</span>
+<span class="sd">            queues (improv.link.AsyncQueue): Comm queues for links.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Received shutdown order&quot;</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stop signal: </span><span class="si">{</span><span class="n">stop_signal</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">shutdown_message</span> <span class="o">=</span> <span class="s2">&quot;SHUTDOWN&quot;</span>
+        <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">queues</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">shutdown_message</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Unable to send shutdown message to </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Canceling outstanding tasks&quot;</span><span class="p">)</span>
+
+        <span class="p">[</span><span class="n">task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tasks</span><span class="p">]</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Polling has stopped.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Nexus.createStoreInterface"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.createStoreInterface">[docs]</a>    <span class="k">def</span> <span class="nf">createStoreInterface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates StoreInterface w/ or w/out LMDB</span>
+<span class="sd">        functionality based on {self.use_hdd}.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_hdd</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">StoreInterface</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_loc</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_dict</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">store_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">StoreInterface</span><span class="p">(</span>
+                    <span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_loc</span><span class="p">,</span> <span class="n">use_hdd</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">lmdb_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lmdb_name</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_startStoreInterface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Start a subprocess that runs the plasma store</span>
+<span class="sd">        Raises a RuntimeError exception size is undefined</span>
+<span class="sd">        Raises an Exception if the plasma store doesn&#39;t start</span>
+
+<span class="sd">        #TODO: Generalize this to non-plasma stores</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            size: in bytes</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: if the size is undefined</span>
+<span class="sd">            Exception: if the plasma store doesn&#39;t start</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Server size needs to be specified&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">store_loc</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;/tmp/&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">p_StoreInterface</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;plasma_store&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;-s&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">store_loc</span><span class="p">,</span>
+                    <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">size</span><span class="p">),</span>
+                    <span class="s2">&quot;-e&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;hashtable://test&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span>
+                <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;StoreInterface start successful: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">store_loc</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;StoreInterface cannot be started: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_closeStoreInterface</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Internal method to kill the subprocess</span>
+<span class="sd">        running the store (plasma sever)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">p_StoreInterface</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">p_StoreInterface</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;StoreInterface close successful: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">store_loc</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Cannot close store </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Nexus.createActor"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.createActor">[docs]</a>    <span class="k">def</span> <span class="nf">createActor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">actor</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Function to instantiate actor, add signal and comm Links,</span>
+<span class="sd">        and update self.actors dictionary</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: name of the actor</span>
+<span class="sd">            actor: improv.actor.Actor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Instantiate selected class</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">packagename</span><span class="p">)</span>
+        <span class="n">clss</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">actor</span><span class="o">.</span><span class="n">classname</span><span class="p">)</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="n">clss</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_loc</span><span class="p">,</span> <span class="o">**</span><span class="n">actor</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;method&quot;</span> <span class="ow">in</span> <span class="n">actor</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="c1"># check for spawn</span>
+            <span class="k">if</span> <span class="s2">&quot;fork&quot;</span> <span class="o">==</span> <span class="n">actor</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]:</span>
+                <span class="c1"># Add link to StoreInterface store</span>
+                <span class="n">store</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createStoreInterface</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">instance</span><span class="o">.</span><span class="n">setStoreInterface</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># spawn or forkserver; can&#39;t pickle plasma store</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No store for this actor yet </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Add link to StoreInterface store</span>
+            <span class="n">store</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">createStoreInterface</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">setStoreInterface</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
+
+        <span class="n">q_comm</span> <span class="o">=</span> <span class="n">Link</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_comm&quot;</span><span class="p">,</span> <span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">q_sig</span> <span class="o">=</span> <span class="n">Link</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_sig&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comm_queues</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">q_comm</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">q_comm</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sig_queues</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">q_sig</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">q_sig</span><span class="p">})</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">setCommLinks</span><span class="p">(</span><span class="n">q_comm</span><span class="p">,</span> <span class="n">q_sig</span><span class="p">)</span>
+
+        <span class="c1"># Update information</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">instance</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="Nexus.runActor"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.runActor">[docs]</a>    <span class="k">def</span> <span class="nf">runActor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actor</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the actor continually; used for separate processes</span>
+<span class="sd">        #TODO: hook into monitoring here?</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            actor:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">actor</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Nexus.createConnections"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.createConnections">[docs]</a>    <span class="k">def</span> <span class="nf">createConnections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assemble links (multi or other)</span>
+<span class="sd">        for later assignment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">source</span><span class="p">,</span> <span class="n">drain</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">connections</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># current assumption is connection goes from q_out to something(s) else</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">drain</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># we need multiasyncqueue</span>
+                <span class="n">link</span><span class="p">,</span> <span class="n">endLinks</span> <span class="o">=</span> <span class="n">MultiLink</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_multi&quot;</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">drain</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data_queues</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">source</span><span class="p">:</span> <span class="n">link</span><span class="p">})</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">endLinks</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">data_queues</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">drain</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> <span class="n">e</span><span class="p">})</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># single input, single output</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">drain</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">d_name</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>  <span class="c1"># TODO: check if .anything, if not assume q_in</span>
+                <span class="n">link</span> <span class="o">=</span> <span class="n">Link</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">d_name</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">source</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data_queues</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">source</span><span class="p">:</span> <span class="n">link</span><span class="p">})</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data_queues</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">d</span><span class="p">:</span> <span class="n">link</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="Nexus.assignLink"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.assignLink">[docs]</a>    <span class="k">def</span> <span class="nf">assignLink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Function to set up Links between actors</span>
+<span class="sd">        for data location passing</span>
+<span class="sd">        Actor must already be instantiated</span>
+
+<span class="sd">        #NOTE: Could use this for reassigning links if actors crash?</span>
+
+<span class="sd">        #TODO: Adjust to use default q_out and q_in vs being specified</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">classname</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">linktype</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">linktype</span> <span class="o">==</span> <span class="s2">&quot;q_out&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">classname</span><span class="p">]</span><span class="o">.</span><span class="n">setLinkOut</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">linktype</span> <span class="o">==</span> <span class="s2">&quot;q_in&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">classname</span><span class="p">]</span><span class="o">.</span><span class="n">setLinkIn</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">linktype</span> <span class="o">==</span> <span class="s2">&quot;watchout&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">classname</span><span class="p">]</span><span class="o">.</span><span class="n">setLinkWatch</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">classname</span><span class="p">]</span><span class="o">.</span><span class="n">addLink</span><span class="p">(</span><span class="n">linktype</span><span class="p">,</span> <span class="n">link</span><span class="p">)</span></div>
+
+    <span class="c1"># TODO: StoreInterface access here seems wrong, need to test</span>
+<div class="viewcode-block" id="Nexus.startWatcher"><a class="viewcode-back" href="../../autoapi/improv/nexus/index.html#improv.nexus.Nexus.startWatcher">[docs]</a>    <span class="k">def</span> <span class="nf">startWatcher</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">improv.watcher</span> <span class="kn">import</span> <span class="n">Watcher</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span> <span class="o">=</span> <span class="n">Watcher</span><span class="p">(</span><span class="s2">&quot;watcher&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">createStoreInterface</span><span class="p">(</span><span class="s2">&quot;watcher&quot;</span><span class="p">))</span>
+        <span class="c1"># store = self.createStoreInterface(&quot;watcher&quot;) if not self.use_hdd else None</span>
+        <span class="n">q_sig</span> <span class="o">=</span> <span class="n">Link</span><span class="p">(</span><span class="s2">&quot;watcher_sig&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;watcher&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">watcher</span><span class="o">.</span><span class="n">setLinks</span><span class="p">(</span><span class="n">q_sig</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sig_queues</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">q_sig</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">q_sig</span><span class="p">})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_watch</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">watcher</span><span class="o">.</span><span class="n">run</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;watcher_process&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_watch</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_watch</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_watch</span><span class="p">)</span></div></div>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By improv team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

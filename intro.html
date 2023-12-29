@@ -35,6 +35,7 @@
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -171,6 +172,28 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l1"><a class="reference internal" href="markdown.html">Markdown Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks.html">Content with notebooks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="markdown-notebooks.html">Notebooks with MyST Markdown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content.html">Content in Jupyter Book</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/improv/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/improv/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/improv/utils/checks/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.checks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/improv/utils/reader/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.reader</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/improv/utils/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.utils</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/actor/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.actor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/cli/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.cli</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/config/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.config</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/link/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.link</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/nexus/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.nexus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/replayer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.replayer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.store</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/tui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.tui</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/watcher/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.watcher</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
     </div>
@@ -380,6 +403,28 @@ It does not go in-depth into any particular topic - check out <a class="referenc
 <li class="toctree-l1"><a class="reference internal" href="markdown.html">Markdown Files</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks.html">Content with notebooks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="markdown-notebooks.html">Notebooks with MyST Markdown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content.html">Content in Jupyter Book</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/improv/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/improv/utils/checks/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.checks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/improv/utils/reader/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.reader</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/improv/utils/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.utils</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/actor/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.actor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/cli/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.cli</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/config/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.config</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/link/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.link</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/nexus/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.nexus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/replayer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.replayer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.store</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/tui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.tui</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/improv/watcher/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.watcher</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </section>

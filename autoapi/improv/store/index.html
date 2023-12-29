@@ -1,0 +1,1031 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>improv.store &#8212; improv documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../../_static/sphinx-thebe.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/improv/store/index';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="improv.tui" href="../tui/index.html" />
+    <link rel="prev" title="improv.replayer" href="../replayer/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../../../intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.png" class="logo__image only-light" alt="improv documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.png" class="logo__image only-dark" alt="improv documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../intro.html">
+                    Welcome to your Jupyter Book
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../markdown.html">Markdown Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks.html">Content with notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../markdown-notebooks.html">Notebooks with MyST Markdown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../content.html">Content in Jupyter Book</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="../utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../utils/checks/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.checks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../utils/reader/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.reader</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../utils/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.utils</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../actor/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.actor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cli/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.cli</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../config/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.config</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../link/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.link</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../nexus/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.nexus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../replayer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.replayer</span></code></a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.store</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.tui</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../watcher/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.watcher</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/project-improv/improv" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/project-improv/improv/issues/new?title=Issue%20on%20page%20%2Fautoapi/improv/store/index.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/autoapi/improv/store/index.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>improv.store</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.logger">logger</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface">StoreInterface</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.get">get</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.put">put</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.delete">delete</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.replace">replace</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.subscribe">subscribe</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface">PlasmaStoreInterface</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.connect_store">connect_store</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.put">put</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.get">get</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.getID">getID</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.getList">getList</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.get_all">get_all</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.reset">reset</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.release">release</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.subscribe">subscribe</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.notify">notify</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.random_ObjectID">random_ObjectID</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.updateStoreInterfaced">updateStoreInterfaced</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.getStored">getStored</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface">LMDBStoreInterface</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.get">get</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.get_keys">get_keys</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.put">put</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.flush">flush</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.commit_daemon">commit_daemon</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.commit">commit</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.delete">delete</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.replace">replace</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.subscribe">subscribe</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id0">StoreInterface</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData">LMDBData</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.queue">queue</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.obj">obj</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.time">time</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.name">name</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.is_queue">is_queue</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.ObjectNotFoundError">ObjectNotFoundError</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.CannotGetObjectError">CannotGetObjectError</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.CannotConnectToStoreInterfaceError">CannotConnectToStoreInterfaceError</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="module-improv.store">
+<span id="improv-store"></span><h1><a class="reference internal" href="#module-improv.store" title="improv.store"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.store</span></code></a><a class="headerlink" href="#module-improv.store" title="Permalink to this heading">#</a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">#</a></h3>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id0" title="improv.store.StoreInterface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StoreInterface</span></code></a></p></td>
+<td><p>General interface for a store</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#improv.store.PlasmaStoreInterface" title="improv.store.PlasmaStoreInterface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlasmaStoreInterface</span></code></a></p></td>
+<td><p>Basic interface for our specific data store implemented with apache arrow plasma</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#improv.store.LMDBStoreInterface" title="improv.store.LMDBStoreInterface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LMDBStoreInterface</span></code></a></p></td>
+<td><p>General interface for a store</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#improv.store.LMDBData" title="improv.store.LMDBData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LMDBData</span></code></a></p></td>
+<td><p>Dataclass to store objects and their metadata into LMDB.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading">#</a></h3>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#improv.store.logger" title="improv.store.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#id0" title="improv.store.StoreInterface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StoreInterface</span></code></a></p></td>
+<td><p>General interface for a store</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py data">
+<dt class="sig sig-object py" id="improv.store.logger">
+<span class="sig-prename descclassname"><span class="pre">improv.store.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#improv.store.logger" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="improv.store.StoreInterface">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.store.</span></span><span class="sig-name descname"><span class="pre">StoreInterface</span></span><a class="reference internal" href="../../../_modules/improv/store.html#StoreInterface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.StoreInterface" title="Permalink to this definition">#</a></dt>
+<dd><p>General interface for a store</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.StoreInterface.get">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#StoreInterface.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.StoreInterface.get" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.StoreInterface.put">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#StoreInterface.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.StoreInterface.put" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.StoreInterface.delete">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#StoreInterface.delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.StoreInterface.delete" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.StoreInterface.replace">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">replace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#StoreInterface.replace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.StoreInterface.replace" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.StoreInterface.subscribe">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">subscribe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#StoreInterface.subscribe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.StoreInterface.subscribe" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="improv.store.PlasmaStoreInterface">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.store.</span></span><span class="sig-name descname"><span class="pre">PlasmaStoreInterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/tmp/store'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#PlasmaStoreInterface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.PlasmaStoreInterface" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#id0" title="improv.store.StoreInterface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StoreInterface</span></code></a></p>
+<p>Basic interface for our specific data store implemented with apache arrow plasma
+Objects are stored with object_ids
+References to objects are contained in a dict where key is shortname,
+value is object_id</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.PlasmaStoreInterface.connect_store">
+<span class="sig-name descname"><span class="pre">connect_store</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store_loc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#PlasmaStoreInterface.connect_store"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.PlasmaStoreInterface.connect_store" title="Permalink to this definition">#</a></dt>
+<dd><p>Connect to the store at store_loc, max 20 retries to connect
+Raises exception if can’t connect
+Returns the plasmaclient if successful
+Updates the client internal</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>store_loc</strong> – store location</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.PlasmaStoreInterface.put">
+<span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#PlasmaStoreInterface.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.PlasmaStoreInterface.put" title="Permalink to this definition">#</a></dt>
+<dd><p>Put a single object referenced by its string name
+into the store
+Raises PlasmaObjectExists if we are overwriting
+Unknown error</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>object</strong> – </p></li>
+<li><p><strong>object_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>flush_this_immediately</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Plasma object ID</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>class ‘plasma.ObjectID’</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>PlasmaObjectExists</strong> – if we are overwriting             unknown error</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.PlasmaStoreInterface.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#PlasmaStoreInterface.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.PlasmaStoreInterface.get" title="Permalink to this definition">#</a></dt>
+<dd><p>Get a single object from the store by object name
+Checks to see if it knows the object first
+Otherwise throw CannotGetObject to request dict update
+TODO: update for lists of objects
+TODO: replace with getID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Stored object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.PlasmaStoreInterface.getID">
+<span class="sig-name descname"><span class="pre">getID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdd_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#PlasmaStoreInterface.getID"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.PlasmaStoreInterface.getID" title="Permalink to this definition">#</a></dt>
+<dd><p>Get object by object ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj_id</strong> (<em>class 'plasma.ObjectID'</em>) – the id of the object</p></li>
+<li><p><strong>hdd_only</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Stored object</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#improv.store.ObjectNotFoundError" title="improv.store.ObjectNotFoundError"><strong>ObjectNotFoundError</strong></a> – If the id is not found</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.PlasmaStoreInterface.getList">
+<span class="sig-name descname"><span class="pre">getList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#PlasmaStoreInterface.getList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.PlasmaStoreInterface.getList" title="Permalink to this definition">#</a></dt>
+<dd><p>Get multiple objects from the store</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ids</strong> (<em>list</em>) – of type plasma.ObjectID</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of the objects</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.PlasmaStoreInterface.get_all">
+<span class="sig-name descname"><span class="pre">get_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#PlasmaStoreInterface.get_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.PlasmaStoreInterface.get_all" title="Permalink to this definition">#</a></dt>
+<dd><p>Get a listing of all objects in the store</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of all the objects in the store</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.PlasmaStoreInterface.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#PlasmaStoreInterface.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.PlasmaStoreInterface.reset" title="Permalink to this definition">#</a></dt>
+<dd><p>Reset client connection</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.PlasmaStoreInterface.release">
+<span class="sig-name descname"><span class="pre">release</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#PlasmaStoreInterface.release"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.PlasmaStoreInterface.release" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.PlasmaStoreInterface.subscribe">
+<span class="sig-name descname"><span class="pre">subscribe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#PlasmaStoreInterface.subscribe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.PlasmaStoreInterface.subscribe" title="Permalink to this definition">#</a></dt>
+<dd><p>Subscribe to a section? of the ds for singals</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – Unknown error</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.PlasmaStoreInterface.notify">
+<span class="sig-name descname"><span class="pre">notify</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#PlasmaStoreInterface.notify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.PlasmaStoreInterface.notify" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.PlasmaStoreInterface.random_ObjectID">
+<span class="sig-name descname"><span class="pre">random_ObjectID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#PlasmaStoreInterface.random_ObjectID"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.PlasmaStoreInterface.random_ObjectID" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.PlasmaStoreInterface.updateStoreInterfaced">
+<span class="sig-name descname"><span class="pre">updateStoreInterfaced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#PlasmaStoreInterface.updateStoreInterfaced"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.PlasmaStoreInterface.updateStoreInterfaced" title="Permalink to this definition">#</a></dt>
+<dd><p>Update local dict with info we need locally
+Report to Nexus that we updated the store
+(did a put or delete/replace)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>object_name</strong> (<em>str</em>) – the name of the object to update</p></li>
+<li><p><strong>(</strong><strong>)</strong> (<em>object_id</em>) – the id of the object to update</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.PlasmaStoreInterface.getStored">
+<span class="sig-name descname"><span class="pre">getStored</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#PlasmaStoreInterface.getStored"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.PlasmaStoreInterface.getStored" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>its info about what it has stored</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="improv.store.LMDBStoreInterface">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.store.</span></span><span class="sig-name descname"><span class="pre">LMDBStoreInterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'../outputs/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flush_immediately</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commit_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#LMDBStoreInterface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.LMDBStoreInterface" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#id0" title="improv.store.StoreInterface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StoreInterface</span></code></a></p>
+<p>General interface for a store</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.LMDBStoreInterface.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pyarrow.plasma.ObjectID</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">pyarrow.plasma.ObjectID</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#LMDBStoreInterface.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.LMDBStoreInterface.get" title="Permalink to this definition">#</a></dt>
+<dd><p>Get object using key (could be any byte string or plasma.ObjectID)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> – </p></li>
+<li><p><strong>include_metadata</strong> (<em>bool</em>) – returns whole LMDBData if true else LMDBData.obj
+(just the stored object).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>object or LMDBData</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.LMDBStoreInterface.get_keys">
+<span class="sig-name descname"><span class="pre">get_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#LMDBStoreInterface.get_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.LMDBStoreInterface.get_keys" title="Permalink to this definition">#</a></dt>
+<dd><p>Get all keys in LMDB</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.LMDBStoreInterface.put">
+<span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flush_this_immediately</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#LMDBStoreInterface.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.LMDBStoreInterface.put" title="Permalink to this definition">#</a></dt>
+<dd><p>Put object ID / object pair into LMDB.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> – Object to be saved</p></li>
+<li><p><strong>obj_name</strong> (<em>str</em>) – the name of the object</p></li>
+<li><p><strong>obj_id</strong> (<em>'plasma.ObjectID'</em>) – Object_id from Plasma client</p></li>
+<li><p><strong>flush_this_immediately</strong> (<em>bool</em>) – Override self.flush_immediately.
+For storage of critical objects.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.LMDBStoreInterface.flush">
+<span class="sig-name descname"><span class="pre">flush</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#LMDBStoreInterface.flush"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.LMDBStoreInterface.flush" title="Permalink to this definition">#</a></dt>
+<dd><p>Must run before exiting. Flushes buffer to disk.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.LMDBStoreInterface.commit_daemon">
+<span class="sig-name descname"><span class="pre">commit_daemon</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#LMDBStoreInterface.commit_daemon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.LMDBStoreInterface.commit_daemon" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.LMDBStoreInterface.commit">
+<span class="sig-name descname"><span class="pre">commit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#LMDBStoreInterface.commit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.LMDBStoreInterface.commit" title="Permalink to this definition">#</a></dt>
+<dd><p>Commit objects in {self.put_cache} into LMDB.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.LMDBStoreInterface.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#LMDBStoreInterface.delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.LMDBStoreInterface.delete" title="Permalink to this definition">#</a></dt>
+<dd><p>Delete object from LMDB.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj_id</strong> (<em>class 'plasma.ObjectID'</em>) – the object_id to be deleted</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#improv.store.ObjectNotFoundError" title="improv.store.ObjectNotFoundError"><strong>ObjectNotFoundError</strong></a> – If the id is not found</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.LMDBStoreInterface.replace">
+<span class="sig-name descname"><span class="pre">replace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#LMDBStoreInterface.replace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.LMDBStoreInterface.replace" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.store.LMDBStoreInterface.subscribe">
+<span class="sig-name descname"><span class="pre">subscribe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#LMDBStoreInterface.subscribe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.LMDBStoreInterface.subscribe" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-prename descclassname"><span class="pre">improv.store.</span></span><span class="sig-name descname"><span class="pre">StoreInterface</span></span><a class="reference internal" href="../../../_modules/improv/store.html#StoreInterface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="improv.store.LMDBData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.store.</span></span><span class="sig-name descname"><span class="pre">LMDBData</span></span><a class="reference internal" href="../../../_modules/improv/store.html#LMDBData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.LMDBData" title="Permalink to this definition">#</a></dt>
+<dd><p>Dataclass to store objects and their metadata into LMDB.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="improv.store.LMDBData.queue">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">queue</span></span><a class="headerlink" href="#improv.store.LMDBData.queue" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns:
+Queue name if object is a queue else None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="improv.store.LMDBData.obj">
+<span class="sig-name descname"><span class="pre">obj</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">object</span></em><a class="headerlink" href="#improv.store.LMDBData.obj" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="improv.store.LMDBData.time">
+<span class="sig-name descname"><span class="pre">time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#improv.store.LMDBData.time" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="improv.store.LMDBData.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#improv.store.LMDBData.name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="improv.store.LMDBData.is_queue">
+<span class="sig-name descname"><span class="pre">is_queue</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#improv.store.LMDBData.is_queue" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="improv.store.ObjectNotFoundError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.store.</span></span><span class="sig-name descname"><span class="pre">ObjectNotFoundError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj_id_or_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#ObjectNotFoundError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.ObjectNotFoundError" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Common base class for all non-exit exceptions.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="improv.store.CannotGetObjectError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.store.</span></span><span class="sig-name descname"><span class="pre">CannotGetObjectError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#CannotGetObjectError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.CannotGetObjectError" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Common base class for all non-exit exceptions.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="improv.store.CannotConnectToStoreInterfaceError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.store.</span></span><span class="sig-name descname"><span class="pre">CannotConnectToStoreInterfaceError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store_loc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#CannotConnectToStoreInterfaceError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.CannotConnectToStoreInterfaceError" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Raised when failing to connect to store.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./autoapi/improv/store"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../replayer/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.replayer</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../tui/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.tui</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.logger">logger</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface">StoreInterface</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.get">get</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.put">put</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.delete">delete</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.replace">replace</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.subscribe">subscribe</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface">PlasmaStoreInterface</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.connect_store">connect_store</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.put">put</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.get">get</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.getID">getID</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.getList">getList</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.get_all">get_all</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.reset">reset</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.release">release</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.subscribe">subscribe</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.notify">notify</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.random_ObjectID">random_ObjectID</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.updateStoreInterfaced">updateStoreInterfaced</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.getStored">getStored</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface">LMDBStoreInterface</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.get">get</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.get_keys">get_keys</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.put">put</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.flush">flush</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.commit_daemon">commit_daemon</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.commit">commit</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.delete">delete</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.replace">replace</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.subscribe">subscribe</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id0">StoreInterface</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData">LMDBData</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.queue">queue</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.obj">obj</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.time">time</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.name">name</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.is_queue">is_queue</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.ObjectNotFoundError">ObjectNotFoundError</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.CannotGetObjectError">CannotGetObjectError</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.CannotConnectToStoreInterfaceError">CannotConnectToStoreInterfaceError</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By improv team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

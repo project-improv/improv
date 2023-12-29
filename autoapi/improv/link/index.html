@@ -1,0 +1,877 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>improv.link &#8212; improv documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../../_static/sphinx-thebe.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/improv/link/index';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="improv.nexus" href="../nexus/index.html" />
+    <link rel="prev" title="improv.config" href="../config/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../../../intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.png" class="logo__image only-light" alt="improv documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.png" class="logo__image only-dark" alt="improv documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../intro.html">
+                    Welcome to your Jupyter Book
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../markdown.html">Markdown Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks.html">Content with notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../markdown-notebooks.html">Notebooks with MyST Markdown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../content.html">Content in Jupyter Book</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="../utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../utils/checks/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.checks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../utils/reader/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.reader</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../utils/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.utils</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../actor/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.actor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cli/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.cli</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../config/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.config</span></code></a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.link</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../nexus/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.nexus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../replayer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.replayer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.store</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.tui</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../watcher/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.watcher</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/project-improv/improv" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/project-improv/improv/issues/new?title=Issue%20on%20page%20%2Fautoapi/improv/link/index.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/autoapi/improv/link/index.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>improv.link</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.logger">logger</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.Link">Link</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue">AsyncQueue</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.queue">queue</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.real_executor">real_executor</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.cancelled_join">cancelled_join</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.name">name</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.start">start</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.end">end</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.status">status</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.result">result</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.num">num</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.dict">dict</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.getStart">getStart</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.getEnd">getEnd</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.put">put</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.put_nowait">put_nowait</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.put_async">put_async</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.get_async">get_async</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.cancel_join_thread">cancel_join_thread</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.join_thread">join_thread</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.MultiLink">MultiLink</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.MultiAsyncQueue">MultiAsyncQueue</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.MultiAsyncQueue.put">put</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.MultiAsyncQueue.put_nowait">put_nowait</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="module-improv.link">
+<span id="improv-link"></span><h1><a class="reference internal" href="#module-improv.link" title="improv.link"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.link</span></code></a><a class="headerlink" href="#module-improv.link" title="Permalink to this heading">#</a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">#</a></h3>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#improv.link.AsyncQueue" title="improv.link.AsyncQueue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AsyncQueue</span></code></a></p></td>
+<td><p>Single-output and asynchronous queue class.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#improv.link.MultiAsyncQueue" title="improv.link.MultiAsyncQueue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiAsyncQueue</span></code></a></p></td>
+<td><p>Extension of AsyncQueue to have multiple endpoints.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading">#</a></h3>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#improv.link.Link" title="improv.link.Link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Link</span></code></a>(name, start, end)</p></td>
+<td><p>Function to construct a queue that Nexus uses for</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#improv.link.MultiLink" title="improv.link.MultiLink"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiLink</span></code></a>(name, start, end)</p></td>
+<td><p>Function to generate links for the multi-output queue case.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading">#</a></h3>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#improv.link.logger" title="improv.link.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py data">
+<dt class="sig sig-object py" id="improv.link.logger">
+<span class="sig-prename descclassname"><span class="pre">improv.link.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#improv.link.logger" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="improv.link.Link">
+<span class="sig-prename descclassname"><span class="pre">improv.link.</span></span><span class="sig-name descname"><span class="pre">Link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/link.html#Link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.link.Link" title="Permalink to this definition">#</a></dt>
+<dd><p>Function to construct a queue that Nexus uses for
+inter-process (actor) signaling and information passing.</p>
+<p>A Link has an internal queue that can be synchronous (put, get)
+as inherited from multiprocessing.Manager.Queue
+or asynchronous (put_async, get_async) using async executors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>constructor</strong> (<em>See AsyncQueue</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>queue for communicating between actors and with Nexus</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#improv.link.AsyncQueue" title="improv.link.AsyncQueue">AsyncQueue</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.link.</span></span><span class="sig-name descname"><span class="pre">AsyncQueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/link.html#AsyncQueue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.link.AsyncQueue" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Single-output and asynchronous queue class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.queue">
+<span class="sig-name descname"><span class="pre">queue</span></span><a class="headerlink" href="#improv.link.AsyncQueue.queue" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.real_executor">
+<span class="sig-name descname"><span class="pre">real_executor</span></span><a class="headerlink" href="#improv.link.AsyncQueue.real_executor" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.cancelled_join">
+<span class="sig-name descname"><span class="pre">cancelled_join</span></span><a class="headerlink" href="#improv.link.AsyncQueue.cancelled_join" title="Permalink to this definition">#</a></dt>
+<dd><p>boolean</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#improv.link.AsyncQueue.name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.start">
+<span class="sig-name descname"><span class="pre">start</span></span><a class="headerlink" href="#improv.link.AsyncQueue.start" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.end">
+<span class="sig-name descname"><span class="pre">end</span></span><a class="headerlink" href="#improv.link.AsyncQueue.end" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.status">
+<span class="sig-name descname"><span class="pre">status</span></span><a class="headerlink" href="#improv.link.AsyncQueue.status" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.result">
+<span class="sig-name descname"><span class="pre">result</span></span><a class="headerlink" href="#improv.link.AsyncQueue.result" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.num">
+<span class="sig-name descname"><span class="pre">num</span></span><a class="headerlink" href="#improv.link.AsyncQueue.num" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.dict">
+<span class="sig-name descname"><span class="pre">dict</span></span><a class="headerlink" href="#improv.link.AsyncQueue.dict" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.getStart">
+<span class="sig-name descname"><span class="pre">getStart</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/link.html#AsyncQueue.getStart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.link.AsyncQueue.getStart" title="Permalink to this definition">#</a></dt>
+<dd><p>Gets the starting actor.</p>
+<p>The starting actor is the actor that is at the tail of the link.
+This actor is the one that gives output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The starting actor name</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>start (str)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.getEnd">
+<span class="sig-name descname"><span class="pre">getEnd</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/link.html#AsyncQueue.getEnd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.link.AsyncQueue.getEnd" title="Permalink to this definition">#</a></dt>
+<dd><p>Gets the ending actor.</p>
+<p>The ending actor is the actor that is at the head of the link.
+This actor is the one that takes input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The ending actor name</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>end (str)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.put">
+<span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/link.html#AsyncQueue.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.link.AsyncQueue.put" title="Permalink to this definition">#</a></dt>
+<dd><p>Function wrapper for put.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>item</strong> (<em>object</em>) – Any item that can be sent through a queue</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.put_nowait">
+<span class="sig-name descname"><span class="pre">put_nowait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/link.html#AsyncQueue.put_nowait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.link.AsyncQueue.put_nowait" title="Permalink to this definition">#</a></dt>
+<dd><p>Function wrapper for put without waiting</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>item</strong> (<em>object</em>) – Any item that can be sent through a queue</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.put_async">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">put_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/link.html#AsyncQueue.put_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.link.AsyncQueue.put_async" title="Permalink to this definition">#</a></dt>
+<dd><p>Coroutine for an asynchronous put</p>
+<p>It adds the put request to the event loop and awaits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>item</strong> (<em>object</em>) – Any item that can be sent through a queue</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Awaitable or result of the put</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.get_async">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_async</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/link.html#AsyncQueue.get_async"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.link.AsyncQueue.get_async" title="Permalink to this definition">#</a></dt>
+<dd><p>Coroutine for an asynchronous get</p>
+<p>It adds the get request to the event loop and awaits, setting
+the status to pending. Once the get has returned, it returns the
+result of the get and sets its status as done.</p>
+<p>Explicitly passes any exceptions to not hinder execution.
+Errors are logged with the get_async tag.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Awaitable or result of the get.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>CancelledError</strong> – task is cancelled</p></li>
+<li><p><strong>EOFError</strong> – </p></li>
+<li><p><strong>FileNotFoundError</strong> – </p></li>
+<li><p><strong>Exception</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.cancel_join_thread">
+<span class="sig-name descname"><span class="pre">cancel_join_thread</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/link.html#AsyncQueue.cancel_join_thread"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.link.AsyncQueue.cancel_join_thread" title="Permalink to this definition">#</a></dt>
+<dd><p>Function wrapper for cancel_join_thread.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.link.AsyncQueue.join_thread">
+<span class="sig-name descname"><span class="pre">join_thread</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/link.html#AsyncQueue.join_thread"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.link.AsyncQueue.join_thread" title="Permalink to this definition">#</a></dt>
+<dd><p>Function wrapper for join_thread.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="improv.link.MultiLink">
+<span class="sig-prename descclassname"><span class="pre">improv.link.</span></span><span class="sig-name descname"><span class="pre">MultiLink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/link.html#MultiLink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.link.MultiLink" title="Permalink to this definition">#</a></dt>
+<dd><p>Function to generate links for the multi-output queue case.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>MultiAsyncQueue</strong> (<em>See constructor for AsyncQueue or</em>) – </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Producer end of the queue
+List: AsyncQueues for consumers</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#improv.link.MultiAsyncQueue" title="improv.link.MultiAsyncQueue">MultiAsyncQueue</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="improv.link.MultiAsyncQueue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.link.</span></span><span class="sig-name descname"><span class="pre">MultiAsyncQueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/link.html#MultiAsyncQueue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.link.MultiAsyncQueue" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#improv.link.AsyncQueue" title="improv.link.AsyncQueue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AsyncQueue</span></code></a></p>
+<p>Extension of AsyncQueue to have multiple endpoints.</p>
+<p>Inherits from AsyncQueue.
+A single producer queue’s ‘put’ is copied to multiple consumer’s
+queues, q_in is the producer queue, q_out are the consumer queues.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.link.MultiAsyncQueue.put">
+<span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/link.html#MultiAsyncQueue.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.link.MultiAsyncQueue.put" title="Permalink to this definition">#</a></dt>
+<dd><p>Function wrapper for put.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>item</strong> (<em>object</em>) – Any item that can be sent through a queue</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.link.MultiAsyncQueue.put_nowait">
+<span class="sig-name descname"><span class="pre">put_nowait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/link.html#MultiAsyncQueue.put_nowait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.link.MultiAsyncQueue.put_nowait" title="Permalink to this definition">#</a></dt>
+<dd><p>Function wrapper for put without waiting</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>item</strong> (<em>object</em>) – Any item that can be sent through a queue</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./autoapi/improv/link"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../config/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.config</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../nexus/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.nexus</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.logger">logger</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.Link">Link</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue">AsyncQueue</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.queue">queue</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.real_executor">real_executor</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.cancelled_join">cancelled_join</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.name">name</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.start">start</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.end">end</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.status">status</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.result">result</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.num">num</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.dict">dict</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.getStart">getStart</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.getEnd">getEnd</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.put">put</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.put_nowait">put_nowait</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.put_async">put_async</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.get_async">get_async</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.cancel_join_thread">cancel_join_thread</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.join_thread">join_thread</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.MultiLink">MultiLink</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.MultiAsyncQueue">MultiAsyncQueue</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.MultiAsyncQueue.put">put</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.MultiAsyncQueue.put_nowait">put_nowait</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By improv team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

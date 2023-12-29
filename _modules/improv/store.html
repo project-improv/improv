@@ -1,0 +1,1000 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>improv.store &#8212; improv documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../_static/sphinx-thebe.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/improv/store';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../../intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.png" class="logo__image only-light" alt="improv documentation - Home"/>
+    <script>document.write(`<img src="../../_static/logo.png" class="logo__image only-dark" alt="improv documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../intro.html">
+                    Welcome to your Jupyter Book
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../markdown.html">Markdown Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks.html">Content with notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../markdown-notebooks.html">Notebooks with MyST Markdown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../content.html">Content in Jupyter Book</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../autoapi/improv/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../autoapi/improv/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/improv/utils/checks/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.checks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/improv/utils/reader/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.reader</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../autoapi/improv/utils/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.utils</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/actor/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.actor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/cli/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.cli</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/config/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.config</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/link/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.link</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/nexus/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.nexus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/replayer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.replayer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.store</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/tui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.tui</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/improv/watcher/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.watcher</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/project-improv/improv" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/project-improv/improv/issues/new?title=Issue%20on%20page%20%2F_modules/improv/store.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for improv.store</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">lmdb</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pyarrow.plasma</span> <span class="k">as</span> <span class="nn">plasma</span>
+
+<span class="kn">from</span> <span class="nn">queue</span> <span class="kn">import</span> <span class="n">Queue</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">random</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Thread</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">make_dataclass</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">csc_matrix</span>
+<span class="kn">from</span> <span class="nn">pyarrow.lib</span> <span class="kn">import</span> <span class="n">ArrowIOError</span>
+<span class="kn">from</span> <span class="nn">pyarrow._plasma</span> <span class="kn">import</span> <span class="n">PlasmaObjectExists</span><span class="p">,</span> <span class="n">ObjectNotAvailable</span><span class="p">,</span> <span class="n">ObjectID</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="StoreInterface"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.StoreInterface">[docs]</a><span class="k">class</span> <span class="nc">StoreInterface</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;General interface for a store&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="StoreInterface.get"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.StoreInterface.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="StoreInterface.put"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.StoreInterface.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="StoreInterface.delete"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.StoreInterface.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="StoreInterface.replace"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.StoreInterface.replace">[docs]</a>    <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="StoreInterface.subscribe"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.StoreInterface.subscribe">[docs]</a>    <span class="k">def</span> <span class="nf">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+
+<div class="viewcode-block" id="PlasmaStoreInterface"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.PlasmaStoreInterface">[docs]</a><span class="k">class</span> <span class="nc">PlasmaStoreInterface</span><span class="p">(</span><span class="n">StoreInterface</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Basic interface for our specific data store implemented with apache arrow plasma</span>
+<span class="sd">    Objects are stored with object_ids</span>
+<span class="sd">    References to objects are contained in a dict where key is shortname,</span>
+<span class="sd">    value is object_id</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">store_loc</span><span class="o">=</span><span class="s2">&quot;/tmp/store&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the StoreInterface</span>
+
+<span class="sd">        :param name:</span>
+<span class="sd">        :param store_loc: Apache Arrow Plasma client location</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_loc</span> <span class="o">=</span> <span class="n">store_loc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connect_store</span><span class="p">(</span><span class="n">store_loc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stored</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_hdd</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_setup_LMDB</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">use_lmdb</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">lmdb_path</span><span class="o">=</span><span class="s2">&quot;../outputs/&quot;</span><span class="p">,</span>
+        <span class="n">lmdb_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">hdd_maxstore</span><span class="o">=</span><span class="mf">1e12</span><span class="p">,</span>
+        <span class="n">flush_immediately</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">commit_freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the Store</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name (string):</span>
+<span class="sd">            store_loc (stirng): Apache Arrow Plasma client location</span>
+
+<span class="sd">            use_lmdb (bool): Also write data to disk using the LMDB</span>
+
+<span class="sd">            hdd_maxstore:</span>
+<span class="sd">                Maximum size database may grow to; used to size the memory mapping.</span>
+<span class="sd">                If the database grows larger than map_size,</span>
+<span class="sd">                a MapFullError will be raised.</span>
+<span class="sd">                On 64-bit there is no penalty for making this huge.</span>
+<span class="sd">                Must be &lt;2GB on 32-bit.</span>
+
+<span class="sd">            hdd_path: Path to LMDB folder.</span>
+<span class="sd">            flush_immediately (bool): Save objects to disk immediately</span>
+<span class="sd">            commit_freq (int): If not flush_immediately,</span>
+<span class="sd">                flush data to disk every {commit_freq} seconds.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_hdd</span> <span class="o">=</span> <span class="n">use_lmdb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flush_immediately</span> <span class="o">=</span> <span class="n">flush_immediately</span>
+
+        <span class="k">if</span> <span class="n">use_lmdb</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lmdb_store</span> <span class="o">=</span> <span class="n">LMDBStoreInterface</span><span class="p">(</span>
+                <span class="n">path</span><span class="o">=</span><span class="n">lmdb_path</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">lmdb_name</span><span class="p">,</span>
+                <span class="n">max_size</span><span class="o">=</span><span class="n">hdd_maxstore</span><span class="p">,</span>
+                <span class="n">flush_immediately</span><span class="o">=</span><span class="n">flush_immediately</span><span class="p">,</span>
+                <span class="n">commit_freq</span><span class="o">=</span><span class="n">commit_freq</span><span class="p">,</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="PlasmaStoreInterface.connect_store"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.PlasmaStoreInterface.connect_store">[docs]</a>    <span class="k">def</span> <span class="nf">connect_store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store_loc</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Connect to the store at store_loc, max 20 retries to connect</span>
+<span class="sd">        Raises exception if can&#39;t connect</span>
+<span class="sd">        Returns the plasmaclient if successful</span>
+<span class="sd">        Updates the client internal</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            store_loc: store location</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">plasma</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">store_loc</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Successfully connected to store: </span><span class="si">{}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">store_loc</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Cannot connect to store: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">store_loc</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">CannotConnectToStoreInterfaceError</span><span class="p">(</span><span class="n">store_loc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span></div>
+
+<div class="viewcode-block" id="PlasmaStoreInterface.put"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.PlasmaStoreInterface.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">object_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Put a single object referenced by its string name</span>
+<span class="sd">        into the store</span>
+<span class="sd">        Raises PlasmaObjectExists if we are overwriting</span>
+<span class="sd">        Unknown error</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            object:</span>
+<span class="sd">            object_name (str):</span>
+<span class="sd">            flush_this_immediately (bool):</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            class &#39;plasma.ObjectID&#39;: Plasma object ID</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            PlasmaObjectExists: if we are overwriting \</span>
+<span class="sd">            unknown error</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">object_id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Need to pickle if object is csc_matrix</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">csc_matrix</span><span class="p">):</span>
+                <span class="n">prot</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span>
+                <span class="n">object_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">prot</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">object_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_hdd</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lmdb_store</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">object_name</span><span class="p">,</span> <span class="n">obj_id</span><span class="o">=</span><span class="n">object_id</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">PlasmaObjectExists</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Object already exists. Meant to call replace?&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ArrowIOError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Could not store object </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">object_name</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Refreshing connection and continuing&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Could not store object </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">object_name</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">object_id</span></div>
+
+<div class="viewcode-block" id="PlasmaStoreInterface.get"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.PlasmaStoreInterface.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a single object from the store by object name</span>
+<span class="sd">        Checks to see if it knows the object first</span>
+<span class="sd">        Otherwise throw CannotGetObject to request dict update</span>
+<span class="sd">        TODO: update for lists of objects</span>
+<span class="sd">        TODO: replace with getID</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Stored object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># print(&#39;trying to get &#39;, object_name)</span>
+        <span class="c1"># if self.stored.get(object_name) is None:</span>
+        <span class="c1">#     logger.error(&#39;Never recorded storing this object: &#39;+object_name)</span>
+        <span class="c1">#     # Don&#39;t know anything about this object, treat as problematic</span>
+        <span class="c1">#     raise CannotGetObjectError(query = object_name)</span>
+        <span class="c1"># else:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getID</span><span class="p">(</span><span class="n">object_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PlasmaStoreInterface.getID"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.PlasmaStoreInterface.getID">[docs]</a>    <span class="k">def</span> <span class="nf">getID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_id</span><span class="p">,</span> <span class="n">hdd_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get object by object ID</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            obj_id (class &#39;plasma.ObjectID&#39;): the id of the object</span>
+<span class="sd">            hdd_only (bool):</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Stored object</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ObjectNotFoundError: If the id is not found</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check in RAM</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">hdd_only</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">obj_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># Timeout = 0 ms</span>
+            <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">plasma</span><span class="o">.</span><span class="n">ObjectNotAvailable</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">res</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)</span> <span class="k">else</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+
+        <span class="c1"># Check in disk</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_hdd</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmdb_store</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">obj_id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">res</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Object </span><span class="si">{}</span><span class="s2"> cannot be found.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">obj_id</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="n">ObjectNotFoundError</span></div>
+
+<div class="viewcode-block" id="PlasmaStoreInterface.getList"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.PlasmaStoreInterface.getList">[docs]</a>    <span class="k">def</span> <span class="nf">getList</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get multiple objects from the store</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ids (list): of type plasma.ObjectID</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list of the objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># self._get()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PlasmaStoreInterface.get_all"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.PlasmaStoreInterface.get_all">[docs]</a>    <span class="k">def</span> <span class="nf">get_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a listing of all objects in the store</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list of all the objects in the store</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">list</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PlasmaStoreInterface.reset"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.PlasmaStoreInterface.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset client connection&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connect_store</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">store_loc</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Reset local connection to store: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">store_loc</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="PlasmaStoreInterface.release"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.PlasmaStoreInterface.release">[docs]</a>    <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span></div>
+
+    <span class="c1"># Subscribe to notifications about sealed objects?</span>
+<div class="viewcode-block" id="PlasmaStoreInterface.subscribe"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.PlasmaStoreInterface.subscribe">[docs]</a>    <span class="k">def</span> <span class="nf">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Subscribe to a section? of the ds for singals</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Exception: Unknown error</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">subscribe</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unknown error: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">Exception</span></div>
+
+<div class="viewcode-block" id="PlasmaStoreInterface.notify"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.PlasmaStoreInterface.notify">[docs]</a>    <span class="k">def</span> <span class="nf">notify</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">notification_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get_next_notification</span><span class="p">()</span>
+            <span class="c1"># recv_objid, recv_dsize, recv_msize = notification_info</span>
+        <span class="k">except</span> <span class="n">ArrowIOError</span><span class="p">:</span>
+            <span class="n">notification_info</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Notification error: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+
+        <span class="k">return</span> <span class="n">notification_info</span></div>
+
+    <span class="c1"># Necessary? plasma.ObjectID.from_random()</span>
+<div class="viewcode-block" id="PlasmaStoreInterface.random_ObjectID"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.PlasmaStoreInterface.random_ObjectID">[docs]</a>    <span class="k">def</span> <span class="nf">random_ObjectID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+            <span class="n">ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plasma</span><span class="o">.</span><span class="n">ObjectID</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">bytes</span><span class="p">(</span><span class="mi">20</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">ids</span></div>
+
+<div class="viewcode-block" id="PlasmaStoreInterface.updateStoreInterfaced"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.PlasmaStoreInterface.updateStoreInterfaced">[docs]</a>    <span class="k">def</span> <span class="nf">updateStoreInterfaced</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_name</span><span class="p">,</span> <span class="n">object_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update local dict with info we need locally</span>
+<span class="sd">        Report to Nexus that we updated the store</span>
+<span class="sd">        (did a put or delete/replace)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            object_name (str): the name of the object to update</span>
+<span class="sd">            object_id (): the id of the object to update</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stored</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">object_name</span><span class="p">:</span> <span class="n">object_id</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="PlasmaStoreInterface.getStored"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.PlasmaStoreInterface.getStored">[docs]</a>    <span class="k">def</span> <span class="nf">getStored</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            its info about what it has stored</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stored</span></div>
+
+    <span class="k">def</span> <span class="nf">_put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Internal put&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get an object from the store using its name</span>
+<span class="sd">        Assumes we know the id for the object_name</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ObjectNotFound: if object_id returns no object from the store</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Most errors not shown to user.</span>
+        <span class="c1"># Maintain separation between external and internal function calls.</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stored</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">object_name</span><span class="p">))</span>
+        <span class="c1"># Can also use contains() to check</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">object_name</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">ObjectNotAvailable</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Object </span><span class="si">{}</span><span class="s2"> cannot be found.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">object_name</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">ObjectNotFoundError</span><span class="p">(</span><span class="n">obj_id_or_name</span><span class="o">=</span><span class="n">object_name</span><span class="p">)</span>  <span class="c1"># TODO: Don&#39;t raise?</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="LMDBStoreInterface"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.LMDBStoreInterface">[docs]</a><span class="k">class</span> <span class="nc">LMDBStoreInterface</span><span class="p">(</span><span class="n">StoreInterface</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="s2">&quot;../outputs/&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">load</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">max_size</span><span class="o">=</span><span class="mf">1e12</span><span class="p">,</span>
+        <span class="n">flush_immediately</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">commit_freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for LMDB store</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (string): Path to folder containing LMDB folder.</span>
+<span class="sd">            name (string): Name of LMDB. Required if not {load].</span>
+<span class="sd">            max_size (float):</span>
+<span class="sd">            Maximum size database may grow to; used to size the memory mapping.</span>
+<span class="sd">            If the database grows larger than map_size, a MapFullError will be raised.</span>
+<span class="sd">            On 64-bit there is no penalty for making this huge. Must be &lt;2GB on 32-bit.</span>
+<span class="sd">            load (bool): For Replayer use. Informs the class that we&#39;re loading</span>
+<span class="sd">                    from a previous LMDB, not create a new one.</span>
+<span class="sd">            flush_immediately (bool): Save objects to disk immediately</span>
+<span class="sd">            commit_freq (int): If not flush_immediately,</span>
+<span class="sd">                            flush data to disk every {commit_freq} seconds.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Check if LMDB folder exists.</span>
+        <span class="c1"># LMDB path?</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">load</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">/</span> <span class="n">name</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;data.mdb&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Invalid LMDB directory.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">/</span> <span class="n">name</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">flush_immediately</span> <span class="o">=</span> <span class="n">flush_immediately</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lmdb_env</span> <span class="o">=</span> <span class="n">lmdb</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="n">map_size</span><span class="o">=</span><span class="n">max_size</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="n">flush_immediately</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lmdb_commit_freq</span> <span class="o">=</span> <span class="n">commit_freq</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">put_queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">put_queue_container</span> <span class="o">=</span> <span class="n">make_dataclass</span><span class="p">(</span>
+            <span class="s2">&quot;LMDBPutContainer&quot;</span><span class="p">,</span> <span class="p">[(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;obj&quot;</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="c1"># Initialize only after interpreter has forked at the start of each actor.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commit_thread</span><span class="p">:</span> <span class="n">Thread</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flush</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LMDBStoreInterface.get"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.LMDBStoreInterface.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">plasma</span><span class="o">.</span><span class="n">ObjectID</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">plasma</span><span class="o">.</span><span class="n">ObjectID</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]],</span>
+        <span class="n">include_metadata</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get object using key (could be any byte string or plasma.ObjectID)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            key:</span>
+<span class="sd">            include_metadata (bool): returns whole LMDBData if true else LMDBData.obj</span>
+<span class="sd">                                (just the stored object).</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            object or LMDBData</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">ObjectID</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_one</span><span class="p">(</span>
+                        <span class="n">LMDBStoreInterface</span><span class="o">.</span><span class="n">_convert_obj_id_to_bytes</span><span class="p">(</span><span class="n">key</span><span class="p">),</span>
+                        <span class="n">include_metadata</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_batch</span><span class="p">(</span>
+                    <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">LMDBStoreInterface</span><span class="o">.</span><span class="n">_convert_obj_id_to_bytes</span><span class="p">,</span> <span class="n">key</span><span class="p">)),</span>
+                    <span class="n">include_metadata</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span>
+                <span class="n">lmdb</span><span class="o">.</span><span class="n">BadRslotError</span>
+            <span class="p">):</span>  <span class="c1"># Happens when multiple transactions access LMDB at the same time.</span>
+                <span class="k">pass</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_one</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">include_metadata</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmdb_env</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">txn</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">txn</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">if</span> <span class="n">include_metadata</span> <span class="k">else</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="o">.</span><span class="n">obj</span>
+
+    <span class="k">def</span> <span class="nf">_get_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">include_metadata</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmdb_env</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">txn</span><span class="p">:</span>
+            <span class="n">objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">txn</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">include_metadata</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objs</span> <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="n">obj</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objs</span> <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+
+<div class="viewcode-block" id="LMDBStoreInterface.get_keys"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.LMDBStoreInterface.get_keys">[docs]</a>    <span class="k">def</span> <span class="nf">get_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all keys in LMDB&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmdb_env</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">txn</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">txn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cur</span><span class="p">:</span>
+                <span class="n">cur</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cur</span><span class="o">.</span><span class="n">iternext</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="LMDBStoreInterface.put"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.LMDBStoreInterface.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">obj_name</span><span class="p">,</span> <span class="n">obj_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flush_this_immediately</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Put object ID / object pair into LMDB.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            obj: Object to be saved</span>
+<span class="sd">            obj_name (str): the name of the object</span>
+<span class="sd">            obj_id (&#39;plasma.ObjectID&#39;): Object_id from Plasma client</span>
+<span class="sd">            flush_this_immediately (bool): Override self.flush_immediately.</span>
+<span class="sd">                                        For storage of critical objects.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: Duplication check</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">commit_thread</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">commit_thread</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">commit_daemon</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">commit_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">obj_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;q_&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">obj_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;config&quot;</span><span class="p">):</span>  <span class="c1"># Queue</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">obj_name</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+            <span class="n">is_queue</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">obj_id</span><span class="o">.</span><span class="n">binary</span><span class="p">()</span> <span class="k">if</span> <span class="n">obj_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">obj_name</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+            <span class="n">is_queue</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">put_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">put_queue_container</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">obj</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+                    <span class="n">LMDBData</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="n">obj_name</span><span class="p">,</span> <span class="n">is_queue</span><span class="o">=</span><span class="n">is_queue</span><span class="p">)</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Write</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flush_immediately</span> <span class="ow">or</span> <span class="n">flush_this_immediately</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lmdb_env</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="LMDBStoreInterface.flush"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.LMDBStoreInterface.flush">[docs]</a>    <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Must run before exiting. Flushes buffer to disk.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lmdb_env</span><span class="o">.</span><span class="n">sync</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lmdb_env</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LMDBStoreInterface.commit_daemon"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.LMDBStoreInterface.commit_daemon">[docs]</a>    <span class="k">def</span> <span class="nf">commit_daemon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">random</span><span class="p">())</span>  <span class="c1"># Reduce multiple commits at the same time.</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lmdb_commit_freq</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="LMDBStoreInterface.commit"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.LMDBStoreInterface.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Commit objects in {self.put_cache} into LMDB.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">put_queue</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">put_queue</span><span class="o">.</span><span class="n">qsize</span><span class="p">())</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmdb_env</span><span class="o">.</span><span class="n">begin</span><span class="p">(</span><span class="n">write</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">txn</span><span class="p">:</span>
+                <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">put_queue</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+                    <span class="n">container</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">put_queue</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">()</span>
+                    <span class="n">txn</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">container</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">container</span><span class="o">.</span><span class="n">obj</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LMDBStoreInterface.delete"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.LMDBStoreInterface.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete object from LMDB.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            obj_id (class &#39;plasma.ObjectID&#39;): the object_id to be deleted</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ObjectNotFoundError: If the id is not found</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lmdb_env</span><span class="o">.</span><span class="n">begin</span><span class="p">(</span><span class="n">write</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">txn</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">txn</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">LMDBStoreInterface</span><span class="o">.</span><span class="n">_convert_obj_id_to_bytes</span><span class="p">(</span><span class="n">obj_id</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ObjectNotFoundError</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_convert_obj_id_to_bytes</span><span class="p">(</span><span class="n">obj_id</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj_id</span><span class="o">.</span><span class="n">binary</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj_id</span>
+
+<div class="viewcode-block" id="LMDBStoreInterface.replace"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.LMDBStoreInterface.replace">[docs]</a>    <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>  <span class="c1"># TODO</span></div>
+
+<div class="viewcode-block" id="LMDBStoreInterface.subscribe"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.LMDBStoreInterface.subscribe">[docs]</a>    <span class="k">def</span> <span class="nf">subscribe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>  <span class="c1"># TODO</span></div></div>
+
+
+<span class="c1"># Aliasing</span>
+<span class="n">StoreInterface</span> <span class="o">=</span> <span class="n">PlasmaStoreInterface</span>
+
+
+<div class="viewcode-block" id="LMDBData"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.LMDBData">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">LMDBData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dataclass to store objects and their metadata into LMDB.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">obj</span><span class="p">:</span> <span class="nb">object</span>
+    <span class="n">time</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">is_queue</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">queue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Queue name if object is a queue else None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Expected: &#39;q__Acquirer.q_out__124&#39; -&gt; {&#39;q_out&#39;}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_queue</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;q_comm&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Attempt to get queue name from objects not from queue.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="ObjectNotFoundError"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.ObjectNotFoundError">[docs]</a><span class="k">class</span> <span class="nc">ObjectNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_id_or_name</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ObjectNotFoundError&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">obj_id_or_name</span> <span class="o">=</span> <span class="n">obj_id_or_name</span>
+
+        <span class="c1"># TODO: self.message does not properly receive obj_id_or_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s1">&#39;Cannnot find object with ID/name &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">obj_id_or_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span></div>
+
+
+<div class="viewcode-block" id="CannotGetObjectError"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.CannotGetObjectError">[docs]</a><span class="k">class</span> <span class="nc">CannotGetObjectError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;CannotGetObjectError&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">=</span> <span class="n">query</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Cannot get object </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span></div>
+
+
+<div class="viewcode-block" id="CannotConnectToStoreInterfaceError"><a class="viewcode-back" href="../../autoapi/improv/store/index.html#improv.store.CannotConnectToStoreInterfaceError">[docs]</a><span class="k">class</span> <span class="nc">CannotConnectToStoreInterfaceError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when failing to connect to store.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store_loc</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;CannotConnectToStoreInterfaceError&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Cannot connect to store at </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">store_loc</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span></div>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By improv team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

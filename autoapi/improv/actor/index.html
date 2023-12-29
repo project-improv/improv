@@ -1,0 +1,980 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>improv.actor &#8212; improv documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../../_static/sphinx-thebe.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/improv/actor/index';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="improv.cli" href="../cli/index.html" />
+    <link rel="prev" title="improv.utils.utils" href="../utils/utils/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../../../intro.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.png" class="logo__image only-light" alt="improv documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.png" class="logo__image only-dark" alt="improv documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../intro.html">
+                    Welcome to your Jupyter Book
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../markdown.html">Markdown Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks.html">Content with notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../markdown-notebooks.html">Notebooks with MyST Markdown</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../content.html">Content in Jupyter Book</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="../utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../utils/checks/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.checks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../utils/reader/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.reader</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../utils/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.utils</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.actor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cli/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.cli</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../config/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.config</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../link/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.link</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../nexus/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.nexus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../replayer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.replayer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../store/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.store</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.tui</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../watcher/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.watcher</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/project-improv/improv" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/project-improv/improv/issues/new?title=Issue%20on%20page%20%2Fautoapi/improv/actor/index.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/autoapi/improv/actor/index.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>improv.actor</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.logger">logger</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor">AbstractActor</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.setStoreInterface">setStoreInterface</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.setLinks">setLinks</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.setCommLinks">setCommLinks</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.setLinkIn">setLinkIn</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.setLinkOut">setLinkOut</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.setLinkWatch">setLinkWatch</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.addLink">addLink</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.getLinks">getLinks</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.put">put</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.setup">setup</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.run">run</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.stop">stop</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.changePriority">changePriority</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.ManagedActor">ManagedActor</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.ManagedActor.run">run</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.ManagedActor.runStep">runStep</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AsyncActor">AsyncActor</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AsyncActor.run">run</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AsyncActor.setup">setup</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AsyncActor.runStep">runStep</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AsyncActor.stop">stop</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Actor">Actor</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.RunManager">RunManager</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AsyncRunManager">AsyncRunManager</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AsyncRunManager.run_actor">run_actor</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal">Signal</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.run">run</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.quit">quit</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.pause">pause</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.resume">resume</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.reset">reset</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.load">load</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.setup">setup</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.ready">ready</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.kill">kill</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.revive">revive</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.stop">stop</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.stop_success">stop_success</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="module-improv.actor">
+<span id="improv-actor"></span><h1><a class="reference internal" href="#module-improv.actor" title="improv.actor"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.actor</span></code></a><a class="headerlink" href="#module-improv.actor" title="Permalink to this heading">#</a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">#</a></h3>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#improv.actor.AbstractActor" title="improv.actor.AbstractActor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AbstractActor</span></code></a></p></td>
+<td><p>Base class for an actor that Nexus</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#improv.actor.ManagedActor" title="improv.actor.ManagedActor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ManagedActor</span></code></a></p></td>
+<td><p>Base class for an actor that Nexus</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#improv.actor.AsyncActor" title="improv.actor.AsyncActor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AsyncActor</span></code></a></p></td>
+<td><p>Base class for an actor that Nexus</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#improv.actor.RunManager" title="improv.actor.RunManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RunManager</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#improv.actor.AsyncRunManager" title="improv.actor.AsyncRunManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AsyncRunManager</span></code></a></p></td>
+<td><p>Asynchronous run manager. Communicates with nexus core using q_sig and q_comm.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#improv.actor.Signal" title="improv.actor.Signal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Signal</span></code></a></p></td>
+<td><p>Class containing definition of signals Nexus uses</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading">#</a></h3>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#improv.actor.logger" title="improv.actor.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#improv.actor.Actor" title="improv.actor.Actor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Actor</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py data">
+<dt class="sig sig-object py" id="improv.actor.logger">
+<span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#improv.actor.logger" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="improv.actor.AbstractActor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">AbstractActor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fork'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor" title="Permalink to this definition">#</a></dt>
+<dd><p>Base class for an actor that Nexus
+controls and interacts with.
+Needs to have a store and links for communication
+Also needs to be responsive to sent Signals (e.g. run, setup, etc)</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AbstractActor.setStoreInterface">
+<span class="sig-name descname"><span class="pre">setStoreInterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.setStoreInterface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.setStoreInterface" title="Permalink to this definition">#</a></dt>
+<dd><p>Sets the client interface to the store</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>client</strong> (<em>improv.store.StoreInterface</em>) – Set client interface to the store</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AbstractActor.setLinks">
+<span class="sig-name descname"><span class="pre">setLinks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">links</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.setLinks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.setLinks" title="Permalink to this definition">#</a></dt>
+<dd><p>General full dict set for links</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>links</strong> (<em>dict</em>) – The dict to store all the links</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AbstractActor.setCommLinks">
+<span class="sig-name descname"><span class="pre">setCommLinks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_comm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_sig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.setCommLinks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.setCommLinks" title="Permalink to this definition">#</a></dt>
+<dd><p>Set explicit communication links to/from Nexus (q_comm, q_sig)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>q_comm</strong> (<em>improv.nexus.Link</em>) – for messages from this actor to Nexus</p></li>
+<li><p><strong>q_sig</strong> (<em>improv.nexus.Link</em>) – signals from Nexus and must be checked first</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AbstractActor.setLinkIn">
+<span class="sig-name descname"><span class="pre">setLinkIn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_in</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.setLinkIn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.setLinkIn" title="Permalink to this definition">#</a></dt>
+<dd><p>Set the dedicated input queue</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>q_in</strong> (<em>improv.nexus.Link</em>) – for input signals to this actor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AbstractActor.setLinkOut">
+<span class="sig-name descname"><span class="pre">setLinkOut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.setLinkOut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.setLinkOut" title="Permalink to this definition">#</a></dt>
+<dd><p>Set the dedicated output queue</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>q_out</strong> (<em>improv.nexus.Link</em>) – for output signals from this actor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AbstractActor.setLinkWatch">
+<span class="sig-name descname"><span class="pre">setLinkWatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_watch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.setLinkWatch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.setLinkWatch" title="Permalink to this definition">#</a></dt>
+<dd><p>Set the dedicated watchout queue</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>q_watch</strong> (<em>improv.nexus.Link</em>) – watchout queue</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AbstractActor.addLink">
+<span class="sig-name descname"><span class="pre">addLink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.addLink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.addLink" title="Permalink to this definition">#</a></dt>
+<dd><p>Function provided to add additional data links by name
+using same form as q_in or q_out
+Must be done during registration and not during run</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>string</em>) – customized link name</p></li>
+<li><p><strong>link</strong> (<em>improv.nexus.Link</em>) – customized data link</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AbstractActor.getLinks">
+<span class="sig-name descname"><span class="pre">getLinks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.getLinks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.getLinks" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns dictionary of links for the current actor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dictionary of links</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AbstractActor.put">
+<span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idnames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.put" title="Permalink to this definition">#</a></dt>
+<dd><p>TODO: This is deprecated? Prefer using Links explicitly</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AbstractActor.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.setup" title="Permalink to this definition">#</a></dt>
+<dd><p>Essenitally the registration process
+Can also be an initialization for the actor
+options is a list of options, can be empty</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AbstractActor.run">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.run" title="Permalink to this definition">#</a></dt>
+<dd><p>Must run in continuous mode
+Also must check q_sig either at top of a run-loop
+or as async with the primary function</p>
+<p>Suggested implementation for synchronous running: see RunManager class below</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AbstractActor.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.stop" title="Permalink to this definition">#</a></dt>
+<dd><p>Specify method for momentarily stopping the run and saving data.
+Not used by default</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AbstractActor.changePriority">
+<span class="sig-name descname"><span class="pre">changePriority</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.changePriority"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.changePriority" title="Permalink to this definition">#</a></dt>
+<dd><p>Try to lower this process’ priority
+Only changes priority if lower_priority is set
+TODO: Only works on unix machines. Add Windows functionality</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="improv.actor.ManagedActor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">ManagedActor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#ManagedActor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.ManagedActor" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#improv.actor.AbstractActor" title="improv.actor.AbstractActor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AbstractActor</span></code></a></p>
+<p>Base class for an actor that Nexus
+controls and interacts with.
+Needs to have a store and links for communication
+Also needs to be responsive to sent Signals (e.g. run, setup, etc)</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.ManagedActor.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#ManagedActor.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.ManagedActor.run" title="Permalink to this definition">#</a></dt>
+<dd><p>Must run in continuous mode
+Also must check q_sig either at top of a run-loop
+or as async with the primary function</p>
+<p>Suggested implementation for synchronous running: see RunManager class below</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.ManagedActor.runStep">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">runStep</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#ManagedActor.runStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.ManagedActor.runStep" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="improv.actor.AsyncActor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">AsyncActor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AsyncActor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AsyncActor" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#improv.actor.AbstractActor" title="improv.actor.AbstractActor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AbstractActor</span></code></a></p>
+<p>Base class for an actor that Nexus
+controls and interacts with.
+Needs to have a store and links for communication
+Also needs to be responsive to sent Signals (e.g. run, setup, etc)</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AsyncActor.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AsyncActor.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AsyncActor.run" title="Permalink to this definition">#</a></dt>
+<dd><p>Run the actor in an async loop</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AsyncActor.setup">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AsyncActor.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AsyncActor.setup" title="Permalink to this definition">#</a></dt>
+<dd><p>Essenitally the registration process
+Can also be an initialization for the actor
+options is a list of options, can be empty</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AsyncActor.runStep">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">runStep</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AsyncActor.runStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AsyncActor.runStep" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AsyncActor.stop">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AsyncActor.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AsyncActor.stop" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="improv.actor.Actor">
+<span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">Actor</span></span><a class="headerlink" href="#improv.actor.Actor" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="improv.actor.RunManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">RunManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">links</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runStoreInterface</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#RunManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.RunManager" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="improv.actor.AsyncRunManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">AsyncRunManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">links</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runStore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AsyncRunManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AsyncRunManager" title="Permalink to this definition">#</a></dt>
+<dd><p>Asynchronous run manager. Communicates with nexus core using q_sig and q_comm.
+To be used with [async with]
+Afterwards, the run manager listens for signals without blocking.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.AsyncRunManager.run_actor">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run_actor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AsyncRunManager.run_actor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AsyncRunManager.run_actor" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="improv.actor.Signal">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">Signal</span></span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal" title="Permalink to this definition">#</a></dt>
+<dd><p>Class containing definition of signals Nexus uses
+to communicate with its actors
+TODO: doc each of these with expected handling behavior</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.Signal.run">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.run" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.Signal.quit">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">quit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.quit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.quit" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.Signal.pause">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pause</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.pause"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.pause" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.Signal.resume">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">resume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.resume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.resume" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.Signal.reset">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.reset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.Signal.load">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.load" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.Signal.setup">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.setup" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.Signal.ready">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ready</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.ready"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.ready" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.Signal.kill">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kill</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.kill"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.kill" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.Signal.revive">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">revive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.revive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.revive" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.Signal.stop">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.stop" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="improv.actor.Signal.stop_success">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stop_success</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.stop_success"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.stop_success" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./autoapi/improv/actor"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../utils/utils/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils.utils</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../cli/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.cli</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.logger">logger</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor">AbstractActor</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.setStoreInterface">setStoreInterface</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.setLinks">setLinks</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.setCommLinks">setCommLinks</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.setLinkIn">setLinkIn</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.setLinkOut">setLinkOut</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.setLinkWatch">setLinkWatch</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.addLink">addLink</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.getLinks">getLinks</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.put">put</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.setup">setup</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.run">run</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.stop">stop</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AbstractActor.changePriority">changePriority</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.ManagedActor">ManagedActor</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.ManagedActor.run">run</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.ManagedActor.runStep">runStep</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AsyncActor">AsyncActor</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AsyncActor.run">run</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AsyncActor.setup">setup</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AsyncActor.runStep">runStep</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AsyncActor.stop">stop</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Actor">Actor</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.RunManager">RunManager</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AsyncRunManager">AsyncRunManager</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.AsyncRunManager.run_actor">run_actor</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal">Signal</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.run">run</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.quit">quit</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.pause">pause</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.resume">resume</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.reset">reset</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.load">load</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.setup">setup</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.ready">ready</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.kill">kill</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.revive">revive</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.stop">stop</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.actor.Signal.stop_success">stop_success</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By improv team
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
