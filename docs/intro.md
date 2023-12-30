@@ -17,7 +17,7 @@ Raw two-photon calcium imaging data in zebrafish (left), with cells detected in 
 Need to collect data from multiple sources? Run processes on different machines? Pipeline data to multiple downstream analyses? _improv_ handles the details of communication between processes and machines so you can focus on what's important: defining the logic of your experiment. 
 
 ### Simple design
-_improv_'s design is based on a simplified version of the Actor Model of concurrency {cite}`agha1986actors`: the experiment is a directed graph, the nodes are actors, and data flows by asynchronous message passing. Apart from this, we strive for maximum flexibility. _improv_ allows for arbitrary Python code in actors, allowing you to interoperate with the widest variety of tools. Examples can be found in [](page:demos) and our [`improv-sketches`](https://github.com/project-improv/improv-sketches) repository.
+_improv_'s design is based on a simplified version of the Actor Model of concurrency {cite:p}`agha1986actors`: the experiment is a directed graph, the nodes are actors, and data flows by asynchronous message passing. Apart from this, we strive for maximum flexibility. _improv_ allows for arbitrary Python code in actors, allowing you to interoperate with the widest variety of tools. Examples can be found in [](page:demos) and our [`improv-sketches`](https://github.com/project-improv/improv-sketches) repository.
 
 ![](https://dibs-web01.vm.duke.edu/pearson/assets/images/zebrafish/actor_model.png)
 
@@ -26,3 +26,6 @@ _improv_ is designed to be fast enough for real-time experiments that need milli
 
 ### Reliability
 _improv_ is designed from the ground up to be fault-tolerant, with a priority on data integrity. Individual processes may crash, but the system will keep running, ensuring that a single bad line of code does not result in data loss. In addition, we provide the tools to produce an audit trail of everything that happened online, ensuring you don't forget that one setting you changed mid-experiment.
+
+<!-- ```{bibliography}
+``` -->

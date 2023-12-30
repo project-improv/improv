@@ -5,6 +5,8 @@ format: jb-book
 root: intro
 chapters:
 - file: installation
+- file: running
 - file: demos
 - file: design
+- file: bibliography
 - file: autoapi/index
