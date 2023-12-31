@@ -7,3 +7,5 @@ chapters:
 - file: markdown
 - file: notebooks
 - file: markdown-notebooks
+- file: content
+- file: autoapi/index

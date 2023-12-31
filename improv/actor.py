@@ -46,7 +46,9 @@ class AbstractActor:
 
     def setStoreInterface(self, client):
         """Sets the client interface to the store
-        Used specifically for actors not inheriting Nexus' memory
+
+        Args:
+            client (improv.store.StoreInterface): Set client interface to the store
         """
         self.client = client
 
@@ -57,34 +59,48 @@ class AbstractActor:
             self.setStoreInterface(store)
 
     def setLinks(self, links):
-        """General full dict set for links"""
-        self.links = links
+        """General full dict set for links
 
-    def getLinks(self):
-        """Returns dictionary of links"""
-        return self.links
+        Args:
+            links (dict): The dict to store all the links
+        """
+        self.links = links
 
     def setCommLinks(self, q_comm, q_sig):
         """Set explicit communication links to/from Nexus (q_comm, q_sig)
-        q_comm is for messages from this actor to Nexus
-        q_sig is signals from Nexus and must be checked first
+
+        Args:
+            q_comm (improv.nexus.Link): for messages from this actor to Nexus
+            q_sig (improv.nexus.Link): signals from Nexus and must be checked first
         """
         self.q_comm = q_comm
         self.q_sig = q_sig
         self.links.update({"q_comm": self.q_comm, "q_sig": self.q_sig})
 
     def setLinkIn(self, q_in):
-        """Set the dedicated input queue"""
+        """Set the dedicated input queue
+
+        Args:
+            q_in (improv.nexus.Link): for input signals to this actor
+        """
         self.q_in = q_in
         self.links.update({"q_in": self.q_in})
 
     def setLinkOut(self, q_out):
-        """Set the dedicated output queue"""
+        """Set the dedicated output queue
+
+        Args:
+            q_out (improv.nexus.Link): for output signals from this actor
+        """
         self.q_out = q_out
         self.links.update({"q_out": self.q_out})
 
     def setLinkWatch(self, q_watch):
-        """Set the queue for the Watcher, if used"""
+        """Set the dedicated watchout queue
+
+        Args:
+            q_watch (improv.nexus.Link): watchout queue
+        """
         self.q_watchout = q_watch
         self.links.update({"q_watchout": self.q_watchout})
 
@@ -92,10 +108,22 @@ class AbstractActor:
         """Function provided to add additional data links by name
         using same form as q_in or q_out
         Must be done during registration and not during run
+
+        Args:
+            name (string): customized link name
+            link (improv.nexus.Link): customized data link
         """
         self.links.update({name: link})
         # User can then use: self.my_queue = self.links['my_queue'] in a setup fcn,
         # or continue to reference it using self.links['my_queue']
+
+    def getLinks(self):
+        """Returns dictionary of links for the current actor
+
+        Returns:
+            dict: dictionary of links
+        """
+        return self.links
 
     def put(self, idnames, q_out=None, save=None):
         """TODO: This is deprecated? Prefer using Links explicitly"""
@@ -288,7 +316,8 @@ class RunManager:
 
 
 class AsyncRunManager:
-    """Asynchronous run manager. Communicates with nexus core using q_sig and q_comm.
+    """
+    Asynchronous run manager. Communicates with nexus core using q_sig and q_comm.
     To be used with [async with]
     Afterwards, the run manager listens for signals without blocking.
     """
