@@ -1,8 +1,8 @@
 # Running Bubblewrap demo
 ## Ubuntu users
-After installing improv, install additional dependencies (JAX on CPU by default) by being in the improv directory and do:
+After installing improv, install additional dependencies (JAX on CPU by default) navigating to `demos/bubblewrap` and doing
 
-- `pip install -e ".[bw_demo]"`
+- `pip install -r requirements.txt`
 
 To download the sample data from the paper, do:
 
