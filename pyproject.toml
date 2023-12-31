@@ -64,6 +64,7 @@ per-file-ignores = """
     test/test_link.py:PT012
     test/test_nexus.py:PT012
     test/test_store_with_errors.py:PT012
+    improv/__init__.py:F401
     """
 exclude = ["demos", "build"]
 
