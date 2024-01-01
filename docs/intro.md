@@ -5,7 +5,7 @@ _improv_ is a lightweight package designed to enable complex adaptive experiment
 
 In practice, such experiments are technically challenging, since they require coordinating hardware with software, data acquisition and preprocessing with analysis. We build _improv_ to provide a simple means of tackling these coordination problems. In _improv_, you specify your experiment as a data flow graph, write simple Python classes for each step, and we handle the rest. 
 
-:::{figure-md} markdown-fig
+:::{figure-md} improv_gif
 ![](https://dibs-web01.vm.duke.edu/pearson/assets/improv/improvGif.gif)
 
 Raw two-photon calcium imaging data in zebrafish (left), with cells detected in real time by [CaImAn](https://github.com/flatironinstitute/CaImAn) (right). Neurons have been colored by directional tuning curves and functional connectivity (lines) estimated online, during a live experiment. Here only a few minutes of data have been acquired, and neurons are colored by their strongest response to visual simuli shown so far.
