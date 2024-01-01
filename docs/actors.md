@@ -2,7 +2,7 @@
 # Writing actors
 
 ## Overview
-Nearly any experiment implemented in _improv_ will require the creation of custom actors. As explained in [][page:design:pipeline_spec], these actors are defined by Python classes and represent distinct, independent steps in the processing pipeline. The best way to learn to write actors is by example: the [demos](https://github.com/project-improv/improv/tree/main/demos) give several complete, runnable pipelines.
+Nearly any experiment implemented in _improv_ will require the creation of custom actors. As explained in [](page:design:pipeline_spec), these actors are defined by Python classes and represent distinct, independent steps in the processing pipeline. The best way to learn to write actors is by example: the [demos](https://github.com/project-improv/improv/tree/main/demos) give several complete, runnable pipelines.
 
 Here, we explain some of the theory behind how actors work, as well as some more advanced functionality.
 
