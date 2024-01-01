@@ -8,5 +8,7 @@ chapters:
 - file: running
 - file: demos
 - file: design
+- file: actors
+- file: signals
 - file: bibliography
 - file: autoapi/index
