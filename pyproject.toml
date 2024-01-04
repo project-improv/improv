@@ -1,12 +1,11 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = ["setuptools", "setuptools-scm", "versioningit"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "improv"
-version = "0.0.2"
 description = "Platform for adaptive neuroscience experiments"
-authors = [{name = "Anne Draelos", email = "amw73@duke.edu"}, 
+authors = [{name = "Anne Draelos", email = "adraelos@umich.edu"}, 
             {name = "John Pearson", email = "john.pearson@duke.edu"}]
 
 license = {file = "LICENSE"}
@@ -27,14 +26,12 @@ dependencies = [
     "h5py",
 ]
 classifiers = ['Development Status :: 1 - Planning']
+dynamic = ["version"]
 
 [project.optional-dependencies]
 tests = ["pytest", "async-timeout", "pytest-asyncio", "pytest-cov", "scikit-image",]
-docs = ["jupyter-book", "sphinx-autoapi"]
+docs = ["jupyter-book", "sphinx-autoapi==2.0.1", "astroid==2.15.5"]
 lint = ["black", "flake8", "Flake8-pyproject", "flake8-pytest-style"]
-bw_demo = ["pyqtgraph", "mat73", "jax[cpu]", "proSVD",  
-           "bubblewrap@git+https://github.com/pearsonlab/Bubblewrap",]
-caiman = []
 
 [project.scripts]
 improv = "improv.cli:default_invocation"
@@ -67,6 +64,7 @@ per-file-ignores = """
     test/test_link.py:PT012
     test/test_nexus.py:PT012
     test/test_store_with_errors.py:PT012
+    improv/__init__.py:F401
     """
 exclude = ["demos", "build"]
 
@@ -78,3 +76,27 @@ exclude = '''
   | build
 )/
 '''
+
+[tool.versioningit]
+
+[tool.versioningit.vcs]
+match = ["v*"]
+
+[tool.versioningit.next-version]
+method = "smallest"
+
+[tool.versioningit.format]
+# Format used when there have been commits since the most recent tag:
+distance = "{next_version}.dev{distance}"
+# Example formatted version: 1.2.4.dev42+ge174a1f
+
+# Format used when there are uncommitted changes:
+dirty = "{base_version}+d{build_date:%Y%m%d}"
+# Example formatted version: 1.2.3+d20230922
+
+# Format used when there are both commits and uncommitted changes:
+distance-dirty = "{next_version}.dev{distance}+{vcs}{rev}.d{build_date:%Y%m%d}"
+# Example formatted version: 1.2.4.dev42+ge174a1f.d20230922
+
+[tool.versioningit.write]
+file = "improv/_version.py"
