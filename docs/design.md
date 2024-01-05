@@ -78,7 +78,7 @@ To understand how _improv_ translates a pipeline specified in a YAML file to a w
     1. The server loops over actors in the configuration file, creating an instance of each class for each actor.
     1. The server loops over connections, creating a communication channel between each pair of actors.
 1. The server is started.
-    1. Using [`multiprocessing`](https://docs.python.org/3/library/multiprocessing.html), each actor's `run` method is launched (via either spawn or fork, as specified by the actor's `method` attribute in the YAML file) in a separate process.
+    1. Using [`multiprocessing`](https://docs.python.org/3/library/multiprocessing.html), each actor's `run` method is launched (via either spawn or fork, as specified by the actor's `method` attribute in the YAML file) in a separate process.[^run_warning]
     1. The server starts an event loop that listens for input from either the control port or the actors. An "Awaiting input" message is sent on the output port.
     1. The server writes its port configuration to the log file, to be read by clients who wish to connect.
 1. The textual user interface (TUI) client is started and connects to the server. Other clients may also connect to the server's control port and send commands.
@@ -92,6 +92,8 @@ What is also important to realize is that none of the above directly pertains to
 1. broadcasting the address(es) of its data outputs to its children in the graph
 
 For examples and further documentation, see [](page:actors).
+
+[^run_warning]: Note that users will _not_, in most cases, overload the `run` command for actors. They should instead write the `runStep` function. See [](page:actors).
 
 ## Logging and persistence
 Finally, _improv_ handles centralized logging via the [`logging`](https://docs.python.org/3/library/logging.html) module, which listens for messages on a global logging port. These messages are written to the experimental log file. 
