@@ -363,7 +363,7 @@ class Nexus:
                     self.tasks[i] = asyncio.create_task(self.remote_input())
 
         if not self.early_exit:  # don't run this again if we already have
-            self.stop_polling("quit", polling)
+            self.stop_polling(Signal.quit(), polling)
             logger.warning("Shutting down polling")
         return "Shutting Down"
 
@@ -372,11 +372,12 @@ class Nexus:
         quit the process and stop polling signals from queues
 
         Args:
-            signal (): Signal for signal handler.
+            signal (signal): Signal for handling async polling. 
+                             One of: signal.SIGHUP, signal.SIGTERM, signal.SIGINT
             queues (improv.link.AsyncQueue): Comm queues for links.
         """
         logger.warn(
-            "Shutting down via signal handler for {}. \
+            "Shutting down via signal handler due to {}. \
                 Steps may be out of order or dirty.".format(
                 signal
             )
@@ -552,13 +553,13 @@ class Nexus:
         the next run of the event loop.
 
         Args:
-            stop_signal (): Signal for signal handler.
+            stop_signal (improv.actor.Signal): Signal for signal handler.
             queues (improv.link.AsyncQueue): Comm queues for links.
         """
         logger.info("Received shutdown order")
 
         logger.info(f"Stop signal: {stop_signal}")
-        shutdown_message = "SHUTDOWN"
+        shutdown_message = Signal.quit()
         for q in queues:
             try:
                 q.put(shutdown_message)
