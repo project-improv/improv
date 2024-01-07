@@ -372,7 +372,7 @@ class Nexus:
         quit the process and stop polling signals from queues
 
         Args:
-            signal (signal): Signal for handling async polling. 
+            signal (signal): Signal for handling async polling.
                              One of: signal.SIGHUP, signal.SIGTERM, signal.SIGINT
             queues (improv.link.AsyncQueue): Comm queues for links.
         """
