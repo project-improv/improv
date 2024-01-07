@@ -38,8 +38,8 @@ class Nexus:
         self,
         file=None,
         use_hdd=False,
-        use_watcher=False,
-        store_size=10000000,
+        use_watcher=None,
+        store_size=10_000_000,
         control_port=0,
         output_port=0,
     ):
@@ -64,19 +64,42 @@ class Nexus:
         curr_dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         logger.info(f"************ new improv server session {curr_dt} ************")
 
+        if file is None:
+            logger.exception("Need a config file!")
+            raise Exception  # TODO
+        else:
+            logger.info(f"Loading configuration file {file}:")
+            self.loadConfig(file=file)
+            with open(file, "r") as f:  # write config file to log
+                logger.info(f.read())
+
+        # set config options loaded from file
+        # in Python 3.9, can just merge dictionaries using precedence
+        cfg = self.config.settings
+        if "use_hdd" not in cfg:
+            cfg["use_hdd"] = use_hdd
+        if "use_watcher" not in cfg:
+            cfg["use_watcher"] = use_watcher
+        if "store_size" not in cfg:
+            cfg["store_size"] = store_size
+        if "control_port" not in cfg or control_port != 0:
+            cfg["control_port"] = control_port
+        if "output_port" not in cfg or output_port != 0:
+            cfg["output_port"] = output_port
+
         # set up socket in lieu of printing to stdout
         self.zmq_context = zmq.Context()
         self.out_socket = self.zmq_context.socket(PUB)
-        self.out_socket.bind("tcp://*:%s" % output_port)
+        self.out_socket.bind("tcp://*:%s" % cfg["output_port"])
         out_port_string = self.out_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
-        output_port = int(out_port_string.split(":")[-1])
+        cfg["output_port"] = int(out_port_string.split(":")[-1])
 
         self.in_socket = self.zmq_context.socket(REP)
-        self.in_socket.bind("tcp://*:%s" % control_port)
+        self.in_socket.bind("tcp://*:%s" % cfg["control_port"])
         in_port_string = self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
-        control_port = int(in_port_string.split(":")[-1])
+        cfg["control_port"] = int(in_port_string.split(":")[-1])
 
-        # default size should be system-dependent; this is 40 GB
+        # default size should be system-dependent
         self._startStoreInterface(store_size)
         self.out_socket.send_string("StoreInterface started")
 
@@ -86,14 +109,14 @@ class Nexus:
         self.store.subscribe()
 
         # LMDB storage
-        self.use_hdd = use_hdd
+        self.use_hdd = cfg["use_hdd"]
         if self.use_hdd:
             self.lmdb_name = f'lmdb_{datetime.now().strftime("%Y%m%d_%H%M%S")}'
             self.store_dict = dict()
 
         # TODO: Better logic/flow for using watcher as an option
         self.p_watch = None
-        if use_watcher:
+        if cfg["use_watcher"]:
             self.startWatcher()
 
         # Create dicts for reading config and creating actors
@@ -104,19 +127,21 @@ class Nexus:
         self.flags = {}
         self.processes = []
 
-        if file is None:
-            logger.exception("Need a config file!")
-            raise Exception  # TODO
-        else:
-            self.loadConfig(file=file)
+        self.initConfig()
 
         self.flags.update({"quit": False, "run": False, "load": False})
         self.allowStart = False
         self.stopped = False
 
-        return (control_port, output_port)
+        return (cfg["control_port"], cfg["output_port"])
 
     def loadConfig(self, file):
+        """Load configuration file.
+        file: a YAML configuration file name
+        """
+        self.config = Config(configFile=file)
+
+    def initConfig(self):
         """For each connection:
         create a Link with a name (purpose), start, and end
         Start links to one actor's name, end to the other.
@@ -134,7 +159,6 @@ class Nexus:
         """
         # TODO load from file or user input, as in dialogue through FrontEnd?
 
-        self.config = Config(configFile=file)
         flag = self.config.createConfig()
         if flag == -1:
             logger.error(
@@ -195,7 +219,7 @@ class Nexus:
         for name, link in self.data_queues.items():
             self.assignLink(name, link)
 
-        if self.config.settings["use_watcher"] is not None:
+        if self.config.settings["use_watcher"]:
             watchin = []
             for name in self.config.settings["use_watcher"]:
                 watch_link = Link(name + "_watch", name, "Watcher")
@@ -266,13 +290,14 @@ class Nexus:
         logger.warning("Destroying Nexus")
         self._closeStoreInterface()
 
-        try:
-            os.remove(self.store_loc)
-        except FileNotFoundError:
-            logger.warning(
-                "StoreInterface file {} is already deleted".format(self.store_loc)
-            )
-        logger.warning("Delete the store at location {0}".format(self.store_loc))
+        if hasattr(self, "store_loc"):
+            try:
+                os.remove(self.store_loc)
+            except FileNotFoundError:
+                logger.warning(
+                    "StoreInterface file {} is already deleted".format(self.store_loc)
+                )
+            logger.warning("Delete the store at location {0}".format(self.store_loc))
 
     async def pollQueues(self):
         """

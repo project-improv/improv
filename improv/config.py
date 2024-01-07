@@ -19,6 +19,28 @@ class Config:
             # Reading config from other yaml file
             self.configFile = configFile
 
+        with open(self.configFile, "r") as ymlfile:
+            cfg = yaml.safe_load(ymlfile)
+
+        try:
+            if "settings" in cfg:
+                self.settings = cfg["settings"]
+            else:
+                self.settings = {}
+
+            if "use_watcher" not in self.settings:
+                self.settings["use_watcher"] = False
+
+        except TypeError:
+            if cfg is None:
+                logger.error("Error: The config file is empty")
+
+        if type(cfg) is not dict:
+            logger.error("Error: The config file is not in dictionary format")
+            raise TypeError
+
+        self.config = cfg
+
         self.actors = {}
         self.connections = {}
         self.hasGUI = False
@@ -28,22 +50,7 @@ class Config:
         TODO: check for config file compliance, error handle it
         beyond what we have below.
         """
-        with open(self.configFile, "r") as ymlfile:
-            cfg = yaml.safe_load(ymlfile)
-
-        try:
-            if "settings" in cfg:
-                self.settings = cfg["settings"]
-            else:
-                self.settings = {}
-                self.settings["use_watcher"] = None
-        except TypeError:
-            if cfg is None:
-                logger.error("Error: The config file is empty")
-
-        if type(cfg) is not dict:
-            logger.error("Error: The config file is not in dictionary format")
-            raise TypeError
+        cfg = self.config
 
         for name, actor in cfg["actors"].items():
             if name in self.actors.keys():
