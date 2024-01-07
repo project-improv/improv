@@ -33,7 +33,7 @@ Attributes
 
    Main server class for handling objects in improv
 
-   .. py:method:: createNexus(file=None, use_hdd=False, use_watcher=False, store_size=10000000, control_port=0, output_port=0)
+   .. py:method:: createNexus(file=None, use_hdd=False, use_watcher=None, store_size=10000000, control_port=0, output_port=0)
 
       Function to initialize class variables based on config file.
 
@@ -59,6 +59,12 @@ Attributes
 
 
    .. py:method:: loadConfig(file)
+
+      Load configuration file.
+      file: a YAML configuration file name
+
+
+   .. py:method:: initConfig()
 
       For each connection:
       create a Link with a name (purpose), start, and end
