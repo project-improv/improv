@@ -59,8 +59,8 @@ class Processor(Actor):
                 self.frame = self.client.get(frame)
             avg = np.mean(self.frame[0])
 
-            logger.info(f"Average: {avg}")
+            #logger.info(f"Average: {avg}")
             self.avg_list.append(avg)
-            logger.info(f"Overall Average: {np.mean(self.avg_list)}")
-            logger.info(f"Frame number: {self.frame_num}")
+            #logger.info(f"Overall Average: {np.mean(self.avg_list)}")
+            #logger.info(f"Frame number: {self.frame_num}")
             self.frame_num += 1
