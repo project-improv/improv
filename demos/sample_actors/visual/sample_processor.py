@@ -3,11 +3,12 @@ from queue import Empty
 import logging; logger = logging.getLogger(__name__)
 import zmq
 logger.setLevel(logging.INFO)
+import numpy as np
 
 
 class Processor(Actor):
     """
-    Process data and send it through zmq to be be visualized
+    Process data and send it through zmq to be visualized.
     """
 
     def __init__(self, *args, **kwargs):
@@ -15,7 +16,7 @@ class Processor(Actor):
 
     def setup(self):
         """
-        Creates and binds the socket for zmq
+        Creates and binds the socket for zmq.
         """
 
         self.name = "Processor"
@@ -24,7 +25,7 @@ class Processor(Actor):
         self.socket = context.socket(zmq.PUB)
         self.socket.bind("tcp://127.0.0.1:5555")
 
-        self.frame_index = 0
+        self.frame_index = 1
 
         logger.info('Completed setup for Processor')
 
@@ -34,8 +35,9 @@ class Processor(Actor):
 
     def runStep(self):
         """
-        Gets the frame from the queue, take the mean, sends a memoryview
-        so the zmq subscriber can get the buffer to update the plot
+        Gets the data_id to the store from the queue, fetches the frame from the data store,
+        take the mean, sends a memoryview so the zmq subscriber can get the buffer to update
+        the plot.
         """
 
         frame = None
@@ -48,8 +50,16 @@ class Processor(Actor):
             logger.error("Could not get frame!")
 
         if frame is not None:
-            self.frame_index += 1
+            # get frame from data store
+            self.frame = self.client.getID(frame[0][0])
+
             # do some processing
-            frame.mean()
-            # send the buffer
-            self.socket.send(frame)
+            self.frame.mean()
+
+            # send the buffer data and frame number as an array
+            out = np.concatenate(
+            [self.frame, self.frame_index],
+            dtype=np.float64
+            )
+            self.frame_index += 1
+            self.socket.send(out)
