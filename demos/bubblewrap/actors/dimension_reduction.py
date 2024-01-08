@@ -1,7 +1,7 @@
 from improv.actor import Actor
 import numpy as np
 import scipy.signal as signal
-from proSVD.proSVD import proSVD
+from proSVD import proSVD
 from queue import Empty
 import logging
 import traceback

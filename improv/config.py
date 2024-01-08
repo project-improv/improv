@@ -19,6 +19,28 @@ class Config:
             # Reading config from other yaml file
             self.configFile = configFile
 
+        with open(self.configFile, "r") as ymlfile:
+            cfg = yaml.safe_load(ymlfile)
+
+        try:
+            if "settings" in cfg:
+                self.settings = cfg["settings"]
+            else:
+                self.settings = {}
+
+            if "use_watcher" not in self.settings:
+                self.settings["use_watcher"] = False
+
+        except TypeError:
+            if cfg is None:
+                logger.error("Error: The config file is empty")
+
+        if type(cfg) is not dict:
+            logger.error("Error: The config file is not in dictionary format")
+            raise TypeError
+
+        self.config = cfg
+
         self.actors = {}
         self.connections = {}
         self.hasGUI = False
@@ -28,22 +50,7 @@ class Config:
         TODO: check for config file compliance, error handle it
         beyond what we have below.
         """
-        with open(self.configFile, "r") as ymlfile:
-            cfg = yaml.safe_load(ymlfile)
-
-        try:
-            if "settings" in cfg:
-                self.settings = cfg["settings"]
-            else:
-                self.settings = {}
-                self.settings["use_watcher"] = None
-        except TypeError:
-            if cfg is None:
-                logger.error("Error: The config file is empty")
-
-        if type(cfg) is not dict:
-            logger.error("Error: The config file is not in dictionary format")
-            raise TypeError
+        cfg = self.config
 
         for name, actor in cfg["actors"].items():
             if name in self.actors.keys():
@@ -54,32 +61,45 @@ class Config:
 
             try:
                 __import__(packagename, fromlist=[classname])
+                mod = import_module(packagename)
 
-            except ModuleNotFoundError:
-                logger.error("Error: Packagename not valid")
+                clss = getattr(mod, classname)
+                sig = signature(clss)
+                configModule = ConfigModule(name, packagename, classname, options=actor)
+                sig.bind(configModule.options)
+
+            except SyntaxError as e:
+                logger.error(f"Error: syntax error when initializing actor {name}: {e}")
+                return -1
+
+            except ModuleNotFoundError as e:
+                logger.error(
+                    f"Error: failed to import packages, {e}. Please check both each "
+                    f"actor's imports and the package name in the yaml file."
+                )
+
+                return -1
 
             except AttributeError:
                 logger.error("Error: Classname not valid within package")
+                return -1
 
-            mod = import_module(packagename)
-
-            clss = getattr(mod, classname)
-            sig = signature(clss)
-            configModule = ConfigModule(name, packagename, classname, options=actor)
-
-            try:
-                sig.bind(configModule.options)
             except TypeError:
                 logger.error("Error: Invalid arguments passed")
                 params = ""
                 for parameter in sig.parameters:
                     params = params + " " + parameter.name
                 logger.warning("Expected Parameters:" + params)
+                return -1
+
+            except Exception as e:
+                logger.error(f"Error: {e}")
+                return -1
+
             if "GUI" in name:
-                logger.info("Config detected a GUI actor: {}".format(name))
+                logger.info(f"Config detected a GUI actor: {name}")
                 self.hasGUI = True
                 self.gui = configModule
-
             else:
                 self.actors.update({name: configModule})
 
@@ -88,6 +108,7 @@ class Config:
                 raise RepeatedConnectionsError(name)
 
             self.connections.update({name: conn})
+        return 0
 
     def addParams(self, type, param):
         """Function to add paramter param of type type
@@ -113,7 +134,15 @@ class ConfigModule:
         self.options = options
 
     def saveConfigModules(self, pathName, wflag):
-        """Loops through each actor to save the modules to the config file."""
+        """Loops through each actor to save the modules to the config file.
+
+        Args:
+            pathName:
+            wflag (bool):
+
+        Returns:
+            bool: wflag
+        """
 
         if wflag:
             writeOption = "w"

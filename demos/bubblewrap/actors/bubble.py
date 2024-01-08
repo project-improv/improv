@@ -1,7 +1,7 @@
 
 import numpy as np
 from queue import Empty
-from Bubblewrap.bubblewrap import Bubblewrap
+from bubblewrap import Bubblewrap
 from improv.actor import Actor
 import logging
 

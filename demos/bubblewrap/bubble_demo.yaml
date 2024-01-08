@@ -7,7 +7,7 @@ actors:
   Acquirer:
     package: actors.acquire
     class: Acquirer
-    filename: demos/bubblewrap/data/indy_20160407_02.mat 
+    filename: data/indy_20160407_02.mat 
 
 
   DimReduction:

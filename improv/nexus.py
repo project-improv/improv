@@ -38,31 +38,68 @@ class Nexus:
         self,
         file=None,
         use_hdd=False,
-        use_watcher=False,
-        store_size=10000000,
+        use_watcher=None,
+        store_size=10_000_000,
         control_port=0,
         output_port=0,
     ):
-        """Start the server, the store, and load the config file.
-        This will also create the actors.
+        """Function to initialize class variables based on config file.
+
+        Starts a store of class Limbo, and then loads the config file.
+        The config file specifies the specific actors that nexus will
+        be connected to, as well as their links.
+
+        Args:
+            file (string): Name of the config file.
+            use_hdd (bool): Whether to use hdd for the store.
+            use_watcher (bool): Whether to use watcher for the store.
+            store_size (int): initial store size
+            control_port (int): port number for input socket
+            output_port (int): port number for output socket
+
+        Returns:
+            string: "Shutting down", to notify start() that pollQueues has completed.
         """
 
         curr_dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         logger.info(f"************ new improv server session {curr_dt} ************")
 
+        if file is None:
+            logger.exception("Need a config file!")
+            raise Exception  # TODO
+        else:
+            logger.info(f"Loading configuration file {file}:")
+            self.loadConfig(file=file)
+            with open(file, "r") as f:  # write config file to log
+                logger.info(f.read())
+
+        # set config options loaded from file
+        # in Python 3.9, can just merge dictionaries using precedence
+        cfg = self.config.settings
+        if "use_hdd" not in cfg:
+            cfg["use_hdd"] = use_hdd
+        if "use_watcher" not in cfg:
+            cfg["use_watcher"] = use_watcher
+        if "store_size" not in cfg:
+            cfg["store_size"] = store_size
+        if "control_port" not in cfg or control_port != 0:
+            cfg["control_port"] = control_port
+        if "output_port" not in cfg or output_port != 0:
+            cfg["output_port"] = output_port
+
         # set up socket in lieu of printing to stdout
         self.zmq_context = zmq.Context()
         self.out_socket = self.zmq_context.socket(PUB)
-        self.out_socket.bind("tcp://*:%s" % output_port)
+        self.out_socket.bind("tcp://*:%s" % cfg["output_port"])
         out_port_string = self.out_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
-        output_port = int(out_port_string.split(":")[-1])
+        cfg["output_port"] = int(out_port_string.split(":")[-1])
 
         self.in_socket = self.zmq_context.socket(REP)
-        self.in_socket.bind("tcp://*:%s" % control_port)
+        self.in_socket.bind("tcp://*:%s" % cfg["control_port"])
         in_port_string = self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
-        control_port = int(in_port_string.split(":")[-1])
+        cfg["control_port"] = int(in_port_string.split(":")[-1])
 
-        # default size should be system-dependent; this is 40 GB
+        # default size should be system-dependent
         self._startStoreInterface(store_size)
         self.out_socket.send_string("StoreInterface started")
 
@@ -72,14 +109,14 @@ class Nexus:
         self.store.subscribe()
 
         # LMDB storage
-        self.use_hdd = use_hdd
+        self.use_hdd = cfg["use_hdd"]
         if self.use_hdd:
             self.lmdb_name = f'lmdb_{datetime.now().strftime("%Y%m%d_%H%M%S")}'
             self.store_dict = dict()
 
         # TODO: Better logic/flow for using watcher as an option
         self.p_watch = None
-        if use_watcher:
+        if cfg["use_watcher"]:
             self.startWatcher()
 
         # Create dicts for reading config and creating actors
@@ -90,34 +127,44 @@ class Nexus:
         self.flags = {}
         self.processes = []
 
-        if file is None:
-            logger.exception("Need a config file!")
-            raise Exception  # TODO
-        else:
-            self.loadConfig(file=file)
+        self.initConfig()
 
         self.flags.update({"quit": False, "run": False, "load": False})
         self.allowStart = False
         self.stopped = False
 
-        return (control_port, output_port)
+        return (cfg["control_port"], cfg["output_port"])
 
     def loadConfig(self, file):
+        """Load configuration file.
+        file: a YAML configuration file name
+        """
+        self.config = Config(configFile=file)
+
+    def initConfig(self):
         """For each connection:
         create a Link with a name (purpose), start, and end
         Start links to one actor's name, end to the other.
         Nexus gives start_actor the Link as a q_in,
-          and end_actor the Link as a q_out
+        and end_actor the Link as a q_out.
         Nexus maintains dict of name and associated Link.
         Nexus also has list of Links that it is itself connected to
-          for communication purposes.
+        for communication purposes.
+
         OR
         For each connection, create 2 Links. Nexus acts as intermediary.
+
+        Args:
+            file (string): input config filepath
         """
         # TODO load from file or user input, as in dialogue through FrontEnd?
 
-        self.config = Config(configFile=file)
-        self.config.createConfig()
+        flag = self.config.createConfig()
+        if flag == -1:
+            logger.error(
+                "An error occurred when loading the configuration file. "
+                "Please see the log file for more details."
+            )
 
         # create all data links requested from Config config
         self.createConnections()
@@ -149,7 +196,7 @@ class Nexus:
                 self.p_GUI.start()
 
             except Exception as e:
-                logger.error("Exception in setting up GUI {}: {}".format(name, e))
+                logger.error(f"Exception in setting up GUI {name}: {e}")
 
         else:
             # have fake GUI for communications
@@ -160,15 +207,19 @@ class Nexus:
         for name, actor in self.config.actors.items():
             if name not in self.actors.keys():
                 # Check for actors being instantiated twice
-                self.createActor(name, actor)
-                logger.info("setup the actor {0}".format(name))
+                try:
+                    self.createActor(name, actor)
+                    logger.info(f"Setting up actor {name}")
+                except Exception as e:
+                    logger.error(f"Exception in setting up actor {name}: {e}.")
+                    self.quit()
 
         # Second set up each connection b/t actors
         # TODO: error handling for if a user tries to use q_in without defining it
         for name, link in self.data_queues.items():
             self.assignLink(name, link)
 
-        if self.config.settings["use_watcher"] is not None:
+        if self.config.settings["use_watcher"]:
             watchin = []
             for name in self.config.settings["use_watcher"]:
                 watch_link = Link(name + "_watch", name, "Watcher")
@@ -179,7 +230,7 @@ class Nexus:
     def startNexus(self):
         """
         Puts all actors in separate processes and begins polling
-            to listen to comm queues
+        to listen to comm queues
         """
         for name, m in self.actors.items():
             if "GUI" not in name:  # GUI already started
@@ -211,7 +262,7 @@ class Nexus:
         try:
             logger.info(f"Result of run_until_complete: {res}")
         except Exception as e:
-            logger.info("Res failed to await: {0}".format(e))
+            logger.info(f"Res failed to await: {e}")
 
         logger.info(f"Current loop: {asyncio.get_event_loop()}")
 
@@ -221,6 +272,9 @@ class Nexus:
         self.zmq_context.destroy()
 
     def start(self):
+        """
+        Start all the processes in Nexus
+        """
         logger.info("Starting processes")
 
         for p in self.processes:
@@ -236,13 +290,14 @@ class Nexus:
         logger.warning("Destroying Nexus")
         self._closeStoreInterface()
 
-        try:
-            os.remove(self.store_loc)
-        except FileNotFoundError:
-            logger.warning(
-                "StoreInterface file {} is already deleted".format(self.store_loc)
-            )
-        logger.warning("Delete the store at location {0}".format(self.store_loc))
+        if hasattr(self, "store_loc"):
+            try:
+                os.remove(self.store_loc)
+            except FileNotFoundError:
+                logger.warning(
+                    "StoreInterface file {} is already deleted".format(self.store_loc)
+                )
+            logger.warning("Delete the store at location {0}".format(self.store_loc))
 
     async def pollQueues(self):
         """
@@ -255,7 +310,7 @@ class Nexus:
         stopped.
 
         Returns:
-            "Shutting down" (string): Notifies start() that pollQueues has completed.
+            string: "Shutting down", Notifies start() that pollQueues has completed.
         """
         self.actorStates = dict.fromkeys(self.actors.keys())
         if not self.config.hasGUI:
@@ -308,14 +363,25 @@ class Nexus:
                     self.tasks[i] = asyncio.create_task(self.remote_input())
 
         if not self.early_exit:  # don't run this again if we already have
-            self.stop_polling("quit", polling)
+            self.stop_polling(Signal.quit(), polling)
             logger.warning("Shutting down polling")
         return "Shutting Down"
 
     def stop_polling_and_quit(self, signal, queues):
-        logger.warn("Shutting down via signal handler for {}".format(signal))
-        logger.warn("Steps may be out of order or dirty.")
+        """
+        quit the process and stop polling signals from queues
 
+        Args:
+            signal (signal): Signal for handling async polling.
+                             One of: signal.SIGHUP, signal.SIGTERM, signal.SIGINT
+            queues (improv.link.AsyncQueue): Comm queues for links.
+        """
+        logger.warn(
+            "Shutting down via signal handler due to {}. \
+                Steps may be out of order or dirty.".format(
+                signal
+            )
+        )
         self.stop_polling(signal, queues)
         self.flags["quit"] = True
         self.early_exit = True
@@ -487,13 +553,13 @@ class Nexus:
         the next run of the event loop.
 
         Args:
-            stop_signal (signal.signal): Signal for signal handler.
-            queues (AsyncQueue): Comm queues for links.
+            stop_signal (improv.actor.Signal): Signal for signal handler.
+            queues (improv.link.AsyncQueue): Comm queues for links.
         """
         logger.info("Received shutdown order")
 
         logger.info(f"Stop signal: {stop_signal}")
-        shutdown_message = "SHUTDOWN"
+        shutdown_message = Signal.quit()
         for q in queues:
             try:
                 q.put(shutdown_message)
@@ -524,6 +590,14 @@ class Nexus:
         Raises an Exception if the plasma store doesn't start
 
         #TODO: Generalize this to non-plasma stores
+
+        Args:
+            size: in bytes
+
+        Raises:
+            RuntimeError: if the size is undefined
+            Exception: if the plasma store doesn't start
+
         """
         if size is None:
             raise RuntimeError("Server size needs to be specified")
@@ -560,6 +634,10 @@ class Nexus:
     def createActor(self, name, actor):
         """Function to instantiate actor, add signal and comm Links,
         and update self.actors dictionary
+
+        Args:
+            name: name of the actor
+            actor: improv.actor.Actor
         """
         # Instantiate selected class
         mod = import_module(actor.packagename)
@@ -592,6 +670,9 @@ class Nexus:
     def runActor(self, actor):
         """Run the actor continually; used for separate processes
         #TODO: hook into monitoring here?
+
+        Args:
+            actor:
         """
         actor.run()
 
@@ -620,6 +701,8 @@ class Nexus:
         Actor must already be instantiated
 
         #NOTE: Could use this for reassigning links if actors crash?
+
+        #TODO: Adjust to use default q_out and q_in vs being specified
         """
         classname = name.split(".")[0]
         linktype = name.split(".")[1]

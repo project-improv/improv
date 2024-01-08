@@ -7,6 +7,7 @@ actors:
   Acquirer:
     package: actors.acquire
     class: Acquirer
+    filename: data/indy_20160407_02.mat 
 
   DimReduction:
     package: actors.dimension_reduction

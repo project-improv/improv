@@ -3,11 +3,11 @@ name: Python testing
 on:
   pull_request: 
     branches:
-      - master
+      - main
       - dev
   push:
     branches:
-      - master
+      - main
       - dev
 
 jobs:
@@ -21,7 +21,9 @@ jobs:
         os: [ubuntu-latest, macos-latest] # [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -44,13 +46,17 @@ jobs:
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
+        with:
+          parallel: true
 
 
   check-format:
     runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
@@ -68,3 +74,11 @@ jobs:
           pip install flake8
           flake8 
 
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close parallel build
+        uses: coverallsapp/github-action@v1
+        with:
+          parallel-finished: true

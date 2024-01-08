@@ -112,8 +112,9 @@ venv.bak/
 # Rope project settings
 .ropeproject
 
-# mkdocs documentation
+# documentation
 /site
+docs/_autosummary
 
 # mypy
 .mypy_cache/
@@ -135,4 +136,4 @@ arrow
 .vscode/
 
 *.code-workspace
-
+improv/_version.py
