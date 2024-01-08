@@ -1,3 +1,6 @@
+import os
+import uuid
+
 import lmdb
 import time
 import pickle
@@ -7,6 +10,11 @@ import traceback
 
 import numpy as np
 import pyarrow.plasma as plasma
+import redis
+from redis import Redis
+from redis.retry import Retry
+from redis.backoff import ConstantBackoff
+from redis.exceptions import BusyLoadingError, ConnectionError, TimeoutError
 
 from queue import Queue
 from pathlib import Path
@@ -17,6 +25,8 @@ from dataclasses import dataclass, make_dataclass
 from scipy.sparse import csc_matrix
 from pyarrow.lib import ArrowIOError
 from pyarrow._plasma import PlasmaObjectExists, ObjectNotAvailable, ObjectID
+
+REDIS_GLOBAL_TOPIC = "global_topic"
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -41,6 +51,86 @@ class StoreInterface:
         raise NotImplementedError
 
 
+class RedisStoreInterface(StoreInterface):
+    def __init__(self, name="default", server_port_num=6379, hostname='localhost'):
+        self.name = name
+        self.server_port_num = server_port_num
+        self.hostname = hostname
+        self.client = self.connect_to_server()
+
+    def connect_to_server(self):
+        """Connect to the store at store_loc, max 20 retries to connect
+        Raises exception if can't connect
+        Returns the Redis client if successful
+
+        Args:
+            server_port_num: the port number where the Redis server is running on localhost.
+        """
+        try:
+            retry = Retry(ConstantBackoff(0.25), 5)
+            self.client = Redis(host=self.hostname, port=self.server_port_num, retry=retry, retry_on_timeout=True,
+                                retry_on_error=[BusyLoadingError, ConnectionError, TimeoutError, ConnectionRefusedError])
+            self.client.ping()
+            logger.info("Successfully connected to redis datastore on port {} ".format(self.server_port_num))
+        except Exception:
+            logger.exception("Cannot connect to redis datastore on port {}".format(self.server_port_num))
+            raise CannotConnectToStoreInterfaceError(self.server_port_num)
+
+        return self.client
+
+    def put(self, object):
+        """
+        Put a single object referenced by its string name
+        into the store. If the store already has a value stored at this key, the value will
+        be overwritten and the old value will be returned.
+        Unknown error
+
+        Args:
+            object: the object to store in Redis
+            object_key (str): the key under which the object should be stored
+
+        Returns:
+            object: the object that was a
+        """
+        object_key = str(os.getpid()) + str(uuid.uuid4())
+        try:
+            # buffers would theoretically go here if we need to force out-of-band serialization for single objects
+            # TODO this will actually just silently fail if we use an existing key; not sure it's worth
+            # TODO the network overhead to check every key twice every time.
+            # TODO we still need a better solution for this, but it will work now singlethreaded most of the time.
+            self.client.set(object_key, pickle.dumps(object, protocol=5), nx=True)
+        except Exception:
+            logger.error("Could not store object {}".format(object_key))
+            logger.error(traceback.format_exc())
+
+        return object_key
+
+    def get(self, object_key):
+        """
+        Get object by specified key
+
+        Args:
+            object_name: the key of the object
+
+        Returns:
+            Stored object
+
+        Raises:
+            ObjectNotFoundError: If the key is not found
+        """
+        object_value = self.client.get(object_key)
+        if object_value:
+            # buffers would also go here to force out-of-band deserialization
+            return pickle.loads(object_value)
+
+        logger.warning("Object {} cannot be found.".format(object_key))
+        raise ObjectNotFoundError
+
+    def subscribe(self, topic=REDIS_GLOBAL_TOPIC):
+        p = self.client.pubsub()
+        p.subscribe(topic)
+
+
 class PlasmaStoreInterface(StoreInterface):
     """Basic interface for our specific data store implemented with apache arrow plasma
     Objects are stored with object_ids
@@ -63,13 +153,13 @@ class PlasmaStoreInterface(StoreInterface):
         self.use_hdd = False
 
     def _setup_LMDB(
-        self,
-        use_lmdb=False,
-        lmdb_path="../outputs/",
-        lmdb_name=None,
-        hdd_maxstore=1e12,
-        flush_immediately=False,
-        commit_freq=1,
+            self,
+            use_lmdb=False,
+            lmdb_path="../outputs/",
+            lmdb_name=None,
+            hdd_maxstore=1e12,
+            flush_immediately=False,
+            commit_freq=1,
     ):
         """
         Constructor for the Store
@@ -314,13 +404,13 @@ class PlasmaStoreInterface(StoreInterface):
 
 class LMDBStoreInterface(StoreInterface):
     def __init__(
-        self,
-        path="../outputs/",
-        name=None,
-        load=False,
-        max_size=1e12,
-        flush_immediately=False,
-        commit_freq=1,
+            self,
+            path="../outputs/",
+            name=None,
+            load=False,
+            max_size=1e12,
+            flush_immediately=False,
+            commit_freq=1,
     ):
         """
         Constructor for LMDB store
@@ -368,9 +458,9 @@ class LMDBStoreInterface(StoreInterface):
         signal.signal(signal.SIGINT, self.flush)
 
     def get(
-        self,
-        key: Union[plasma.ObjectID, bytes, List[plasma.ObjectID], List[bytes]],
-        include_metadata=False,
+            self,
+            key: Union[plasma.ObjectID, bytes, List[plasma.ObjectID], List[bytes]],
+            include_metadata=False,
     ):
         """
         Get object using key (could be any byte string or plasma.ObjectID)
@@ -394,7 +484,7 @@ class LMDBStoreInterface(StoreInterface):
                     include_metadata,
                 )
             except (
-                lmdb.BadRslotError
+                    lmdb.BadRslotError
             ):  # Happens when multiple transactions access LMDB at the same time.
                 pass
 

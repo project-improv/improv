@@ -24,6 +24,7 @@ dependencies = [
     "pyzmq",
     "psutil",
     "h5py",
+    "redis"
 ]
 classifiers = ['Development Status :: 3 - Alpha',
                'Intended Audience :: Science/Research',

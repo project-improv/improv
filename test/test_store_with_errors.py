@@ -1,13 +1,14 @@
 import pytest
 
 # import time
-from improv.store import StoreInterface
+from improv.store import StoreInterface, RedisStoreInterface
 
 # from multiprocessing import Process
 from pyarrow._plasma import PlasmaObjectExists
 from scipy.sparse import csc_matrix
 import numpy as np
 import pyarrow.plasma as plasma
+import redis
 
 # from pyarrow.lib import ArrowIOError
 # from improv.store import ObjectNotFoundError
@@ -57,9 +58,32 @@ def setup_store(set_store_loc):
     p.wait(WAIT_TIMEOUT)
 
 
+@pytest.fixture()
+def setup_redis_store(server_port_num):
+    """Start the server"""
+    print("Setting up Redis store.")
+    p = subprocess.Popen(
+        ["redis-server", "--port", str(server_port_num), "--maxmemory", str(10000000)],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+    yield p
+
+    # kill the subprocess when the caller is done with it
+    p.kill()
+    p.wait(WAIT_TIMEOUT)
+
+
 def test_connect(setup_store, set_store_loc):
     store = StoreInterface(store_loc=set_store_loc)
     assert isinstance(store.client, plasma.PlasmaClient)
+
+
+def test_redis_connect(setup_redis_store, server_port_num):
+    store = RedisStoreInterface(server_port_num=server_port_num)
+    assert isinstance(store.client, redis.Redis)
+    assert store.client.ping()
 
 
 def test_connect_incorrect_path(setup_store, set_store_loc):
@@ -77,6 +101,13 @@ def test_connect_incorrect_path(setup_store, set_store_loc):
         store.connect_store(store_loc)
         # Check that the exception thrown is a CannotConnectToStoreInterfaceError
     assert e.value.message == "Cannot connect to store at {}".format(str(store_loc))
+
+
+def test_redis_connect_wrong_port(setup_redis_store, server_port_num):
+    bad_port_num = 1234
+    with pytest.raises(CannotConnectToStoreInterfaceError) as e:
+        store = RedisStoreInterface(server_port_num=bad_port_num)
+    assert e.value.message == "Cannot connect to store at {}".format(str(bad_port_num))
 
 
 def test_connect_none_path(setup_store):
@@ -202,6 +233,12 @@ def test_put_one(setup_store, set_store_loc):
     assert 1 == store.get(id)
 
 
+def test_redis_put_one(setup_redis_store, server_port_num):
+    store = RedisStoreInterface(server_port_num=server_port_num)
+    key = store.put(1)
+    assert 1 == store.get(key)
+
+
 @pytest.mark.skip(reason="Error not being raised")
 def test_put_twice(setup_store):
     # store = StoreInterface()
@@ -213,6 +250,14 @@ def test_put_twice(setup_store):
     assert e.value.message == "Object already exists. Meant to call replace?"
 
 
+# we can't really do this anyway since we can't put twice by key.
+# def test_redis_put_twice(setup_redis_store, server_port_num):
+#     store = RedisStoreInterface(server_port_num=server_port_num)
+#     key1 = store.put(1)
+#     key2 = store.put(2, "one")
+#     assert 1 == old_value
+#     assert 2 == store.get("one")
+
 # class StoreInterface_PutGet(StoreInterfaceDependentTestCase):
 
 
@@ -221,6 +266,10 @@ def test_getOne(setup_store, set_store_loc):
     id = store.put(1, "one")
     assert 1 == store.get(id)
 
+def test_redis_get_one(setup_redis_store, server_port_num):
+    store = RedisStoreInterface(server_port_num=server_port_num)
+    key = store.put(3)
+    assert 3 == store.get(key)
 
 # def test_get_nonexistent(setup_store):
 #     store = StoreInterface()
