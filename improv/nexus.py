@@ -110,8 +110,13 @@ class Nexus:
         # connect to store and subscribe to notifications
         logger.info("Create new store object")
         if "redis_config" in self.config.config.keys():
-            self.store = RedisStoreInterface(server_port_num=self.config.config["redis_config"]["port"])
-            logger.info(f"Redis server connected on port {self.config.config['redis_config']['port']}")
+            self.store = RedisStoreInterface(
+                server_port_num=self.config.config["redis_config"]["port"]
+            )
+            logger.info(
+                f"Redis server connected on port "
+                f"{self.config.config['redis_config']['port']}"
+            )
         else:
             self.store = StoreInterface(store_loc=self.store_loc)
         self.store.subscribe()
@@ -618,7 +623,13 @@ class Nexus:
                 self.use_redis = True
                 self.store_port = redis_config["port"]
                 self.p_StoreInterface = subprocess.Popen(
-                    ["redis-server", "--port", str(redis_config["port"]), "--maxmemory", str(size)],
+                    [
+                        "redis-server",
+                        "--port",
+                        str(redis_config["port"]),
+                        "--maxmemory",
+                        str(size),
+                    ],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
@@ -641,7 +652,9 @@ class Nexus:
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
-                logger.info("StoreInterface start successful: {}".format(self.store_loc))
+                logger.info(
+                    "StoreInterface start successful: {}".format(self.store_loc)
+                )
             except Exception as e:
                 logger.exception("StoreInterface cannot be started: {}".format(e))
 
@@ -652,8 +665,11 @@ class Nexus:
         try:
             self.p_StoreInterface.kill()
             self.p_StoreInterface.wait()
-            logger.info("StoreInterface close successful: {}"
-                        .format(self.store_port if self.use_redis else self.store_loc))
+            logger.info(
+                "StoreInterface close successful: {}".format(
+                    self.store_port if self.use_redis else self.store_loc
+                )
+            )
         except Exception as e:
             logger.exception("Cannot close store {}".format(e))
 

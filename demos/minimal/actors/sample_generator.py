@@ -1,5 +1,4 @@
-from improv.actor import Actor, RunManager
-from datetime import date  # used for saving
+from improv.actor import Actor
 import numpy as np
 import logging
 
@@ -51,7 +50,9 @@ class Generator(Actor):
 
         if self.frame_num < np.shape(self.data)[0]:
             if self.store_loc:
-                data_id = self.client.put(self.data[self.frame_num], str(f"Gen_raw: {self.frame_num}"))
+                data_id = self.client.put(
+                    self.data[self.frame_num], str(f"Gen_raw: {self.frame_num}")
+                )
             else:
                 data_id = self.client.put(self.data[self.frame_num])
             # logger.info('Put data in store')
@@ -60,7 +61,7 @@ class Generator(Actor):
                     self.q_out.put([[data_id, str(self.frame_num)]])
                 else:
                     self.q_out.put(data_id)
-                #logger.info("Sent message on")
+                # logger.info("Sent message on")
                 self.frame_num += 1
             except Exception as e:
                 logger.error(
