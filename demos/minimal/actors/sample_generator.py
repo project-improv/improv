@@ -60,7 +60,7 @@ class Generator(Actor):
                     self.q_out.put([[data_id, str(self.frame_num)]])
                 else:
                     self.q_out.put(data_id)
-                logger.info("Sent message on")
+                #logger.info("Sent message on")
                 self.frame_num += 1
             except Exception as e:
                 logger.error(
