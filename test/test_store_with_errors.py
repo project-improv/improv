@@ -106,7 +106,7 @@ def test_connect_incorrect_path(setup_store, set_store_loc):
 def test_redis_connect_wrong_port(setup_redis_store, server_port_num):
     bad_port_num = 1234
     with pytest.raises(CannotConnectToStoreInterfaceError) as e:
-        store = RedisStoreInterface(server_port_num=bad_port_num)
+        RedisStoreInterface(server_port_num=bad_port_num)
     assert e.value.message == "Cannot connect to store at {}".format(str(bad_port_num))
 
 
@@ -266,10 +266,12 @@ def test_getOne(setup_store, set_store_loc):
     id = store.put(1, "one")
     assert 1 == store.get(id)
 
+
 def test_redis_get_one(setup_redis_store, server_port_num):
     store = RedisStoreInterface(server_port_num=server_port_num)
     key = store.put(3)
     assert 3 == store.get(key)
+
 
 # def test_get_nonexistent(setup_store):
 #     store = StoreInterface()
