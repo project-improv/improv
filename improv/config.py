@@ -108,6 +108,10 @@ class Config:
                 raise RepeatedConnectionsError(name)
 
             self.connections.update({name: conn})
+
+        if "datastore" in cfg.keys():
+            self.datastore = cfg["datastore"]
+
         return 0
 
     def addParams(self, type, param):

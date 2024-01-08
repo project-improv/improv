@@ -18,7 +18,7 @@ class AbstractActor:
     Also needs to be responsive to sent Signals (e.g. run, setup, etc)
     """
 
-    def __init__(self, name, store_loc, method="fork"):
+    def __init__(self, name, store_loc=None, method="fork"):
         """Require a name for multiple instances of the same actor/class
         Create initial empty dict of Links for easier referencing
         """

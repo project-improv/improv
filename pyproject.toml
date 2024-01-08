@@ -24,6 +24,7 @@ dependencies = [
     "pyzmq",
     "psutil",
     "h5py",
+    "redis"
 ]
 classifiers = ['Development Status :: 1 - Planning']
 dynamic = ["version"]

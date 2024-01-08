@@ -50,12 +50,16 @@ class Generator(Actor):
         """
 
         if self.frame_num < np.shape(self.data)[0]:
-            data_id = self.client.put(
-                self.data[self.frame_num], str(f"Gen_raw: {self.frame_num}")
-            )
+            if self.store_loc:
+                data_id = self.client.put(self.data[self.frame_num], str(f"Gen_raw: {self.frame_num}"))
+            else:
+                data_id = self.client.put(self.data[self.frame_num])
             # logger.info('Put data in store')
             try:
-                self.q_out.put([[data_id, str(self.frame_num)]])
+                if self.store_loc:
+                    self.q_out.put([[data_id, str(self.frame_num)]])
+                else:
+                    self.q_out.put(data_id)
                 logger.info("Sent message on")
                 self.frame_num += 1
             except Exception as e:
