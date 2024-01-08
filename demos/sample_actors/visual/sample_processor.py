@@ -56,9 +56,11 @@ class Processor(Actor):
             # do some processing
             self.frame.mean()
 
+            frame_ix = np.array([self.frame_index], dtype=np.float64)
+
             # send the buffer data and frame number as an array
             out = np.concatenate(
-            [self.frame, self.frame_index],
+            [self.frame, frame_ix],
             dtype=np.float64
             )
             self.frame_index += 1
