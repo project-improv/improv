@@ -29,3 +29,6 @@ setup
 # once the plot is ready call `run` in the improv TUI
 run
 ```
+
+### Note
+**The `fastplotlib.ipynb` can only be run in `jupyter lab`.**

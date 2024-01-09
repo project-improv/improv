@@ -4,8 +4,6 @@ import logging; logger = logging.getLogger(__name__)
 import zmq
 logger.setLevel(logging.INFO)
 import numpy as np
-import torch
-
 
 class Processor(Actor):
     """
@@ -21,11 +19,6 @@ class Processor(Actor):
         """
 
         self.name = "Processor"
-
-        gpu_available = torch.cuda.is_available()
-
-        if not gpu_available:
-            logger.error("GPU is needed for fastplotlib visualization.")
 
         context = zmq.Context()
         self.socket = context.socket(zmq.PUB)
