@@ -16,6 +16,8 @@ Raw two-photon calcium imaging data in zebrafish (left), with cells detected in 
 ### Skip the messy parts
 Need to collect data from multiple sources? Run processes on different machines? Pipeline data to multiple downstream analyses? _improv_ handles the details of communication between processes and machines so you can focus on what's important: defining the logic of your experiment. 
 
+![](https://dibs-web01.vm.duke.edu/pearson/assets/improv/improv_design.png)
+
 ### Simple design
 _improv_'s design is based on a simplified version of the Actor Model of concurrency {cite:p}`agha1986actors`: the experiment is a directed graph, the nodes are actors, and data flows by asynchronous message passing. Apart from this, we strive for maximum flexibility. _improv_ allows for arbitrary Python code in actors, allowing you to interoperate with the widest variety of tools. Examples can be found in [](page:demos) and our [`improv-sketches`](https://github.com/project-improv/improv-sketches) repository.
 
