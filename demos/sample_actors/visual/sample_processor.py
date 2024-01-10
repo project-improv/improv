@@ -1,9 +1,13 @@
 from improv.actor import Actor
 from queue import Empty
-import logging; logger = logging.getLogger(__name__)
+import logging;
+
+logger = logging.getLogger(__name__)
 import zmq
+
 logger.setLevel(logging.INFO)
 import numpy as np
+
 
 class Processor(Actor):
     """
@@ -24,7 +28,7 @@ class Processor(Actor):
         self.socket = context.socket(zmq.PUB)
         self.socket.bind("tcp://127.0.0.1:5555")
 
-        self.frame_index = 1
+        self.frame_num = 1
 
         logger.info('Completed setup for Processor')
 
@@ -56,12 +60,12 @@ class Processor(Actor):
             # do some processing
             self.frame.mean()
 
-            frame_ix = np.array([self.frame_index], dtype=np.float64)
+            frame_ix = np.array([self.frame_num], dtype=np.float64)
 
             # send the buffer data and frame number as an array
             out = np.concatenate(
-            [self.frame, frame_ix],
-            dtype=np.float64
+                [self.frame, frame_ix],
+                dtype=np.float64
             )
-            self.frame_index += 1
+            self.frame_num += 1
             self.socket.send(out)
