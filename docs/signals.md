@@ -17,7 +17,7 @@ In [](tables:signals) we list the signals defined in `Signal` along with the `Ac
 ```{table} Correspondences between signals
 :name: tables:signals
 
-| `actor.Signal` | `ManagedActor` method called |
+| `actor.Signal` received | `ManagedActor` method called |
 |---|---|
 | `setup` | `setup` |
 | `run` | `runStep` |
