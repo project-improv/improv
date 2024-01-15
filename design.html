@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>improv: A platform for adaptive neuroscience experiments &#8212; improv documentation</title>
+    <title>improv’s design &#8212; improv documentation</title>
   
   
   
@@ -64,10 +64,11 @@ const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
     <script async="async" src="_static/sphinx-thebe.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'intro';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'design';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Installation and building" href="installation.html" />
+    <link rel="next" title="Writing actors" href="actors.html" />
+    <link rel="prev" title="Running the demos" href="demos.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -151,7 +152,7 @@ const thebe_selector_output = ".output, .cell_output"
 
   
 
-<a class="navbar-brand logo" href="#">
+<a class="navbar-brand logo" href="intro.html">
   
   
   
@@ -171,17 +172,17 @@ const thebe_selector_output = ".output, .cell_output"
     <div class="bd-toc-item navbar-nav active">
         
         <ul class="nav bd-sidenav bd-sidenav__home-link">
-            <li class="toctree-l1 current active">
-                <a class="reference internal" href="#">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
                     improv: A platform for adaptive neuroscience experiments
                 </a>
             </li>
         </ul>
-        <ul class="nav bd-sidenav">
+        <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and building</a></li>
 <li class="toctree-l1"><a class="reference internal" href="running.html">Running <em>improv</em></a></li>
 <li class="toctree-l1"><a class="reference internal" href="demos.html">Running the demos</a></li>
-<li class="toctree-l1"><a class="reference internal" href="design.html"><em>improv</em>’s design</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#"><em>improv</em>’s design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="actors.html">Writing actors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="signals.html">Signals and communicating between actors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
@@ -277,7 +278,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="https://github.com/project-improv/improv/issues/new?title=Issue%20on%20page%20%2Fintro.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/project-improv/improv/issues/new?title=Issue%20on%20page%20%2Fdesign.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -307,7 +308,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="_sources/intro.md" target="_blank"
+      <li><a href="_sources/design.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -391,7 +392,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>improv: A platform for adaptive neuroscience experiments</h1>
+    <h1>improv’s design</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -401,13 +402,9 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-improv">Why <em>improv</em>?</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#skip-the-messy-parts">Skip the messy parts</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#simple-design">Simple design</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#speed">Speed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reliability">Reliability</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pipeline-specification">Pipeline specification</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interprocess-communication">Interprocess communication</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-and-persistence">Logging and persistence</a></li>
 </ul>
             </nav>
         </div>
@@ -419,40 +416,115 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="improv-a-platform-for-adaptive-neuroscience-experiments">
-<h1><em>improv</em>: A platform for adaptive neuroscience experiments<a class="headerlink" href="#improv-a-platform-for-adaptive-neuroscience-experiments" title="Permalink to this heading">#</a></h1>
-<p><em>improv</em> is a lightweight package designed to enable complex adaptive experiments in neuroscience. This includes both traditional closed-loop experiments, in which low latency and real-time analysis are the priority, and experiments that attempt to maximize neural responses by changing the stimulus presented. In each case, the design of the experiment must change online based on previously seen data.</p>
-<p>In practice, such experiments are technically challenging, since they require coordinating hardware with software, data acquisition and preprocessing with analysis. We build <em>improv</em> to provide a simple means of tackling these coordination problems. In <em>improv</em>, you specify your experiment as a data flow graph, write simple Python classes for each step, and we handle the rest.</p>
-<figure class="align-default" id="improv-gif">
-<img alt="" src="https://dibs-web01.vm.duke.edu/pearson/assets/improv/improvGif.gif" />
-<figcaption>
-<p><span class="caption-number">Fig. 1 </span><span class="caption-text">Raw two-photon calcium imaging data in zebrafish (left), with cells detected in real time by <a class="reference external" href="https://github.com/flatironinstitute/CaImAn">CaImAn</a> (right). Neurons have been colored by directional tuning curves and functional connectivity (lines) estimated online, during a live experiment. Here only a few minutes of data have been acquired, and neurons are colored by their strongest response to visual simuli shown so far.</span><a class="headerlink" href="#improv-gif" title="Permalink to this image">#</a></p>
+  <section class="tex2jax_ignore mathjax_ignore" id="improv-s-design">
+<span id="page-design"></span><h1><em>improv</em>’s design<a class="headerlink" href="#improv-s-design" title="Permalink to this heading">#</a></h1>
+<p>Here, we cover some technical details that can be useful in understanding how <em>improv</em> works under the hood.</p>
+<p>One way of viewing <em>improv</em> is as a lightweight networking library that handles three key tasks:</p>
+<ol class="arabic simple">
+<li><p><strong>Pipeline specification and setup.</strong> Experimental pipelines are defined by YAML files. At run time, <em>improv</em> reads these files and starts separate system processes corresponding to each processing step (actor).</p></li>
+<li><p><strong>Interprocess communication.</strong> As part of each experiment, data need to be collected and passed between processes. <em>improv</em> uses a centralized server and in-memory data store to coordinate this process.</p></li>
+<li><p><strong>Logging and data persistence.</strong> After the experiment is done, we need records of both what happened during the experiment and what data were collected. <em>improv</em> organizes both of these processes by creating a unified log file and storing data to disk as the experiment runs.</p></li>
+</ol>
+<p>We consider each of these components below.</p>
+<section id="pipeline-specification">
+<span id="page-design-pipeline-spec"></span><h2>Pipeline specification<a class="headerlink" href="#pipeline-specification" title="Permalink to this heading">#</a></h2>
+<p><em>improv</em> pipelines are <a class="reference external" href="https://en.wikipedia.org/wiki/Directed_graph">directed graphs</a>, with each node corresponding to a processing step (called an “actor” after the <a class="reference external" href="https://en.wikipedia.org/wiki/Actor_model">actor model</a> of concurrency <span id="id1">[<a class="reference internal" href="bibliography.html#id2" title="Gul Agha. Actors: a model of concurrent computation in distributed systems. MIT press, 1986.">Agh86</a>]</span>) and each link corresponds to data passed between actors. For instance, a simple experiment in which calcium fluorescence images are read in from a microscope, processed via <a class="reference external" href="https://github.com/flatironinstitute/CaImAn">CaImAn</a>, fit using a <a class="reference external" href="https://en.wikipedia.org/wiki/Linear-nonlinear-Poisson_cascade_model">linear-nonlinear-Poisson model</a> along with information about the stimulus presented, and displayed via a GUI might look something like</p>
+<figure class="align-default" id="example-dag">
+<img alt="" src="https://dibs-web01.vm.duke.edu/pearson/assets/improv/example_dag.svg" /><figcaption>
+<p><span class="caption-number">Fig. 2 </span><span class="caption-text">An example directed graph corresponding to an <em>improv</em> experimental pipeline.</span><a class="headerlink" href="#example-dag" title="Permalink to this image">#</a></p>
 </figcaption>
 </figure>
-<section id="why-improv">
-<h2>Why <em>improv</em>?<a class="headerlink" href="#why-improv" title="Permalink to this heading">#</a></h2>
-<section id="skip-the-messy-parts">
-<h3>Skip the messy parts<a class="headerlink" href="#skip-the-messy-parts" title="Permalink to this heading">#</a></h3>
-<p>Need to collect data from multiple sources? Run processes on different machines? Pipeline data to multiple downstream analyses? <em>improv</em> handles the details of communication between processes and machines so you can focus on what’s important: defining the logic of your experiment.</p>
-<p><img alt="" src="https://dibs-web01.vm.duke.edu/pearson/assets/improv/improv_design.png" /></p>
-</section>
-<section id="simple-design">
-<h3>Simple design<a class="headerlink" href="#simple-design" title="Permalink to this heading">#</a></h3>
-<p><em>improv</em>’s design is based on a simplified version of the Actor Model of concurrency <span id="id1">[<a class="reference internal" href="bibliography.html#id2" title="Gul Agha. Actors: a model of concurrent computation in distributed systems. MIT press, 1986.">Agh86</a>]</span>: the experiment is a directed graph, the nodes are actors, and data flows by asynchronous message passing. Apart from this, we strive for maximum flexibility. <em>improv</em> allows for arbitrary Python code in actors, allowing you to interoperate with the widest variety of tools. Examples can be found in <a class="reference internal" href="demos.html#page-demos"><span class="std std-ref">Running the demos</span></a> and our <a class="reference external" href="https://github.com/project-improv/improv-sketches"><code class="docutils literal notranslate"><span class="pre">improv-sketches</span></code></a> repository.</p>
-<p><img alt="" src="https://dibs-web01.vm.duke.edu/pearson/assets/improv/actor_model.png" /></p>
-</section>
-<section id="speed">
-<h3>Speed<a class="headerlink" href="#speed" title="Permalink to this heading">#</a></h3>
-<p><em>improv</em> is designed to be fast enough for real-time experiments that need millisecond-scale latencies. By minimizing data passing and making use of in-memory data stores, we find that many applications are limited by network latency, <em>not</em> processing time.</p>
-</section>
-<section id="reliability">
-<h3>Reliability<a class="headerlink" href="#reliability" title="Permalink to this heading">#</a></h3>
-<p><em>improv</em> is designed from the ground up to be fault-tolerant, with a priority on data integrity. Individual processes may crash, but the system will keep running, ensuring that a single bad line of code does not result in data loss. In addition, we provide the tools to produce an audit trail of everything that happened online, ensuring you don’t forget that one setting you changed mid-experiment.</p>
-<!-- ```{bibliography}
-``` --></section>
-</section>
-<div class="toctree-wrapper compound">
+<p>Pipelines in <em>improv</em> are specified by <a class="reference external" href="https://yaml.org">YAML files</a>. <em>improv</em> configuration files contain three top-level headings:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">settings</span></code> includes program settings to be passed to <code class="docutils literal notranslate"><span class="pre">nexus.Nexus.createNexus</span></code> upon startup. This includes control and output port numbers to be used for input and output to the server, respectively. See the documentation for <code class="docutils literal notranslate"><span class="pre">nexus.Nexus.createNexus</span></code> for other arguments.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actors</span></code> is a list of actors that form the nodes of a directed graph. Each item requires two attributes: <code class="docutils literal notranslate"><span class="pre">package</span></code> gives the name of the Python file containing the actor definition and <code class="docutils literal notranslate"><span class="pre">class</span></code> gives the name of the class within that file. As described in <a class="reference internal" href="running.html#page-running-options"><span class="std std-ref">Command line options</span></a>, <em>improv</em> will search for actors in the directory containing the YAML config file by default, though more directories can be specified with the <code class="docutils literal notranslate"><span class="pre">--actor-path</span></code> option. <strong>Other attributes will be passed directly (as a dictionary) to the actor class constructor.</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">connections</span></code> is a list of connections between actors. Each item contains the name of an actor output (e.g., <code class="docutils literal notranslate"><span class="pre">Processor.q_out</span></code>) and a list of actors that will receive this output.</p></li>
+</ol>
+<p>The example graph of <a class="reference internal" href="#example-dag"><span class="std std-ref">the figure above</span></a> is implemented in the <a class="reference external" href="https://github.com/project-improv/improv/blob/main/demos/naumann/naumann_demo.yaml">zebrafish demo</a>, whose YAML file is given by</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">actors</span><span class="p">:</span>
+  <span class="n">GUI</span><span class="p">:</span>
+    <span class="n">package</span><span class="p">:</span> <span class="n">actors</span><span class="o">.</span><span class="n">visual_model</span>
+    <span class="n">class</span><span class="p">:</span> <span class="n">DisplayVisual</span>
+    <span class="n">visual</span><span class="p">:</span> <span class="n">Visual</span>
+
+  <span class="n">Acquirer</span><span class="p">:</span>
+    <span class="n">package</span><span class="p">:</span> <span class="n">improv</span><span class="o">.</span><span class="n">actors</span><span class="o">.</span><span class="n">acquire</span>
+    <span class="n">class</span><span class="p">:</span> <span class="n">TiffAcquirer</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="n">data</span><span class="o">/</span><span class="n">recent</span><span class="o">/</span><span class="n">xx</span><span class="o">.</span><span class="n">tif</span>
+    <span class="n">framerate</span><span class="p">:</span> <span class="mi">2</span>
+
+  <span class="n">Processor</span><span class="p">:</span>
+    <span class="n">package</span><span class="p">:</span> <span class="n">actors</span><span class="o">.</span><span class="n">processor</span>
+    <span class="n">class</span><span class="p">:</span> <span class="n">CaimanProcessor</span>
+    <span class="n">init_filename</span><span class="p">:</span> <span class="n">data</span><span class="o">/</span><span class="n">recent</span><span class="o">/</span><span class="n">xx</span><span class="o">.</span><span class="n">tif</span>
+    <span class="n">config_file</span><span class="p">:</span> <span class="n">naumann_caiman_params</span><span class="o">.</span><span class="n">txt</span>
+
+  <span class="n">Visual</span><span class="p">:</span>
+    <span class="n">package</span><span class="p">:</span> <span class="n">actors</span><span class="o">.</span><span class="n">visual_model</span>
+    <span class="n">class</span><span class="p">:</span> <span class="n">CaimanVisual</span>
+  
+  <span class="n">Analysis</span><span class="p">:</span>
+    <span class="n">package</span><span class="p">:</span> <span class="n">actors</span><span class="o">.</span><span class="n">analysis_model</span>
+    <span class="n">class</span><span class="p">:</span> <span class="n">ModelAnalysis</span>
+
+  <span class="n">InputStim</span><span class="p">:</span>
+    <span class="n">package</span><span class="p">:</span> <span class="n">improv</span><span class="o">.</span><span class="n">actors</span><span class="o">.</span><span class="n">acquire</span>
+    <span class="n">class</span><span class="p">:</span> <span class="n">StimAcquirer</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="n">data</span><span class="o">/</span><span class="n">recent</span><span class="o">/</span><span class="n">stim_freq</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="n">connections</span><span class="p">:</span>
+  <span class="n">Acquirer</span><span class="o">.</span><span class="n">q_out</span><span class="p">:</span> <span class="p">[</span><span class="n">Processor</span><span class="o">.</span><span class="n">q_in</span><span class="p">,</span> <span class="n">Visual</span><span class="o">.</span><span class="n">raw_frame_queue</span><span class="p">]</span>
+  <span class="n">Processor</span><span class="o">.</span><span class="n">q_out</span><span class="p">:</span> <span class="p">[</span><span class="n">Analysis</span><span class="o">.</span><span class="n">q_in</span><span class="p">]</span>
+  <span class="n">Analysis</span><span class="o">.</span><span class="n">q_out</span><span class="p">:</span> <span class="p">[</span><span class="n">Visual</span><span class="o">.</span><span class="n">q_in</span><span class="p">]</span>
+  <span class="n">InputStim</span><span class="o">.</span><span class="n">q_out</span><span class="p">:</span> <span class="p">[</span><span class="n">Analysis</span><span class="o">.</span><span class="n">input_stim_queue</span><span class="p">]</span>
+</pre></div>
 </div>
+<p>The particular details are not so important here as the logic of how pieces of the experiment are put together into a single file.</p>
+</section>
+<section id="interprocess-communication">
+<h2>Interprocess communication<a class="headerlink" href="#interprocess-communication" title="Permalink to this heading">#</a></h2>
+<p>To understand how <em>improv</em> translates a pipeline specified in a YAML file to a working experiment, it’s helpful to consider what happens after <code class="docutils literal notranslate"><span class="pre">improv</span> <span class="pre">run</span></code> is called:</p>
+<ol class="arabic simple">
+<li><p>An instance of the server is created using the specified configuration file and ports.</p>
+<ol class="arabic simple">
+<li><p>The configuration file is loaded and parsed. Ports specified in the configuration file are overridden by ports specified at the command line.</p></li>
+<li><p>If no ports were specified, random available ports are chosen. One port (<code class="docutils literal notranslate"><span class="pre">control_port</span></code>) is for incoming instructions to the server (e.g., from GUI, TUI, etc.). The other port (<code class="docutils literal notranslate"><span class="pre">output_port</span></code>) is for broadcast status messages from the server.</p></li>
+<li><p>The server starts the in-memory data store (with size specified (in bytes) in the <code class="docutils literal notranslate"><span class="pre">settings</span></code> section of the YAML file).</p></li>
+<li><p>The server connects to the store and subscribes to its notifications.</p></li>
+<li><p>The server loops over actors in the configuration file, creating an instance of each class for each actor.</p></li>
+<li><p>The server loops over connections, creating a communication channel between each pair of actors.</p></li>
+</ol>
+</li>
+<li><p>The server is started.</p>
+<ol class="arabic simple">
+<li><p>Using <a class="reference external" href="https://docs.python.org/3/library/multiprocessing.html"><code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code></a>, each actor’s <code class="docutils literal notranslate"><span class="pre">run</span></code> method is launched (via either spawn or fork, as specified by the actor’s <code class="docutils literal notranslate"><span class="pre">method</span></code> attribute in the YAML file) in a separate process.<a class="footnote-reference brackets" href="#run-warning" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></li>
+<li><p>The server starts an event loop that listens for input from either the control port or the actors. An “Awaiting input” message is sent on the output port.</p></li>
+<li><p>The server writes its port configuration to the log file, to be read by clients who wish to connect.</p></li>
+</ol>
+</li>
+<li><p>The textual user interface (TUI) client is started and connects to the server. Other clients may also connect to the server’s control port and send commands.</p></li>
+<li><p>At this point, clients may send any of the messages defined in <code class="docutils literal notranslate"><span class="pre">improv.actor.Signal</span></code>, including <code class="docutils literal notranslate"><span class="pre">setup</span></code>, <code class="docutils literal notranslate"><span class="pre">run</span></code>, <code class="docutils literal notranslate"><span class="pre">stop</span></code>, and <code class="docutils literal notranslate"><span class="pre">quit</span></code>. See <a class="reference internal" href="signals.html#page-signals"><span class="std std-ref">Signals and communicating between actors</span></a> for more details.</p></li>
+</ol>
+<p>What is also important to realize is that none of the above directly pertains to data flow. Once the links between actors are set up, each actor’s <code class="docutils literal notranslate"><span class="pre">run</span></code> method is responsible for</p>
+<ol class="arabic simple">
+<li><p>listening on its incoming links for addresses (keys) of newly available data from each parent actor in the graph</p></li>
+<li><p>retrieving new data items directly from the store (by key)</p></li>
+<li><p>performing whatever processing is required</p></li>
+<li><p>depositing its outputs in the store</p></li>
+<li><p>broadcasting the address(es) of its data outputs to its children in the graph</p></li>
+</ol>
+<p>For examples and further documentation, see <a class="reference internal" href="actors.html#page-actors"><span class="std std-ref">Writing actors</span></a>.</p>
+</section>
+<section id="logging-and-persistence">
+<h2>Logging and persistence<a class="headerlink" href="#logging-and-persistence" title="Permalink to this heading">#</a></h2>
+<p>Finally, <em>improv</em> handles centralized logging via the <a class="reference external" href="https://docs.python.org/3/library/logging.html"><code class="docutils literal notranslate"><span class="pre">logging</span></code></a> module, which listens for messages on a global logging port. These messages are written to the experimental log file.</p>
+<p>Data from the server are persisted to disk using <a class="reference external" href="http://www.lmdb.tech/doc/">LMDB</a> (if <code class="docutils literal notranslate"><span class="pre">settings:</span> <span class="pre">use_hdd</span></code> is set to <code class="docutils literal notranslate"><span class="pre">true</span></code> in the configuration file).</p>
+<hr class="footnotes docutils" />
+<aside class="footnote brackets" id="run-warning" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
+<p>Note that users will <em>not</em>, in most cases, overload the <code class="docutils literal notranslate"><span class="pre">run</span></code> command for actors. They should instead write the <code class="docutils literal notranslate"><span class="pre">runStep</span></code> function. See <a class="reference internal" href="actors.html#page-actors"><span class="std std-ref">Writing actors</span></a>.</p>
+</aside>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -485,12 +557,21 @@ document.write(`
                 <footer class="prev-next-footer">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="demos.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Running the demos</p>
+      </div>
+    </a>
     <a class="right-next"
-       href="installation.html"
+       href="actors.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Installation and building</p>
+        <p class="prev-next-title">Writing actors</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -510,13 +591,9 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-improv">Why <em>improv</em>?</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#skip-the-messy-parts">Skip the messy parts</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#simple-design">Simple design</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#speed">Speed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reliability">Reliability</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pipeline-specification">Pipeline specification</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interprocess-communication">Interprocess communication</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-and-persistence">Logging and persistence</a></li>
 </ul>
   </nav></div>
 

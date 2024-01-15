@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>Content in Jupyter Book &#8212; improv documentation</title>
+    <title>Running improv &#8212; improv documentation</title>
   
   
   
@@ -36,6 +36,7 @@
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -63,11 +64,11 @@ const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
     <script async="async" src="_static/sphinx-thebe.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'content';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'running';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API Reference" href="autoapi/index.html" />
-    <link rel="prev" title="Notebooks with MyST Markdown" href="markdown-notebooks.html" />
+    <link rel="next" title="Running the demos" href="demos.html" />
+    <link rel="prev" title="Installation and building" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -173,15 +174,18 @@ const thebe_selector_output = ".output, .cell_output"
         <ul class="nav bd-sidenav bd-sidenav__home-link">
             <li class="toctree-l1">
                 <a class="reference internal" href="intro.html">
-                    Welcome to your Jupyter Book
+                    improv: A platform for adaptive neuroscience experiments
                 </a>
             </li>
         </ul>
         <ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="markdown.html">Markdown Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks.html">Content with notebooks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="markdown-notebooks.html">Notebooks with MyST Markdown</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Content in Jupyter Book</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and building</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Running <em>improv</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="demos.html">Running the demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html"><em>improv</em>’s design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actors.html">Writing actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signals.html">Signals and communicating between actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/improv/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/improv/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -274,7 +278,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="https://github.com/project-improv/improv/issues/new?title=Issue%20on%20page%20%2Fcontent.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/project-improv/improv/issues/new?title=Issue%20on%20page%20%2Frunning.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -304,7 +308,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="_sources/content.md" target="_blank"
+      <li><a href="_sources/running.ipynb" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -314,7 +318,7 @@ const thebe_selector_output = ".output, .cell_output"
 <span class="btn__icon-container">
   <i class="fas fa-file"></i>
   </span>
-<span class="btn__text-container">.md</span>
+<span class="btn__text-container">.ipynb</span>
 </a>
 </li>
       
@@ -375,7 +379,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
 </div></div>
       
     </div>
@@ -386,11 +392,22 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Content in Jupyter Book</h1>
+    <h1>Running improv</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-invocation">Basic invocation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-line-options">Command line options</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#other-subcommands">Other subcommands</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cleaning-up">Cleaning up</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -400,10 +417,163 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="content-in-jupyter-book">
-<h1>Content in Jupyter Book<a class="headerlink" href="#content-in-jupyter-book" title="Permalink to this heading">#</a></h1>
-<p>There are many ways to write content in Jupyter Book. This short section
-covers a few tips for how to do so.</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="running-improv">
+<span id="page-running"></span><h1>Running <em>improv</em><a class="headerlink" href="#running-improv" title="Permalink to this heading">#</a></h1>
+<section id="basic-invocation">
+<h2>Basic invocation<a class="headerlink" href="#basic-invocation" title="Permalink to this heading">#</a></h2>
+<p>While <em>improv</em> can be invoked via API, the simplest method is to run it from the <code class="docutils literal notranslate"><span class="pre">improv</span></code> command line interface:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>improv<span class="w"> </span>--help
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>usage: improv [-h] {run,client,server,list,cleanup} ...
+
+Command line tool for improv.
+
+options:
+  -h, --help            show this help message and exit
+
+subcommands:
+  {run,client,server,list,cleanup}
+                        for launching individual components
+</pre></div>
+</div>
+</div>
+</div>
+<p>The most basic command is <code class="docutils literal notranslate"><span class="pre">improv</span> <span class="pre">run</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>improv<span class="w"> </span>run<span class="w"> </span>--help
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>usage: improv run [-h] [-c CONTROL_PORT] [-o OUTPUT_PORT] [-l LOGGING_PORT]
+                  [-f LOGFILE] [-a ACTOR_PATH]
+                  configfile
+
+Start the improv client and server together
+
+positional arguments:
+  configfile            YAML file specifying improv pipeline
+
+options:
+  -h, --help            show this help message and exit
+  -c CONTROL_PORT, --control-port CONTROL_PORT
+                        local port on which control are sent to/from server
+  -o OUTPUT_PORT, --output-port OUTPUT_PORT
+                        local port on which server output messages are
+                        broadcast
+  -l LOGGING_PORT, --logging-port LOGGING_PORT
+                        local port on which logging messages are broadcast
+  -f LOGFILE, --logfile LOGFILE
+                        name of log file
+  -a ACTOR_PATH, --actor-path ACTOR_PATH
+                        search path to add to sys.path when looking for
+                        actors; defaults to the directory containing
+                        configfile
+</pre></div>
+</div>
+</div>
+</div>
+<p>For instance, if you run the minimal demo</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>improv<span class="w"> </span>run<span class="w"> </span>demos/minimal/minimal.yaml
+</pre></div>
+</div>
+<p><em>improv</em> will use the YAML file to setup up and run both the <em>improv</em> server and the <em>improv</em> client, which is a text user interface (TUI):</p>
+<img src="https://dibs-web01.vm.duke.edu/pearson/assets/improv/improv_quick_start.gif">
+<br>
+<br><p>In the text window, we can issue commands to the <em>improv</em> server:</p>
+<ul class="simple">
+<li><p><strong>setup:</strong> to initialize all actors and create their connections</p></li>
+<li><p><strong>run:</strong> to start the experiment</p></li>
+<li><p><strong>stop:</strong> to send the stop signal to all actors</p></li>
+<li><p><strong>quit:</strong> to initiate cleanup and exit the TUI.</p></li>
+</ul>
+<p>More details can be found at <a class="reference internal" href="signals.html#page-signals"><span class="std std-ref">Signals and communicating between actors</span></a>.</p>
+</section>
+<section id="command-line-options">
+<span id="page-running-options"></span><h2>Command line options<a class="headerlink" href="#command-line-options" title="Permalink to this heading">#</a></h2>
+<p>For more advanced usage, <code class="docutils literal notranslate"><span class="pre">improv</span> <span class="pre">run</span></code> lets you specify the ports to use for communicating with the server and client (the default is to use random available ports), as well as specifying the name of the log file. The default is to <em>append</em> to <code class="docutils literal notranslate"><span class="pre">global.log</span></code>, so be sure to either (a) delete this file periodically (not recommended) or (b) use a unique log file name for each experiment.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>A particularly important command line option is <code class="docutils literal notranslate"><span class="pre">--actor-path</span></code> or <code class="docutils literal notranslate"><span class="pre">-a</span></code>, which gives a list of directories in which to search for the Python modules containing actors. The default actor path is the directory containing the configuration file.</p>
+</div>
+</section>
+<section id="other-subcommands">
+<h2>Other subcommands<a class="headerlink" href="#other-subcommands" title="Permalink to this heading">#</a></h2>
+<p>In addition, for running <em>improv</em> across multiple machines, there is the <code class="docutils literal notranslate"><span class="pre">improv</span> <span class="pre">server</span></code> command</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>improv<span class="w"> </span>server<span class="w"> </span>--help
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>usage: improv server [-h] [-c CONTROL_PORT] [-o OUTPUT_PORT] [-l LOGGING_PORT]
+                     [-f LOGFILE] [-a ACTOR_PATH]
+                     configfile
+
+Start the improv server
+
+positional arguments:
+  configfile            YAML file specifying improv pipeline
+
+options:
+  -h, --help            show this help message and exit
+  -c CONTROL_PORT, --control-port CONTROL_PORT
+                        local port on which control signals are received
+  -o OUTPUT_PORT, --output-port OUTPUT_PORT
+                        local port on which output messages are broadcast
+  -l LOGGING_PORT, --logging-port LOGGING_PORT
+                        local port on which logging messages are broadcast
+  -f LOGFILE, --logfile LOGFILE
+                        name of log file
+  -a ACTOR_PATH, --actor-path ACTOR_PATH
+                        search path to add to sys.path when looking for
+                        actors; defaults to the directory containing
+                        configfile
+</pre></div>
+</div>
+</div>
+</div>
+<p>to start the server and <code class="docutils literal notranslate"><span class="pre">improv</span> <span class="pre">client</span></code> to start a client locally:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>improv<span class="w"> </span>client<span class="w"> </span>--help
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>usage: improv client [-h] [-c CONTROL_PORT] [-s SERVER_PORT] [-l LOGGING_PORT]
+
+Start the improv client
+
+options:
+  -h, --help            show this help message and exit
+  -c CONTROL_PORT, --control-port CONTROL_PORT
+                        address on which control signals are sent to the
+                        server
+  -s SERVER_PORT, --server-port SERVER_PORT
+                        address on which messages from the server are received
+  -l LOGGING_PORT, --logging-port LOGGING_PORT
+                        address on which logging messages are broadcast
+</pre></div>
+</div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When running clients and servers on different machines, you <em>will</em> need to know and specify the relevant ports, so it may be good to select these manually.</p>
+</div>
+</section>
+<section id="cleaning-up">
+<h2>Cleaning up<a class="headerlink" href="#cleaning-up" title="Permalink to this heading">#</a></h2>
+<p>Finally, it occasionally happens that processes do not shut down cleanly. This can leave orphaned processes running on the system, which quickly eats memory. To see these processes, you can run <code class="docutils literal notranslate"><span class="pre">improv</span> <span class="pre">list</span></code>, which will show all processes currently associated with <em>improv</em>. Running <code class="docutils literal notranslate"><span class="pre">improv</span> <span class="pre">cleanup</span></code> will prompt before killing all these processes.</p>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -437,20 +607,20 @@ covers a few tips for how to do so.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="markdown-notebooks.html"
+       href="installation.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Notebooks with MyST Markdown</p>
+        <p class="prev-next-title">Installation and building</p>
       </div>
     </a>
     <a class="right-next"
-       href="autoapi/index.html"
+       href="demos.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">API Reference</p>
+        <p class="prev-next-title">Running the demos</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -461,7 +631,23 @@ covers a few tips for how to do so.</p>
             
             
               
-                <div class="bd-sidebar-secondary bd-toc"></div>
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-invocation">Basic invocation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-line-options">Command line options</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#other-subcommands">Other subcommands</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cleaning-up">Cleaning up</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
@@ -482,7 +668,7 @@ By improv team
 
   <p class="copyright">
     
-      © Copyright 2022.
+      © Copyright 2024.
       <br/>
     
   </p>

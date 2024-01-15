@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>Notebooks with MyST Markdown &#8212; improv documentation</title>
+    <title>Installation and building &#8212; improv documentation</title>
   
   
   
@@ -36,6 +36,7 @@
     <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -63,11 +64,11 @@ const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
     <script async="async" src="_static/sphinx-thebe.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'markdown-notebooks';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'installation';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Content in Jupyter Book" href="content.html" />
-    <link rel="prev" title="Content with notebooks" href="notebooks.html" />
+    <link rel="next" title="Running improv" href="running.html" />
+    <link rel="prev" title="improv: A platform for adaptive neuroscience experiments" href="intro.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -173,15 +174,18 @@ const thebe_selector_output = ".output, .cell_output"
         <ul class="nav bd-sidenav bd-sidenav__home-link">
             <li class="toctree-l1">
                 <a class="reference internal" href="intro.html">
-                    Welcome to your Jupyter Book
+                    improv: A platform for adaptive neuroscience experiments
                 </a>
             </li>
         </ul>
         <ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="markdown.html">Markdown Files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks.html">Content with notebooks</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Notebooks with MyST Markdown</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content.html">Content in Jupyter Book</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Installation and building</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running.html">Running <em>improv</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="demos.html">Running the demos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html"><em>improv</em>’s design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="actors.html">Writing actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signals.html">Signals and communicating between actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/improv/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/improv/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv.utils</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -274,7 +278,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="https://github.com/project-improv/improv/issues/new?title=Issue%20on%20page%20%2Fmarkdown-notebooks.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/project-improv/improv/issues/new?title=Issue%20on%20page%20%2Finstallation.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -304,7 +308,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="_sources/markdown-notebooks.md" target="_blank"
+      <li><a href="_sources/installation.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -388,7 +392,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Notebooks with MyST Markdown</h1>
+    <h1>Installation and building</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -398,9 +402,11 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#an-example-cell">An example cell</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-notebook-with-myst-markdown">Create a notebook with MyST Markdown</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quickly-add-yaml-metadata-for-myst-notebooks">Quickly add YAML metadata for MyST Notebooks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simple-installation">Simple installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-dependencies">Optional dependencies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-from-source">Building from source</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-documents-locally">Building documents locally</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-around-certificate-issues">Getting around certificate issues</a></li>
 </ul>
             </nav>
         </div>
@@ -412,50 +418,95 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="notebooks-with-myst-markdown">
-<h1>Notebooks with MyST Markdown<a class="headerlink" href="#notebooks-with-myst-markdown" title="Permalink to this heading">#</a></h1>
-<p>Jupyter Book also lets you write text-based notebooks using MyST Markdown.
-See <a class="reference external" href="https://jupyterbook.org/file-types/myst-notebooks.html">the Notebooks with MyST Markdown documentation</a> for more detailed instructions.
-This page shows off a notebook written in MyST Markdown.</p>
-<section id="an-example-cell">
-<h2>An example cell<a class="headerlink" href="#an-example-cell" title="Permalink to this heading">#</a></h2>
-<p>With MyST Markdown, you can define code cells with a directive like so:</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+  <section class="tex2jax_ignore mathjax_ignore" id="installation-and-building">
+<span id="page-installation"></span><h1>Installation and building<a class="headerlink" href="#installation-and-building" title="Permalink to this heading">#</a></h1>
+<section id="simple-installation">
+<h2>Simple installation<a class="headerlink" href="#simple-installation" title="Permalink to this heading">#</a></h2>
+<p>The simplest way to install <em>improv</em> is with pip:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">improv</span>
 </pre></div>
 </div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>4
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Due to <a class="reference external" href="https://github.com/zeromq/libzmq/issues/3313">this pyzmq issue</a>, if you’re running on Ubuntu, you need to specify</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">improv</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">binary</span> <span class="n">pyzmq</span>
 </pre></div>
 </div>
-</div>
-</div>
-<p>When your book is built, the contents of any <code class="docutils literal notranslate"><span class="pre">{code-cell}</span></code> blocks will be
-executed with your default Jupyter kernel, and their outputs will be displayed
-in-line with the rest of your content.</p>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p>Jupyter Book uses <a class="reference external" href="https://jupytext.readthedocs.io/en/latest/">Jupytext</a> to convert text-based files to notebooks, and can support <a class="reference external" href="https://jupyterbook.org/file-types/jupytext.html">many other text-based notebook files</a>.</p>
+<p>to build <code class="docutils literal notranslate"><span class="pre">pyzmq</span></code> from source.</p>
 </div>
 </section>
-<section id="create-a-notebook-with-myst-markdown">
-<h2>Create a notebook with MyST Markdown<a class="headerlink" href="#create-a-notebook-with-myst-markdown" title="Permalink to this heading">#</a></h2>
-<p>MyST Markdown notebooks are defined by two things:</p>
-<ol class="arabic simple">
-<li><p>YAML metadata that is needed to understand if / how it should convert text files to notebooks (including information about the kernel needed).
-See the YAML at the top of this page for example.</p></li>
-<li><p>The presence of <code class="docutils literal notranslate"><span class="pre">{code-cell}</span></code> directives, which will be executed with your book.</p></li>
-</ol>
-<p>That’s all that is needed to get started!</p>
-</section>
-<section id="quickly-add-yaml-metadata-for-myst-notebooks">
-<h2>Quickly add YAML metadata for MyST Notebooks<a class="headerlink" href="#quickly-add-yaml-metadata-for-myst-notebooks" title="Permalink to this heading">#</a></h2>
-<p>If you have a markdown file and you’d like to quickly add YAML metadata to it, so that Jupyter Book will treat it as a MyST Markdown Notebook, run the following command:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">jupyter</span><span class="o">-</span><span class="n">book</span> <span class="n">myst</span> <span class="n">init</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">markdownfile</span><span class="o">.</span><span class="n">md</span>
+<section id="optional-dependencies">
+<h2>Optional dependencies<a class="headerlink" href="#optional-dependencies" title="Permalink to this heading">#</a></h2>
+<p>In addition to the basic <em>improv</em> installation, users who want to, e.g., run tests locally and build docs should do</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">improv</span><span class="p">[</span><span class="n">tests</span><span class="p">,</span><span class="n">docs</span><span class="p">]</span>
 </pre></div>
 </div>
+<p>(on bash) or</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;improv[tests,docs]&quot;</span>
+</pre></div>
+</div>
+<p>(on zsh for newer Macs).</p>
+</section>
+<section id="building-from-source">
+<span id="page-installation-source-build"></span><h2>Building from source<a class="headerlink" href="#building-from-source" title="Permalink to this heading">#</a></h2>
+<p>Users who want to run the demos or contribute to the project will want to build and install from source.</p>
+<p>You can either obtain the source code from our <a class="reference external" href="https://github.com/project-improv/improv/releases">current releases</a> (download and unzip the <code class="docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span> <span class="pre">(zip)</span></code> file) or via cloning from GitHub:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/project-improv/improv.git
+</pre></div>
+</div>
+<p>With the code downloaded, you’ll then need to build and install the package. For installation, we recommend using a virtual environment so that <em>improv</em> and its dependencies don’t conflict with your existing Python setup. For instance, using <a class="reference external" href="https://mamba.readthedocs.io/en/latest/"><code class="docutils literal notranslate"><span class="pre">mamba</span></code></a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mamba<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>improv<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
+</pre></div>
+</div>
+<p>will create an <code class="docutils literal notranslate"><span class="pre">improv</span></code> environment running Python 3.10 that you can activate via</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mamba<span class="w"> </span>activate<span class="w"> </span>improv
+</pre></div>
+</div>
+<p>Other options, such as <a class="reference external" href="https://virtualenv.pypa.io/en/latest/"><code class="docutils literal notranslate"><span class="pre">virtualenv</span></code></a> will also work. (<a class="reference external" href="https://docs.conda.io/projects/conda/en/stable/"><code class="docutils literal notranslate"><span class="pre">conda</span></code></a> is largely superseded by <code class="docutils literal notranslate"><span class="pre">mamba</span></code>.)</p>
+<p>Currently, we build using <a class="reference external" href="https://setuptools.pypa.io/en/latest/index.html">Setuptools</a> via a <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file as specified in <a class="reference external" href="https://peps.python.org/pep-0518/">PEP 518</a>. This may allow us to switch out the build backend (or frontend) later.</p>
+<p>For now, the package can be built by running</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">build</span>
+</pre></div>
+</div>
+<p>from within the project directory. After that</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">editable</span> <span class="o">.</span>
+</pre></div>
+</div>
+<p>will install the package in editable mode, which means that changes in the project directory will affect the code that is run (i.e., the installation will not copy over the code to <code class="docutils literal notranslate"><span class="pre">site-packages</span></code> but simply link the project directory).</p>
+<p>When uninstalling, be sure to do so <em>from outside the project directory</em>, since otherwise, <code class="docutils literal notranslate"><span class="pre">pip</span></code> only appears to find the command line script, not the full package.</p>
+</section>
+<section id="building-documents-locally">
+<h2>Building documents locally<a class="headerlink" href="#building-documents-locally" title="Permalink to this heading">#</a></h2>
+<p>Currently, we have <a class="reference external" href="https://docs.github.com/en/actions">GitHub Actions</a> set up to build the Jupyter Book <a class="reference external" href="https://jupyterbook.org/en/stable/publish/gh-pages.html#automatically-host-your-book-with-github-actions">automatically</a>. But for previewing changes locally, you will want to build the documents and check them yourself.</p>
+<p>To do that, you’ll first need to install the docs dependencies with</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">improv</span><span class="p">[</span><span class="n">docs</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span><span class="p">[</span><span class="n">docs</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Then simply run</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">jupyter</span><span class="o">-</span><span class="n">book</span> <span class="n">build</span> <span class="n">docs</span>
+</pre></div>
+</div>
+<p>and open <code class="docutils literal notranslate"><span class="pre">docs/_build/html/index.html</span></code> in your browser.</p>
+</section>
+<section id="getting-around-certificate-issues">
+<h2>Getting around certificate issues<a class="headerlink" href="#getting-around-certificate-issues" title="Permalink to this heading">#</a></h2>
+<p>On some systems, building (or installing from <code class="docutils literal notranslate"><span class="pre">pip</span></code>) can run into <a class="reference external" href="https://stackoverflow.com/questions/25981703/pip-install-fails-with-connection-error-ssl-certificate-verify-failed-certi">this error</a> related to SSL certificates. For <code class="docutils literal notranslate"><span class="pre">pip</span></code>, the solution is given in the linked StackOverflow question (add <code class="docutils literal notranslate"><span class="pre">--trusted-host</span></code> to the command line), but for <code class="docutils literal notranslate"><span class="pre">build</span></code>, we run into the issue that the <code class="docutils literal notranslate"><span class="pre">trusted-host</span></code> flag will not be passed through to <code class="docutils literal notranslate"><span class="pre">pip</span></code>, and <code class="docutils literal notranslate"><span class="pre">pip</span></code> will build inside an isolated venv, meaning it won’t read a file-based configuration option like the one given in the answer, either.</p>
+<p>The (inelegant) solution that will work is to set the <code class="docutils literal notranslate"><span class="pre">pip.conf</span></code> file with</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="k">global</span><span class="p">]</span>
+<span class="n">trusted</span><span class="o">-</span><span class="n">host</span> <span class="o">=</span> <span class="n">pypi</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">org</span>
+               <span class="n">pypi</span><span class="o">.</span><span class="n">org</span>
+               <span class="n">files</span><span class="o">.</span><span class="n">pythonhosted</span><span class="o">.</span><span class="n">org</span>
+</pre></div>
+</div>
+<p>and then run</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">build</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">isolation</span>
+</pre></div>
+</div>
+<p>which will allow <code class="docutils literal notranslate"><span class="pre">pip</span></code> to correctly read the configuration.</p>
 </section>
 </section>
 
@@ -490,20 +541,20 @@ See the YAML at the top of this page for example.</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="notebooks.html"
+       href="intro.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Content with notebooks</p>
+        <p class="prev-next-title"><em>improv</em>: A platform for adaptive neuroscience experiments</p>
       </div>
     </a>
     <a class="right-next"
-       href="content.html"
+       href="running.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Content in Jupyter Book</p>
+        <p class="prev-next-title">Running <em>improv</em></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -523,9 +574,11 @@ See the YAML at the top of this page for example.</p></li>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#an-example-cell">An example cell</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-notebook-with-myst-markdown">Create a notebook with MyST Markdown</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quickly-add-yaml-metadata-for-myst-notebooks">Quickly add YAML metadata for MyST Notebooks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simple-installation">Simple installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-dependencies">Optional dependencies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-from-source">Building from source</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-documents-locally">Building documents locally</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-around-certificate-issues">Getting around certificate issues</a></li>
 </ul>
   </nav></div>
 
@@ -550,7 +603,7 @@ By improv team
 
   <p class="copyright">
     
-      © Copyright 2022.
+      © Copyright 2024.
       <br/>
     
   </p>

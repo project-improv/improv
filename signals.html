@@ -7,7 +7,9 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Search - improv documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Signals and communicating between actors &#8212; improv documentation</title>
   
   
   
@@ -62,12 +64,11 @@ const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
     <script async="async" src="_static/sphinx-thebe.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'search';</script>
-  <script src="_static/searchtools.js"></script>
-  <script src="_static/language_data.js"></script>
-  <script src="searchindex.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'signals';</script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Bibliography" href="bibliography.html" />
+    <link rel="prev" title="Writing actors" href="actors.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -104,7 +105,7 @@ const thebe_selector_output = ".output, .cell_output"
     <div class="search-button__overlay"></div>
     <div class="search-button__search-container">
 <form class="bd-search d-flex align-items-center"
-      action="#"
+      action="search.html"
       method="get">
   <i class="fa-solid fa-magnifying-glass"></i>
   <input type="search"
@@ -177,13 +178,13 @@ const thebe_selector_output = ".output, .cell_output"
                 </a>
             </li>
         </ul>
-        <ul class="nav bd-sidenav">
+        <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and building</a></li>
 <li class="toctree-l1"><a class="reference internal" href="running.html">Running <em>improv</em></a></li>
 <li class="toctree-l1"><a class="reference internal" href="demos.html">Running the demos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html"><em>improv</em>’s design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="actors.html">Writing actors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="signals.html">Signals and communicating between actors</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Signals and communicating between actors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/improv/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">improv</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -277,7 +278,7 @@ const thebe_selector_output = ".output, .cell_output"
       
       
       
-      <li><a href="https://github.com/project-improv/improv/issues/new?title=Issue%20on%20page%20%2Fsearch.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/project-improv/improv/issues/new?title=Issue%20on%20page%20%2Fsignals.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -289,6 +290,54 @@ const thebe_selector_output = ".output, .cell_output"
   </span>
 <span class="btn__text-container">Open issue</span>
 </a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/signals.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
 </li>
       
   </ul>
@@ -339,42 +388,111 @@ document.write(`
 </div>
               
               
-  <div class="bd-search-container">
-    <h1>Search</h1>
-    <noscript>
-      <div class="admonition error">
-        <p class="admonition-title">Error</p>
-        <p>Please activate JavaScript to enable the search functionality.</p>
-      </div>
-    </noscript>
-    
-<form class="bd-search d-flex align-items-center"
-      action="#"
-      method="get">
-  <i class="fa-solid fa-magnifying-glass"></i>
-  <input type="search"
-         class="form-control"
-         name="q"
-         id="search-input"
-         placeholder="Search this book..."
-         aria-label="Search this book..."
-         autocomplete="off"
-         autocorrect="off"
-         autocapitalize="off"
-         spellcheck="false"/>
-  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form>
-    <div id="search-results"></div>
-  </div>
-  <script>
-    // Activate the search field on page load
-    let searchInput = document.querySelector("form.bd-search input");
-    if (searchInput) {
-        searchInput.focus();
-        searchInput.select();
-        console.log("[PST]: Set focus on search field.");
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Signals and communicating between actors</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="signals-and-communicating-between-actors">
+<span id="page-signals"></span><h1>Signals and communicating between actors<a class="headerlink" href="#signals-and-communicating-between-actors" title="Permalink to this heading">#</a></h1>
+<p>In <a class="reference internal" href="actors.html#page-actors"><span class="std std-ref">Writing actors</span></a>, we covered the basics of writing your own <code class="docutils literal notranslate"><span class="pre">Actor</span></code> class. Here, we consider a further complication:
+How do actors talk with <em>improv</em> and with one another. The most basic mechanism for doing so is through <em>signals</em>.</p>
+<p>On Unix-like computing systems, signals are messages sent by the operating system to processes running on the machine.
+The most well-known of these are <code class="docutils literal notranslate"><span class="pre">SIGINT</span></code> (“interrupt,” what you get by pressing <code class="docutils literal notranslate"><span class="pre">Ctrl-C</span></code> at the terminal),
+<code class="docutils literal notranslate"><span class="pre">SIGTERM</span></code> (“terminate,” shut the process down, but ask nicely), and <code class="docutils literal notranslate"><span class="pre">SIGKILL</span></code> (“kill,” and don’t take no for an
+answer). In Python, handling of these events is done with the <a class="reference external" href="https://docs.python.org/3/library/signal.html"><code class="docutils literal notranslate"><span class="pre">signal</span></code></a>
+library.</p>
+<p>For communicating between <em>improv</em>’s server and actors, we use both the <code class="docutils literal notranslate"><span class="pre">signal</span></code> library (internally) and
+<code class="docutils literal notranslate"><span class="pre">actor.Signal</span></code> for <em>improv</em>’s own set of messages. In the default <code class="docutils literal notranslate"><span class="pre">Actor</span></code> class (an alias for <code class="docutils literal notranslate"><span class="pre">ManagedActor</span></code>),
+signals are handled by the <code class="docutils literal notranslate"><span class="pre">RunManger</span></code> class, which calls the relevant class method when it receives a signal.
+In <a class="reference internal" href="#tables-signals"><span class="std std-ref">Correspondences between signals</span></a> we list the signals defined in <code class="docutils literal notranslate"><span class="pre">Signal</span></code> along with the <code class="docutils literal notranslate"><span class="pre">Actor</span></code> methods they call.</p>
+<table class="table" id="tables-signals">
+<caption><span class="caption-number">Table 1 </span><span class="caption-text">Correspondences between signals</span><a class="headerlink" href="#tables-signals" title="Permalink to this table">#</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">actor.Signal</span></code> received</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">ManagedActor</span></code> method called</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">setup</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">setup</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">run</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">runStep</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pause</span></code></p></td>
+<td><p>not yet implemented</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">resume</span></code></p></td>
+<td><p>not yet implemented</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">reset</span></code></p></td>
+<td><p>not yet implemented</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">load</span></code></p></td>
+<td><p>not yet implemented</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ready</span></code></p></td>
+<td><p>sent by actors to server</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kill</span></code></p></td>
+<td><p>handled by server</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">revive</span></code></p></td>
+<td><p>not yet implemented</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">stop</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stop</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">stop_success</span></code></p></td>
+<td><p>not yet implemented</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">quit</span></code></p></td>
+<td><p>handled by server</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Users who wish to do their own signal handling (e.g., by inheriting from <code class="docutils literal notranslate"><span class="pre">AbstractActor</span></code>) will need to test for
+the presence of <code class="docutils literal notranslate"><span class="pre">actor.Signal</span></code> messages in the connection to the server within the <code class="docutils literal notranslate"><span class="pre">run</span></code> function and handle
+them appropriately.</p>
+</div>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
     }
-  </script>
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
 
               
               
@@ -383,6 +501,24 @@ document.write(`
                 <footer class="prev-next-footer">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="actors.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Writing actors</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="bibliography.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Bibliography</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
