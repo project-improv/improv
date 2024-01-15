@@ -2,7 +2,7 @@
 [![PyPI](https://img.shields.io/pypi/v/improv?style=flat-square?style=flat-square)](https://pypi.org/project/improv)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/improv?style=flat-square)](https://pypi.org/project/improv)
 [![docs](https://github.com/project-improv/improv/actions/workflows/docs.yaml/badge.svg?style=flat-square)](https://project-improv.github.io/)
-[![tests](https://github.com/project-improv/improv/actions/workflows/CI.yaml/badge.svg?style=flat-square)](https://project-improv.github.io/)
+[![tests](https://github.com/project-improv/improv/actions/workflows/CI.yaml/badge.svg?style=flat-square)](https://github.com/project-improv/improv/actions/workflows/CI.yaml)
 [![Coverage Status](https://coveralls.io/repos/github/project-improv/improv/badge.svg?branch=main)](https://coveralls.io/github/project-improv/improv?branch=main)
 [![PyPI - License](https://img.shields.io/pypi/l/improv?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
