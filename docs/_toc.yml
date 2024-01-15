@@ -4,8 +4,11 @@
 format: jb-book
 root: intro
 chapters:
-- file: markdown
-- file: notebooks
-- file: markdown-notebooks
-- file: content
+- file: installation
+- file: running
+- file: demos
+- file: design
+- file: actors
+- file: signals
+- file: bibliography
 - file: autoapi/index
