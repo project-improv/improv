@@ -57,6 +57,7 @@ class ModelAnalysis(Actor):
         self.trial_avg_record = {}
         self.trial_avg_max_record = {}
         self.trial_slope_record = {}
+
         self.onstim_counter = np.ones((self.num_stim, 2))
         self.window = 500  # TODO: make user input, choose scrolling window for Visual
         self.C = None
@@ -122,13 +123,6 @@ class ModelAnalysis(Actor):
         ) as rm:
             logger.info(rm)
 
-        print("Analysis broke, avg time per frame: ", np.mean(self.total_times, axis=0))
-        print("Analysis broke, avg time per put analysis: ", np.mean(self.puttime))
-        print("Analysis broke, avg time per put analysis: ", np.mean(self.fit_times))
-        print("Analysis broke, avg time per color frame: ", np.mean(self.colortime))
-        print("Analysis broke, avg time per stim avg: ", np.mean(self.stimtime))
-        print("Analysis got through ", self.frame, " frames")
-
         N = self.p["numNeurons"]
         np.savetxt("output/model_weights.txt", self.theta[: N * N].reshape((N, N)))
 
@@ -172,17 +166,6 @@ class ModelAnalysis(Actor):
                 pass  # no change in input stimulus
             self.stimAvg_start()
 
-
-            # N  = self.p['numNeurons']
-            # dh = self.p['hist_dim']
-            # ds = self.p['stim_dim']
-            # k = np.square(self.theta[N*(N+dh+1):].reshape((N, ds))*1e6)
-            # self.globalAvg = np.mean(k, axis=0)
-            # self.tune_k = [k, self.globalAvg]
-
-            # Compute coloring of neurons for processed frame
-            # Also rotate and stack as needed for plotting
-            # TODO: move to viz, but we don't need to compute this 30 times/sec
             self.color = self.plotColorFrame()
 
             if self.frame >= self.window:
@@ -228,11 +211,6 @@ class ModelAnalysis(Actor):
             if stimID not in self.allStims.keys():
                 self.allStims.update({stimID: []})
 
-                # account for stimuli we haven't yet seen
-                # if stimID not in self.stimStart.keys():
-                #     self.stimStart.update({stimID:None})
-
-            # determine if this is a new stimulus trial
             if abs(stim[frame][1]) > 1:
                 curStim = 1  # on
                 self.allStims[stimID].append(frame)
@@ -240,7 +218,6 @@ class ModelAnalysis(Actor):
                     self.allStims[stimID].append(frame + i + 1)
             else:
                 curStim = 0  # off
-            logger.warning("what is frame here?:{0}".format(frame))
             
             # paradigm for these trials is for each stim: [off, on, off]
             if self.lastOnOff is None:
@@ -441,6 +418,7 @@ class ModelAnalysis(Actor):
             self.fitting_barcode = np.pad(self.fitting_barcode, ((0, diff), (0, 0)), mode="constant")
             self.rest_barcode = np.pad(self.rest_barcode, ((0, diff), (0, 0)), mode="constant")
             self.final_barcode = np.pad(self.final_barcode, ((0, diff), (0, 0)), mode="constant")
+            self.mean_barcode_avg = np.pad(self.mean_barcode_avg, ((0, diff), (0, 0)), mode="constant")
 
         if self.currentStim is not None:   
             if self.frame == self.stimStart:
@@ -458,7 +436,6 @@ class ModelAnalysis(Actor):
 
                     frame_baseline_avg = self.baseline_coefficient[:, self.currentStim, 0] + (1.8 * self.baseline_coefficient[:, self.currentStim, 1])
                     frame_baseline_fit = self.frame * self.baseline_coefficient[:, self.currentStim, 0] + self.baseline_coefficient[:, self.currentStim, 1] + (1.8 * self.baseline_coefficient[:, self.currentStim, 2])
-                    #logger.info("what is the baseline here?{0}, {1}".format(np.shape(frame_baseline), frame_baseline))
                     self.ests[:, self.currentStim, 1] = (self.ests[:, self.currentStim, 1] * self.onstim_counter[self.currentStim, 1] + frame_baseline_fit) / (self.onstim_counter[self.currentStim, 1] + 1)
                     self.ests_avg[:, self.currentStim, 1] = (self.ests_avg[:, self.currentStim, 1] * self.onstim_counter[self.currentStim, 1] + frame_baseline_avg) / (self.onstim_counter[self.currentStim, 1] + 1)
                     self.onstim_counter[self.currentStim, 1] += 1
@@ -530,14 +507,10 @@ class ModelAnalysis(Actor):
         if self.coords is not None:
             for i, c in enumerate(self.coords):
                 # c = np.array(c)
-                # logger.info("plzzzzzzzz, {0}, \n {1}".format(c, self.coords))
                 ind = c[~np.isnan(c).any(axis=1)].astype(int)
-                # TODO: Compute all colors simultaneously! then index in...
                 cv2.fillConvexPoly(
                     color, ind, self._tuningColor(i, color[ind[:, 1], ind[:, 0]])
                 )
-
-        # TODO: keep list of neural colors. Compute tuning colors and IF NEW, fill ConvexPoly.
 
         self.colortime.append(time.time() - t)
         #logger.info("ok let's see what's the color {0}, {1}".format(np.shape(color), color))

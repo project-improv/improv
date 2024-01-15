@@ -248,8 +248,6 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
         grplot = [self.grplot, self.grplot_2]
         for plt in grplot:
             plt.getAxis("bottom").setTickSpacing(major=50, minor=50)
-        #    plt.setLabel('bottom', "Frames")
-        #    plt.setLabel('left', "Temporal traces")
         self.updateLines()
         self.activePlot = "r"
 
@@ -265,8 +263,6 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
 
         self.select_Barcode = self.rawplot_5
 
-        # if self.visual.showConnectivity:
-        #     self.rawplot_3.setColorMap(cmapToColormap(cm.inferno))
 
 
     def _loadParams(self):
@@ -345,7 +341,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
     def barcode_click(self):
         logger.info("are you in it or not.")
         neurons_locs, neurons_index = self.visual.select_color_neurons(self.user_select_barcode)
-        return None
+        self.select_Barcode.setImage(self.user_select_barcode[:, np.newaxis])
 
     def updateLines(self):
         """Helper function to plot the line traces
@@ -408,12 +404,12 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
             barcode_copy = self.barcode_list[1].copy()
             #self.rawplot_3.setImage(barcode_copy.T)
             sorted_categories = self.process_list(self.barcode_index_record)
+            if len(sorted_categories) >= 10:
+                sorted_categories = sorted_categories.head(10)
             counts = sorted_categories.keys()
             categories = sorted_categories.values
             self.custom_barchart.setup_ui(categories = categories, values = counts)
             self.rawplot_3.addWidget(self.custom_barchart)
-            select_barcode_copy = self.barcode[0].copy()
-            self.select_Barcode.setImage(select_barcode_copy[:, np.newaxis])
         else:
             pass
             
@@ -421,12 +417,15 @@ class FrontEnd(QtWidgets.QMainWindow, improv_fit.Ui_MainWindow):
     def process_list(self, index_record):
         count_record = []
         nonzero_key = []
+        num_neuron = 0
         for key in index_record.keys():
             current_number = len(index_record[key])
             count_record.append(current_number)
+            num_neuron += current_number
         s = pd.Series(index_record.keys(), index=count_record)
-        s.sort_index()
-        return s
+        s_sorted = s.sort_index(ascending=False)
+
+        return s_sorted
 
 
     def mouseClick(self, event):
