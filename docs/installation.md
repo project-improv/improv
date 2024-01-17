@@ -72,20 +72,3 @@ Then simply run
 jupyter-book build docs
 ```
 and open `docs/_build/html/index.html` in your browser.
-
-## Getting around certificate issues
-
-On some systems, building (or installing from `pip`) can run into [this error](https://stackoverflow.com/questions/25981703/pip-install-fails-with-connection-error-ssl-certificate-verify-failed-certi) related to SSL certificates. For `pip`, the solution is given in the linked StackOverflow question (add `--trusted-host` to the command line), but for `build`, we run into the issue that the `trusted-host` flag will not be passed through to `pip`, and `pip` will build inside an isolated venv, meaning it won't read a file-based configuration option like the one given in the answer, either. 
-
-The (inelegant) solution that will work is to set the `pip.conf` file with
-```
-[global]
-trusted-host = pypi.python.org
-               pypi.org
-               files.pythonhosted.org
-```
-and then run
-```
-python -m build --no-isolation
-```
-which will allow `pip` to correctly read the configuration.
