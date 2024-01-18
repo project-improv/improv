@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "improv"
 description = "Platform for adaptive neuroscience experiments"
 authors = [{name = "Anne Draelos", email = "adraelos@umich.edu"}, 
-            {name = "John Pearson", email = "john.pearson@duke.edu"}]
+           {name = "John Pearson", email = "john.pearson@duke.edu"}]
 
 license = {file = "LICENSE"}
 readme = "README.md"
@@ -25,7 +25,20 @@ dependencies = [
     "psutil",
     "h5py",
 ]
-classifiers = ['Development Status :: 1 - Planning']
+classifiers = ['Development Status :: 3 - Alpha',
+               'Intended Audience :: Science/Research',
+               'License :: OSI Approved :: MIT License',
+               'Operating System :: MacOS :: MacOS X',
+               'Operating System :: Microsoft :: Windows',
+               'Operating System :: POSIX',
+               'Programming Language :: Python :: 3.7',
+               'Programming Language :: Python :: 3.8',
+               'Programming Language :: Python :: 3.9',
+               'Programming Language :: Python :: 3.10',
+               'Programming Language :: Python :: 3.11',
+               'Programming Language :: Python :: 3.12',
+               'Programming Language :: Python :: Implementation :: CPython'
+               ]
 dynamic = ["version"]
 
 [project.optional-dependencies]
