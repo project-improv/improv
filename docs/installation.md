@@ -7,11 +7,11 @@ The simplest way to install _improv_ is with pip:
 pip install improv
 ```
 ````{warning}
-Due to [this pyzmq issue](https://github.com/zeromq/libzmq/issues/3313), if you're running on Ubuntu, you need to specify
+Due to [this pyzmq issue](https://github.com/zeromq/libzmq/issues/3313), if you're running on Ubuntu, you _may_ need to specify
 ```
 pip install improv --no-binary pyzmq
 ```
-to build `pyzmq` from source.
+to build `pyzmq` from source if you're running into ZMQ errors.
 ````
 
 ## Optional dependencies
