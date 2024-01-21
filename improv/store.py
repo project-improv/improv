@@ -150,6 +150,37 @@ class RedisStoreInterface(StoreInterface):
         p = self.client.pubsub()
         p.subscribe(topic)
 
+    def get_list(self, ids):
+        """Get multiple objects from the store
+
+        Args:
+            ids (list): of type str
+
+        Returns:
+            list of the objects
+        """
+        return self.client.mget(ids)
+
+    def get_all(self):
+        """Get a listing of all objects in the store.
+        Note that this may be very performance-intensive in large databases.
+
+        Returns:
+            list of all the objects in the store
+        """
+        all_keys = self.client.keys()  # defaults to "*" pattern, so will fetch all
+        return self.client.mget(all_keys)
+
+    def reset(self):
+        """Reset client connection"""
+        self.client = self.connect_to_server()
+        logger.debug(
+            "Reset local connection to store on port: {0}".format(self.server_port_num)
+        )
+
+    def notify(self):
+        pass  # I don't see any call sites for this, so leaving it blank at the moment
+
 
 class PlasmaStoreInterface(StoreInterface):
     """Basic interface for our specific data store implemented with apache arrow plasma
