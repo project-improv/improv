@@ -3,6 +3,8 @@ import signal
 import asyncio
 import traceback
 from queue import Empty
+
+import improv.store
 from improv.store import StoreInterface
 
 import logging
@@ -55,7 +57,11 @@ class AbstractActor:
     def _getStoreInterface(self):
         # TODO: Where do we require this be run? Add a Signal and include in RM?
         if not self.client:
-            store = StoreInterface(self.name, self.store_loc)
+            store = None
+            if StoreInterface == improv.store.RedisStoreInterface:
+                store = StoreInterface(self.name)
+            else:
+                store = StoreInterface(self.name, self.store_loc)
             self.setStoreInterface(store)
 
     def setLinks(self, links):

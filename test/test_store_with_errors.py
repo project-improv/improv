@@ -1,22 +1,14 @@
 import pytest
 
-# import time
 from improv.store import StoreInterface, RedisStoreInterface
 
-# from multiprocessing import Process
 from pyarrow._plasma import PlasmaObjectExists
 from scipy.sparse import csc_matrix
 import numpy as np
 import pyarrow.plasma as plasma
 import redis
 
-# from pyarrow.lib import ArrowIOError
-# from improv.store import ObjectNotFoundError
-# from improv.store import CannotGetObjectError
 from improv.store import CannotConnectToStoreInterfaceError
-
-# import pickle
-import subprocess
 
 WAIT_TIMEOUT = 10
 
@@ -36,47 +28,8 @@ WAIT_TIMEOUT = 10
 # store_loc = '/dev/shm'
 
 
-@pytest.fixture()
-# TODO: put in conftest.py
-def setup_store(set_store_loc):
-    """Start the server"""
-    print("Setting up Plasma store.")
-    p = subprocess.Popen(
-        ["plasma_store", "-s", set_store_loc, "-m", str(10000000)],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-
-    # with plasma.start_plasma_store(10000000) as ps:
-
-    yield p
-
-    # ''' Kill the server
-    # '''
-    # print('Tearing down Plasma store.')
-    p.kill()
-    p.wait(WAIT_TIMEOUT)
-
-
-@pytest.fixture()
-def setup_redis_store(server_port_num):
-    """Start the server"""
-    print("Setting up Redis store.")
-    p = subprocess.Popen(
-        ["redis-server", "--port", str(server_port_num), "--maxmemory", str(10000000)],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-
-    yield p
-
-    # kill the subprocess when the caller is done with it
-    p.kill()
-    p.wait(WAIT_TIMEOUT)
-
-
-def test_connect(setup_store, set_store_loc):
-    store = StoreInterface(store_loc=set_store_loc)
+def test_connect(setup_store, server_port_num):
+    store = StoreInterface(server_port_num=server_port_num)
     assert isinstance(store.client, plasma.PlasmaClient)
 
 
@@ -86,7 +39,7 @@ def test_redis_connect(setup_redis_store, server_port_num):
     assert store.client.ping()
 
 
-def test_connect_incorrect_path(setup_store, set_store_loc):
+def test_connect_incorrect_path(setup_store, server_port_num):
     # TODO: shorter name???
     # TODO: passes, but refactor --- see comments
     store_loc = "asdf"
@@ -97,7 +50,7 @@ def test_connect_incorrect_path(setup_store, set_store_loc):
     #     # Check that the exception thrown is a CannotConnectToStoreInterfaceError
     #     raise Exception('Cannot connect to store: {0}'.format(e))
     with pytest.raises(CannotConnectToStoreInterfaceError) as e:
-        store = StoreInterface(store_loc=store_loc)
+        store = StoreInterface(server_port_num=server_port_num)
         store.connect_store(store_loc)
         # Check that the exception thrown is a CannotConnectToStoreInterfaceError
     assert e.value.message == "Cannot connect to store at {}".format(str(store_loc))
@@ -112,7 +65,7 @@ def test_redis_connect_wrong_port(setup_redis_store, server_port_num):
 
 def test_connect_none_path(setup_store):
     # BUT default should be store_loc = '/tmp/store' if not entered?
-    store_loc = None
+    server_port_num = None
     # Handle exception thrown - assert name == 'CannotConnectToStoreInterfaceError'
     # and message == 'Cannot connect to store at {}'.format(str(store_loc))
     # with pytest.raises(Exception) as cm:
@@ -124,10 +77,10 @@ def test_connect_none_path(setup_store):
     # Check that the exception thrown is a CannotConnectToStoreInterfaceError
     #     raise Exception('Cannot connect to store: {0}'.format(e))
     with pytest.raises(CannotConnectToStoreInterfaceError) as e:
-        store = StoreInterface(store_loc=store_loc)
-        store.connect_store(store_loc)
+        store = StoreInterface(server_port_num=server_port_num)
+        store.connect_store(server_port_num)
         # Check that the exception thrown is a CannotConnectToStoreInterfaceError
-    assert e.value.message == "Cannot connect to store at {}".format(str(store_loc))
+    assert e.value.message == "Cannot connect to store at {}".format(str(server_port_num))
 
 
 # class StoreInterfaceGet(self):
@@ -136,8 +89,8 @@ def test_connect_none_path(setup_store):
 # TODO: @pytest.parameterize...store.get and store.getID for diff datatypes,
 # pickleable and not, etc.
 # Check raises...CannotGetObjectError (object never stored)
-def test_init_empty(setup_store, set_store_loc):
-    store = StoreInterface(store_loc=set_store_loc)
+def test_init_empty(setup_store, server_port_num):
+    store = StoreInterface(server_port_num=server_port_num)
     assert store.get_all() == {}
 
 
@@ -164,10 +117,10 @@ def test_init_empty(setup_store, set_store_loc):
 #                  object_name+': {} {}'.format(type(e).__name__, e))
 
 
-def test_is_csc_matrix_and_put(setup_store, set_store_loc):
+def test_is_csc_matrix_and_put(setup_store, server_port_num):
     mat = csc_matrix((3, 4), dtype=np.int8)
-    store = StoreInterface(store_loc=set_store_loc)
-    x = store.put(mat, "matrix")
+    store = StoreInterface(server_port_num=server_port_num)
+    x = store.put(mat)
     assert isinstance(store.getID(x), csc_matrix)
 
 
@@ -193,8 +146,8 @@ def test_is_csc_matrix_and_put(setup_store, set_store_loc):
 
 
 @pytest.mark.skip()
-def test_get_list_and_all(setup_store, set_store_loc):
-    store = StoreInterface(store_loc=set_store_loc)
+def test_get_list_and_all(setup_store, server_port_num):
+    store = StoreInterface(server_port_num=server_port_num)
     # id = store.put(1, "one")
     # id2 = store.put(2, "two")
     # id3 = store.put(3, "three")
@@ -217,19 +170,19 @@ def test_get_list_and_all(setup_store, set_store_loc):
 #     # TODO: assert info == 'Refreshing connection and continuing'
 
 
-def test_reset(setup_store, set_store_loc):
-    store = StoreInterface(store_loc=set_store_loc)
+def test_reset(setup_store, server_port_num):
+    store = StoreInterface(server_port_num=server_port_num)
     store.reset()
-    id = store.put(1, "one")
+    id = store.put(1)
     assert store.get(id) == 1
 
 
 # class StoreInterface_Put(StoreInterfaceDependentTestCase):
 
 
-def test_put_one(setup_store, set_store_loc):
-    store = StoreInterface(store_loc=set_store_loc)
-    id = store.put(1, "one")
+def test_put_one(setup_store, server_port_num):
+    store = StoreInterface(server_port_num=server_port_num)
+    id = store.put(1)
     assert 1 == store.get(id)
 
 
@@ -261,9 +214,9 @@ def test_put_twice(setup_store):
 # class StoreInterface_PutGet(StoreInterfaceDependentTestCase):
 
 
-def test_getOne(setup_store, set_store_loc):
-    store = StoreInterface(store_loc=set_store_loc)
-    id = store.put(1, "one")
+def test_getOne(setup_store, server_port_num):
+    store = StoreInterface(server_port_num=server_port_num)
+    id = store.put(1)
     assert 1 == store.get(id)
 
 

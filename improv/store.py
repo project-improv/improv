@@ -658,7 +658,7 @@ class LMDBStoreInterface(StoreInterface):
 
 
 # Aliasing
-StoreInterface = PlasmaStoreInterface
+StoreInterface = RedisStoreInterface
 
 
 @dataclass

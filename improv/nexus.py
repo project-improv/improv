@@ -14,7 +14,7 @@ from importlib import import_module
 import zmq.asyncio as zmq
 from zmq import PUB, REP, SocketOption
 
-from improv.store import StoreInterface, RedisStoreInterface
+from improv.store import StoreInterface, RedisStoreInterface, PlasmaStoreInterface
 from improv.actor import Signal
 from improv.config import Config
 from improv.link import Link, MultiLink
@@ -594,7 +594,7 @@ class Nexus:
             return StoreInterface(name, self.store_loc)
         else:
             if name not in self.store_dict:
-                self.store_dict[name] = StoreInterface(
+                self.store_dict[name] = PlasmaStoreInterface(
                     name, self.store_loc, use_hdd=True, lmdb_name=self.lmdb_name
                 )
             return self.store_dict[name]

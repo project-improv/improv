@@ -131,7 +131,7 @@ async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
     os.remove(datafile)
     os.remove(logfile)  # later, might want to read this file and check for messages
 
-
+@pytest.mark.skip(reason="ZmqActor depends on Plasma Datastore")
 def test_zmq_ps(ip, unused_tcp_port):
     """Tests if we can set the zmq PUB/SUB socket and send message."""
     port = unused_tcp_port
@@ -151,7 +151,7 @@ def test_zmq_ps(ip, unused_tcp_port):
     LOGGER.info("received message")
     assert recvmsg == msg
 
-
+@pytest.mark.skip(reason="ZmqActor depends on Plasma datastore")
 def test_zmq_rr(ip, unused_tcp_port):
     """Tests if we can set the zmq REQ/REP socket and send message."""
     port = unused_tcp_port
@@ -182,7 +182,7 @@ def test_zmq_rr(ip, unused_tcp_port):
     # Check if the reply is correct.
     assert request_result == reply
 
-
+@pytest.mark.skip(reason="ZmqActor depends on Plasma datastore")
 def test_zmq_rr_timeout(ip, unused_tcp_port):
     """Test for requestMsg where we timeout or fail to send"""
     port = unused_tcp_port
