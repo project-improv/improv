@@ -19,12 +19,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=bd9e20870c6007c4c509" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=bd9e20870c6007c4c509" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=bd9e20870c6007c4c509" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=bd9e20870c6007c4c509" rel="stylesheet" />
+  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
@@ -40,9 +40,9 @@
     <link rel="stylesheet" type="text/css" href="_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=bd9e20870c6007c4c509" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=bd9e20870c6007c4c509" />
-  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=bd9e20870c6007c4c509"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
@@ -81,7 +81,6 @@ const thebe_selector_output = ".output, .cell_output"
   <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
   
   <div id="pst-scroll-pixel-helper"></div>
-
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>
@@ -121,20 +120,15 @@ const thebe_selector_output = ".output, .cell_output"
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form></div>
   </div>
-
-  <header>
   
-    <div class="bd-header navbar navbar-expand-lg bd-navbar">
-    </div>
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    </header>
   
-  </header>
 
   <div class="bd-container">
     <div class="bd-container__inner bd-page-width">
       
       
-      
-        
       
       <div class="bd-sidebar-primary bd-sidebar">
         
@@ -406,7 +400,6 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-dependencies">Optional dependencies</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-from-source">Building from source</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-documents-locally">Building documents locally</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-around-certificate-issues">Getting around certificate issues</a></li>
 </ul>
             </nav>
         </div>
@@ -428,11 +421,11 @@ document.write(`
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Due to <a class="reference external" href="https://github.com/zeromq/libzmq/issues/3313">this pyzmq issue</a>, if you’re running on Ubuntu, you need to specify</p>
+<p>Due to <a class="reference external" href="https://github.com/zeromq/libzmq/issues/3313">this pyzmq issue</a>, if you’re running on Ubuntu, you <em>may</em> need to specify</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">improv</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">binary</span> <span class="n">pyzmq</span>
 </pre></div>
 </div>
-<p>to build <code class="docutils literal notranslate"><span class="pre">pyzmq</span></code> from source.</p>
+<p>to build <code class="docutils literal notranslate"><span class="pre">pyzmq</span></code> from source if you’re running into ZMQ errors.</p>
 </div>
 </section>
 <section id="optional-dependencies">
@@ -465,14 +458,11 @@ document.write(`
 <p>Other options, such as <a class="reference external" href="https://virtualenv.pypa.io/en/latest/"><code class="docutils literal notranslate"><span class="pre">virtualenv</span></code></a> will also work. (<a class="reference external" href="https://docs.conda.io/projects/conda/en/stable/"><code class="docutils literal notranslate"><span class="pre">conda</span></code></a> is largely superseded by <code class="docutils literal notranslate"><span class="pre">mamba</span></code>.)</p>
 <p>Currently, we build using <a class="reference external" href="https://setuptools.pypa.io/en/latest/index.html">Setuptools</a> via a <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file as specified in <a class="reference external" href="https://peps.python.org/pep-0518/">PEP 518</a>. This may allow us to switch out the build backend (or frontend) later.</p>
 <p>For now, the package can be built by running</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">build</span>
-</pre></div>
-</div>
-<p>from within the project directory. After that</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">editable</span> <span class="o">.</span>
 </pre></div>
 </div>
-<p>will install the package in editable mode, which means that changes in the project directory will affect the code that is run (i.e., the installation will not copy over the code to <code class="docutils literal notranslate"><span class="pre">site-packages</span></code> but simply link the project directory).</p>
+<p>from within the project directory.
+this will install the package in editable mode, which means that changes in the project directory will affect the code that is run (i.e., the installation will not copy over the code to <code class="docutils literal notranslate"><span class="pre">site-packages</span></code> but simply link the project directory).</p>
 <p>When uninstalling, be sure to do so <em>from outside the project directory</em>, since otherwise, <code class="docutils literal notranslate"><span class="pre">pip</span></code> only appears to find the command line script, not the full package.</p>
 </section>
 <section id="building-documents-locally">
@@ -491,22 +481,6 @@ document.write(`
 </pre></div>
 </div>
 <p>and open <code class="docutils literal notranslate"><span class="pre">docs/_build/html/index.html</span></code> in your browser.</p>
-</section>
-<section id="getting-around-certificate-issues">
-<h2>Getting around certificate issues<a class="headerlink" href="#getting-around-certificate-issues" title="Permalink to this heading">#</a></h2>
-<p>On some systems, building (or installing from <code class="docutils literal notranslate"><span class="pre">pip</span></code>) can run into <a class="reference external" href="https://stackoverflow.com/questions/25981703/pip-install-fails-with-connection-error-ssl-certificate-verify-failed-certi">this error</a> related to SSL certificates. For <code class="docutils literal notranslate"><span class="pre">pip</span></code>, the solution is given in the linked StackOverflow question (add <code class="docutils literal notranslate"><span class="pre">--trusted-host</span></code> to the command line), but for <code class="docutils literal notranslate"><span class="pre">build</span></code>, we run into the issue that the <code class="docutils literal notranslate"><span class="pre">trusted-host</span></code> flag will not be passed through to <code class="docutils literal notranslate"><span class="pre">pip</span></code>, and <code class="docutils literal notranslate"><span class="pre">pip</span></code> will build inside an isolated venv, meaning it won’t read a file-based configuration option like the one given in the answer, either.</p>
-<p>The (inelegant) solution that will work is to set the <code class="docutils literal notranslate"><span class="pre">pip.conf</span></code> file with</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="k">global</span><span class="p">]</span>
-<span class="n">trusted</span><span class="o">-</span><span class="n">host</span> <span class="o">=</span> <span class="n">pypi</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">org</span>
-               <span class="n">pypi</span><span class="o">.</span><span class="n">org</span>
-               <span class="n">files</span><span class="o">.</span><span class="n">pythonhosted</span><span class="o">.</span><span class="n">org</span>
-</pre></div>
-</div>
-<p>and then run</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">build</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">isolation</span>
-</pre></div>
-</div>
-<p>which will allow <code class="docutils literal notranslate"><span class="pre">pip</span></code> to correctly read the configuration.</p>
 </section>
 </section>
 
@@ -578,7 +552,6 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-dependencies">Optional dependencies</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-from-source">Building from source</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-documents-locally">Building documents locally</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-around-certificate-issues">Getting around certificate issues</a></li>
 </ul>
   </nav></div>
 
@@ -627,8 +600,8 @@ By improv team
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=bd9e20870c6007c4c509"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=bd9e20870c6007c4c509"></script>
+  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
 
   <footer class="bd-footer">
   </footer>
