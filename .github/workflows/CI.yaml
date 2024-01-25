@@ -64,7 +64,7 @@ jobs:
 
       - name: Install package (Ubuntu)
         run: |
-          pip install -e .[lint] --no-binary pyzmq
+          pip install -e .[lint] 
 
       - name: Check format with Black
         uses: psf/black@stable
