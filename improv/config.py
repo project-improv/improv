@@ -129,6 +129,18 @@ class Config:
         for a in self.actors.values():
             wflag = a.saveConfigModules(pathName, wflag)
 
+    def use_plasma(self):
+        return "plasma_config" in self.config.keys()
+
+    def get_redis_port(self):
+        if "redis_config" in self.config.keys():
+            return self.config["redis_config"]["port"]
+        else:
+            return "6379"
+
+    @staticmethod
+    def get_default_redis_port():
+        return "6379"
 
 class ConfigModule:
     def __init__(self, name, packagename, classname, options=None):

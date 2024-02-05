@@ -29,6 +29,8 @@ class Nexus:
     """Main server class for handling objects in improv"""
 
     def __init__(self, name="Server"):
+        self.store = None
+        self.config = None
         self.name = name
 
     def __str__(self):
@@ -100,25 +102,27 @@ class Nexus:
         cfg["control_port"] = int(in_port_string.split(":")[-1])
 
         # default size should be system-dependent
-        if "redis_config" in self.config.config.keys():
-            self._startStoreInterface(store_size, self.config.config["redis_config"])
-            logger.info("Redis server started")
+        if self.config and self.config.use_plasma():
+            self._startStoreInterface(store_size)
         else:
             self._startStoreInterface(store_size)
+            logger.info("Redis server started")
+
         self.out_socket.send_string("StoreInterface started")
 
         # connect to store and subscribe to notifications
         logger.info("Create new store object")
-        if "redis_config" in self.config.config.keys():
-            self.store = RedisStoreInterface(
-                server_port_num=self.config.config["redis_config"]["port"]
+        if self.config and self.config.use_plasma():
+            self.store = PlasmaStoreInterface(store_loc=self.store_loc)
+        else:
+            self.store = StoreInterface(
+                server_port_num=self.config.get_redis_port()
             )
             logger.info(
                 f"Redis server connected on port "
-                f"{self.config.config['redis_config']['port']}"
+                f"{self.config.get_redis_port()}"
             )
-        else:
-            self.store = StoreInterface(store_loc=self.store_loc)
+            
         self.store.subscribe()
 
         # LMDB storage
@@ -599,7 +603,7 @@ class Nexus:
                 )
             return self.store_dict[name]
 
-    def _startStoreInterface(self, size, redis_config=None):
+    def _startStoreInterface(self, size):
         """Start a subprocess that runs the plasma store
         Raises a RuntimeError exception size is undefined
         Raises an Exception if the plasma store doesn't start
@@ -616,27 +620,9 @@ class Nexus:
         """
         if size is None:
             raise RuntimeError("Server size needs to be specified")
-        self.use_redis = False
-        if redis_config:
-            try:
-                logger.info("Setting up Redis store.")
-                self.use_redis = True
-                self.store_port = redis_config["port"]
-                self.p_StoreInterface = subprocess.Popen(
-                    [
-                        "redis-server",
-                        "--port",
-                        str(redis_config["port"]),
-                        "--maxmemory",
-                        str(size),
-                    ],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
-                logger.info(f"Redis server started on port {redis_config['port']}")
-            except Exception as e:
-                logger.exception("StoreInterface cannot be started: {}".format(e))
-        else:
+        self.use_plasma = False
+        if self.config and self.config.use_plasma():
+            self.use_plasma = True
             try:
                 self.store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
                 self.p_StoreInterface = subprocess.Popen(
@@ -657,6 +643,27 @@ class Nexus:
                 )
             except Exception as e:
                 logger.exception("StoreInterface cannot be started: {}".format(e))
+        else:
+            try:
+                logger.info("Setting up Redis store.")
+                self.use_redis = True
+                self.store_port = self.config.get_redis_port() if self.config\
+                    else Config.get_default_redis_port()
+                self.p_StoreInterface = subprocess.Popen(
+                    [
+                        "redis-server",
+                        "--port",
+                        str(self.store_port),
+                        "--maxmemory",
+                        str(size),
+                    ],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                logger.info(f"StoreInterface start successful on port {self.store_port}")
+            except Exception as e:
+                logger.exception("StoreInterface cannot be started: {}".format(e))
+
 
     def _closeStoreInterface(self):
         """Internal method to kill the subprocess

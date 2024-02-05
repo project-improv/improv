@@ -17,6 +17,7 @@ def set_store_loc():
 def server_port_num():
     return redis_port_num
 
+
 @pytest.fixture()
 # TODO: put in conftest.py
 def setup_store(server_port_num):

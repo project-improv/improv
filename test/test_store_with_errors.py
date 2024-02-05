@@ -20,25 +20,19 @@ WAIT_TIMEOUT = 10
 
 # Separate each class as individual file - individual tests???
 
-# @pytest.fixture
-# def store_loc():
-#     store_loc = '/dev/shm'
-#     return store_loc
-
-# store_loc = '/dev/shm'
-
 
 def test_connect(setup_store, server_port_num):
     store = StoreInterface(server_port_num=server_port_num)
-    assert isinstance(store.client, plasma.PlasmaClient)
+    assert isinstance(store.client, redis.Redis)
 
 
-def test_redis_connect(setup_redis_store, server_port_num):
+def test_redis_connect(setup_store, server_port_num):
     store = RedisStoreInterface(server_port_num=server_port_num)
     assert isinstance(store.client, redis.Redis)
     assert store.client.ping()
 
 
+@pytest.mark.skip(reason="No longer needed since Redis does not connect via path")
 def test_connect_incorrect_path(setup_store, server_port_num):
     # TODO: shorter name???
     # TODO: passes, but refactor --- see comments
@@ -56,7 +50,7 @@ def test_connect_incorrect_path(setup_store, server_port_num):
     assert e.value.message == "Cannot connect to store at {}".format(str(store_loc))
 
 
-def test_redis_connect_wrong_port(setup_redis_store, server_port_num):
+def test_redis_connect_wrong_port(setup_store, server_port_num):
     bad_port_num = 1234
     with pytest.raises(CannotConnectToStoreInterfaceError) as e:
         RedisStoreInterface(server_port_num=bad_port_num)
@@ -91,6 +85,7 @@ def test_connect_none_path(setup_store):
 # Check raises...CannotGetObjectError (object never stored)
 def test_init_empty(setup_store, server_port_num):
     store = StoreInterface(server_port_num=server_port_num)
+    print(store.get_all())
     assert store.get_all() == {}
 
 
@@ -121,7 +116,7 @@ def test_is_csc_matrix_and_put(setup_store, server_port_num):
     mat = csc_matrix((3, 4), dtype=np.int8)
     store = StoreInterface(server_port_num=server_port_num)
     x = store.put(mat)
-    assert isinstance(store.getID(x), csc_matrix)
+    assert isinstance(store.get(x), csc_matrix)
 
 
 # FAILED - ObjectNotFoundError NOT RAISED?
@@ -186,7 +181,7 @@ def test_put_one(setup_store, server_port_num):
     assert 1 == store.get(id)
 
 
-def test_redis_put_one(setup_redis_store, server_port_num):
+def test_redis_put_one(setup_store, server_port_num):
     store = RedisStoreInterface(server_port_num=server_port_num)
     key = store.put(1)
     assert 1 == store.get(key)
@@ -204,7 +199,7 @@ def test_put_twice(setup_store):
 
 
 # we can't really do this anyway since we can't put twice by key.
-# def test_redis_put_twice(setup_redis_store, server_port_num):
+# def test_redis_put_twice(setup_store, server_port_num):
 #     store = RedisStoreInterface(server_port_num=server_port_num)
 #     key1 = store.put(1)
 #     key2 = store.put(2, "one")
@@ -220,7 +215,7 @@ def test_getOne(setup_store, server_port_num):
     assert 1 == store.get(id)
 
 
-def test_redis_get_one(setup_redis_store, server_port_num):
+def test_redis_get_one(setup_store, server_port_num):
     store = RedisStoreInterface(server_port_num=server_port_num)
     key = store.put(3)
     assert 3 == store.get(key)
