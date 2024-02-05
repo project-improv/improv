@@ -592,16 +592,18 @@ class Nexus:
     def createStoreInterface(self, name):
         """Creates StoreInterface w/ or w/out LMDB
         functionality based on {self.use_hdd}."""
-        if self.use_redis:
-            return RedisStoreInterface(server_port_num=self.store_port)
-        elif not self.use_hdd:
-            return StoreInterface(name, self.store_loc)
+        if self.config.use_plasma():
+            if not self.use_hdd:
+                return PlasmaStoreInterface(name, self.store_loc)
+            else:
+                # I don't think this currently works, since the constructor doesn't accept these arguments
+                if name not in self.store_dict:
+                    self.store_dict[name] = PlasmaStoreInterface(
+                        name, self.store_loc, use_hdd=True, lmdb_name=self.lmdb_name
+                    )
+                return self.store_dict[name]
         else:
-            if name not in self.store_dict:
-                self.store_dict[name] = PlasmaStoreInterface(
-                    name, self.store_loc, use_hdd=True, lmdb_name=self.lmdb_name
-                )
-            return self.store_dict[name]
+            return RedisStoreInterface(server_port_num=self.store_port)
 
     def _startStoreInterface(self, size):
         """Start a subprocess that runs the plasma store
@@ -646,7 +648,6 @@ class Nexus:
         else:
             try:
                 logger.info("Setting up Redis store.")
-                self.use_redis = True
                 self.store_port = self.config.get_redis_port() if self.config\
                     else Config.get_default_redis_port()
                 self.p_StoreInterface = subprocess.Popen(
@@ -674,7 +675,7 @@ class Nexus:
             self.p_StoreInterface.wait()
             logger.info(
                 "StoreInterface close successful: {}".format(
-                    self.store_port if self.use_redis else self.store_loc
+                    self.store_loc if self.config and self.config.use_plasma() else self.store_port
                 )
             )
         except Exception as e:
@@ -691,10 +692,10 @@ class Nexus:
         # Instantiate selected class
         mod = import_module(actor.packagename)
         clss = getattr(mod, actor.classname)
-        if self.use_redis:
-            instance = clss(actor.name, **actor.options)
-        else:
+        if self.config.use_plasma():
             instance = clss(actor.name, self.store_loc, **actor.options)
+        else:
+            instance = clss(actor.name, **actor.options)
 
         if "method" in actor.options.keys():
             # check for spawn

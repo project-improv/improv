@@ -58,6 +58,9 @@ class RedisStoreInterface(StoreInterface):
         self.client = self.connect_to_server()
 
     def connect_to_server(self):
+        # TODO this should scan for available ports, but only if configured to do so.
+        # This happens when the config doesn't have Redis settings, so we need to communicate
+        # this somehow to the StoreInterface here.
         """Connect to the store at store_loc, max 20 retries to connect
         Raises exception if can't connect
         Returns the Redis client if successful

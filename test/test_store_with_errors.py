@@ -85,7 +85,6 @@ def test_connect_none_path(setup_store):
 # Check raises...CannotGetObjectError (object never stored)
 def test_init_empty(setup_store, server_port_num):
     store = StoreInterface(server_port_num=server_port_num)
-    print(store.get_all())
     assert store.get_all() == {}
 
 
