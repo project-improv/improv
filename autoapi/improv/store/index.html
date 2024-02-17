@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>improv.store &#8212; improv documentation</title>
   
@@ -30,14 +30,14 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-thebe.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
@@ -45,24 +45,18 @@
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/clipboard.min.js"></script>
     <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js"></script>
     <script>let toggleHintShow = 'Click to show';</script>
     <script>let toggleHintHide = 'Click to hide';</script>
     <script>let toggleOpenOnPrint = 'true';</script>
     <script src="../../../_static/togglebutton.js"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script src="../../../_static/design-tabs.js"></script>
-    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
-const thebe_selector = ".thebe,.cell"
-const thebe_selector_input = "pre"
-const thebe_selector_output = ".output, .cell_output"
-</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
     <script async="async" src="../../../_static/sphinx-thebe.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/improv/store/index';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -157,12 +151,23 @@ const thebe_selector_output = ".output, .cell_output"
       
     
     
-    <img src="../../../_static/logo.png" class="logo__image only-light" alt="improv documentation - Home"/>
-    <script>document.write(`<img src="../../../_static/logo.png" class="logo__image only-dark" alt="improv documentation - Home"/>`);</script>
+    <img src="../../../_static/improv_logo_vertical.svg" class="logo__image only-light" alt="improv documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/improv_logo_vertical.svg" class="logo__image only-dark" alt="improv documentation - Home"/>`);</script>
   
   
 </a></div>
-        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         
         <ul class="nav bd-sidenav bd-sidenav__home-link">
@@ -399,6 +404,55 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface"><code class="docutils literal notranslate"><span class="pre">StoreInterface</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.get"><code class="docutils literal notranslate"><span class="pre">StoreInterface.get()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.put"><code class="docutils literal notranslate"><span class="pre">StoreInterface.put()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.delete"><code class="docutils literal notranslate"><span class="pre">StoreInterface.delete()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.replace"><code class="docutils literal notranslate"><span class="pre">StoreInterface.replace()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.subscribe"><code class="docutils literal notranslate"><span class="pre">StoreInterface.subscribe()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.connect_store"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.connect_store()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.put"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.put()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.get"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.get()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.getID"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.getID()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.getList"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.getList()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.get_all"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.get_all()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.reset"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.reset()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.release"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.release()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.subscribe"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.subscribe()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.notify"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.notify()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.random_ObjectID"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.random_ObjectID()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.updateStoreInterfaced"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.updateStoreInterfaced()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.getStored"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.getStored()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.get"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.get()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.get_keys"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.get_keys()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.put"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.put()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.flush"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.flush()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.commit_daemon"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.commit_daemon()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.commit"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.commit()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.delete"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.delete()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.replace"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.replace()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.subscribe"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.subscribe()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id0"><code class="docutils literal notranslate"><span class="pre">StoreInterface</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData"><code class="docutils literal notranslate"><span class="pre">LMDBData</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.queue"><code class="docutils literal notranslate"><span class="pre">LMDBData.queue</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.obj"><code class="docutils literal notranslate"><span class="pre">LMDBData.obj</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.time"><code class="docutils literal notranslate"><span class="pre">LMDBData.time</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.name"><code class="docutils literal notranslate"><span class="pre">LMDBData.name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.is_queue"><code class="docutils literal notranslate"><span class="pre">LMDBData.is_queue</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.ObjectNotFoundError"><code class="docutils literal notranslate"><span class="pre">ObjectNotFoundError</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.CannotGetObjectError"><code class="docutils literal notranslate"><span class="pre">CannotGetObjectError</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.CannotConnectToStoreInterfaceError"><code class="docutils literal notranslate"><span class="pre">CannotConnectToStoreInterfaceError</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.logger">logger</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface">StoreInterface</a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.get">get</a></li>
@@ -710,7 +764,7 @@ Report to Nexus that we updated the store
 <p>General interface for a store</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.store.LMDBStoreInterface.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pyarrow.plasma.ObjectID</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">pyarrow.plasma.ObjectID</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#LMDBStoreInterface.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.LMDBStoreInterface.get" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pyarrow.plasma.ObjectID</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">pyarrow.plasma.ObjectID</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/store.html#LMDBStoreInterface.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.store.LMDBStoreInterface.get" title="Permalink to this definition">#</a></dt>
 <dd><p>Get object using key (could be any byte string or plasma.ObjectID)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -928,6 +982,55 @@ Queue name if object is a queue else None</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface"><code class="docutils literal notranslate"><span class="pre">StoreInterface</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.get"><code class="docutils literal notranslate"><span class="pre">StoreInterface.get()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.put"><code class="docutils literal notranslate"><span class="pre">StoreInterface.put()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.delete"><code class="docutils literal notranslate"><span class="pre">StoreInterface.delete()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.replace"><code class="docutils literal notranslate"><span class="pre">StoreInterface.replace()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.subscribe"><code class="docutils literal notranslate"><span class="pre">StoreInterface.subscribe()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.connect_store"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.connect_store()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.put"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.put()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.get"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.get()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.getID"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.getID()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.getList"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.getList()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.get_all"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.get_all()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.reset"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.reset()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.release"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.release()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.subscribe"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.subscribe()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.notify"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.notify()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.random_ObjectID"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.random_ObjectID()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.updateStoreInterfaced"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.updateStoreInterfaced()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.PlasmaStoreInterface.getStored"><code class="docutils literal notranslate"><span class="pre">PlasmaStoreInterface.getStored()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.get"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.get()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.get_keys"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.get_keys()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.put"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.put()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.flush"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.flush()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.commit_daemon"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.commit_daemon()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.commit"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.commit()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.delete"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.delete()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.replace"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.replace()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBStoreInterface.subscribe"><code class="docutils literal notranslate"><span class="pre">LMDBStoreInterface.subscribe()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id0"><code class="docutils literal notranslate"><span class="pre">StoreInterface</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData"><code class="docutils literal notranslate"><span class="pre">LMDBData</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.queue"><code class="docutils literal notranslate"><span class="pre">LMDBData.queue</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.obj"><code class="docutils literal notranslate"><span class="pre">LMDBData.obj</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.time"><code class="docutils literal notranslate"><span class="pre">LMDBData.time</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.name"><code class="docutils literal notranslate"><span class="pre">LMDBData.name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.LMDBData.is_queue"><code class="docutils literal notranslate"><span class="pre">LMDBData.is_queue</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.ObjectNotFoundError"><code class="docutils literal notranslate"><span class="pre">ObjectNotFoundError</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.CannotGetObjectError"><code class="docutils literal notranslate"><span class="pre">CannotGetObjectError</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.CannotConnectToStoreInterfaceError"><code class="docutils literal notranslate"><span class="pre">CannotConnectToStoreInterfaceError</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.logger">logger</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface">StoreInterface</a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.store.StoreInterface.get">get</a></li>

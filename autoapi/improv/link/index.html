@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>improv.link &#8212; improv documentation</title>
   
@@ -30,14 +30,14 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-thebe.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
@@ -45,24 +45,18 @@
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/clipboard.min.js"></script>
     <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js"></script>
     <script>let toggleHintShow = 'Click to show';</script>
     <script>let toggleHintHide = 'Click to hide';</script>
     <script>let toggleOpenOnPrint = 'true';</script>
     <script src="../../../_static/togglebutton.js"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script src="../../../_static/design-tabs.js"></script>
-    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
-const thebe_selector = ".thebe,.cell"
-const thebe_selector_input = "pre"
-const thebe_selector_output = ".output, .cell_output"
-</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
     <script async="async" src="../../../_static/sphinx-thebe.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/improv/link/index';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -157,12 +151,23 @@ const thebe_selector_output = ".output, .cell_output"
       
     
     
-    <img src="../../../_static/logo.png" class="logo__image only-light" alt="improv documentation - Home"/>
-    <script>document.write(`<img src="../../../_static/logo.png" class="logo__image only-dark" alt="improv documentation - Home"/>`);</script>
+    <img src="../../../_static/improv_logo_vertical.svg" class="logo__image only-light" alt="improv documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/improv_logo_vertical.svg" class="logo__image only-dark" alt="improv documentation - Home"/>`);</script>
   
   
 </a></div>
-        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         
         <ul class="nav bd-sidenav bd-sidenav__home-link">
@@ -400,6 +405,35 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.Link"><code class="docutils literal notranslate"><span class="pre">Link()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue"><code class="docutils literal notranslate"><span class="pre">AsyncQueue</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.queue"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.queue</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.real_executor"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.real_executor</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.cancelled_join"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.cancelled_join</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.name"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.start"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.start</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.end"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.end</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.status"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.status</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.result"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.result</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.num"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.num</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.dict"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.dict</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.getStart"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.getStart()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.getEnd"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.getEnd()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.put"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.put()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.put_nowait"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.put_nowait()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.put_async"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.put_async()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.get_async"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.get_async()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.cancel_join_thread"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.cancel_join_thread()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.join_thread"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.join_thread()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.MultiLink"><code class="docutils literal notranslate"><span class="pre">MultiLink()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.MultiAsyncQueue"><code class="docutils literal notranslate"><span class="pre">MultiAsyncQueue</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.MultiAsyncQueue.put"><code class="docutils literal notranslate"><span class="pre">MultiAsyncQueue.put()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.MultiAsyncQueue.put_nowait"><code class="docutils literal notranslate"><span class="pre">MultiAsyncQueue.put_nowait()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.logger">logger</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.Link">Link</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue">AsyncQueue</a><ul class="nav section-nav flex-column">
@@ -794,6 +828,35 @@ queues, q_in is the producer queue, q_out are the consumer queues.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.Link"><code class="docutils literal notranslate"><span class="pre">Link()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue"><code class="docutils literal notranslate"><span class="pre">AsyncQueue</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.queue"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.queue</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.real_executor"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.real_executor</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.cancelled_join"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.cancelled_join</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.name"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.start"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.start</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.end"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.end</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.status"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.status</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.result"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.result</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.num"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.num</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.dict"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.dict</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.getStart"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.getStart()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.getEnd"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.getEnd()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.put"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.put()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.put_nowait"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.put_nowait()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.put_async"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.put_async()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.get_async"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.get_async()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.cancel_join_thread"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.cancel_join_thread()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue.join_thread"><code class="docutils literal notranslate"><span class="pre">AsyncQueue.join_thread()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.MultiLink"><code class="docutils literal notranslate"><span class="pre">MultiLink()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.MultiAsyncQueue"><code class="docutils literal notranslate"><span class="pre">MultiAsyncQueue</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.MultiAsyncQueue.put"><code class="docutils literal notranslate"><span class="pre">MultiAsyncQueue.put()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.MultiAsyncQueue.put_nowait"><code class="docutils literal notranslate"><span class="pre">MultiAsyncQueue.put_nowait()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.logger">logger</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.Link">Link</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#improv.link.AsyncQueue">AsyncQueue</a><ul class="nav section-nav flex-column">
