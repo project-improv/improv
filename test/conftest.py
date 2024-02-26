@@ -30,7 +30,7 @@ def setup_store(server_port_num):
             str(server_port_num),
             "--maxmemory",
             str(10000000),
-            "--logfile",
+            "--save",
             '""',
         ],
         stdout=subprocess.DEVNULL,
