@@ -5,10 +5,12 @@ on:
     branches:
       - main
       - dev
+      - redis
   push:
     branches:
       - main
       - dev
+      - redis
 
 jobs:
   test:
