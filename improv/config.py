@@ -142,6 +142,7 @@ class Config:
     def get_default_redis_port():
         return "6379"
 
+
 class ConfigModule:
     def __init__(self, name, packagename, classname, options=None):
         self.name = name

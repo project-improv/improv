@@ -5,7 +5,6 @@ from improv.store import StoreInterface, RedisStoreInterface
 from pyarrow._plasma import PlasmaObjectExists
 from scipy.sparse import csc_matrix
 import numpy as np
-import pyarrow.plasma as plasma
 import redis
 
 from improv.store import CannotConnectToStoreInterfaceError
@@ -74,7 +73,9 @@ def test_connect_none_path(setup_store):
         store = StoreInterface(server_port_num=server_port_num)
         store.connect_store(server_port_num)
         # Check that the exception thrown is a CannotConnectToStoreInterfaceError
-    assert e.value.message == "Cannot connect to store at {}".format(str(server_port_num))
+    assert e.value.message == "Cannot connect to store at {}".format(
+        str(server_port_num)
+    )
 
 
 # class StoreInterfaceGet(self):

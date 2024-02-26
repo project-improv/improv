@@ -115,14 +115,11 @@ class Nexus:
         if self.config and self.config.use_plasma():
             self.store = PlasmaStoreInterface(store_loc=self.store_loc)
         else:
-            self.store = StoreInterface(
-                server_port_num=self.config.get_redis_port()
-            )
+            self.store = StoreInterface(server_port_num=self.config.get_redis_port())
             logger.info(
-                f"Redis server connected on port "
-                f"{self.config.get_redis_port()}"
+                f"Redis server connected on port " f"{self.config.get_redis_port()}"
             )
-            
+
         self.store.subscribe()
 
         # LMDB storage
@@ -596,7 +593,8 @@ class Nexus:
             if not self.use_hdd:
                 return PlasmaStoreInterface(name, self.store_loc)
             else:
-                # I don't think this currently works, since the constructor doesn't accept these arguments
+                # I don't think this currently works,
+                # since the constructor doesn't accept these arguments
                 if name not in self.store_dict:
                     self.store_dict[name] = PlasmaStoreInterface(
                         name, self.store_loc, use_hdd=True, lmdb_name=self.lmdb_name
@@ -648,8 +646,11 @@ class Nexus:
         else:
             try:
                 logger.info("Setting up Redis store.")
-                self.store_port = self.config.get_redis_port() if self.config\
+                self.store_port = (
+                    self.config.get_redis_port()
+                    if self.config
                     else Config.get_default_redis_port()
+                )
                 self.p_StoreInterface = subprocess.Popen(
                     [
                         "redis-server",
@@ -661,10 +662,11 @@ class Nexus:
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
-                logger.info(f"StoreInterface start successful on port {self.store_port}")
+                logger.info(
+                    f"StoreInterface start successful on port {self.store_port}"
+                )
             except Exception as e:
                 logger.exception("StoreInterface cannot be started: {}".format(e))
-
 
     def _closeStoreInterface(self):
         """Internal method to kill the subprocess
@@ -675,7 +677,9 @@ class Nexus:
             self.p_StoreInterface.wait()
             logger.info(
                 "StoreInterface close successful: {}".format(
-                    self.store_loc if self.config and self.config.use_plasma() else self.store_port
+                    self.store_loc
+                    if self.config and self.config.use_plasma()
+                    else self.store_port
                 )
             )
         except Exception as e:

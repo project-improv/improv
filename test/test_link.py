@@ -7,7 +7,6 @@ import pytest
 
 from improv.actor import Actor
 
-from improv.store import StoreInterface
 from improv.link import Link
 
 
@@ -122,7 +121,7 @@ def test_getstate(example_link):
 
 @pytest.mark.parametrize(
     "input",
-    [([None]), ([1]), ([i for i in range(5)]), ([str(i ** i) for i in range(10)])],
+    [([None]), ([1]), ([i for i in range(5)]), ([str(i**i) for i in range(10)])],
 )
 def test_qsize_empty(example_link, input):
     """Tests that the queue has the number of elements in "input"."""
@@ -262,7 +261,10 @@ async def test_put_and_get_async(example_link):
 
     assert messages_out == messages
 
-@pytest.mark.skip(reason="This test needs additional work to cause an overflow in the datastore.")
+
+@pytest.mark.skip(
+    reason="This test needs additional work to cause an overflow in the datastore."
+)
 def test_put_overflow(setup_store, server_port_num, caplog):
     """Tests if putting too large of an object raises an error."""
 
@@ -275,7 +277,7 @@ def test_put_overflow(setup_store, server_port_num, caplog):
     acts = init_actors(2)
     lnk = Link("L1", acts[0], acts[1])
 
-    message = [i for i in range(10 ** 6)]  # 24000 bytes
+    message = [i for i in range(10**6)]  # 24000 bytes
 
     lnk.put(message)
 
@@ -437,7 +439,7 @@ async def test_multi_actor_system(example_actor_system, setup_store):
 
     acts = graph[0]
 
-    heavy_msg = [str(i) for i in range(10 ** 6)]
+    heavy_msg = [str(i) for i in range(10**6)]
     light_msgs = ["message" + str(i) for i in range(3)]
 
     await acts[0].links["q_out_1"].put_async(heavy_msg)
