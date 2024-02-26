@@ -30,6 +30,10 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           sudo apt update && sudo apt upgrade -y && sudo apt install -y redis-tools redis-server # && sudo systemctl stop redis-server
+      - name: Install Redis (macOS)
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          brew install redis
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
