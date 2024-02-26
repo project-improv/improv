@@ -24,7 +24,15 @@ def setup_store(server_port_num):
     """Start the server"""
     print("Setting up Redis store.")
     p = subprocess.Popen(
-        ["redis-server", "--port", str(server_port_num), "--maxmemory", str(10000000)],
+        [
+            "redis-server",
+            "--port",
+            str(server_port_num),
+            "--maxmemory",
+            str(10000000),
+            "logfile",
+            '""',
+        ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
