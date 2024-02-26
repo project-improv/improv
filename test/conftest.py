@@ -28,12 +28,12 @@ def setup_store(server_port_num):
     p = subprocess.Popen(
         [
             "redis-server",
+            "--save",
+            '""',
             "--port",
             str(server_port_num),
             "--maxmemory",
-            str(10000000),
-            "--save",
-            '""'
+            str(10000000)
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
