@@ -6,11 +6,14 @@ from pyarrow._plasma import PlasmaObjectExists
 from scipy.sparse import csc_matrix
 import numpy as np
 import redis
+import logging
 
 from improv.store import CannotConnectToStoreInterfaceError
 
 WAIT_TIMEOUT = 10
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 # TODO: add docstrings!!!
 # TODO: clean up syntax - consistent capitalization, function names, etc.
@@ -86,7 +89,7 @@ def test_connect_none_path(setup_store):
 # Check raises...CannotGetObjectError (object never stored)
 def test_init_empty(setup_store, server_port_num):
     store = StoreInterface(server_port_num=server_port_num)
-    print(store.client.config_get())
+    logger.info(store.client.config_get())
     assert store.get_all() == []
 
 
