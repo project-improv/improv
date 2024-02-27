@@ -22,9 +22,12 @@ def server_port_num():
 # TODO: put in conftest.py
 def setup_store(server_port_num):
     """Start the server"""
-    print(f"Setting up Redis store."
-          f"Store on port {server_port_num}"
-          f"with save '""' ")
+    print(
+        f"Setting up Redis store."
+        f"Store on port {server_port_num}"
+        f"with save '"
+        "' "
+    )
     p = subprocess.Popen(
         [
             "redis-server",
@@ -33,7 +36,7 @@ def setup_store(server_port_num):
             "--port",
             str(server_port_num),
             "--maxmemory",
-            str(10000000)
+            str(10000000),
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
