@@ -346,6 +346,7 @@ def test_closestore(caplog):
     assert True
 
 
+@pytest.mark.skip(reason="Nexus no longer deletes files on shutdown. Nothing to test.")
 def test_store_already_deleted_issues_warning(caplog):
     nex = Nexus("test")
     nex._startStoreInterface(10000)

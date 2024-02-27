@@ -14,7 +14,7 @@ from importlib import import_module
 import zmq.asyncio as zmq
 from zmq import PUB, REP, SocketOption
 
-from improv.store import StoreInterface
+from improv.store import StoreInterface, RedisStoreInterface, PlasmaStoreInterface
 from improv.actor import Signal
 from improv.config import Config
 from improv.link import Link, MultiLink
@@ -29,6 +29,8 @@ class Nexus:
     """Main server class for handling objects in improv"""
 
     def __init__(self, name="Server"):
+        self.store = None
+        self.config = None
         self.name = name
 
     def __str__(self):
@@ -100,12 +102,24 @@ class Nexus:
         cfg["control_port"] = int(in_port_string.split(":")[-1])
 
         # default size should be system-dependent
-        self._startStoreInterface(store_size)
+        if self.config and self.config.use_plasma():
+            self._startStoreInterface(store_size)
+        else:
+            self._startStoreInterface(store_size)
+            logger.info("Redis server started")
+
         self.out_socket.send_string("StoreInterface started")
 
         # connect to store and subscribe to notifications
         logger.info("Create new store object")
-        self.store = StoreInterface(store_loc=self.store_loc)
+        if self.config and self.config.use_plasma():
+            self.store = PlasmaStoreInterface(store_loc=self.store_loc)
+        else:
+            self.store = StoreInterface(server_port_num=self.config.get_redis_port())
+            logger.info(
+                f"Redis server connected on port " f"{self.config.get_redis_port()}"
+            )
+
         self.store.subscribe()
 
         # LMDB storage
@@ -575,14 +589,19 @@ class Nexus:
     def createStoreInterface(self, name):
         """Creates StoreInterface w/ or w/out LMDB
         functionality based on {self.use_hdd}."""
-        if not self.use_hdd:
-            return StoreInterface(name, self.store_loc)
+        if self.config.use_plasma():
+            if not self.use_hdd:
+                return PlasmaStoreInterface(name, self.store_loc)
+            else:
+                # I don't think this currently works,
+                # since the constructor doesn't accept these arguments
+                if name not in self.store_dict:
+                    self.store_dict[name] = PlasmaStoreInterface(
+                        name, self.store_loc, use_hdd=True, lmdb_name=self.lmdb_name
+                    )
+                return self.store_dict[name]
         else:
-            if name not in self.store_dict:
-                self.store_dict[name] = StoreInterface(
-                    name, self.store_loc, use_hdd=True, lmdb_name=self.lmdb_name
-                )
-            return self.store_dict[name]
+            return RedisStoreInterface(server_port_num=self.store_port)
 
     def _startStoreInterface(self, size):
         """Start a subprocess that runs the plasma store
@@ -601,24 +620,53 @@ class Nexus:
         """
         if size is None:
             raise RuntimeError("Server size needs to be specified")
-        try:
-            self.store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
-            self.p_StoreInterface = subprocess.Popen(
-                [
-                    "plasma_store",
-                    "-s",
-                    self.store_loc,
-                    "-m",
-                    str(size),
-                    "-e",
-                    "hashtable://test",
-                ],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-            logger.info("StoreInterface start successful: {}".format(self.store_loc))
-        except Exception as e:
-            logger.exception("StoreInterface cannot be started: {}".format(e))
+        self.use_plasma = False
+        if self.config and self.config.use_plasma():
+            self.use_plasma = True
+            try:
+                self.store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
+                self.p_StoreInterface = subprocess.Popen(
+                    [
+                        "plasma_store",
+                        "-s",
+                        self.store_loc,
+                        "-m",
+                        str(size),
+                        "-e",
+                        "hashtable://test",
+                    ],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                logger.info(
+                    "StoreInterface start successful: {}".format(self.store_loc)
+                )
+            except Exception as e:
+                logger.exception("StoreInterface cannot be started: {}".format(e))
+        else:
+            try:
+                logger.info("Setting up Redis store.")
+                self.store_port = (
+                    self.config.get_redis_port()
+                    if self.config
+                    else Config.get_default_redis_port()
+                )
+                self.p_StoreInterface = subprocess.Popen(
+                    [
+                        "redis-server",
+                        "--port",
+                        str(self.store_port),
+                        "--maxmemory",
+                        str(size),
+                    ],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                logger.info(
+                    f"StoreInterface start successful on port {self.store_port}"
+                )
+            except Exception as e:
+                logger.exception("StoreInterface cannot be started: {}".format(e))
 
     def _closeStoreInterface(self):
         """Internal method to kill the subprocess
@@ -627,7 +675,13 @@ class Nexus:
         try:
             self.p_StoreInterface.kill()
             self.p_StoreInterface.wait()
-            logger.info("StoreInterface close successful: {}".format(self.store_loc))
+            logger.info(
+                "StoreInterface close successful: {}".format(
+                    self.store_loc
+                    if self.config and self.config.use_plasma()
+                    else self.store_port
+                )
+            )
         except Exception as e:
             logger.exception("Cannot close store {}".format(e))
 
@@ -642,7 +696,10 @@ class Nexus:
         # Instantiate selected class
         mod = import_module(actor.packagename)
         clss = getattr(mod, actor.classname)
-        instance = clss(actor.name, self.store_loc, **actor.options)
+        if self.config.use_plasma():
+            instance = clss(actor.name, self.store_loc, **actor.options)
+        else:
+            instance = clss(actor.name, **actor.options)
 
         if "method" in actor.options.keys():
             # check for spawn

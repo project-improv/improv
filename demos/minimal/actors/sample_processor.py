@@ -47,17 +47,20 @@ class Processor(Actor):
         try:
             frame = self.q_in.get(timeout=0.001)
 
-        except:
+        except Exception:
             logger.error("Could not get frame!")
             pass
 
         if frame is not None and self.frame_num is not None:
             self.done = False
-            self.frame = self.client.getID(frame[0][0])
+            if self.store_loc:
+                self.frame = self.client.getID(frame[0][0])
+            else:
+                self.frame = self.client.get(frame)
             avg = np.mean(self.frame[0])
 
-            # print(f"Average: {avg}")
+            # logger.info(f"Average: {avg}")
             self.avg_list.append(avg)
-            # print(f"Overall Average: {np.mean(self.avg_list)}")
-            # print(f"Frame number: {self.frame_num}")
+            # logger.info(f"Overall Average: {np.mean(self.avg_list)}")
+            # logger.info(f"Frame number: {self.frame_num}")
             self.frame_num += 1
