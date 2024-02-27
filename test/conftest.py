@@ -4,7 +4,7 @@ import pytest
 import subprocess
 
 store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
-redis_port_num = 6379
+redis_port_num = 6380
 WAIT_TIMEOUT = 10
 
 
