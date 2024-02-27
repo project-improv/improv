@@ -22,23 +22,17 @@ def server_port_num():
 # TODO: put in conftest.py
 def setup_store(server_port_num):
     """Start the server"""
-    print(
-        f"Setting up Redis store."
-        f"Store on port {server_port_num}"
-        f"with save '"
-        "' "
-    )
     p = subprocess.Popen(
         [
             "redis-server",
             "--save",
             '""',
+            "--dbfilename",
+            "cinonexistent.rdb",
             "--port",
             str(server_port_num),
             "--maxmemory",
             str(10000000),
-            "--dbfilename",
-            "CI_test_nonexistent.rdb",
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
