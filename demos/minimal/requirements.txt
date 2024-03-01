@@ -1,0 +1,3 @@
+fastplotlib[notebook]
+simplejpeg
+wgpu>=0.13

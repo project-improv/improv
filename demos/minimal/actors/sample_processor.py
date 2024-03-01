@@ -56,7 +56,7 @@ class Processor(Actor):
             self.frame = self.client.getID(frame[0][0])
             avg = np.mean(self.frame[0])
 
-            # print(f"Average: {avg}")
+            #print(f"Average: {avg}")
             self.avg_list.append(avg)
             # print(f"Overall Average: {np.mean(self.avg_list)}")
             # print(f"Frame number: {self.frame_num}")
