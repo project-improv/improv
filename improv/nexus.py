@@ -33,7 +33,7 @@ class Nexus:
 
     def __str__(self):
         return self.name
-
+    
     def createNexus(
         self,
         file=None,
@@ -60,6 +60,8 @@ class Nexus:
         Returns:
             string: "Shutting down", to notify start() that pollQueues has completed.
         """
+
+        #TODO: implement signal validation and reading in a list of valid signals
 
         curr_dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         logger.info(f"************ new improv server session {curr_dt} ************")
@@ -130,9 +132,11 @@ class Nexus:
         self.initConfig()
 
         self.flags.update({"quit": False, "run": False, "load": False})
+        self.valid_signals = ["start", "run", "setup", "stop", "reset", "quit"]
+        logger.warning(f"valid sig: {self.valid_signals}")
         self.allowStart = False
         self.stopped = False
-
+        
         return (cfg["control_port"], cfg["output_port"])
 
     def loadConfig(self, file):
@@ -356,7 +360,7 @@ class Nexus:
                             if "GUI" in pollingNames[i]:
                                 self.processGuiSignal(r, pollingNames[i])
                             else:
-                                self.processActorSignal(r, pollingNames[i])
+                                self.processActorSignal(r, pollingNames[i], self.valid_signals)
                             self.tasks[i] = asyncio.create_task(polling[i].get_async())
                 elif t in done:
                     logger.debug("t.result = " + str(t.result()))
@@ -467,8 +471,16 @@ class Nexus:
         elif flag:
             logger.error("Unknown signal received from Nexus: {}".format(flag))
 
-    def processActorSignal(self, sig, name):
-        if sig is not None:
+    def processActorSignal(self, sig, name, valid_signals=["all"]):
+        """ Log and execute actor signals, so long as it is a valid signal. If valid_signals is ["all"], then
+        treat every signal as valid. The "quit" signal will always be valid. 
+        """
+        
+        all_valid = False
+        if "all" in valid_signals:
+            all_valid = True
+
+        if sig is not None and (str(sig[0]) in valid_signals or all_valid or str(sig[0]) == "quit"):
             logger.info("Received signal " + str(sig[0]) + " from " + name)
             state_val = self.actorStates.values()
             if not self.stopped and sig[0] == Signal.ready():

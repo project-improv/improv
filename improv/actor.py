@@ -165,6 +165,13 @@ class AbstractActor:
         """
         pass
 
+    def reset(self):
+        """Specify method for resetting the current state of the Actor.
+        Not used by default
+        """
+
+        pass
+
     def changePriority(self):
         """Try to lower this process' priority
         Only changes priority if lower_priority is set
@@ -189,6 +196,7 @@ class ManagedActor(AbstractActor):
         self.actions["setup"] = self.setup
         self.actions["run"] = self.runStep
         self.actions["stop"] = self.stop
+        self.actions["reset"] = self.reset
 
     def run(self):
         with RunManager(self.name, self.actions, self.links):
@@ -237,6 +245,7 @@ class RunManager:
     def __init__(self, name, actions, links, runStoreInterface=None, timeout=1e-6):
         self.run = False
         self.stop = False
+        self.reset = False
         self.config = False
 
         self.actorName = name
@@ -269,6 +278,13 @@ class RunManager:
                     logger.error("Actor {} error in stop: {}".format(an, e))
                     logger.error(traceback.format_exc())
                 self.stop = False  # Run once
+            elif self.reset:
+                try:
+                    self.actions["reset"]()
+                except Exception as e:
+                    logger.error("Actor {} error in reset: {}".format(an, e))
+                    logger.error(traceback.format_exc())
+                self.reset = False  # Run once
             elif self.config:
                 try:
                     if self.runStoreInterface:
@@ -293,6 +309,10 @@ class RunManager:
                     self.run = False
                     self.stop = True
                     logger.warning(f"actor {self.actorName} received stop signal")
+                elif signal == Signal.reset():
+                    self.run = False
+                    self.reset = True
+                    logger.warning(f"actor {self.actorName} received reset signal")
                 elif signal == Signal.quit():
                     logger.warning("Received quit signal, aborting")
                     break
@@ -409,6 +429,7 @@ class AsyncRunManager:
         logger.info("Ran for {} seconds".format(time.time() - self.start))
         logger.warning("Exiting AsyncRunManager")
         return None
+
 
 
 class Signal:
