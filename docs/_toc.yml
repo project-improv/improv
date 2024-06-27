@@ -10,5 +10,6 @@ chapters:
 - file: design
 - file: actors
 - file: signals
+- file: FAQ
 - file: bibliography
 - file: autoapi/index
