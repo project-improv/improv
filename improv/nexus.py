@@ -1,4 +1,5 @@
 import os
+import time
 import uuid
 import signal
 import logging
@@ -14,7 +15,7 @@ from importlib import import_module
 import zmq.asyncio as zmq
 from zmq import PUB, REP, SocketOption
 
-from improv.store import StoreInterface
+from improv.store import StoreInterface, RedisStoreInterface, PlasmaStoreInterface
 from improv.actor import Signal
 from improv.config import Config
 from improv.link import Link, MultiLink
@@ -29,7 +30,12 @@ class Nexus:
     """Main server class for handling objects in improv"""
 
     def __init__(self, name="Server"):
+        self.redis_fsync_frequency = None
+        self.store = None
+        self.config = None
         self.name = name
+        self.aof_dir = None
+        self.redis_saving_enabled = False
 
     def __str__(self):
         return self.name
@@ -37,7 +43,6 @@ class Nexus:
     def createNexus(
         self,
         file=None,
-        use_hdd=False,
         use_watcher=None,
         store_size=10_000_000,
         control_port=0,
@@ -51,7 +56,6 @@ class Nexus:
 
         Args:
             file (string): Name of the config file.
-            use_hdd (bool): Whether to use hdd for the store.
             use_watcher (bool): Whether to use watcher for the store.
             store_size (int): initial store size
             control_port (int): port number for input socket
@@ -76,8 +80,6 @@ class Nexus:
         # set config options loaded from file
         # in Python 3.9, can just merge dictionaries using precedence
         cfg = self.config.settings
-        if "use_hdd" not in cfg:
-            cfg["use_hdd"] = use_hdd
         if "use_watcher" not in cfg:
             cfg["use_watcher"] = use_watcher
         if "store_size" not in cfg:
@@ -89,6 +91,7 @@ class Nexus:
 
         # set up socket in lieu of printing to stdout
         self.zmq_context = zmq.Context()
+        self.zmq_context.setsockopt(SocketOption.LINGER, 1)
         self.out_socket = self.zmq_context.socket(PUB)
         self.out_socket.bind("tcp://*:%s" % cfg["output_port"])
         out_port_string = self.out_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
@@ -99,20 +102,26 @@ class Nexus:
         in_port_string = self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
         cfg["control_port"] = int(in_port_string.split(":")[-1])
 
+        self.configure_redis_persistence()
+
         # default size should be system-dependent
-        self._startStoreInterface(store_size)
+        if self.config and self.config.use_plasma():
+            self._startStoreInterface(store_size)
+        else:
+            self._startStoreInterface(store_size)
+            logger.info("Redis server started")
+
         self.out_socket.send_string("StoreInterface started")
 
         # connect to store and subscribe to notifications
         logger.info("Create new store object")
-        self.store = StoreInterface(store_loc=self.store_loc)
-        self.store.subscribe()
+        if self.config and self.config.use_plasma():
+            self.store = PlasmaStoreInterface(store_loc=self.store_loc)
+        else:
+            self.store = StoreInterface(server_port_num=self.store_port)
+            logger.info(f"Redis server connected on port {self.store_port}")
 
-        # LMDB storage
-        self.use_hdd = cfg["use_hdd"]
-        if self.use_hdd:
-            self.lmdb_name = f'lmdb_{datetime.now().strftime("%Y%m%d_%H%M%S")}'
-            self.store_dict = dict()
+        self.store.subscribe()
 
         # TODO: Better logic/flow for using watcher as an option
         self.p_watch = None
@@ -227,6 +236,77 @@ class Nexus:
                 watchin.append(watch_link)
             self.createWatcher(watchin)
 
+    def configure_redis_persistence(self):
+        # invalid configs: specifying filename and using an ephemeral filename,
+        # specifying that saving is off but providing either filename option
+        aof_dirname = self.config.get_redis_aof_dirname()
+        generate_unique_dirname = self.config.generate_ephemeral_aof_dirname()
+        redis_saving_enabled = self.config.redis_saving_enabled()
+        redis_fsync_frequency = self.config.get_redis_fsync_frequency()
+
+        if aof_dirname and generate_unique_dirname:
+            logger.error(
+                "Cannot both generate a unique dirname and use the one provided."
+            )
+            raise Exception("Cannot use unique dirname and use the one provided.")
+
+        if aof_dirname or generate_unique_dirname or redis_fsync_frequency:
+            if redis_saving_enabled is None:
+                redis_saving_enabled = True
+            elif not redis_saving_enabled:
+                logger.error(
+                    "Invalid configuration. Cannot save to disk with saving disabled."
+                )
+                raise Exception("Cannot persist to disk with saving disabled.")
+
+        self.redis_saving_enabled = redis_saving_enabled
+
+        if redis_fsync_frequency and redis_fsync_frequency not in [
+            "every_write",
+            "every_second",
+            "no_schedule",
+        ]:
+            logger.error("Cannot use unknown fsync frequency ", redis_fsync_frequency)
+            raise Exception(
+                "Cannot use unknown fsync frequency ", redis_fsync_frequency
+            )
+
+        if redis_fsync_frequency is None:
+            redis_fsync_frequency = "no_schedule"
+
+        if redis_fsync_frequency == "every_write":
+            self.redis_fsync_frequency = "always"
+        elif redis_fsync_frequency == "every_second":
+            self.redis_fsync_frequency = "everysec"
+        elif redis_fsync_frequency == "no_schedule":
+            self.redis_fsync_frequency = "no"
+        else:
+            logger.error("Unknown fsync frequency ", redis_fsync_frequency)
+            raise Exception("Unknown fsync frequency ", redis_fsync_frequency)
+
+        if aof_dirname:
+            self.aof_dir = aof_dirname
+        elif generate_unique_dirname:
+            self.aof_dir = "improv_persistence_" + str(uuid.uuid1())
+
+        if self.redis_saving_enabled and self.aof_dir is not None:
+            logger.info(
+                "Redis saving enabled. Saving to directory "
+                + self.aof_dir
+                + " on schedule "
+                + "'{}'".format(self.redis_fsync_frequency)
+            )
+        elif self.redis_saving_enabled:
+            logger.info(
+                "Redis saving enabled with default directory "
+                + "on schedule "
+                + "'{}'".format(self.redis_fsync_frequency)
+            )
+        else:
+            logger.info("Redis saving disabled.")
+
+        return
+
     def startNexus(self):
         """
         Puts all actors in separate processes and begins polling
@@ -298,6 +378,13 @@ class Nexus:
                     "StoreInterface file {} is already deleted".format(self.store_loc)
                 )
             logger.warning("Delete the store at location {0}".format(self.store_loc))
+
+        if hasattr(self, "out_socket"):
+            self.out_socket.close(linger=0)
+        if hasattr(self, "in_socket"):
+            self.in_socket.close(linger=0)
+        if hasattr(self, "zmq_context"):
+            self.zmq_context.destroy(linger=0)
 
     async def pollQueues(self):
         """
@@ -573,18 +660,13 @@ class Nexus:
         logger.info("Polling has stopped.")
 
     def createStoreInterface(self, name):
-        """Creates StoreInterface w/ or w/out LMDB
-        functionality based on {self.use_hdd}."""
-        if not self.use_hdd:
-            return StoreInterface(name, self.store_loc)
+        """Creates StoreInterface"""
+        if self.config.use_plasma():
+            return PlasmaStoreInterface(name, self.store_loc)
         else:
-            if name not in self.store_dict:
-                self.store_dict[name] = StoreInterface(
-                    name, self.store_loc, use_hdd=True, lmdb_name=self.lmdb_name
-                )
-            return self.store_dict[name]
+            return RedisStoreInterface(server_port_num=self.store_port)
 
-    def _startStoreInterface(self, size):
+    def _startStoreInterface(self, size, attempts=20):
         """Start a subprocess that runs the plasma store
         Raises a RuntimeError exception size is undefined
         Raises an Exception if the plasma store doesn't start
@@ -596,12 +678,14 @@ class Nexus:
 
         Raises:
             RuntimeError: if the size is undefined
-            Exception: if the plasma store doesn't start
+            Exception: if the store doesn't start
 
         """
         if size is None:
             raise RuntimeError("Server size needs to be specified")
-        try:
+        self.use_plasma = False
+        if self.config and self.config.use_plasma():
+            self.use_plasma = True
             self.store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
             self.p_StoreInterface = subprocess.Popen(
                 [
@@ -617,19 +701,111 @@ class Nexus:
                 stderr=subprocess.DEVNULL,
             )
             logger.info("StoreInterface start successful: {}".format(self.store_loc))
-        except Exception as e:
-            logger.exception("StoreInterface cannot be started: {}".format(e))
+        else:
+            logger.info("Setting up Redis store.")
+            self.store_port = (
+                self.config.get_redis_port()
+                if self.config and self.config.redis_port_specified()
+                else Config.get_default_redis_port()
+            )
+            if self.config and self.config.redis_port_specified():
+                logger.info(
+                    "Attempting to connect to Redis on port {}".format(self.store_port)
+                )
+                # try with failure, incrementing port number
+                self.p_StoreInterface = self.start_redis(size)
+                time.sleep(3)
+                if self.p_StoreInterface.poll():
+                    logger.error("Could not start Redis on specified port number.")
+                    raise Exception("Could not start Redis on specified port.")
+            else:
+                logger.info("Redis port not specified. Searching for open port.")
+                for attempt in range(attempts):
+                    logger.info(
+                        "Attempting to connect to Redis on port {}".format(
+                            self.store_port
+                        )
+                    )
+                    # try with failure, incrementing port number
+                    self.p_StoreInterface = self.start_redis(size)
+                    time.sleep(3)
+                    if self.p_StoreInterface.poll():  # Redis could not start
+                        logger.info(
+                            "Could not connect to port {}".format(self.store_port)
+                        )
+                        self.store_port = str(int(self.store_port) + 1)
+                    else:
+                        break
+                else:
+                    logger.error("Could not start Redis on any tried port.")
+                    raise Exception("Could not start Redis on any tried ports.")
+
+            logger.info(f"StoreInterface start successful on port {self.store_port}")
+
+    def start_redis(self, size):
+        subprocess_command = [
+            "redis-server",
+            "--port",
+            str(self.store_port),
+            "--maxmemory",
+            str(size),
+            "--save",  # this only turns off RDB, which we want permanently off
+            '""',
+        ]
+
+        if self.aof_dir is not None and len(self.aof_dir) == 0:
+            raise Exception("Persistence directory specified but no filename given.")
+
+        if self.aof_dir is not None:  # use specified (possibly pre-existing) file
+            # subprocess_command += ["--save", "1 1"]
+            subprocess_command += [
+                "--appendonly",
+                "yes",
+                "--appendfsync",
+                self.redis_fsync_frequency,
+                "--appenddirname",
+                self.aof_dir,
+            ]
+            logger.info("Redis persistence directory set to {}".format(self.aof_dir))
+        elif (
+            self.redis_saving_enabled
+        ):  # just use the (possibly preexisting) default aof dir
+            subprocess_command += [
+                "--appendonly",
+                "yes",
+                "--appendfsync",
+                self.redis_fsync_frequency,
+            ]
+            logger.info("Proceeding with using default Redis dump file.")
+
+        logger.info(
+            "Starting Redis server with command: \n {}".format(subprocess_command)
+        )
+
+        return subprocess.Popen(
+            subprocess_command,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
 
     def _closeStoreInterface(self):
         """Internal method to kill the subprocess
         running the store (plasma sever)
         """
-        try:
-            self.p_StoreInterface.kill()
-            self.p_StoreInterface.wait()
-            logger.info("StoreInterface close successful: {}".format(self.store_loc))
-        except Exception as e:
-            logger.exception("Cannot close store {}".format(e))
+        if hasattr(self, "p_StoreInterface"):
+            try:
+                self.p_StoreInterface.send_signal(signal.SIGINT)
+                self.p_StoreInterface.wait()
+                logger.info(
+                    "StoreInterface close successful: {}".format(
+                        self.store_loc
+                        if self.config and self.config.use_plasma()
+                        else self.store_port
+                    )
+                )
+
+            except Exception as e:
+                logger.exception("Cannot close store {}".format(e))
 
     def createActor(self, name, actor):
         """Function to instantiate actor, add signal and comm Links,
@@ -642,7 +818,10 @@ class Nexus:
         # Instantiate selected class
         mod = import_module(actor.packagename)
         clss = getattr(mod, actor.classname)
-        instance = clss(actor.name, self.store_loc, **actor.options)
+        if self.config.use_plasma():
+            instance = clss(actor.name, self.store_loc, **actor.options)
+        else:
+            instance = clss(actor.name, **actor.options)
 
         if "method" in actor.options.keys():
             # check for spawn
@@ -720,7 +899,6 @@ class Nexus:
         from improv.watcher import Watcher
 
         self.watcher = Watcher("watcher", self.createStoreInterface("watcher"))
-        # store = self.createStoreInterface("watcher") if not self.use_hdd else None
         q_sig = Link("watcher_sig", self.name, "watcher")
         self.watcher.setLinks(q_sig)
         self.sig_queues.update({q_sig.name: q_sig})

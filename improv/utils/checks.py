@@ -5,13 +5,6 @@ Example usage:
 
     $ python checks.py [file_name].yaml
 
-    $ python checks.py good_config.yaml
-    No loops.
-
-    $ python checks.py bad_config.yaml
-    Loop(s) found.
-    Processor to Analysis to Acquirer
-
 """
 
 import sys

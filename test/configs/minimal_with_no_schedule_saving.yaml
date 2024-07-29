@@ -11,4 +11,5 @@ connections:
   Generator.q_out: [Processor.q_in]
 
 redis_config:
-  port: 6379
+  enable_saving: True
+  fsync_frequency: no_schedule

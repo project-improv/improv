@@ -124,12 +124,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# LMDB
-*.mdb
-*.xml
-*.hdf5
-*.iml
-
 *.tif
 arrow
 

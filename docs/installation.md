@@ -39,6 +39,24 @@ A compatible version of Redis can be installed for most standard Linux distribut
 #### Windows (WSL2)
 Redis can also be installed on Windows in WSL2. The [WSL2 installation guide](https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-windows/) details the process for both the Windows and Linux portions of WSL2.
 
+## Required dependencies
+
+### Redis
+
+_improv_ uses Redis, an in-memory datastore, to hold data to be communicated between actors. _improv_ has been tested with Redis server version 7.2.4. Please refer to the instructions below for your operating system:
+
+#### macOS
+A compatible version of Redis can be installed via Homebrew:
+```
+brew install redis
+```
+
+#### Linux
+A compatible version of Redis can be installed for most standard Linux distributions by following Redis' instructions on their [installation guide](https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-linux/).
+
+#### Windows (WSL2)
+Redis can also be installed on Windows in WSL2. The [installation guide](https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-windows/) details the process for both the Windows and Linux portions of WSL2.
+
 ## Optional dependencies
 In addition to the basic _improv_ installation, users who want to, e.g., run tests locally and build docs should do
 ```

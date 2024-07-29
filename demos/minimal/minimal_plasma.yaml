@@ -10,5 +10,4 @@ actors:
 connections:
   Generator.q_out: [Processor.q_in]
 
-redis_config:
-  port: 6379
+plasma_config:
