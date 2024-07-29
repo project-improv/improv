@@ -1,11 +1,9 @@
 import os
 import psutil
 import pytest
-import subprocess
 from improv.link import Link  # , AsyncQueue
 from improv.actor import AbstractActor as Actor
-from improv.store import StoreInterface
-
+from improv.store import StoreInterface, PlasmaStoreInterface
 
 # set global_variables
 
@@ -13,20 +11,7 @@ pytest.example_string_links = {}
 pytest.example_links = {}
 
 
-@pytest.fixture()
-def setup_store(set_store_loc, scope="module"):
-    """Fixture to set up the store subprocess with 10 mb."""
-    p = subprocess.Popen(
-        ["plasma_store", "-s", set_store_loc, "-m", str(10000000)],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-    yield p
-    p.kill()
-    p.wait()
-
-
-@pytest.fixture()
+@pytest.fixture
 def init_actor(set_store_loc):
     """Fixture to initialize and teardown an instance of actor."""
 
@@ -35,7 +20,7 @@ def init_actor(set_store_loc):
     act = None
 
 
-@pytest.fixture()
+@pytest.fixture
 def example_string_links():
     """Fixture to provide a commonly used test input."""
 
@@ -43,10 +28,27 @@ def example_string_links():
     return pytest.example_string_links
 
 
-@pytest.fixture()
-def example_links(setup_store, set_store_loc):
+@pytest.fixture
+def example_links(setup_store, server_port_num):
     """Fixture to provide link objects as test input and setup store."""
-    StoreInterface(store_loc=set_store_loc)
+    StoreInterface(server_port_num=server_port_num)
+
+    acts = [
+        Actor("act" + str(i), server_port_num) for i in range(1, 5)
+    ]  # range must be even
+
+    links = [
+        Link("L" + str(i + 1), acts[i], acts[i + 1]) for i in range(len(acts) // 2)
+    ]
+    link_dict = {links[i].name: links[i] for i, l in enumerate(links)}
+    pytest.example_links = link_dict
+    return pytest.example_links
+
+
+@pytest.fixture
+def example_links_plasma(setup_store, set_store_loc):
+    """Fixture to provide link objects as test input and setup store."""
+    PlasmaStoreInterface(store_loc=set_store_loc)
 
     acts = [
         Actor("act" + str(i), set_store_loc) for i in range(1, 5)
@@ -95,11 +97,20 @@ def test_repr(example_string_links, set_store_loc):
     assert act.__repr__() == "Test: dict_keys(['1', '2', '3'])"
 
 
-def test_setStoreInterface(setup_store, set_store_loc):
+def test_setStoreInterface(setup_store, server_port_num):
+    """Tests if the store is started and linked with the actor."""
+
+    act = Actor("Acquirer", server_port_num)
+    store = StoreInterface(server_port_num=server_port_num)
+    act.setStoreInterface(store.client)
+    assert act.client is store.client
+
+
+def test_plasma_setStoreInterface(setup_plasma_store, set_store_loc):
     """Tests if the store is started and linked with the actor."""
 
     act = Actor("Acquirer", set_store_loc)
-    store = StoreInterface(store_loc=set_store_loc)
+    store = PlasmaStoreInterface(store_loc=set_store_loc)
     act.setStoreInterface(store.client)
     assert act.client is store.client
 
@@ -292,7 +303,30 @@ def test_changePriority(init_actor):
     assert psutil.Process(os.getpid()).nice() == 19
 
 
-def test_actor_connection(setup_store, set_store_loc):
+def test_actor_connection(setup_store, server_port_num):
+    """Test if the links between actors are established correctly.
+
+    This test instantiates two actors with different names, then instantiates
+    a Link object linking the two actors. A string is put to the input queue of
+    one actor. Then, in the other actor, it is removed from the queue, and
+    checked to verify it matches the original message.
+    """
+    act1 = Actor("a1", server_port_num)
+    act2 = Actor("a2", server_port_num)
+
+    StoreInterface(server_port_num=server_port_num)
+    link = Link("L12", act1, act2)
+    act1.setLinkIn(link)
+    act2.setLinkOut(link)
+
+    msg = "message"
+
+    act1.q_in.put(msg)
+
+    assert act2.q_out.get() == msg
+
+
+def test_plasma_actor_connection(setup_plasma_store, set_store_loc):
     """Test if the links between actors are established correctly.
 
     This test instantiates two actors with different names, then instantiates
@@ -303,7 +337,7 @@ def test_actor_connection(setup_store, set_store_loc):
     act1 = Actor("a1", set_store_loc)
     act2 = Actor("a2", set_store_loc)
 
-    StoreInterface(store_loc=set_store_loc)
+    PlasmaStoreInterface(store_loc=set_store_loc)
     link = Link("L12", act1, act2)
     act1.setLinkIn(link)
     act2.setLinkOut(link)

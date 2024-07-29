@@ -13,17 +13,17 @@ readme = "README.md"
 requires-python = ">=3.6"
 keywords = ["neuroscience", "adaptive", "closed loop"]
 dependencies = [
-    "numpy",
+    "numpy<=1.26",
     "scipy",
     "matplotlib",
     "pyarrow==9.0.0",
     "PyQt5",
-    "lmdb",
     "pyyaml",
     "textual==0.15.0",
     "pyzmq",
     "psutil",
     "h5py",
+    "redis"
 ]
 classifiers = ['Development Status :: 3 - Alpha',
                'Intended Audience :: Science/Research',

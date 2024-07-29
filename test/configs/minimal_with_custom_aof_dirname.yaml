@@ -11,4 +11,4 @@ connections:
   Generator.q_out: [Processor.q_in]
 
 redis_config:
-  port: 6379
+  aof_dirname: custom_aof_dirname

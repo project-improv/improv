@@ -8,5 +8,4 @@ dependencies:
 - pip
 - pyarrow
 - pyqt
-- python-lmdb
 - pyyaml

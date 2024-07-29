@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 # set global variables
 
 
-@pytest.fixture()
+@pytest.fixture
 def set_configdir():
     """Sets the current working directory to the configs file."""
     prev = os.getcwd()

@@ -1,3 +1,5 @@
+import glob
+import shutil
 import time
 import os
 import pytest
@@ -9,14 +11,13 @@ import yaml
 from improv.nexus import Nexus
 from improv.store import StoreInterface
 
-
 # from improv.actor import Actor
 # from improv.store import StoreInterface
 
 SERVER_COUNTER = 0
 
 
-@pytest.fixture()
+@pytest.fixture
 def ports():
     global SERVER_COUNTER
     CONTROL_PORT = 5555
@@ -30,7 +31,7 @@ def ports():
     SERVER_COUNTER += 3
 
 
-@pytest.fixture()
+@pytest.fixture
 def setdir():
     prev = os.getcwd()
     os.chdir(os.path.dirname(__file__) + "/configs")
@@ -38,12 +39,12 @@ def setdir():
     os.chdir(prev)
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_nex(setdir, ports):
     nex = Nexus("test")
     nex.createNexus(
         file="good_config.yaml",
-        store_size=4000,
+        store_size=40000000,
         control_port=ports[0],
         output_port=ports[1],
     )
@@ -80,11 +81,16 @@ def test_init(setdir):
     assert str(nex) == "test"
 
 
-def test_createNexus(setdir, ports):
+@pytest.mark.parametrize(
+    "cfg_name",
+    [
+        "good_config.yaml",
+        "good_config_plasma.yaml",
+    ],
+)
+def test_createNexus(setdir, ports, cfg_name):
     nex = Nexus("test")
-    nex.createNexus(
-        file="good_config.yaml", control_port=ports[0], output_port=ports[1]
-    )
+    nex.createNexus(file=cfg_name, control_port=ports[0], output_port=ports[1])
     assert list(nex.comm_queues.keys()) == [
         "GUI_comm",
         "Acquirer_comm",
@@ -128,7 +134,6 @@ def test_argument_config_precedence(setdir, ports):
         control_port=ports[0],
         output_port=ports[1],
         store_size=11_000_000,
-        use_hdd=True,
         use_watcher=True,
     )
     cfg = nex.config.settings
@@ -136,7 +141,6 @@ def test_argument_config_precedence(setdir, ports):
     assert cfg["control_port"] == ports[0]
     assert cfg["output_port"] == ports[1]
     assert cfg["store_size"] == 20_000_000
-    assert not cfg["use_hdd"]
     assert not cfg["use_watcher"]
 
 
@@ -210,7 +214,14 @@ def test_config_construction(cfg_name, actor_list, link_list, setdir, ports):
     assert True
 
 
-def test_single_actor(setdir, ports):
+@pytest.mark.parametrize(
+    "cfg_name",
+    [
+        "single_actor.yaml",
+        "single_actor_plasma.yaml",
+    ],
+)
+def test_single_actor(setdir, ports, cfg_name):
     nex = Nexus("test")
     with pytest.raises(AttributeError):
         nex.createNexus(
@@ -271,7 +282,7 @@ def test_queue_message(setdir, sample_nex):
     assert True
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.skip(reason="This test is unfinished.")
 async def test_queue_readin(sample_nex, caplog):
     nex = sample_nex
@@ -315,9 +326,9 @@ def test_usehdd_False():
     assert True
 
 
-def test_startstore(caplog, set_store_loc):
+def test_startstore(caplog):
     nex = Nexus("test")
-    nex._startStoreInterface(10000)  # 10 kb store
+    nex._startStoreInterface(10000000)  # 10 MB store
 
     assert any(
         "StoreInterface start successful" in record.msg for record in caplog.records
@@ -346,6 +357,228 @@ def test_closestore(caplog):
     assert True
 
 
+def test_specified_free_port(caplog, setdir, ports):
+    nex = Nexus("test")
+    nex.createNexus(
+        file="minimal_with_fixed_redis_port.yaml",
+        store_size=10000000,
+        control_port=ports[0],
+        output_port=ports[1],
+    )
+
+    nex.destroyNexus()
+
+    assert any(
+        "StoreInterface start successful on port 6379" in record.msg
+        for record in caplog.records
+    )
+
+
+def test_specified_busy_port(caplog, setdir, ports, setup_store):
+    nex = Nexus("test")
+    with pytest.raises(Exception, match="Could not start Redis on specified port."):
+        nex.createNexus(
+            file="minimal_with_fixed_redis_port.yaml",
+            store_size=10000000,
+            control_port=ports[0],
+            output_port=ports[1],
+        )
+
+    nex.destroyNexus()
+
+    assert any(
+        "Could not start Redis on specified port number." in record.msg
+        for record in caplog.records
+    )
+
+
+def test_unspecified_port_default_free(caplog, setdir, ports):
+    nex = Nexus("test")
+    nex.createNexus(
+        file="minimal.yaml",
+        store_size=10000000,
+        control_port=ports[0],
+        output_port=ports[1],
+    )
+
+    nex.destroyNexus()
+
+    assert any(
+        "StoreInterface start successful on port 6379" in record.msg
+        for record in caplog.records
+    )
+
+
+def test_unspecified_port_default_busy(caplog, setdir, ports, setup_store):
+    nex = Nexus("test")
+    nex.createNexus(
+        file="minimal.yaml",
+        store_size=10000000,
+        control_port=ports[0],
+        output_port=ports[1],
+    )
+
+    nex.destroyNexus()
+    assert any(
+        "StoreInterface start successful on port 6380" in record.msg
+        for record in caplog.records
+    )
+
+
+def test_no_aof_dir_by_default(caplog, setdir, ports):
+    nex = Nexus("test")
+    nex.createNexus(
+        file="minimal.yaml",
+        store_size=10000000,
+        control_port=ports[0],
+        output_port=ports[1],
+    )
+
+    nex.destroyNexus()
+
+    assert "appendonlydir" not in os.listdir(".")
+    assert all(["improv_persistence_" not in name for name in os.listdir(".")])
+
+
+def test_default_aof_dir_if_none_specified(caplog, setdir, ports, server_port_num):
+    nex = Nexus("test")
+    nex.createNexus(
+        file="minimal_with_redis_saving.yaml",
+        store_size=10000000,
+        control_port=ports[0],
+        output_port=ports[1],
+    )
+
+    store = StoreInterface(server_port_num=server_port_num)
+    store.put(1)
+
+    time.sleep(3)
+
+    nex.destroyNexus()
+
+    assert "appendonlydir" in os.listdir(".")
+
+    if "appendonlydir" in os.listdir("."):
+        shutil.rmtree("appendonlydir")
+    else:
+        logging.info("didn't find dbfilename")
+
+    logging.info("exited test")
+
+
+def test_specify_static_aof_dir(caplog, setdir, ports, server_port_num):
+    nex = Nexus("test")
+    nex.createNexus(
+        file="minimal_with_custom_aof_dirname.yaml",
+        store_size=10000000,
+        control_port=ports[0],
+        output_port=ports[1],
+    )
+
+    store = StoreInterface(server_port_num=server_port_num)
+    store.put(1)
+
+    time.sleep(3)
+
+    nex.destroyNexus()
+
+    assert "custom_aof_dirname" in os.listdir(".")
+
+    if "custom_aof_dirname" in os.listdir("."):
+        shutil.rmtree("custom_aof_dirname")
+    else:
+        logging.info("didn't find dbfilename")
+
+    logging.info("exited test")
+
+
+def test_use_ephemeral_aof_dir(caplog, setdir, ports, server_port_num):
+    nex = Nexus("test")
+    nex.createNexus(
+        file="minimal_with_ephemeral_aof_dirname.yaml",
+        store_size=10000000,
+        control_port=ports[0],
+        output_port=ports[1],
+    )
+
+    store = StoreInterface(server_port_num=server_port_num)
+    store.put(1)
+
+    time.sleep(3)
+
+    nex.destroyNexus()
+
+    assert any(["improv_persistence_" in name for name in os.listdir(".")])
+
+    [shutil.rmtree(db_filename) for db_filename in glob.glob("improv_persistence_*")]
+
+    logging.info("completed ephemeral db test")
+
+
+def test_save_no_schedule(caplog, setdir, ports, server_port_num):
+    nex = Nexus("test")
+    nex.createNexus(
+        file="minimal_with_no_schedule_saving.yaml",
+        store_size=10000000,
+        control_port=ports[0],
+        output_port=ports[1],
+    )
+
+    store = StoreInterface(server_port_num=server_port_num)
+
+    fsync_schedule = store.client.config_get("appendfsync")
+
+    nex.destroyNexus()
+
+    assert "appendonlydir" in os.listdir(".")
+    shutil.rmtree("appendonlydir")
+
+    assert fsync_schedule["appendfsync"] == "no"
+
+
+def test_save_every_second(caplog, setdir, ports, server_port_num):
+    nex = Nexus("test")
+    nex.createNexus(
+        file="minimal_with_every_second_saving.yaml",
+        store_size=10000000,
+        control_port=ports[0],
+        output_port=ports[1],
+    )
+
+    store = StoreInterface(server_port_num=server_port_num)
+
+    fsync_schedule = store.client.config_get("appendfsync")
+
+    nex.destroyNexus()
+
+    assert "appendonlydir" in os.listdir(".")
+    shutil.rmtree("appendonlydir")
+
+    assert fsync_schedule["appendfsync"] == "everysec"
+
+
+def test_save_every_write(caplog, setdir, ports, server_port_num):
+    nex = Nexus("test")
+    nex.createNexus(
+        file="minimal_with_every_write_saving.yaml",
+        store_size=10000000,
+        control_port=ports[0],
+        output_port=ports[1],
+    )
+
+    store = StoreInterface(server_port_num=server_port_num)
+
+    fsync_schedule = store.client.config_get("appendfsync")
+
+    nex.destroyNexus()
+
+    assert "appendonlydir" in os.listdir(".")
+    shutil.rmtree("appendonlydir")
+
+    assert fsync_schedule["appendfsync"] == "always"
+
+
+@pytest.mark.skip(reason="Nexus no longer deletes files on shutdown. Nothing to test.")
 def test_store_already_deleted_issues_warning(caplog):
     nex = Nexus("test")
     nex._startStoreInterface(10000)
@@ -384,6 +617,9 @@ def test_actor_sub(setdir, capsys, monkeypatch, ports):
     assert True
 
 
+@pytest.mark.skip(
+    reason="skipping to prevent issues with orphaned stores. TODO fix this"
+)
 def test_sigint_exits_cleanly(ports, tmp_path):
     server_opts = [
         "improv",

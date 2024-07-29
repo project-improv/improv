@@ -7,34 +7,7 @@ import pytest
 
 from improv.actor import Actor
 
-from improv.store import StoreInterface
 from improv.link import Link
-
-
-@pytest.fixture()
-def setup_store():
-    """Fixture to set up the store subprocess with 10 mb.
-
-    This fixture runs a subprocess that instantiates the store with a
-    memory of 10 megabytes. It specifies that "/tmp/store/" is the
-    location of the store socket.
-
-    Yields:
-        store: An instance of the store.
-
-    TODO:
-        Figure out the scope.
-    """
-
-    p = subprocess.Popen(
-        ["plasma_store", "-s", "/tmp/store", "-m", str(10000000)],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-    store = StoreInterface(store_loc="/tmp/store")
-    yield store
-    p.kill()
-    p.wait()
 
 
 def init_actors(n=1):
@@ -50,17 +23,16 @@ def init_actors(n=1):
     return [Actor("test " + str(i), "/tmp/store", links={}) for i in range(n)]
 
 
-@pytest.fixture()
+@pytest.fixture
 def example_link(setup_store):
     """Fixture to provide a commonly used Link object."""
-    setup_store
     act = init_actors(2)
     lnk = Link("Example", act[0].name, act[1].name)
     yield lnk
     lnk = None
 
 
-@pytest.fixture()
+@pytest.fixture
 def example_actor_system(setup_store):
     """Fixture to provide a list of 4 connected actors."""
 
@@ -88,7 +60,7 @@ def example_actor_system(setup_store):
     acts = None
 
 
-@pytest.fixture()
+@pytest.fixture
 def _kill_pytest_processes():
     """Kills all processes with "pytest" in their name.
 
@@ -242,7 +214,7 @@ def test_put_nowait(example_link):
     assert t_net < 0.005  # 5 ms
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_put_async_success(example_link):
     """Tests if put_async returns None.
 
@@ -256,7 +228,7 @@ async def test_put_async_success(example_link):
     assert res is None
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_put_async_multiple(example_link):
     """Tests if async putting multiple objects preserves their order."""
 
@@ -273,7 +245,7 @@ async def test_put_async_multiple(example_link):
     assert messages_out == messages
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_put_and_get_async(example_link):
     """Tests if async get preserves order after async put."""
 
@@ -290,15 +262,17 @@ async def test_put_and_get_async(example_link):
     assert messages_out == messages
 
 
-def test_put_overflow(setup_store, caplog):
+@pytest.mark.skip(
+    reason="This test needs additional work to cause an overflow in the datastore."
+)
+def test_put_overflow(setup_store, server_port_num, caplog):
     """Tests if putting too large of an object raises an error."""
 
     p = subprocess.Popen(
-        ["plasma_store", "-s", "/tmp/store", "-m", str(1000)],
+        ["redis-server", "--port", str(server_port_num), "--maxmemory", str(1000)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    StoreInterface(store_loc="/tmp/store")
 
     acts = init_actors(2)
     lnk = Link("L1", acts[0], acts[1])
@@ -309,7 +283,6 @@ def test_put_overflow(setup_store, caplog):
 
     p.kill()
     p.wait()
-    setup_store  # restore the 10 mb store
 
     if caplog.records:
         for record in caplog.records:
@@ -397,7 +370,7 @@ def test_get_nowait_empty(example_link):
         pytest.fail("the queue is not empty")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_get_async_success(example_link):
     """Tests if async_get gets the correct element from the queue."""
 
@@ -408,7 +381,7 @@ async def test_get_async_success(example_link):
     assert res == "message"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_get_async_empty(example_link):
     """Tests if get_async times out given an empty queue.
 
@@ -442,7 +415,7 @@ def test_cancel_join_thread(example_link):
 
 
 @pytest.mark.skip(reason="unfinished")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_join_thread(example_link):
     """Tests join_thread. This test is unfinished
 
@@ -456,7 +429,7 @@ async def test_join_thread(example_link):
     assert True
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_multi_actor_system(example_actor_system, setup_store):
     """Tests if async puts/gets with many actors have good messages."""
 

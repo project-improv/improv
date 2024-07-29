@@ -13,7 +13,7 @@ SERVER_WARMUP = 16
 SERVER_TIMEOUT = 16
 
 
-@pytest.fixture()
+@pytest.fixture
 def setdir():
     prev = os.getcwd()
     os.chdir(os.path.dirname(__file__))
@@ -21,7 +21,7 @@ def setdir():
     os.chdir(prev)
 
 
-@pytest.fixture()
+@pytest.fixture
 async def server(setdir, ports):
     """
     Sets up a server using minimal.yaml in the configs folder.
@@ -61,7 +61,7 @@ async def server(setdir, ports):
         pass
 
 
-@pytest.fixture()
+@pytest.fixture
 async def cli_args(setdir, ports):
     logfile = "tmp.log"
     control_port, output_port, logging_port = ports

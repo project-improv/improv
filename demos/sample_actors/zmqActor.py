@@ -157,7 +157,7 @@ class ZmqActor(Actor):
             logger.debug(f"getting message using reply {reply} with pub/sub")
             return self.replyMsg(reply)
     
-    def setSendSocket(self, timeout=0.001):
+    def setSendSocket(self, timeout=1.001):
         """
         Sets up the send socket for the actor.
         """
@@ -165,7 +165,7 @@ class ZmqActor(Actor):
         self.send_socket.bind(self.address)
         time.sleep(timeout)
 
-    def setRecvSocket(self, timeout=0.001):
+    def setRecvSocket(self, timeout=1.001):
         """
         Sets up the receive socket for the actor.
         """

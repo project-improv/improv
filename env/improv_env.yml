@@ -225,6 +225,6 @@ dependencies:
   - pip:
       - argh
       - line-profiler
-      - lmdb==0.97
+      - redis
       - pathtools
       - watchdog
