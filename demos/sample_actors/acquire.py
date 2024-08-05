@@ -5,7 +5,7 @@ import random
 import numpy as np
 from skimage.io import imread
 
-from improv.actor import Actor
+from improv.actor import ZmqActor
 
 import logging
 
@@ -15,7 +15,7 @@ logger.setLevel(logging.INFO)
 # Classes: File Acquirer, Stim, Behavior, Tiff
 
 
-class FileAcquirer(Actor):
+class FileAcquirer(ZmqActor):
     """Class to import data from files and output
     frames in a buffer, or discrete.
     """
@@ -109,7 +109,7 @@ class FileAcquirer(Actor):
         self.f.flush()
 
 
-class StimAcquirer(Actor):
+class StimAcquirer(ZmqActor):
     """Class to load visual stimuli data from file
     and stream into the pipeline
     """
@@ -149,7 +149,7 @@ class StimAcquirer(Actor):
         self.n += 1
 
 
-class BehaviorAcquirer(Actor):
+class BehaviorAcquirer(ZmqActor):
     """Actor that acquires information of behavioral stimulus
     during the experiment
 
@@ -188,7 +188,7 @@ class BehaviorAcquirer(Actor):
         self.n += 1
 
 
-class FileStim(Actor):
+class FileStim(ZmqActor):
     """Actor that acquires information of behavioral stimulus
     during the experiment from a file
     """
@@ -216,7 +216,7 @@ class FileStim(Actor):
         self.n += 1
 
 
-class TiffAcquirer(Actor):
+class TiffAcquirer(ZmqActor):
     """Loops through a TIF file."""
 
     def __init__(self, *args, filename=None, framerate=30, **kwargs):

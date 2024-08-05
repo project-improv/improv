@@ -7,7 +7,7 @@ from improv.nexus import Nexus
 loadFile = "./Behavior_demo.yaml"
 
 nexus = Nexus("Nexus")
-nexus.createNexus(file=loadFile)
+nexus.create_nexus(file=loadFile)
 
 # All modules needed have been imported
 # so we can change the level of logging here
@@ -20,4 +20,4 @@ nexus.createNexus(file=loadFile)
 # logger = logging.getLogger("improv")
 # logger.setLevel(logging.INFO)
 
-nexus.startNexus()
+nexus.start_nexus()

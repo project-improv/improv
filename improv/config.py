@@ -6,46 +6,48 @@ from importlib import import_module
 logger = logging.getLogger(__name__)
 
 
+class CannotCreateConfigException(Exception):
+    def __init__(self, msg):
+        super().__init__("Cannot create config: {}".format(msg))
+
+
 class Config:
     """Handles configuration and logs of configs for
     the entire server/processing pipeline.
     """
 
-    def __init__(self, configFile):
-        if configFile is None:
-            logger.error("Need to specify a config file")
-            raise Exception
-        else:
-            # Reading config from other yaml file
-            self.configFile = configFile
-
-        with open(self.configFile, "r") as ymlfile:
-            cfg = yaml.safe_load(ymlfile)
-
-        try:
-            if "settings" in cfg:
-                self.settings = cfg["settings"]
-            else:
-                self.settings = {}
-
-            if "use_watcher" not in self.settings:
-                self.settings["use_watcher"] = False
-
-        except TypeError:
-            if cfg is None:
-                logger.error("Error: The config file is empty")
-
-        if type(cfg) is not dict:
-            logger.error("Error: The config file is not in dictionary format")
-            raise TypeError
-
-        self.config = cfg
-
+    def __init__(self, config_file):
         self.actors = {}
         self.connections = {}
         self.hasGUI = False
+        self.config_file = config_file
 
-    def createConfig(self):
+        with open(self.config_file, "r") as ymlfile:
+            self.config = yaml.safe_load(ymlfile)
+
+        if self.config is None:
+            logger.error("The config file is empty")
+            raise CannotCreateConfigException("The config file is empty")
+
+        if type(self.config) is not dict:
+            logger.error("Error: The config file is not in dictionary format")
+            raise TypeError
+
+    def parse_config(self):
+        self.populate_defaults()
+        self.validate_config()
+
+        self.settings = self.config["settings"]
+        self.redis_config = self.config["redis_config"]
+
+    def populate_defaults(self):
+        self.populate_settings_defaults()
+        self.popoulate_redis_defaults()
+
+    def validate_config(self):
+        self.validate_redis_config()
+
+    def create_config(self):
         """Read yaml config file and create config for Nexus
         TODO: check for config file compliance, error handle it
         beyond what we have below.
@@ -53,9 +55,6 @@ class Config:
         cfg = self.config
 
         for name, actor in cfg["actors"].items():
-            if name in self.actors.keys():
-                raise RepeatedActorError(name)
-
             packagename = actor.pop("package")
             classname = actor.pop("class")
 
@@ -63,11 +62,15 @@ class Config:
                 __import__(packagename, fromlist=[classname])
                 mod = import_module(packagename)
 
-                clss = getattr(mod, classname)
-                sig = signature(clss)
-                configModule = ConfigModule(name, packagename, classname, options=actor)
-                sig.bind(configModule.options)
+                actor_class = getattr(mod, classname)
+                sig = signature(actor_class)
+                config_module = ConfigModule(
+                    name, packagename, classname, options=actor
+                )
+                sig.bind(config_module.options)
 
+            # TODO: this is not trivial to test, since our code formatting
+            #   tools won't allow a file with a syntax error to exist
             except SyntaxError as e:
                 logger.error(f"Error: syntax error when initializing actor {name}: {e}")
                 return -1
@@ -87,101 +90,123 @@ class Config:
             except TypeError:
                 logger.error("Error: Invalid arguments passed")
                 params = ""
-                for parameter in sig.parameters:
-                    params = params + " " + parameter.name
+                for param_name, param in sig.parameters.items():
+                    params = params + ", " + param.name
                 logger.warning("Expected Parameters:" + params)
                 return -1
 
-            except Exception as e:
+            except Exception as e:  # TODO: figure out how to test this
                 logger.error(f"Error: {e}")
                 return -1
 
             if "GUI" in name:
                 logger.info(f"Config detected a GUI actor: {name}")
                 self.hasGUI = True
-                self.gui = configModule
+                self.gui = config_module
             else:
-                self.actors.update({name: configModule})
+                self.actors.update({name: config_module})
 
         for name, conn in cfg["connections"].items():
-            if name in self.connections.keys():
-                raise RepeatedConnectionsError(name)
-
             self.connections.update({name: conn})
-
-        if "datastore" in cfg.keys():
-            self.datastore = cfg["datastore"]
 
         return 0
 
-    def addParams(self, type, param):
-        """Function to add paramter param of type type
-        TODO: Future work
-        """
-        pass
-
-    def saveActors(self):
+    def save_actors(self):
         """Saves the actors config to a specific file."""
         wflag = True
-        saveFile = self.configFile.split(".")[0]
+        saveFile = self.config_file.split(".")[0]
         pathName = saveFile + "_actors.yaml"
 
         for a in self.actors.values():
-            wflag = a.saveConfigModules(pathName, wflag)
+            wflag = a.save_config_modules(pathName, wflag)
 
-    def use_plasma(self):
-        return "plasma_config" in self.config.keys()
+    def populate_settings_defaults(self):
+        if "settings" not in self.config:
+            self.config["settings"] = {}
 
-    def get_redis_port(self):
-        if self.redis_port_specified():
-            return self.config["redis_config"]["port"]
-        else:
-            return Config.get_default_redis_port()
+        if "store_size" not in self.config["settings"]:
+            self.config["settings"]["store_size"] = 250_000_000
+        if "control_port" not in self.config["settings"]:
+            self.config["settings"]["control_port"] = 5555
+        if "output_port" not in self.config["settings"]:
+            self.config["settings"]["output_port"] = 5556
+        if "actor_in_port" not in self.config["settings"]:
+            self.config["settings"]["actor_in_port"] = 0
+        if "harvest_data_from_memory" not in self.config["settings"]:
+            self.config["settings"]["harvest_data_from_memory"] = None
 
-    def redis_port_specified(self):
-        if "redis_config" in self.config.keys():
-            return "port" in self.config["redis_config"]
-        return False
+    def popoulate_redis_defaults(self):
+        if "redis_config" not in self.config:
+            self.config["redis_config"] = {}
 
-    def redis_saving_enabled(self):
-        if "redis_config" in self.config.keys():
-            return (
-                self.config["redis_config"]["enable_saving"]
-                if "enable_saving" in self.config["redis_config"]
-                else None
+        if "enable_saving" not in self.config["redis_config"]:
+            self.config["redis_config"]["enable_saving"] = None
+        if "aof_dirname" not in self.config["redis_config"]:
+            self.config["redis_config"]["aof_dirname"] = None
+        if "generate_ephemeral_aof_dirname" not in self.config["redis_config"]:
+            self.config["redis_config"]["generate_ephemeral_aof_dirname"] = False
+        if "fsync_frequency" not in self.config["redis_config"]:
+            self.config["redis_config"]["fsync_frequency"] = None
+
+        # enable saving automatically if the user configured a saving option
+        if (
+            self.config["redis_config"]["aof_dirname"]
+            or self.config["redis_config"]["generate_ephemeral_aof_dirname"]
+            or self.config["redis_config"]["fsync_frequency"]
+        ) and self.config["redis_config"]["enable_saving"] is None:
+            self.config["redis_config"]["enable_saving"] = True
+
+        if "port" not in self.config["redis_config"]:
+            self.config["redis_config"]["port"] = 6379
+
+    def validate_redis_config(self):
+        fsync_name_dict = {
+            "every_write": "always",
+            "every_second": "everysec",
+            "no_schedule": "no",
+        }
+        if (
+            self.config["redis_config"]["aof_dirname"]
+            and self.config["redis_config"]["generate_ephemeral_aof_dirname"]
+        ):
+            logger.error(
+                "Cannot both generate a unique dirname and use the one provided."
+            )
+            raise Exception("Cannot use unique dirname and use the one provided.")
+
+        if (
+            self.config["redis_config"]["aof_dirname"]
+            or self.config["redis_config"]["generate_ephemeral_aof_dirname"]
+            or self.config["redis_config"]["fsync_frequency"]
+        ):
+            if not self.config["redis_config"]["enable_saving"]:
+                logger.error(
+                    "Invalid configuration. Cannot save to disk with saving disabled."
+                )
+                raise Exception("Cannot persist to disk with saving disabled.")
+
+        if self.config["redis_config"]["fsync_frequency"] and self.config[
+            "redis_config"
+        ]["fsync_frequency"] not in [
+            "every_write",
+            "every_second",
+            "no_schedule",
+        ]:
+            logger.error(
+                f"Cannot use unknown fsync frequency "
+                f'{self.config["redis_config"]["fsync_frequency"]}'
+            )
+            raise Exception(
+                f"Cannot use unknown fsync frequency "
+                f'{self.config["redis_config"]["fsync_frequency"]}'
             )
 
-    def generate_ephemeral_aof_dirname(self):
-        if "redis_config" in self.config.keys():
-            return (
-                self.config["redis_config"]["generate_ephemeral_aof_dirname"]
-                if "generate_ephemeral_aof_dirname" in self.config["redis_config"]
-                else None
-            )
-        return False
+        if self.config["redis_config"]["fsync_frequency"] is None:
+            self.config["redis_config"]["fsync_frequency"] = "no_schedule"
 
-    def get_redis_aof_dirname(self):
-        if "redis_config" in self.config.keys():
-            return (
-                self.config["redis_config"]["aof_dirname"]
-                if "aof_dirname" in self.config["redis_config"]
-                else None
-            )
-        return None
-
-    def get_redis_fsync_frequency(self):
-        if "redis_config" in self.config.keys():
-            frequency = (
-                self.config["redis_config"]["fsync_frequency"]
-                if "fsync_frequency" in self.config["redis_config"]
-                else None
-            )
-
-            return frequency
-
-    @staticmethod
-    def get_default_redis_port():
-        return "6379"
+        self.config["redis_config"]["fsync_frequency"] = (fsync_name_dict)[
+            self.config["redis_config"]["fsync_frequency"]
+        ]
 
 
 class ConfigModule:
@@ -191,11 +216,11 @@ class ConfigModule:
         self.classname = classname
         self.options = options
 
-    def saveConfigModules(self, pathName, wflag):
+    def save_config_modules(self, path_name, wflag):
         """Loops through each actor to save the modules to the config file.
 
         Args:
-            pathName:
+            path_name:
             wflag (bool):
 
         Returns:
@@ -213,32 +238,7 @@ class ConfigModule:
         for key, value in self.options.items():
             cfg[self.name].update({key: value})
 
-        with open(pathName, writeOption) as file:
+        with open(path_name, writeOption) as file:
             yaml.dump(cfg, file)
 
         return wflag
-
-
-class RepeatedActorError(Exception):
-    def __init__(self, repeat):
-        super().__init__()
-
-        self.name = "RepeatedActorError"
-        self.repeat = repeat
-
-        self.message = 'Actor name has already been used: "{}"'.format(repeat)
-
-    def __str__(self):
-        return self.message
-
-
-class RepeatedConnectionsError(Exception):
-    def __init__(self, repeat):
-        super().__init__()
-        self.name = "RepeatedConnectionsError"
-        self.repeat = repeat
-
-        self.message = 'Connection name has already been used: "{}"'.format(repeat)
-
-    def __str__(self):
-        return self.message

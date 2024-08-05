@@ -1,4 +1,4 @@
-from improv.actor import Actor
+from improv.actor import ZmqActor
 from datetime import date  # used for saving
 import numpy as np
 import logging
@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Generator(Actor):
+class Generator(ZmqActor):
     """Sample actor to generate data to pass into a sample processor.
 
     Intended for use along with sample_processor.py.

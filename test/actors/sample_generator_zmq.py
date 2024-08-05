@@ -1,4 +1,5 @@
-from improv.actor import Actor
+from improv.actor import ZmqActor
+from datetime import date  # used for saving
 import numpy as np
 import logging
 
@@ -6,7 +7,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Generator(Actor):
+class Generator(ZmqActor):
     """Sample actor to generate data to pass into a sample processor.
 
     Intended for use along with sample_processor.py.
@@ -28,18 +29,30 @@ class Generator(Actor):
         integers from 1-99, inclusive.
         """
 
-        logger.info("Beginning setup for Generator")
         self.data = np.asmatrix(np.random.randint(100, size=(100, 5)))
         logger.info("Completed setup for Generator")
+
+    # def run(self):
+    #     """ Send array into the store.
+    #     """
+    #     self.fcns = {}
+    #     self.fcns['setup'] = self.setup
+    #     self.fcns['run'] = self.runStep
+    #     self.fcns['stop'] = self.stop
+
+    #     with RunManager(self.name, self.fcns, self.links) as rm:
+    #         logger.info(rm)
 
     def stop(self):
         """Save current randint vector to a file."""
 
-        logger.info("Generator stopping")
-        np.save("sample_generator_data.npy", self.data)
+        print("Generator stopping")
+        np.save(f"sample_generator_data_{date.today()}", self.data)
+        # This is not the best example of a save function,
+        # will overwrite previous files with the same name.
         return 0
 
-    def runStep(self):
+    def run_step(self):
         """Generates additional data after initial setup data is exhausted.
 
         Data is of a different form as the setup data in that although it is
@@ -49,25 +62,14 @@ class Generator(Actor):
         """
 
         if self.frame_num < np.shape(self.data)[0]:
-            if self.store_loc:
-                data_id = self.client.put(
-                    self.data[self.frame_num], str(f"Gen_raw: {self.frame_num}")
-                )
-            else:
-                data_id = self.client.put(self.data[self.frame_num])
-            # logger.info('Put data in store')
+            data_id = self.client.put(self.data[self.frame_num])
             try:
-                if self.store_loc:
-                    self.q_out.put([[data_id, str(self.frame_num)]])
-                else:
-                    self.q_out.put(data_id)
-                # logger.info("Sent message on")
-
+                self.q_out.put(data_id)
+                # logger.info(f"Sent {self.data[self.frame_num]} with key {data_id}")
                 self.frame_num += 1
+
             except Exception as e:
-                logger.error(
-                    f"--------------------------------Generator Exception: {e}"
-                )
+                logger.error(f"Generator Exception: {e}")
         else:
             self.data = np.concatenate(
                 (self.data, np.asmatrix(np.random.randint(10, size=(1, 5)))), axis=0

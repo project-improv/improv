@@ -4,7 +4,7 @@ import numpy as np
 from queue import Empty
 import os
 
-from improv.actor import Actor, RunManager
+from improv.actor import ZmqActor
 from improv.store import ObjectNotFoundError
 
 import logging
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class MeanAnalysis(Actor):
+class MeanAnalysis(ZmqActor):
     # TODO: Add additional error handling
     # TODO: this is too complex for a sample actor?
     def __init__(self, *args, **kwargs):

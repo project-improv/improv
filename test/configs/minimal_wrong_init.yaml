@@ -4,8 +4,12 @@ actors:
     class: Generator
 
   Processor:
-    package: actors.sample_processor
+    package: actors.sample_processor_zmq
     class: Processor
 
 connections:
-  Generator.q_out: [Processor.q_in]
+  Generator-Processor:
+    sources:
+      - Generator.q_out
+    sinks:
+      - Processor.q_in

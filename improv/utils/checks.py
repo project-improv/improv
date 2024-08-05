@@ -32,10 +32,17 @@ def check_if_connections_acyclic(path_to_yaml):
 
     # Need to keep only module names
     connections = {}
-    for key, values in raw.items():
-        new_key = key.split(".")[0]
-        new_values = [value.split(".")[0] for value in values]
-        connections[new_key] = new_values
+    for connection, values in raw.items():
+        for source in values["sources"]:
+            source_name = source.split(".")[0]
+            if source_name not in connections.keys():
+                connections[source_name] = [
+                    sink_name.split(".")[0] for sink_name in values["sinks"]
+                ]
+            else:
+                connections[source_name] = connections[source_name] + [
+                    sink_name.split(".")[0] for sink_name in values["sinks"]
+                ]
 
     g = nx.DiGraph(connections)
     dag = nx.is_directed_acyclic_graph(g)

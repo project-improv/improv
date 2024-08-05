@@ -8,15 +8,10 @@ import sys
 import psutil
 import time
 import datetime
-from zmq import SocketOption
-from zmq.log.handlers import PUBHandler
 from improv.tui import TUI
 from improv.nexus import Nexus
 
 MAX_PORT = 2**16 - 1
-DEFAULT_CONTROL_PORT = "0"
-DEFAULT_OUTPUT_PORT = "0"
-DEFAULT_LOGGING_PORT = "0"
 
 
 def file_exists(fname):
@@ -80,21 +75,18 @@ def parse_cli_args(args):
         "-c",
         "--control-port",
         type=is_valid_port,
-        default=DEFAULT_CONTROL_PORT,
         help="local port on which control are sent to/from server",
     )
     run_parser.add_argument(
         "-o",
         "--output-port",
         type=is_valid_port,
-        default=DEFAULT_OUTPUT_PORT,
         help="local port on which server output messages are broadcast",
     )
     run_parser.add_argument(
         "-l",
         "--logging-port",
         type=is_valid_port,
-        default=DEFAULT_LOGGING_PORT,
         help="local port on which logging messages are broadcast",
     )
     run_parser.add_argument(
@@ -121,21 +113,18 @@ def parse_cli_args(args):
         "-c",
         "--control-port",
         type=is_valid_ip_addr,
-        default=DEFAULT_CONTROL_PORT,
         help="address on which control signals are sent to the server",
     )
     client_parser.add_argument(
         "-s",
         "--server-port",
         type=is_valid_ip_addr,
-        default=DEFAULT_OUTPUT_PORT,
         help="address on which messages from the server are received",
     )
     client_parser.add_argument(
         "-l",
         "--logging-port",
         type=is_valid_ip_addr,
-        default=DEFAULT_LOGGING_PORT,
         help="address on which logging messages are broadcast",
     )
     client_parser.set_defaults(func=run_client)
@@ -147,21 +136,18 @@ def parse_cli_args(args):
         "-c",
         "--control-port",
         type=is_valid_port,
-        default=DEFAULT_CONTROL_PORT,
         help="local port on which control signals are received",
     )
     server_parser.add_argument(
         "-o",
         "--output-port",
         type=is_valid_port,
-        default=DEFAULT_OUTPUT_PORT,
         help="local port on which output messages are broadcast",
     )
     server_parser.add_argument(
         "-l",
         "--logging-port",
         type=is_valid_port,
-        default=DEFAULT_LOGGING_PORT,
         help="local port on which logging messages are broadcast",
     )
     server_parser.add_argument(
@@ -212,18 +198,11 @@ def run_server(args):
     """
     Runs the improv server in headless mode.
     """
-    zmq_log_handler = PUBHandler("tcp://*:%s" % args.logging_port)
 
-    # in case we bound to a random port (default), get port number
-    logging_port = int(
-        zmq_log_handler.socket.getsockopt_string(SocketOption.LAST_ENDPOINT).split(":")[
-            -1
-        ]
-    )
     logging.basicConfig(
         level=logging.DEBUG,
         format="%(name)s %(message)s",
-        handlers=[logging.FileHandler(args.logfile), zmq_log_handler],
+        handlers=[logging.FileHandler("improv-debug.log")],
     )
 
     if not args.actor_path:
@@ -232,18 +211,25 @@ def run_server(args):
         sys.path.extend(args.actor_path)
 
     server = Nexus()
-    control_port, output_port = server.createNexus(
+    control_port, output_port, log_port = server.create_nexus(
         file=args.configfile,
         control_port=args.control_port,
         output_port=args.output_port,
+        log_server_pub_port=args.logging_port,
+        logfile=args.logfile,
     )
     curr_dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(
         f"{curr_dt} Server running on (control, output, log) ports "
-        f"({control_port}, {output_port}, {logging_port}).\n"
+        f"({control_port}, {output_port}, {log_port}).\n"
         f"Press Ctrl-C to quit."
     )
-    server.startNexus()
+    try:
+        server.start_nexus(server.poll_queues, poll_function=server.poll_kernel)
+    except Exception as e:
+        print(f"CLI-started server run encountered uncaught error {e}")
+        logging.error(f"CLI-started server run encountered uncaught error {e}")
+        raise e
 
     if args.actor_path:
         for p in args.actor_path:
@@ -254,7 +240,7 @@ def run_server(args):
 
 def run_list(args, printit=True):
     out_list = []
-    pattern = re.compile(r"(improv (run|client|server)|plasma_store|redis-server)")
+    pattern = re.compile(r"(improv (run|client|server)|redis-server)")
     #    mp_pattern = re.compile(r"-c from multiprocessing") # TODO is this right?
     for proc in psutil.process_iter(["pid", "name", "cmdline"]):
         if proc.info["cmdline"]:
@@ -281,22 +267,38 @@ def run_cleanup(args, headless=False):
 
         if res.lower() == "y":
             for proc in proc_list:
-                if not proc.status() == psutil.STATUS_STOPPED:
-                    logging.info(
-                        f"process {proc.pid} {proc.name()}"
-                        f" has status {proc.status()}. Interrupting."
-                    )
-                    try:
+                try:
+                    if not proc.status() == psutil.STATUS_STOPPED:
+                        logging.info(
+                            f"process {proc.pid} {proc.name()}"
+                            f" has status {proc.status()}. Interrupting."
+                        )
                         proc.send_signal(signal.SIGINT)
-                    except psutil.NoSuchProcess:
-                        pass
+                except psutil.NoSuchProcess:
+                    pass
             gone, alive = psutil.wait_procs(proc_list, timeout=3)
             for p in alive:
-                p.send_signal(signal.SIGINT)
                 try:
+                    p.terminate()
                     p.wait(timeout=10)
                 except psutil.TimeoutExpired as e:
                     logging.warning(f"{e}: Process did not exit on time.")
+                    try:
+                        p.kill()
+                    except psutil.NoSuchProcess as e:
+                        logging.warning(
+                            f"{e}: Process exited after wait timeout"
+                            f" but before kill signal attempted."
+                        )
+                        # this happens sometimes because Nexus uses gracious
+                        # timeout periods.
+                except psutil.NoSuchProcess as e:
+                    logging.warning(
+                        f"{e}: Process exited after wait timeout"
+                        f" but before kill signal attempted."
+                    )
+                    # this happens sometimes because Nexus uses gracious
+                    # timeout periods.
 
     else:
         if not headless:
@@ -313,19 +315,28 @@ def run(args, timeout=10):
     server_opts = [
         "improv",
         "server",
-        "-c",
-        str(args.control_port),
-        "-o",
-        str(args.output_port),
-        "-l",
-        str(args.logging_port),
         "-f",
         args.logfile,
     ]
+
+    if args.control_port:
+        server_opts.append("-c")
+        server_opts.append(str(args.control_port))
+
+    if args.output_port:
+        server_opts.append("-o")
+        server_opts.append(str(args.output_port))
+
+    if args.logging_port:
+        server_opts.append("-l")
+        server_opts.append(str(args.logging_port))
+
     server_opts.extend(apath_opts)
     server_opts.append(args.configfile)
 
-    with open(args.logfile, mode="a+") as logfile:
+    print(" ".join(server_opts))
+
+    with open("improv-debug.log", mode="a+") as logfile:
         server = subprocess.Popen(server_opts, stdout=logfile, stderr=logfile)
 
     # wait for server to start up
@@ -338,7 +349,9 @@ def run(args, timeout=10):
         run_client(args)
 
     try:
-        server.wait(timeout=2)
+        wait_timeout = 60
+        print(f"Waiting {wait_timeout} seconds for Nexus to complete shutdown.")
+        server.wait(timeout=wait_timeout)
     except subprocess.TimeoutExpired:
         print("Cleaning up the hard way. May have exited dirty.")
         server.terminate()
@@ -354,9 +367,9 @@ def get_server_ports(args, timeout):
     time_now = 0
     ports = None
     while time_now < timeout:
-        server_start_time = _server_start_logged(args.logfile)
+        server_start_time = _server_start_logged("improv-debug.log")
         if server_start_time and server_start_time >= curr_dt:
-            ports = _get_ports(args.logfile)
+            ports = _get_ports("improv-debug.log")
             if ports:
                 break
 
@@ -365,12 +378,12 @@ def get_server_ports(args, timeout):
 
     if not server_start_time:
         print(
-            f"Unable to read server start time from {args.logfile}.\n"
+            f"Unable to read server start time from {'improv-debug.log'}.\n"
             "This may be because the server could not be started or "
             "did not log its activity."
         )
     elif not ports:
-        print(f"Unable to read ports from {args.logfile}.")
+        print(f"Unable to read ports from {'improv-debug.log'}.")
 
     return ports
 
@@ -393,13 +406,16 @@ def _get_ports(logfile):
     # read logfile to get ports
     with open(logfile, mode="r") as logfile:
         contents = logfile.read()
+        return _read_log_contents_for_ports(contents)
 
-        pattern = re.compile(r"(?<=\(control, output, log\) ports \()\d*, \d*, \d*")
 
-        # get most recent match (log file may contain old runs)
-        port_str_list = pattern.findall(contents)
-        if port_str_list:
-            port_str = port_str_list[-1]
-            return (int(p) for p in port_str.split(", "))
-        else:
-            return None
+def _read_log_contents_for_ports(logfile_contents):
+    pattern = re.compile(r"(?<=\(control, output, log\) ports \()\d*, \d*, \d*")
+
+    # get most recent match (log file may contain old runs)
+    port_str_list = pattern.findall(logfile_contents)
+    if port_str_list:
+        port_str = port_str_list[-1]
+        return (int(p) for p in port_str.split(", "))
+    else:
+        return None

@@ -1,6 +1,6 @@
 actors:
   Generator:
-    package: actors.sample_generator
+    package: actors.sample_generator_zmq
     class: Generator
 
   Processor:
@@ -9,7 +9,8 @@ actors:
     method: spawn
 
 connections:
-  Generator.q_out: [Processor.q_in]
-
-redis_config:
-  port: 6378
+  Generator-Processor:
+    sources:
+      - Generator.q_out
+    sinks:
+      - Processor.q_in
