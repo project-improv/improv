@@ -39,17 +39,6 @@ class Processor(Actor):
         logger.info("Processor stopping")
         return 0
 
-    # def run(self):
-    #     """ Send array into the store.
-    #     """
-    #     self.fcns = {}
-    #     self.fcns['setup'] = self.setup
-    #     self.fcns['run'] = self.runStep
-    #     self.fcns['stop'] = self.stop
-
-    #     with RunManager(self.name, self.fcns, self.links) as rm:
-    #         logger.info(rm)
-
     def runStep(self):
         """Gets from the input queue and calculates the average.
 
@@ -69,7 +58,10 @@ class Processor(Actor):
 
         if frame is not None and self.frame_num is not None:
             self.done = False
-            self.frame = self.client.getID(frame[0][0])
+            if self.store_loc:
+                self.frame = self.client.getID(frame[0][0])
+            else:
+                self.frame = self.client.get(frame)
             avg = np.mean(self.frame[0])
             print(f"Average: {avg}")
             self.avg_list.append(avg)
