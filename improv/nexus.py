@@ -819,9 +819,9 @@ class Nexus:
         mod = import_module(actor.packagename)
         clss = getattr(mod, actor.classname)
         if self.config.use_plasma():
-            instance = clss(actor.name, self.store_loc, **actor.options)
+            instance = clss(actor.name, store_loc=self.store_loc, **actor.options)
         else:
-            instance = clss(actor.name, **actor.options)
+            instance = clss(actor.name, store_port_num=self.store_port, **actor.options)
 
         if "method" in actor.options.keys():
             # check for spawn

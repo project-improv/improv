@@ -4,12 +4,11 @@ actors:
     class: Generator
 
   Processor:
-    package: actors.sample_spawn_processor
+    package: actors.sample_processor
     class: Processor
-    method: spawn
 
 connections:
   Generator.q_out: [Processor.q_in]
 
 redis_config:
-  port: 6378
+  port: 6379

@@ -2,7 +2,19 @@ import asyncio
 import time
 
 import zmq
-from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER, Again, NOBLOCK, ZMQError, EAGAIN, ETERM
+from zmq import (
+    PUB,
+    SUB,
+    SUBSCRIBE,
+    REQ,
+    REP,
+    LINGER,
+    Again,
+    NOBLOCK,
+    ZMQError,
+    EAGAIN,
+    ETERM,
+)
 from zmq.log.handlers import PUBHandler
 import zmq.asyncio
 
@@ -18,12 +30,14 @@ class ZmqActor(Actor):
     """
     Zmq actor with pub/sub or rep/req pattern.
     """
-    def __init__(self, *args, type='PUB', ip='127.0.0.1', port=5555, **kwargs):
+
+    def __init__(self, *args, type="PUB", ip="127.0.0.1", port=5555, **kwargs):
         super().__init__(*args, **kwargs)
         logger.info("Constructed Zmq Actor")
-        if str(type) in 'PUB' or str(type) in 'SUB':
-            self.pub_sub_flag = True         #default
-        else: self.pub_sub_flag = False
+        if str(type) in "PUB" or str(type) in "SUB":
+            self.pub_sub_flag = True  # default
+        else:
+            self.pub_sub_flag = False
         self.rep_req_flag = not self.pub_sub_flag
         self.ip = ip
         self.port = port
@@ -40,14 +54,14 @@ class ZmqActor(Actor):
         """
         Sends a message to the controller.
         """
-        if not self.send_socket: 
+        if not self.send_socket:
             self.setSendSocket()
 
         if msg_type == "multipart":
             self.send_socket.send_multipart(msg)
         if msg_type == "pyobj":
             self.send_socket.send_pyobj(msg)
-        elif msg_type == "single": 
+        elif msg_type == "single":
             self.send_socket.send(msg)
 
     def recvMsg(self, msg_type="pyobj", flags=0):
@@ -56,15 +70,16 @@ class ZmqActor(Actor):
 
         NOTE: default flag=0 instead of flag=NOBLOCK
         """
-        if not self.recv_socket: self.setRecvSocket()
-        
+        if not self.recv_socket:
+            self.setRecvSocket()
+
         while True:
             try:
                 if msg_type == "multipart":
                     recv_msg = self.recv_socket.recv_multipart(flags=flags)
                 elif msg_type == "pyobj":
                     recv_msg = self.recv_socket.recv_pyobj(flags=flags)
-                elif msg_type == "single": 
+                elif msg_type == "single":
                     recv_msg = self.recv_socket.recv(flags=flags)
                 break
             except Again:
@@ -134,21 +149,21 @@ class ZmqActor(Actor):
         self.setRepSocket()
 
         msg = self.rep_socket.recv_pyobj()
-        time.sleep(delay)  
+        time.sleep(delay)
         self.rep_socket.send_pyobj(reply)
         self.rep_socket.close()
 
         return msg
 
     def put(self, msg=None):
-        logger.debug(f'Putting message {msg}')
+        logger.debug(f"Putting message {msg}")
         if self.pub_sub_flag:
             logger.debug(f"putting message {msg} using pub/sub")
             return self.sendMsg(msg)
         else:
             logger.debug(f"putting message {msg} using rep/req")
             return self.requestMsg(msg)
-        
+
     def get(self, reply=None):
         if self.pub_sub_flag:
             logger.debug(f"getting message with pub/sub")
@@ -156,7 +171,7 @@ class ZmqActor(Actor):
         else:
             logger.debug(f"getting message using reply {reply} with pub/sub")
             return self.replyMsg(reply)
-    
+
     def setSendSocket(self, timeout=1.001):
         """
         Sets up the send socket for the actor.
@@ -173,7 +188,7 @@ class ZmqActor(Actor):
         self.recv_socket.connect(self.address)
         self.recv_socket.setsockopt(SUBSCRIBE, b"")
         time.sleep(timeout)
-    
+
     def setReqSocket(self, timeout=0.0001):
         """
         Sets up the request socket for the actor.

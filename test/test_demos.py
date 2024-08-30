@@ -87,7 +87,10 @@ async def test_simple_boot_and_quit(dir, configfile, logfile, setdir, ports):
 
 @pytest.mark.parametrize(
     ("dir", "configfile", "logfile", "datafile"),
-    [("minimal", "minimal.yaml", "testlog", "sample_generator_data.npy")],
+    [
+        ("minimal", "minimal.yaml", "testlog", "sample_generator_data.npy"),
+        ("minimal", "minimal_spawn.yaml", "testlog", "sample_generator_data.npy"),
+    ],
 )
 async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
     os.chdir(dir)

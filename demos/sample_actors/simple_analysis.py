@@ -14,8 +14,8 @@ logger.setLevel(logging.INFO)
 
 class SimpleAnalysis(Actor):
     # TODO: Add additional error handling
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def setup(self, param_file=None):
         """Set custom parameters here

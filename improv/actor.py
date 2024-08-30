@@ -20,7 +20,9 @@ class AbstractActor:
     Also needs to be responsive to sent Signals (e.g. run, setup, etc)
     """
 
-    def __init__(self, name, store_loc=None, method="fork"):
+    def __init__(
+        self, name, store_loc=None, method="fork", store_port_num=None, *args, **kwargs
+    ):
         """Require a name for multiple instances of the same actor/class
         Create initial empty dict of Links for easier referencing
         """
@@ -31,6 +33,7 @@ class AbstractActor:
         self.client = None
         self.store_loc = store_loc
         self.lower_priority = False
+        self.store_port_num = store_port_num
 
         # Start with no explicit data queues.
         # q_in and q_out are reserved for passing ID information
@@ -59,7 +62,7 @@ class AbstractActor:
         if not self.client:
             store = None
             if StoreInterface == improv.store.RedisStoreInterface:
-                store = StoreInterface(self.name)
+                store = StoreInterface(self.name, self.store_port_num)
             else:
                 store = StoreInterface(self.name, self.store_loc)
             self.setStoreInterface(store)
@@ -188,7 +191,7 @@ class AbstractActor:
 
 class ManagedActor(AbstractActor):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args)
+        super().__init__(*args, **kwargs)
 
         # Define dictionary of actions for the RunManager
         self.actions = {}
