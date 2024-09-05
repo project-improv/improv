@@ -11,7 +11,7 @@ from improv.store import StoreInterface
 from improv.link import Link
 
 
-@pytest.fixture()
+@pytest.fixture
 def setup_store():
     """Fixture to set up the store subprocess with 10 mb.
 
@@ -50,7 +50,7 @@ def init_actors(n=1):
     return [Actor("test " + str(i), "/tmp/store", links={}) for i in range(n)]
 
 
-@pytest.fixture()
+@pytest.fixture
 def example_link(setup_store):
     """Fixture to provide a commonly used Link object."""
     setup_store
@@ -60,7 +60,7 @@ def example_link(setup_store):
     lnk = None
 
 
-@pytest.fixture()
+@pytest.fixture
 def example_actor_system(setup_store):
     """Fixture to provide a list of 4 connected actors."""
 
@@ -88,7 +88,7 @@ def example_actor_system(setup_store):
     acts = None
 
 
-@pytest.fixture()
+@pytest.fixture
 def _kill_pytest_processes():
     """Kills all processes with "pytest" in their name.
 
@@ -242,7 +242,7 @@ def test_put_nowait(example_link):
     assert t_net < 0.005  # 5 ms
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_put_async_success(example_link):
     """Tests if put_async returns None.
 
@@ -256,7 +256,7 @@ async def test_put_async_success(example_link):
     assert res is None
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_put_async_multiple(example_link):
     """Tests if async putting multiple objects preserves their order."""
 
@@ -273,7 +273,7 @@ async def test_put_async_multiple(example_link):
     assert messages_out == messages
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_put_and_get_async(example_link):
     """Tests if async get preserves order after async put."""
 
@@ -397,7 +397,7 @@ def test_get_nowait_empty(example_link):
         pytest.fail("the queue is not empty")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_get_async_success(example_link):
     """Tests if async_get gets the correct element from the queue."""
 
@@ -408,7 +408,7 @@ async def test_get_async_success(example_link):
     assert res == "message"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_get_async_empty(example_link):
     """Tests if get_async times out given an empty queue.
 
@@ -442,7 +442,7 @@ def test_cancel_join_thread(example_link):
 
 
 @pytest.mark.skip(reason="unfinished")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_join_thread(example_link):
     """Tests join_thread. This test is unfinished
 
@@ -456,7 +456,7 @@ async def test_join_thread(example_link):
     assert True
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_multi_actor_system(example_actor_system, setup_store):
     """Tests if async puts/gets with many actors have good messages."""
 

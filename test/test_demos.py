@@ -16,7 +16,7 @@ LOGGER.setLevel(logging.DEBUG)
 SERVER_WARMUP = 10
 
 
-@pytest.fixture()
+@pytest.fixture
 def setdir():
     prev = os.getcwd()
     os.chdir(os.path.dirname(__file__))
@@ -25,7 +25,7 @@ def setdir():
     os.chdir(prev)
 
 
-@pytest.fixture()
+@pytest.fixture
 def ip():
     """Fixture to provide an IP test input."""
 

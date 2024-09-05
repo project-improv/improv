@@ -35,7 +35,7 @@ WAIT_TIMEOUT = 10
 # store_loc = '/dev/shm'
 
 
-@pytest.fixture()
+@pytest.fixture
 # TODO: put in conftest.py
 def setup_store(set_store_loc):
     """Start the server"""
@@ -161,7 +161,7 @@ def test_is_csc_matrix_and_put(setup_store, set_store_loc):
 # class StoreInterfaceGetListandAll(StoreInterfaceDependentTestCase):
 
 
-@pytest.mark.skip()
+@pytest.mark.skip
 def test_get_list_and_all(setup_store, set_store_loc):
     store = StoreInterface(store_loc=set_store_loc)
     # id = store.put(1, "one")

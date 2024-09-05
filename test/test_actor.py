@@ -13,7 +13,7 @@ pytest.example_string_links = {}
 pytest.example_links = {}
 
 
-@pytest.fixture()
+@pytest.fixture
 def setup_store(set_store_loc, scope="module"):
     """Fixture to set up the store subprocess with 10 mb."""
     p = subprocess.Popen(
@@ -26,7 +26,7 @@ def setup_store(set_store_loc, scope="module"):
     p.wait()
 
 
-@pytest.fixture()
+@pytest.fixture
 def init_actor(set_store_loc):
     """Fixture to initialize and teardown an instance of actor."""
 
@@ -35,7 +35,7 @@ def init_actor(set_store_loc):
     act = None
 
 
-@pytest.fixture()
+@pytest.fixture
 def example_string_links():
     """Fixture to provide a commonly used test input."""
 
@@ -43,7 +43,7 @@ def example_string_links():
     return pytest.example_string_links
 
 
-@pytest.fixture()
+@pytest.fixture
 def example_links(setup_store, set_store_loc):
     """Fixture to provide link objects as test input and setup store."""
     StoreInterface(store_loc=set_store_loc)
