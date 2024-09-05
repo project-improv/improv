@@ -1,6 +1,9 @@
 (page:installation)=
 # Installation and building
 
+## Installation Time
+All installation processes described here should take less than 5 minutes to complete on a standard workstation. 
+
 ## Simple installation
 Once you have the [required dependencies](#required-dependencies), the simplest way to install _improv_ is with pip:
 ```
