@@ -1,4 +1,9 @@
-# improv
+
+<img src="docs/improv_logo_horizontal.svg" style="width:40%"/>
+
+Adaptive experiments for neuroscience
+---------
+
 [![PyPI](https://img.shields.io/pypi/v/improv?style=flat-square?style=flat-square)](https://pypi.org/project/improv)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/improv?style=flat-square)](https://pypi.org/project/improv)
 [![docs](https://github.com/project-improv/improv/actions/workflows/docs.yaml/badge.svg?style=flat-square)](https://project-improv.github.io/)
@@ -7,7 +12,6 @@
 [![PyPI - License](https://img.shields.io/pypi/l/improv?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
 
-A flexible software platform for real-time and adaptive neuroscience experiments.
 
 _improv_ is a streaming software platform designed to enable adaptive experiments. By analyzing data as they arrive, we can obtain information about the current brain state in real time and use it to adaptively modify an experiment as data collection is ongoing. 
 
@@ -33,7 +37,8 @@ _improv_'s design is based on a streamlined version of the actor model for concu
 
 ## Installation
 
-For installation instructions, please consult the [docs](https://project-improv.github.io/improv/installation.html).
+For installation instructions, please consult the [documentation](https://project-improv.github.io/improv/installation.html).
+
 
 ### Contact
 To get in touch, feel free to reach out on Twitter <a href="http://twitter.com/annedraelos" target="_blank">@annedraelos</a> or <a href="http://twitter.com/jmxpearson" target="_blank">@jmxpearson</a>. 

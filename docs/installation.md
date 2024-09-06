@@ -1,8 +1,11 @@
 (page:installation)=
 # Installation and building
 
+## Installation Time
+All installation processes described here should take less than 5 minutes to complete on a standard workstation. 
+
 ## Simple installation
-The simplest way to install _improv_ is with pip:
+Once you have the [required dependencies](#required-dependencies), the simplest way to install _improv_ is with pip:
 ```
 pip install improv
 ```
@@ -13,6 +16,28 @@ pip install improv --no-binary pyzmq
 ```
 to build `pyzmq` from source if you're running into ZMQ errors.
 ````
+(#required-dependencies)=
+## Required dependencies
+
+### Redis
+
+_improv_ uses Redis, an in-memory datastore, to hold data to be communicated between actors.
+_improv_ works automatically with Redis, but additional options for controlling the behavior of the data store are listed in
+the [configuration guide](configuration.md).
+
+_improv_ has been tested with Redis server version 7.2.4. Please refer to the instructions below for your operating system:
+
+#### macOS
+A compatible version of Redis can be installed via [Homebrew](https://brew.sh):
+```
+brew install redis
+```
+
+#### Linux
+A compatible version of Redis can be installed for most standard Linux distributions (e.g. Ubuntu) by following Redis' short [Linux installation guide](https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-linux/).
+
+#### Windows (WSL2)
+Redis can also be installed on Windows in WSL2. The [WSL2 installation guide](https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-windows/) details the process for both the Windows and Linux portions of WSL2.
 
 ## Optional dependencies
 In addition to the basic _improv_ installation, users who want to, e.g., run tests locally and build docs should do
