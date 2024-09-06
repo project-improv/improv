@@ -181,6 +181,7 @@
         </ul>
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and building</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuring <em>improv</em></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../running.html">Running <em>improv</em></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../demos.html">Running the demos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design.html"><em>improv</em>’s design</a></li>
@@ -486,33 +487,33 @@ document.write(`
 
 <dl class="py class">
 <dt class="sig sig-object py" id="improv.watcher.BasicWatcher">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.watcher.</span></span><span class="sig-name descname"><span class="pre">BasicWatcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.watcher.BasicWatcher" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.watcher.</span></span><span class="sig-name descname"><span class="pre">BasicWatcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/watcher.html#BasicWatcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.watcher.BasicWatcher" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../actor/index.html#improv.actor.Actor" title="improv.actor.Actor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">improv.actor.Actor</span></code></a></p>
 <p>Actor that monitors stored objects from the other actors
 and saves objects that have been flagged by those actors</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.watcher.BasicWatcher.setup">
-<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.watcher.BasicWatcher.setup" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/watcher.html#BasicWatcher.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.watcher.BasicWatcher.setup" title="Permalink to this definition">#</a></dt>
 <dd><p>set up tasks and polling based on inputs which will
 be used for asynchronous polling of input queues</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.watcher.BasicWatcher.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.watcher.BasicWatcher.run" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/watcher.html#BasicWatcher.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.watcher.BasicWatcher.run" title="Permalink to this definition">#</a></dt>
 <dd><p>continually run the watcher to check all of the
 input queues for objects to save</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.watcher.BasicWatcher.watchrun">
-<span class="sig-name descname"><span class="pre">watchrun</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.watcher.BasicWatcher.watchrun" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">watchrun</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/watcher.html#BasicWatcher.watchrun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.watcher.BasicWatcher.watchrun" title="Permalink to this definition">#</a></dt>
 <dd><p>set up async loop for polling</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.watcher.BasicWatcher.watch">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">watch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.watcher.BasicWatcher.watch" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">watch</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/watcher.html#BasicWatcher.watch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.watcher.BasicWatcher.watch" title="Permalink to this definition">#</a></dt>
 <dd><p>function for asynchronous polling of input queues
 loops through each of the queues in watchin and checks
 if an object is present and then saves the object if found</p>
@@ -522,27 +523,27 @@ if an object is present and then saves the object if found</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="improv.watcher.Watcher">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.watcher.</span></span><span class="sig-name descname"><span class="pre">Watcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.watcher.Watcher" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.watcher.</span></span><span class="sig-name descname"><span class="pre">Watcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/watcher.html#Watcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.watcher.Watcher" title="Permalink to this definition">#</a></dt>
 <dd><p>Monitors the store as separate process
 TODO: Facilitate Watcher being used in multiple processes (shared list)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.watcher.Watcher.setLinks">
-<span class="sig-name descname"><span class="pre">setLinks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">links</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.watcher.Watcher.setLinks" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">setLinks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">links</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/watcher.html#Watcher.setLinks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.watcher.Watcher.setLinks" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.watcher.Watcher.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.watcher.Watcher.run" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/watcher.html#Watcher.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.watcher.Watcher.run" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.watcher.Watcher.saveObj">
-<span class="sig-name descname"><span class="pre">saveObj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.watcher.Watcher.saveObj" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">saveObj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/watcher.html#Watcher.saveObj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.watcher.Watcher.saveObj" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.watcher.Watcher.checkStoreInterface2">
-<span class="sig-name descname"><span class="pre">checkStoreInterface2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.watcher.Watcher.checkStoreInterface2" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">checkStoreInterface2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/watcher.html#Watcher.checkStoreInterface2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.watcher.Watcher.checkStoreInterface2" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

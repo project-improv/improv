@@ -62,7 +62,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Running the demos" href="demos.html" />
-    <link rel="prev" title="Installation and building" href="installation.html" />
+    <link rel="prev" title="Configuring improv" href="configuration.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -182,6 +182,7 @@
         </ul>
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and building</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuring <em>improv</em></a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Running <em>improv</em></a></li>
 <li class="toctree-l1"><a class="reference internal" href="demos.html">Running the demos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html"><em>improv</em>’s design</a></li>
@@ -431,39 +432,16 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>A module that was compiled using NumPy 1.x cannot be run in
-NumPy 2.0.1 as it may crash. To support both 1.x and 2.x
-versions of NumPy, modules must be compiled with NumPy 2.0.
-Some module may need to rebuild instead e.g. with &#39;pybind11&gt;=2.12&#39;.
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>usage: improv [-h] {run,client,server,list,cleanup} ...
 
-If you are a user of the module, the easiest solution will be to
-downgrade to &#39;numpy&lt;2&#39; or try to upgrade the affected module.
-We expect that some modules will need time to support NumPy 2.
+Command line tool for improv.
 
-Traceback (most recent call last):  File &quot;/opt/hostedtoolcache/Python/3.10.14/x64/bin/improv&quot;, line 5, in &lt;module&gt;
-    from improv.cli import default_invocation
-  File &quot;/home/runner/work/improv/improv/improv/cli.py&quot;, line 13, in &lt;module&gt;
-    from improv.nexus import Nexus
-  File &quot;/home/runner/work/improv/improv/improv/nexus.py&quot;, line 17, in &lt;module&gt;
-    from improv.store import StoreInterface
-  File &quot;/home/runner/work/improv/improv/improv/store.py&quot;, line 9, in &lt;module&gt;
-    import pyarrow.plasma as plasma
-  File &quot;/opt/hostedtoolcache/Python/3.10.14/x64/lib/python3.10/site-packages/pyarrow/__init__.py&quot;, line 65, in &lt;module&gt;
-    import pyarrow.lib as _lib
-AttributeError: _ARRAY_API not found
-Traceback (most recent call last):
-  File &quot;/opt/hostedtoolcache/Python/3.10.14/x64/bin/improv&quot;, line 5, in &lt;module&gt;
-    from improv.cli import default_invocation
-  File &quot;/home/runner/work/improv/improv/improv/cli.py&quot;, line 13, in &lt;module&gt;
-    from improv.nexus import Nexus
-  File &quot;/home/runner/work/improv/improv/improv/nexus.py&quot;, line 17, in &lt;module&gt;
-    from improv.store import StoreInterface
-  File &quot;/home/runner/work/improv/improv/improv/store.py&quot;, line 9, in &lt;module&gt;
-    import pyarrow.plasma as plasma
-  File &quot;/opt/hostedtoolcache/Python/3.10.14/x64/lib/python3.10/site-packages/pyarrow/__init__.py&quot;, line 65, in &lt;module&gt;
-    import pyarrow.lib as _lib
-  File &quot;pyarrow/lib.pyx&quot;, line 37, in init pyarrow.lib
-ImportError: numpy.core.multiarray failed to import
+options:
+  -h, --help            show this help message and exit
+
+subcommands:
+  {run,client,server,list,cleanup}
+                        for launching individual components
 </pre></div>
 </div>
 </div>
@@ -476,39 +454,30 @@ ImportError: numpy.core.multiarray failed to import
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>A module that was compiled using NumPy 1.x cannot be run in
-NumPy 2.0.1 as it may crash. To support both 1.x and 2.x
-versions of NumPy, modules must be compiled with NumPy 2.0.
-Some module may need to rebuild instead e.g. with &#39;pybind11&gt;=2.12&#39;.
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>usage: improv run [-h] [-c CONTROL_PORT] [-o OUTPUT_PORT] [-l LOGGING_PORT]
+                  [-f LOGFILE] [-a ACTOR_PATH]
+                  configfile
 
-If you are a user of the module, the easiest solution will be to
-downgrade to &#39;numpy&lt;2&#39; or try to upgrade the affected module.
-We expect that some modules will need time to support NumPy 2.
+Start the improv client and server together
 
-Traceback (most recent call last):  File &quot;/opt/hostedtoolcache/Python/3.10.14/x64/bin/improv&quot;, line 5, in &lt;module&gt;
-    from improv.cli import default_invocation
-  File &quot;/home/runner/work/improv/improv/improv/cli.py&quot;, line 13, in &lt;module&gt;
-    from improv.nexus import Nexus
-  File &quot;/home/runner/work/improv/improv/improv/nexus.py&quot;, line 17, in &lt;module&gt;
-    from improv.store import StoreInterface
-  File &quot;/home/runner/work/improv/improv/improv/store.py&quot;, line 9, in &lt;module&gt;
-    import pyarrow.plasma as plasma
-  File &quot;/opt/hostedtoolcache/Python/3.10.14/x64/lib/python3.10/site-packages/pyarrow/__init__.py&quot;, line 65, in &lt;module&gt;
-    import pyarrow.lib as _lib
-AttributeError: _ARRAY_API not found
-Traceback (most recent call last):
-  File &quot;/opt/hostedtoolcache/Python/3.10.14/x64/bin/improv&quot;, line 5, in &lt;module&gt;
-    from improv.cli import default_invocation
-  File &quot;/home/runner/work/improv/improv/improv/cli.py&quot;, line 13, in &lt;module&gt;
-    from improv.nexus import Nexus
-  File &quot;/home/runner/work/improv/improv/improv/nexus.py&quot;, line 17, in &lt;module&gt;
-    from improv.store import StoreInterface
-  File &quot;/home/runner/work/improv/improv/improv/store.py&quot;, line 9, in &lt;module&gt;
-    import pyarrow.plasma as plasma
-  File &quot;/opt/hostedtoolcache/Python/3.10.14/x64/lib/python3.10/site-packages/pyarrow/__init__.py&quot;, line 65, in &lt;module&gt;
-    import pyarrow.lib as _lib
-  File &quot;pyarrow/lib.pyx&quot;, line 37, in init pyarrow.lib
-ImportError: numpy.core.multiarray failed to import
+positional arguments:
+  configfile            YAML file specifying improv pipeline
+
+options:
+  -h, --help            show this help message and exit
+  -c CONTROL_PORT, --control-port CONTROL_PORT
+                        local port on which control are sent to/from server
+  -o OUTPUT_PORT, --output-port OUTPUT_PORT
+                        local port on which server output messages are
+                        broadcast
+  -l LOGGING_PORT, --logging-port LOGGING_PORT
+                        local port on which logging messages are broadcast
+  -f LOGFILE, --logfile LOGFILE
+                        name of log file
+  -a ACTOR_PATH, --actor-path ACTOR_PATH
+                        search path to add to sys.path when looking for
+                        actors; defaults to the directory containing
+                        configfile
 </pre></div>
 </div>
 </div>
@@ -547,39 +516,29 @@ ImportError: numpy.core.multiarray failed to import
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>A module that was compiled using NumPy 1.x cannot be run in
-NumPy 2.0.1 as it may crash. To support both 1.x and 2.x
-versions of NumPy, modules must be compiled with NumPy 2.0.
-Some module may need to rebuild instead e.g. with &#39;pybind11&gt;=2.12&#39;.
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>usage: improv server [-h] [-c CONTROL_PORT] [-o OUTPUT_PORT] [-l LOGGING_PORT]
+                     [-f LOGFILE] [-a ACTOR_PATH]
+                     configfile
 
-If you are a user of the module, the easiest solution will be to
-downgrade to &#39;numpy&lt;2&#39; or try to upgrade the affected module.
-We expect that some modules will need time to support NumPy 2.
+Start the improv server
 
-Traceback (most recent call last):  File &quot;/opt/hostedtoolcache/Python/3.10.14/x64/bin/improv&quot;, line 5, in &lt;module&gt;
-    from improv.cli import default_invocation
-  File &quot;/home/runner/work/improv/improv/improv/cli.py&quot;, line 13, in &lt;module&gt;
-    from improv.nexus import Nexus
-  File &quot;/home/runner/work/improv/improv/improv/nexus.py&quot;, line 17, in &lt;module&gt;
-    from improv.store import StoreInterface
-  File &quot;/home/runner/work/improv/improv/improv/store.py&quot;, line 9, in &lt;module&gt;
-    import pyarrow.plasma as plasma
-  File &quot;/opt/hostedtoolcache/Python/3.10.14/x64/lib/python3.10/site-packages/pyarrow/__init__.py&quot;, line 65, in &lt;module&gt;
-    import pyarrow.lib as _lib
-AttributeError: _ARRAY_API not found
-Traceback (most recent call last):
-  File &quot;/opt/hostedtoolcache/Python/3.10.14/x64/bin/improv&quot;, line 5, in &lt;module&gt;
-    from improv.cli import default_invocation
-  File &quot;/home/runner/work/improv/improv/improv/cli.py&quot;, line 13, in &lt;module&gt;
-    from improv.nexus import Nexus
-  File &quot;/home/runner/work/improv/improv/improv/nexus.py&quot;, line 17, in &lt;module&gt;
-    from improv.store import StoreInterface
-  File &quot;/home/runner/work/improv/improv/improv/store.py&quot;, line 9, in &lt;module&gt;
-    import pyarrow.plasma as plasma
-  File &quot;/opt/hostedtoolcache/Python/3.10.14/x64/lib/python3.10/site-packages/pyarrow/__init__.py&quot;, line 65, in &lt;module&gt;
-    import pyarrow.lib as _lib
-  File &quot;pyarrow/lib.pyx&quot;, line 37, in init pyarrow.lib
-ImportError: numpy.core.multiarray failed to import
+positional arguments:
+  configfile            YAML file specifying improv pipeline
+
+options:
+  -h, --help            show this help message and exit
+  -c CONTROL_PORT, --control-port CONTROL_PORT
+                        local port on which control signals are received
+  -o OUTPUT_PORT, --output-port OUTPUT_PORT
+                        local port on which output messages are broadcast
+  -l LOGGING_PORT, --logging-port LOGGING_PORT
+                        local port on which logging messages are broadcast
+  -f LOGFILE, --logfile LOGFILE
+                        name of log file
+  -a ACTOR_PATH, --actor-path ACTOR_PATH
+                        search path to add to sys.path when looking for
+                        actors; defaults to the directory containing
+                        configfile
 </pre></div>
 </div>
 </div>
@@ -592,39 +551,19 @@ ImportError: numpy.core.multiarray failed to import
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>A module that was compiled using NumPy 1.x cannot be run in
-NumPy 2.0.1 as it may crash. To support both 1.x and 2.x
-versions of NumPy, modules must be compiled with NumPy 2.0.
-Some module may need to rebuild instead e.g. with &#39;pybind11&gt;=2.12&#39;.
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>usage: improv client [-h] [-c CONTROL_PORT] [-s SERVER_PORT] [-l LOGGING_PORT]
 
-If you are a user of the module, the easiest solution will be to
-downgrade to &#39;numpy&lt;2&#39; or try to upgrade the affected module.
-We expect that some modules will need time to support NumPy 2.
+Start the improv client
 
-Traceback (most recent call last):  File &quot;/opt/hostedtoolcache/Python/3.10.14/x64/bin/improv&quot;, line 5, in &lt;module&gt;
-    from improv.cli import default_invocation
-  File &quot;/home/runner/work/improv/improv/improv/cli.py&quot;, line 13, in &lt;module&gt;
-    from improv.nexus import Nexus
-  File &quot;/home/runner/work/improv/improv/improv/nexus.py&quot;, line 17, in &lt;module&gt;
-    from improv.store import StoreInterface
-  File &quot;/home/runner/work/improv/improv/improv/store.py&quot;, line 9, in &lt;module&gt;
-    import pyarrow.plasma as plasma
-  File &quot;/opt/hostedtoolcache/Python/3.10.14/x64/lib/python3.10/site-packages/pyarrow/__init__.py&quot;, line 65, in &lt;module&gt;
-    import pyarrow.lib as _lib
-AttributeError: _ARRAY_API not found
-Traceback (most recent call last):
-  File &quot;/opt/hostedtoolcache/Python/3.10.14/x64/bin/improv&quot;, line 5, in &lt;module&gt;
-    from improv.cli import default_invocation
-  File &quot;/home/runner/work/improv/improv/improv/cli.py&quot;, line 13, in &lt;module&gt;
-    from improv.nexus import Nexus
-  File &quot;/home/runner/work/improv/improv/improv/nexus.py&quot;, line 17, in &lt;module&gt;
-    from improv.store import StoreInterface
-  File &quot;/home/runner/work/improv/improv/improv/store.py&quot;, line 9, in &lt;module&gt;
-    import pyarrow.plasma as plasma
-  File &quot;/opt/hostedtoolcache/Python/3.10.14/x64/lib/python3.10/site-packages/pyarrow/__init__.py&quot;, line 65, in &lt;module&gt;
-    import pyarrow.lib as _lib
-  File &quot;pyarrow/lib.pyx&quot;, line 37, in init pyarrow.lib
-ImportError: numpy.core.multiarray failed to import
+options:
+  -h, --help            show this help message and exit
+  -c CONTROL_PORT, --control-port CONTROL_PORT
+                        address on which control signals are sent to the
+                        server
+  -s SERVER_PORT, --server-port SERVER_PORT
+                        address on which messages from the server are received
+  -l LOGGING_PORT, --logging-port LOGGING_PORT
+                        address on which logging messages are broadcast
 </pre></div>
 </div>
 </div>
@@ -671,12 +610,12 @@ ImportError: numpy.core.multiarray failed to import
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="installation.html"
+       href="configuration.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Installation and building</p>
+        <p class="prev-next-title">Configuring <em>improv</em></p>
       </div>
     </a>
     <a class="right-next"

@@ -182,6 +182,7 @@
         </ul>
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and building</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuring <em>improv</em></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../running.html">Running <em>improv</em></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../demos.html">Running the demos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design.html"><em>improv</em>’s design</a></li>
@@ -508,11 +509,11 @@ document.write(`
 
 <dl class="py class">
 <dt class="sig sig-object py" id="improv.nexus.Nexus">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.nexus.</span></span><span class="sig-name descname"><span class="pre">Nexus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Server'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.nexus.</span></span><span class="sig-name descname"><span class="pre">Nexus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Server'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus" title="Permalink to this definition">#</a></dt>
 <dd><p>Main server class for handling objects in improv</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.createNexus">
-<span class="sig-name descname"><span class="pre">createNexus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_hdd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_watcher</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.createNexus" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">createNexus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_hdd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_watcher</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.createNexus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.createNexus" title="Permalink to this definition">#</a></dt>
 <dd><p>Function to initialize class variables based on config file.</p>
 <p>Starts a store of class Limbo, and then loads the config file.
 The config file specifies the specific actors that nexus will
@@ -539,14 +540,14 @@ be connected to, as well as their links.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.loadConfig">
-<span class="sig-name descname"><span class="pre">loadConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.loadConfig" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">loadConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.loadConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.loadConfig" title="Permalink to this definition">#</a></dt>
 <dd><p>Load configuration file.
 file: a YAML configuration file name</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.initConfig">
-<span class="sig-name descname"><span class="pre">initConfig</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.initConfig" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">initConfig</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.initConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.initConfig" title="Permalink to this definition">#</a></dt>
 <dd><p>For each connection:
 create a Link with a name (purpose), start, and end
 Start links to one actor’s name, end to the other.
@@ -566,27 +567,27 @@ For each connection, create 2 Links. Nexus acts as intermediary.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.startNexus">
-<span class="sig-name descname"><span class="pre">startNexus</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.startNexus" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">startNexus</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.startNexus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.startNexus" title="Permalink to this definition">#</a></dt>
 <dd><p>Puts all actors in separate processes and begins polling
 to listen to comm queues</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.start">
-<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.start" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.start" title="Permalink to this definition">#</a></dt>
 <dd><p>Start all the processes in Nexus</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.destroyNexus">
-<span class="sig-name descname"><span class="pre">destroyNexus</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.destroyNexus" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">destroyNexus</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.destroyNexus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.destroyNexus" title="Permalink to this definition">#</a></dt>
 <dd><p>Method that calls the internal method
 to kill the process running the store (plasma server)</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.pollQueues">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pollQueues</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.pollQueues" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pollQueues</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.pollQueues"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.pollQueues" title="Permalink to this definition">#</a></dt>
 <dd><p>Listens to links and processes their signals.</p>
 <p>For every communications queue connected to Nexus, a task is
 created that gets from the queue. Throughout runtime, when these
@@ -605,7 +606,7 @@ stopped.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.stop_polling_and_quit">
-<span class="sig-name descname"><span class="pre">stop_polling_and_quit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queues</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.stop_polling_and_quit" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">stop_polling_and_quit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queues</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.stop_polling_and_quit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.stop_polling_and_quit" title="Permalink to this definition">#</a></dt>
 <dd><p>quit the process and stop polling signals from queues</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -619,48 +620,48 @@ stopped.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.remote_input">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remote_input</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.remote_input" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remote_input</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.remote_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.remote_input" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.processGuiSignal">
-<span class="sig-name descname"><span class="pre">processGuiSignal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.processGuiSignal" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">processGuiSignal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.processGuiSignal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.processGuiSignal" title="Permalink to this definition">#</a></dt>
 <dd><p>Receive flags from the Front End as user input</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.processActorSignal">
-<span class="sig-name descname"><span class="pre">processActorSignal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.processActorSignal" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">processActorSignal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.processActorSignal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.processActorSignal" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.setup">
-<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.setup" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.setup" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.run" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.run" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.quit">
-<span class="sig-name descname"><span class="pre">quit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.quit" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">quit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.quit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.quit" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.stop">
-<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.stop" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.stop" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.revive">
-<span class="sig-name descname"><span class="pre">revive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.revive" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">revive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.revive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.revive" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.stop_polling">
-<span class="sig-name descname"><span class="pre">stop_polling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stop_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queues</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.stop_polling" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">stop_polling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stop_signal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queues</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.stop_polling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.stop_polling" title="Permalink to this definition">#</a></dt>
 <dd><p>Cancels outstanding tasks and fills their last request.</p>
 <p>Puts a string into all active queues, then cancels their
 corresponding tasks. These tasks are not fully cancelled until
@@ -677,14 +678,14 @@ the next run of the event loop.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.createStoreInterface">
-<span class="sig-name descname"><span class="pre">createStoreInterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.createStoreInterface" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">createStoreInterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.createStoreInterface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.createStoreInterface" title="Permalink to this definition">#</a></dt>
 <dd><p>Creates StoreInterface w/ or w/out LMDB
 functionality based on {self.use_hdd}.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.createActor">
-<span class="sig-name descname"><span class="pre">createActor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.createActor" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">createActor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.createActor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.createActor" title="Permalink to this definition">#</a></dt>
 <dd><p>Function to instantiate actor, add signal and comm Links,
 and update self.actors dictionary</p>
 <dl class="field-list simple">
@@ -699,7 +700,7 @@ and update self.actors dictionary</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.runActor">
-<span class="sig-name descname"><span class="pre">runActor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.runActor" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">runActor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.runActor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.runActor" title="Permalink to this definition">#</a></dt>
 <dd><p>Run the actor continually; used for separate processes
 #TODO: hook into monitoring here?</p>
 <dl class="field-list simple">
@@ -711,14 +712,14 @@ and update self.actors dictionary</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.createConnections">
-<span class="sig-name descname"><span class="pre">createConnections</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.createConnections" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">createConnections</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.createConnections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.createConnections" title="Permalink to this definition">#</a></dt>
 <dd><p>Assemble links (multi or other)
 for later assignment</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.assignLink">
-<span class="sig-name descname"><span class="pre">assignLink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.assignLink" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">assignLink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.assignLink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.assignLink" title="Permalink to this definition">#</a></dt>
 <dd><p>Function to set up Links between actors
 for data location passing
 Actor must already be instantiated</p>
@@ -728,7 +729,7 @@ Actor must already be instantiated</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.nexus.Nexus.startWatcher">
-<span class="sig-name descname"><span class="pre">startWatcher</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.nexus.Nexus.startWatcher" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">startWatcher</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/nexus.html#Nexus.startWatcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.nexus.Nexus.startWatcher" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

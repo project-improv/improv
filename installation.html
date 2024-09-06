@@ -61,7 +61,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'installation';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Running improv" href="running.html" />
+    <link rel="next" title="Configuring improv" href="configuration.html" />
     <link rel="prev" title="improv: A platform for adaptive neuroscience experiments" href="intro.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -182,6 +182,7 @@
         </ul>
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Installation and building</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuring <em>improv</em></a></li>
 <li class="toctree-l1"><a class="reference internal" href="running.html">Running <em>improv</em></a></li>
 <li class="toctree-l1"><a class="reference internal" href="demos.html">Running the demos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html"><em>improv</em>’s design</a></li>
@@ -404,7 +405,17 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-time">Installation Time</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simple-installation">Simple installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#required-dependencies">Required dependencies</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#redis">Redis</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#macos">macOS</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#linux">Linux</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#windows-wsl2">Windows (WSL2)</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-dependencies">Optional dependencies</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-from-source">Building from source</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-documents-locally">Building documents locally</a></li>
@@ -421,9 +432,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="installation-and-building">
 <span id="page-installation"></span><h1>Installation and building<a class="headerlink" href="#installation-and-building" title="Permalink to this heading">#</a></h1>
+<section id="installation-time">
+<h2>Installation Time<a class="headerlink" href="#installation-time" title="Permalink to this heading">#</a></h2>
+<p>All installation processes described here should take less than 5 minutes to complete on a standard workstation.</p>
+</section>
 <section id="simple-installation">
 <h2>Simple installation<a class="headerlink" href="#simple-installation" title="Permalink to this heading">#</a></h2>
-<p>The simplest way to install <em>improv</em> is with pip:</p>
+<p>Once you have the <a class="reference internal" href="#required-dependencies"><span class="xref myst">required dependencies</span></a>, the simplest way to install <em>improv</em> is with pip:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">improv</span>
 </pre></div>
 </div>
@@ -435,6 +450,31 @@ document.write(`
 </div>
 <p>to build <code class="docutils literal notranslate"><span class="pre">pyzmq</span></code> from source if you’re running into ZMQ errors.</p>
 </div>
+</section>
+<section id="required-dependencies">
+<span id="id1"></span><h2>Required dependencies<a class="headerlink" href="#required-dependencies" title="Permalink to this heading">#</a></h2>
+<section id="redis">
+<h3>Redis<a class="headerlink" href="#redis" title="Permalink to this heading">#</a></h3>
+<p><em>improv</em> uses Redis, an in-memory datastore, to hold data to be communicated between actors.
+<em>improv</em> works automatically with Redis, but additional options for controlling the behavior of the data store are listed in
+the <a class="reference internal" href="configuration.html"><span class="std std-doc">configuration guide</span></a>.</p>
+<p><em>improv</em> has been tested with Redis server version 7.2.4. Please refer to the instructions below for your operating system:</p>
+<section id="macos">
+<h4>macOS<a class="headerlink" href="#macos" title="Permalink to this heading">#</a></h4>
+<p>A compatible version of Redis can be installed via <a class="reference external" href="https://brew.sh">Homebrew</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">brew</span> <span class="n">install</span> <span class="n">redis</span>
+</pre></div>
+</div>
+</section>
+<section id="linux">
+<h4>Linux<a class="headerlink" href="#linux" title="Permalink to this heading">#</a></h4>
+<p>A compatible version of Redis can be installed for most standard Linux distributions (e.g. Ubuntu) by following Redis’ short <a class="reference external" href="https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-linux/">Linux installation guide</a>.</p>
+</section>
+<section id="windows-wsl2">
+<h4>Windows (WSL2)<a class="headerlink" href="#windows-wsl2" title="Permalink to this heading">#</a></h4>
+<p>Redis can also be installed on Windows in WSL2. The <a class="reference external" href="https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-windows/">WSL2 installation guide</a> details the process for both the Windows and Linux portions of WSL2.</p>
+</section>
+</section>
 </section>
 <section id="optional-dependencies">
 <h2>Optional dependencies<a class="headerlink" href="#optional-dependencies" title="Permalink to this heading">#</a></h2>
@@ -532,11 +572,11 @@ this will install the package in editable mode, which means that changes in the 
       </div>
     </a>
     <a class="right-next"
-       href="running.html"
+       href="configuration.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Running <em>improv</em></p>
+        <p class="prev-next-title">Configuring <em>improv</em></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -556,7 +596,17 @@ this will install the package in editable mode, which means that changes in the 
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-time">Installation Time</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simple-installation">Simple installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#required-dependencies">Required dependencies</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#redis">Redis</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#macos">macOS</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#linux">Linux</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#windows-wsl2">Windows (WSL2)</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-dependencies">Optional dependencies</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-from-source">Building from source</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-documents-locally">Building documents locally</a></li>

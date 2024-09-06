@@ -7,8 +7,9 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Python Module Index &#8212; improv documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Configuring improv &#8212; improv documentation</title>
   
   
   
@@ -57,14 +58,13 @@
     <script src="_static/design-tabs.js"></script>
     <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
     <script async="async" src="_static/sphinx-thebe.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'py-modindex';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'configuration';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-
+    <link rel="next" title="Running improv" href="running.html" />
+    <link rel="prev" title="Installation and building" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-
-
   </head>
   
   
@@ -125,8 +125,6 @@
       
       
       
-        
-      
       <div class="bd-sidebar-primary bd-sidebar">
         
 
@@ -182,9 +180,9 @@
                 </a>
             </li>
         </ul>
-        <ul class="nav bd-sidenav">
+        <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and building</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuring <em>improv</em></a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Configuring <em>improv</em></a></li>
 <li class="toctree-l1"><a class="reference internal" href="running.html">Running <em>improv</em></a></li>
 <li class="toctree-l1"><a class="reference internal" href="demos.html">Running the demos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html"><em>improv</em>’s design</a></li>
@@ -283,7 +281,7 @@
       
       
       
-      <li><a href="https://github.com/project-improv/improv/issues/new?title=Issue%20on%20page%20%2Fpy-modindex.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/project-improv/improv/issues/new?title=Issue%20on%20page%20%2Fconfiguration.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -295,6 +293,54 @@
   </span>
 <span class="btn__text-container">Open issue</span>
 </a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/configuration.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
 </li>
       
   </ul>
@@ -336,7 +382,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -347,11 +395,33 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1></h1>
+    <h1>Configuring improv</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#redis-configuration-options">Redis Configuration Options</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#persistence">Persistence</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#enable-saving">enable_saving</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#aof-dirname">aof_dirname</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#generate-ephemeral-aof-dirname">generate_ephemeral_aof_dirname</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#fsync-frequency">fsync_frequency</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#connectivity">Connectivity</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port">port</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -361,95 +431,125 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
+  <section class="tex2jax_ignore mathjax_ignore" id="configuring-improv">
+<span id="page-configuration"></span><h1>Configuring <em>improv</em><a class="headerlink" href="#configuring-improv" title="Permalink to this heading">#</a></h1>
+<section id="redis-configuration-options">
+<h2>Redis Configuration Options<a class="headerlink" href="#redis-configuration-options" title="Permalink to this heading">#</a></h2>
+<p>Although <em>improv</em> works with Redis out of the box, there are a handful of optional configuration options that can be used to change the behavior of <em>improv</em>’s data store.
+Redis configuration is specified in the configuration file under the <code class="docutils literal notranslate"><span class="pre">redis_config</span></code> key.</p>
+<section id="persistence">
+<span id="id1"></span><h3>Persistence<a class="headerlink" href="#persistence" title="Permalink to this heading">#</a></h3>
+<p><em>improv</em> can configure the data store to write its contents to a set of append-only log files on disk.
+Append-only files, or AOFs, can be reused between instances of <em>improv</em>, which will allow successive runs of <em>improv</em> to access previously stored data.
+By default, this capability is disabled, but is controlled by the following settings.</p>
+<section id="enable-saving">
+<h4>enable_saving<a class="headerlink" href="#enable-saving" title="Permalink to this heading">#</a></h4>
+<p>This field enables saving of data store contents to AOFs on disk. The default mode of operation uses the default Redis AOF directory, <code class="docutils literal notranslate"><span class="pre">appendonlydir</span></code>, which will be automatically created if it does not exist.</p>
+<ul class="simple">
+<li><p>Type: boolean (True/False)</p></li>
+<li><p>Example: True</p></li>
+</ul>
+</section>
+<section id="aof-dirname">
+<h4>aof_dirname<a class="headerlink" href="#aof-dirname" title="Permalink to this heading">#</a></h4>
+<p>This setting controls the name of the directory in which the store saves the append-only logs.
+Persistence happens automatically at scheduled intervals throughout the operation of the data store, as well as during shutdown of the data store.</p>
+<ul class="simple">
+<li><p>Type: string</p></li>
+<li><p>Example: <code class="docutils literal notranslate"><span class="pre">custom_aof_directory</span></code></p></li>
+</ul>
+</section>
+<section id="generate-ephemeral-aof-dirname">
+<h4>generate_ephemeral_aof_dirname<a class="headerlink" href="#generate-ephemeral-aof-dirname" title="Permalink to this heading">#</a></h4>
+<p>This field indicates that <em>improv</em> should generate a unique AOF directory name to use each time it is run.
+This will set each run of <em>improv</em> to start from a clean data store without needing to set a unique directory name manually before each run.</p>
+<ul class="simple">
+<li><p>Type: boolean (True/False)</p></li>
+<li><p>Example: True</p></li>
+</ul>
+</section>
+<section id="fsync-frequency">
+<h4>fsync_frequency<a class="headerlink" href="#fsync-frequency" title="Permalink to this heading">#</a></h4>
+<p>Although the append-only log files, when enabled, are updated every time the state of the data store is changed, the contents of the file are not always immediately flushed to the system’s disk.
+This field controls how often the data store should request that the operating system flush the contents of the append-only log files to the hard disk.</p>
+<ul class="simple">
+<li><p>Type: string</p></li>
+<li><p>Values:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">every_write</span></code> - sync the AOF to disk on every data store modification.</p>
+<ul>
+<li><p>Highest fault tolerance</p></li>
+<li><p>Highest background disk and data store load. The data store can spend a lot of time doing processing unrelated to running the experiment.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">every_second</span></code> - sync the AOF to disk every second.</p>
+<ul>
+<li><p>Moderate fault tolerance - can only lose up to roughly 1 second of data in a disaster.</p></li>
+<li><p>Better performance.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">no_schedule</span></code> - sync the AOF according the default system policy.</p>
+<ul>
+<li><p>Lowest fault tolerance - can go from 1 to 30 seconds, occasionally more, between syncs.</p></li>
+<li><p>Highest performance.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Default: <code class="docutils literal notranslate"><span class="pre">no_schedule</span></code></p></li>
+<li><p>Example: every_second</p></li>
+</ul>
+</section>
+</section>
+<section id="connectivity">
+<h3>Connectivity<a class="headerlink" href="#connectivity" title="Permalink to this heading">#</a></h3>
+<section id="port">
+<h4>port<a class="headerlink" href="#port" title="Permalink to this heading">#</a></h4>
+<p>This field controls the port on which the data store runs. If left unspecified, <em>improv</em> will attempt to start the data store on the default port number,
+looking for alternatives if tried port numbers are busy. If specified, then <em>improv</em> will only try to start the data store on the specified port number.</p>
+<ul class="simple">
+<li><p>Type: integer</p></li>
+<li><p>Default: 6379</p></li>
+<li><p>Example: 16300</p></li>
+</ul>
+</section>
+</section>
+<section id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this heading">#</a></h3>
+<p>An <em>improv</em> configuration file which sets the data store port to 6385, enables persistence to disk, and uses a unique directory for each run, would look like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">actors</span><span class="p">:</span> <span class="o">...</span>
 
-   <h1>Python Module Index</h1>
+<span class="n">connections</span><span class="p">:</span> <span class="o">...</span>
 
-   <div class="modindex-jumpbox">
-   <a href="#cap-i"><strong>i</strong></a>
-   </div>
+<span class="n">redis_config</span><span class="p">:</span>
+  <span class="n">enable_saving</span><span class="p">:</span> <span class="kc">True</span>
+  <span class="n">port</span><span class="p">:</span> <span class="mi">6385</span>
+  <span class="n">generate_ephemeral_aof_dirname</span><span class="p">:</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
 
-   <table class="indextable modindextable">
-     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
-     <tr class="cap" id="cap-i"><td></td><td>
-       <strong>i</strong></td><td></td></tr>
-     <tr>
-       <td><img src="_static/minus.png" class="toggler"
-              id="toggle-1" style="display: none" alt="-" /></td>
-       <td>
-       <a href="autoapi/improv/index.html#module-improv"><code class="xref">improv</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="autoapi/improv/_version/index.html#module-improv._version"><code class="xref">improv._version</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="autoapi/improv/actor/index.html#module-improv.actor"><code class="xref">improv.actor</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="autoapi/improv/cli/index.html#module-improv.cli"><code class="xref">improv.cli</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="autoapi/improv/config/index.html#module-improv.config"><code class="xref">improv.config</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="autoapi/improv/link/index.html#module-improv.link"><code class="xref">improv.link</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="autoapi/improv/nexus/index.html#module-improv.nexus"><code class="xref">improv.nexus</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="autoapi/improv/replayer/index.html#module-improv.replayer"><code class="xref">improv.replayer</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="autoapi/improv/store/index.html#module-improv.store"><code class="xref">improv.store</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="autoapi/improv/tui/index.html#module-improv.tui"><code class="xref">improv.tui</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="autoapi/improv/utils/index.html#module-improv.utils"><code class="xref">improv.utils</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="autoapi/improv/utils/checks/index.html#module-improv.utils.checks"><code class="xref">improv.utils.checks</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="autoapi/improv/utils/reader/index.html#module-improv.utils.reader"><code class="xref">improv.utils.reader</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="autoapi/improv/utils/utils/index.html#module-improv.utils.utils"><code class="xref">improv.utils.utils</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="autoapi/improv/watcher/index.html#module-improv.watcher"><code class="xref">improv.watcher</code></a></td><td>
-       <em></em></td></tr>
-   </table>
-
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
 
                 </article>
               
@@ -461,12 +561,59 @@ document.write(`
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="installation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Installation and building</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="running.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Running <em>improv</em></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#redis-configuration-options">Redis Configuration Options</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#persistence">Persistence</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#enable-saving">enable_saving</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#aof-dirname">aof_dirname</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#generate-ephemeral-aof-dirname">generate_ephemeral_aof_dirname</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#fsync-frequency">fsync_frequency</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#connectivity">Connectivity</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port">port</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

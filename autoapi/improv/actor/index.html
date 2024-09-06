@@ -182,6 +182,7 @@
         </ul>
         <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation and building</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Configuring <em>improv</em></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../running.html">Running <em>improv</em></a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../demos.html">Running the demos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../design.html"><em>improv</em>’s design</a></li>
@@ -572,14 +573,14 @@ document.write(`
 
 <dl class="py class">
 <dt class="sig sig-object py" id="improv.actor.AbstractActor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">AbstractActor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fork'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AbstractActor" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">AbstractActor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fork'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor" title="Permalink to this definition">#</a></dt>
 <dd><p>Base class for an actor that Nexus
 controls and interacts with.
 Needs to have a store and links for communication
 Also needs to be responsive to sent Signals (e.g. run, setup, etc)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AbstractActor.setStoreInterface">
-<span class="sig-name descname"><span class="pre">setStoreInterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AbstractActor.setStoreInterface" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">setStoreInterface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.setStoreInterface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.setStoreInterface" title="Permalink to this definition">#</a></dt>
 <dd><p>Sets the client interface to the store</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -590,7 +591,7 @@ Also needs to be responsive to sent Signals (e.g. run, setup, etc)</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AbstractActor.setLinks">
-<span class="sig-name descname"><span class="pre">setLinks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">links</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AbstractActor.setLinks" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">setLinks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">links</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.setLinks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.setLinks" title="Permalink to this definition">#</a></dt>
 <dd><p>General full dict set for links</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -601,7 +602,7 @@ Also needs to be responsive to sent Signals (e.g. run, setup, etc)</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AbstractActor.setCommLinks">
-<span class="sig-name descname"><span class="pre">setCommLinks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_comm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_sig</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AbstractActor.setCommLinks" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">setCommLinks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_comm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_sig</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.setCommLinks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.setCommLinks" title="Permalink to this definition">#</a></dt>
 <dd><p>Set explicit communication links to/from Nexus (q_comm, q_sig)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -615,7 +616,7 @@ Also needs to be responsive to sent Signals (e.g. run, setup, etc)</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AbstractActor.setLinkIn">
-<span class="sig-name descname"><span class="pre">setLinkIn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_in</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AbstractActor.setLinkIn" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">setLinkIn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_in</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.setLinkIn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.setLinkIn" title="Permalink to this definition">#</a></dt>
 <dd><p>Set the dedicated input queue</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -626,7 +627,7 @@ Also needs to be responsive to sent Signals (e.g. run, setup, etc)</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AbstractActor.setLinkOut">
-<span class="sig-name descname"><span class="pre">setLinkOut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_out</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AbstractActor.setLinkOut" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">setLinkOut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.setLinkOut"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.setLinkOut" title="Permalink to this definition">#</a></dt>
 <dd><p>Set the dedicated output queue</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -637,7 +638,7 @@ Also needs to be responsive to sent Signals (e.g. run, setup, etc)</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AbstractActor.setLinkWatch">
-<span class="sig-name descname"><span class="pre">setLinkWatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_watch</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AbstractActor.setLinkWatch" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">setLinkWatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_watch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.setLinkWatch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.setLinkWatch" title="Permalink to this definition">#</a></dt>
 <dd><p>Set the dedicated watchout queue</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -648,7 +649,7 @@ Also needs to be responsive to sent Signals (e.g. run, setup, etc)</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AbstractActor.addLink">
-<span class="sig-name descname"><span class="pre">addLink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AbstractActor.addLink" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">addLink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.addLink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.addLink" title="Permalink to this definition">#</a></dt>
 <dd><p>Function provided to add additional data links by name
 using same form as q_in or q_out
 Must be done during registration and not during run</p>
@@ -664,7 +665,7 @@ Must be done during registration and not during run</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AbstractActor.getLinks">
-<span class="sig-name descname"><span class="pre">getLinks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AbstractActor.getLinks" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">getLinks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.getLinks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.getLinks" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns dictionary of links for the current actor</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -678,13 +679,13 @@ Must be done during registration and not during run</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AbstractActor.put">
-<span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idnames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AbstractActor.put" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idnames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.put" title="Permalink to this definition">#</a></dt>
 <dd><p>TODO: This is deprecated? Prefer using Links explicitly</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AbstractActor.setup">
-<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AbstractActor.setup" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.setup" title="Permalink to this definition">#</a></dt>
 <dd><p>Essenitally the registration process
 Can also be an initialization for the actor
 options is a list of options, can be empty</p>
@@ -692,7 +693,7 @@ options is a list of options, can be empty</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AbstractActor.run">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AbstractActor.run" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.run" title="Permalink to this definition">#</a></dt>
 <dd><p>Must run in continuous mode
 Also must check q_sig either at top of a run-loop
 or as async with the primary function</p>
@@ -701,14 +702,14 @@ or as async with the primary function</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AbstractActor.stop">
-<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AbstractActor.stop" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.stop" title="Permalink to this definition">#</a></dt>
 <dd><p>Specify method for momentarily stopping the run and saving data.
 Not used by default</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AbstractActor.changePriority">
-<span class="sig-name descname"><span class="pre">changePriority</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AbstractActor.changePriority" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">changePriority</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AbstractActor.changePriority"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AbstractActor.changePriority" title="Permalink to this definition">#</a></dt>
 <dd><p>Try to lower this process’ priority
 Only changes priority if lower_priority is set
 TODO: Only works on unix machines. Add Windows functionality</p>
@@ -718,7 +719,7 @@ TODO: Only works on unix machines. Add Windows functionality</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="improv.actor.ManagedActor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">ManagedActor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.ManagedActor" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">ManagedActor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#ManagedActor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.ManagedActor" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#improv.actor.AbstractActor" title="improv.actor.AbstractActor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AbstractActor</span></code></a></p>
 <p>Base class for an actor that Nexus
 controls and interacts with.
@@ -726,7 +727,7 @@ Needs to have a store and links for communication
 Also needs to be responsive to sent Signals (e.g. run, setup, etc)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.ManagedActor.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.ManagedActor.run" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#ManagedActor.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.ManagedActor.run" title="Permalink to this definition">#</a></dt>
 <dd><p>Must run in continuous mode
 Also must check q_sig either at top of a run-loop
 or as async with the primary function</p>
@@ -735,14 +736,14 @@ or as async with the primary function</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.ManagedActor.runStep">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">runStep</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.ManagedActor.runStep" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">runStep</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#ManagedActor.runStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.ManagedActor.runStep" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="improv.actor.AsyncActor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">AsyncActor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AsyncActor" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">AsyncActor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AsyncActor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AsyncActor" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#improv.actor.AbstractActor" title="improv.actor.AbstractActor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AbstractActor</span></code></a></p>
 <p>Base class for an actor that Nexus
 controls and interacts with.
@@ -750,13 +751,13 @@ Needs to have a store and links for communication
 Also needs to be responsive to sent Signals (e.g. run, setup, etc)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AsyncActor.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AsyncActor.run" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AsyncActor.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AsyncActor.run" title="Permalink to this definition">#</a></dt>
 <dd><p>Run the actor in an async loop</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AsyncActor.setup">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AsyncActor.setup" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AsyncActor.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AsyncActor.setup" title="Permalink to this definition">#</a></dt>
 <dd><p>Essenitally the registration process
 Can also be an initialization for the actor
 options is a list of options, can be empty</p>
@@ -764,12 +765,12 @@ options is a list of options, can be empty</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AsyncActor.runStep">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">runStep</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AsyncActor.runStep" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">runStep</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AsyncActor.runStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AsyncActor.runStep" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AsyncActor.stop">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AsyncActor.stop" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AsyncActor.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AsyncActor.stop" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -781,86 +782,86 @@ options is a list of options, can be empty</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="improv.actor.RunManager">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">RunManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">links</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runStoreInterface</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.RunManager" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">RunManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">links</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runStoreInterface</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#RunManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.RunManager" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="improv.actor.AsyncRunManager">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">AsyncRunManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">links</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runStore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AsyncRunManager" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">AsyncRunManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">links</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runStore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AsyncRunManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AsyncRunManager" title="Permalink to this definition">#</a></dt>
 <dd><p>Asynchronous run manager. Communicates with nexus core using q_sig and q_comm.
 To be used with [async with]
 Afterwards, the run manager listens for signals without blocking.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.AsyncRunManager.run_actor">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run_actor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.AsyncRunManager.run_actor" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run_actor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#AsyncRunManager.run_actor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.AsyncRunManager.run_actor" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="improv.actor.Signal">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">Signal</span></span><a class="headerlink" href="#improv.actor.Signal" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">improv.actor.</span></span><span class="sig-name descname"><span class="pre">Signal</span></span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal" title="Permalink to this definition">#</a></dt>
 <dd><p>Class containing definition of signals Nexus uses
 to communicate with its actors
 TODO: doc each of these with expected handling behavior</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.Signal.run">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.Signal.run" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.run" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.Signal.quit">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">quit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.Signal.quit" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">quit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.quit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.quit" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.Signal.pause">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pause</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.Signal.pause" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pause</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.pause"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.pause" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.Signal.resume">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">resume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.Signal.resume" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">resume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.resume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.resume" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.Signal.reset">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.Signal.reset" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.reset" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.Signal.load">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.Signal.load" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.load" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.Signal.setup">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.Signal.setup" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.setup" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.Signal.ready">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ready</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.Signal.ready" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ready</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.ready"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.ready" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.Signal.kill">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kill</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.Signal.kill" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kill</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.kill"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.kill" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.Signal.revive">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">revive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.Signal.revive" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">revive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.revive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.revive" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.Signal.stop">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.Signal.stop" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.stop" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="improv.actor.Signal.stop_success">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stop_success</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#improv.actor.Signal.stop_success" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stop_success</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/improv/actor.html#Signal.stop_success"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#improv.actor.Signal.stop_success" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
