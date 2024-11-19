@@ -717,8 +717,9 @@ class Nexus:
                 time.sleep(3)
                 if self.p_StoreInterface.poll():
                     logger.error(
-                        "Could not start Redis on specified port number. The port {} may already be in use.\n"
-                        "Try running `sudo systemctl stop redis' to fix the issue".format(
+                        "Could not start Redis on specified port number. "
+                        "The port {} may already be in use.\n"
+                        "Run `sudo systemctl stop redis' to help fix the issue.".format(
                             self.store_port
                         )
                     )
