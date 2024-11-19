@@ -716,7 +716,12 @@ class Nexus:
                 self.p_StoreInterface = self.start_redis(size)
                 time.sleep(3)
                 if self.p_StoreInterface.poll():
-                    logger.error("Could not start Redis on specified port number.")
+                    logger.error(
+                        "Could not start Redis on specified port number. The port {} may already be in use.\n"
+                        "Try running `sudo systemctl stop redis' to fix the issue".format(
+                            self.store_port
+                        )
+                    )
                     raise Exception("Could not start Redis on specified port.")
             else:
                 logger.info("Redis port not specified. Searching for open port.")
