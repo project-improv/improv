@@ -16,6 +16,7 @@ jobs:
   test:
 
     runs-on: ${{matrix.os}}
+    if: ${{ !github.event.pull_request.draft }}
     strategy:
       max-parallel: 1
       fail-fast: false
