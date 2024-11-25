@@ -97,3 +97,14 @@ Then simply run
 jupyter-book build docs
 ```
 and open `docs/_build/html/index.html` in your browser.
+
+
+## Installation troubleshooting
+For users on Linux, you may run into an error concerning libraries, particularly when building zmq with the "--no-binary pyzmq" flag. We found that ensuring the latest "libstdcxx-ng" solved this issue:
+```
+conda upgrade -c conda-forge libstdcxx-ng
+```
+You should then re-install and build zmq with the command:
+```
+pip install improv --no-binary zmq
+```
