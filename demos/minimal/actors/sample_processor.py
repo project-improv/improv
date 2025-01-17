@@ -10,7 +10,7 @@ logger.setLevel(logging.INFO)
 
 class Processor(Actor):
     """
-    Process data and send it through zmq to be visualized.
+    Process data by scaling y coordinates by 2 and send it through zmq to be visualized.
     """
 
     def __init__(self, *args, **kwargs):
@@ -18,9 +18,11 @@ class Processor(Actor):
 
     def setup(self):
         """
-        Creates and binds the socket for zmq.
+        Creates and binds the socket for zmq and initializes processed data storage.
         """
         self.name = "Processor"
+        self.processed_data = None  # Initialize variable to store processed data
+        self.frame = None  # Initialize variable to store the current frame
 
         context = zmq.Context()
         self.socket = context.socket(zmq.PUB)
@@ -35,33 +37,41 @@ class Processor(Actor):
 
     def runStep(self):
         """
-        Receives data from the queue, prepares 2D data with x and y coordinates,
-        and sends it through the socket along with the frame number.
+        Receives data ID from the queue, retrieves data from the Plasma store,
+        processes it, stores it in `processed_data`, and sends it through the
+        socket as flattened data with the frame number appended.
         """
         try:
-            # Retrieve data from the queue
-            frame = self.q_in.get(timeout=0.05)
+            # Retrieve data ID from the queue
+            data_id = self.q_in.get(timeout=0.05)
         except Empty:
             return  # No data received, skip this step
         except Exception as e:
-            logger.error(f"Error retrieving frame: {e}")
+            logger.error(f"Error retrieving data ID: {e}")
             return
 
-        if frame is not None:
+        if data_id is not None:
             try:
-                # Fetch the dictionary from the data store
-                data_dict = self.client.getID(frame[0][0])
+                # Fetch the data from the client using the ObjectID
+                self.frame = self.client.getID(data_id[0][0])  # Retrieve the frame data
 
-                # Extract frame number and values (2D array with x and y)
-                frame_num = data_dict["frame_num"]
-                values = data_dict["values"]  # Shape (N, 2), with columns [x, y]
+                # Unpack the flattened data
+                data = np.array(self.frame, dtype=np.float64)  # Ensure it's a NumPy array
+                values = data[:-1]  # Exclude the last element
+                frame_num = int(data[-1])  # Extract the last element as frame number
 
-                # Combine frame number and flattened data into a single array
-                flat_data = np.concatenate(([frame_num], values.ravel())).astype(np.float64)
+                # Reshape values to 2D array (N, 2) for processing
+                values = values.reshape(-1, 2)
 
-                # Send the serialized buffer through the socket
-                self.socket.send(flat_data.tobytes())
-                logger.info(f"Frame {frame_num}: Sent {values.shape[0]} points")
+                # Perform processing (e.g., scaling the y-values)
+                values[:, 1] *= 2  # Example: Scale y-coordinates by 2
+
+                # Flatten processed values and append frame number
+                self.processed_data = np.append(values.flatten(), frame_num)
+
+                # Send the processed data through the ZMQ socket
+                self.socket.send(self.processed_data.tobytes())
+                # logger.info(f"Frame {frame_num}: Sent {values.shape[0]} points after processing")
 
             except Exception as e:
                 logger.error(f"Error processing frame: {e}")
