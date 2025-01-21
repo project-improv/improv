@@ -35,7 +35,7 @@ class Processor(Actor):
 
     def stop(self):
         """
-        Closes the ZMQ socket.
+        Trivial stop function for testing purposes.
         """
         logger.info("Processor stopping")
         self.socket.close()
@@ -62,26 +62,25 @@ class Processor(Actor):
 
                 # Convert the frame data to a NumPy array
                 data = np.array(self.frame, dtype=np.float64)  # Ensure it's a NumPy array
-                values = data[:-1]  # Exclude the last element (frame number)
                 frame_num = int(data[-1])  # Extract the last element as the frame number
-
-                # Reshape values to 2D array (N, 2) for processing
-                values = values.reshape(-1, 2)
+                data = data[:-1].reshape(-1, 3)  # Exclude the last element (frame number)
+                
 
                 # Perform processing on the Lorenz coordinates
                 # Example 1: Scale x-coordinates by 0.5 and y-coordinates by 2
-                values[:, 0] *= 2  # Scale x-coordinates
-                values[:, 1] *= 2    # Scale y-coordinates
+                data[:, 0] *= 2  # Scale x-coordinates
+                data[:, 1] *= 2  # Scale y-coordinates
+                data[:, 2] *= 2  # Scale z-coordinates
 
                 # Example 2: Add sinusoidal noise to the y-coordinates
-                values[:, 1] += np.sin(values[:, 0])
+                data[:, 1] += np.sin(data[:, 0])
 
-                # Flatten processed values and append the frame number
-                self.processed_data = np.append(values.flatten(), frame_num)
+                # Flatten processed values and append frame number
+                self.processed_data = np.append(np.ravel(data), frame_num)
 
                 # Send the processed data through the ZMQ socket
                 self.socket.send(self.processed_data.tobytes())
-                logger.info(f"Frame {frame_num}: Sent {values.shape[0]} points after processing")
+                logger.info(f"Frame {frame_num}: Sent points with size {data.shape} after processing")
 
             except Exception as e:
                 logger.error(f"Error processing frame: {e}")
