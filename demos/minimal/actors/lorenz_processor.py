@@ -72,9 +72,6 @@ class Processor(Actor):
                 data[:, 1] *= 2  # Scale y-coordinates
                 data[:, 2] *= 2  # Scale z-coordinates
 
-                # Example 2: Add sinusoidal noise to the y-coordinates
-                data[:, 1] += np.sin(data[:, 0])
-
                 # Flatten processed values and append frame number
                 self.processed_data = np.append(np.ravel(data), frame_num)
 
