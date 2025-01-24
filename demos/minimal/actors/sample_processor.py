@@ -31,6 +31,7 @@ class Processor(Actor):
         logger.info("Completed setup for Processor")
 
     def stop(self):
+        """Trivial stop function for testing purposes."""
         logger.info("Processor stopping")
         self.socket.close()
         return 0
@@ -57,21 +58,19 @@ class Processor(Actor):
 
                 # Unpack the flattened data
                 data = np.array(self.frame, dtype=np.float64)  # Ensure it's a NumPy array
-                values = data[:-1]  # Exclude the last element
                 frame_num = int(data[-1])  # Extract the last element as frame number
-
-                # Reshape values to 2D array (N, 2) for processing
-                values = values.reshape(-1, 2)
+                data = data[:-1].reshape(-1, 2)  # Exclude the last element
 
                 # Perform processing (e.g., scaling the y-values)
-                values[:, 1] *= 2  # Example: Scale y-coordinates by 2
+                data[:, 1] *= 2  # Example: Scale y-coordinates by 2
 
                 # Flatten processed values and append frame number
-                self.processed_data = np.append(values.flatten(), frame_num)
+                self.processed_data = np.append(np.ravel(data), frame_num)
+
 
                 # Send the processed data through the ZMQ socket
                 self.socket.send(self.processed_data.tobytes())
-                # logger.info(f"Frame {frame_num}: Sent {values.shape[0]} points after processing")
+                logger.info(f"Frame {frame_num}: Sent {data.shape[0]} points after processing")
 
             except Exception as e:
                 logger.error(f"Error processing frame: {e}")
