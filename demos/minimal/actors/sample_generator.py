@@ -64,14 +64,15 @@ class Generator(Actor):
             ys = np.cos(xs)
 
         # Combine x and y into a 1D array, append frame_num
-        data_to_send = np.append(np.ravel(np.column_stack((xs, ys))), self.frame_num)  # Shape (201,)
+        data = np.append(np.column_stack((xs, ys)).ravel(), self.frame_num)  # Shape (201,)
 
         # Send the flattened array with frame_num
         try:
-            data_id = self.client.put(data_to_send, f"Frame: {self.frame_num}")
+            data_id = self.client.put(data, f"Frame: {self.frame_num}")
             self.q_out.put([[data_id, f"Frame: {self.frame_num}"]])
         except Exception as e:
             logger.error(f"Generator Exception: {e}")
 
         # Increment frame number
         self.frame_num += 1
+        self.data = np.column_stack((xs, ys))

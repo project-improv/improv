@@ -38,9 +38,10 @@ class Processor(Actor):
 
     def runStep(self):
         """
-        Receives data ID from the queue, retrieves data from the Plasma store,
-        processes it, stores it in `processed_data`, and sends it through the
-        socket as flattened data with the frame number appended.
+        Gets from the input queue and scales the data in the y-dimension. 
+
+        Receives an ObjectID, references data in the store using that ObjectID,
+        processes it, and sends it through the zmq socket to be visualized.
         """
         try:
             # Retrieve data ID from the queue
@@ -65,7 +66,7 @@ class Processor(Actor):
                 data[:, 1] *= 2  # Example: Scale y-coordinates by 2
 
                 # Flatten processed values and append frame number
-                self.processed_data = np.append(np.ravel(data), frame_num)
+                self.processed_data = np.append(data.ravel(), frame_num)
 
 
                 # Send the processed data through the ZMQ socket
