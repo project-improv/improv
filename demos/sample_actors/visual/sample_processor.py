@@ -68,7 +68,9 @@ class Processor(Actor):
                 # Flatten processed values and append frame number
                 self.processed_data = np.append(data.ravel(), frame_num)
 
-                logger.info(f"Frame {frame_num}: Processed {data.shape[0]} points")
+                # Send the processed data through the ZMQ socket
                 self.socket.send(self.processed_data.tobytes())
+                logger.info(f"Frame {frame_num}: Sent {data.shape[0]} points after processing")
+
             except Exception as e:
                 logger.error(f"Error processing frame: {e}")

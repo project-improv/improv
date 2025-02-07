@@ -1,4 +1,5 @@
 from improv.actor import Actor, RunManager
+# from demos.sample_actors.visual.sample_processor import Processor
 import numpy as np
 import logging
 import time  # Importing time module for the delay
@@ -45,10 +46,11 @@ class Generator(Actor):
     def runStep(self):
         """Generates additional data after initial setup data is exhausted.
         
-        Data is a sine wave if the frame number is odd or a cosine wave if the frame number is even."""
+        Data is a sine wave if the frame number is odd or a cosine wave if the frame number is even.
+        """
         time.sleep(0.5) # Add a slight pause between frame generation
 
-        #Sends a flattened array with x and y coordinates followed by frame number.
+        #Sends a flattened array with x and y coordinates along with the current frame number.
         if self.frame_num >= self.max_frames:
             logger.info(f"Reached maximum frame count ({self.max_frames}). Stopping generation.")
             return
@@ -64,7 +66,8 @@ class Generator(Actor):
             ys = np.cos(xs)
 
         # Combine x and y into a 1D array, append frame_num
-        data = np.append(np.column_stack((xs, ys)).ravel(), self.frame_num)  # Shape (201,)
+        self.data = np.column_stack((xs, ys))
+        data = np.append(self.data.ravel(), self.frame_num)  # Shape (201,)
 
         # Send the flattened array with frame_num
         try:
@@ -75,4 +78,4 @@ class Generator(Actor):
 
         # Increment frame number
         self.frame_num += 1
-        self.data = np.column_stack((xs, ys))
+
