@@ -4,7 +4,7 @@ actors:
     class: Generator
 
   Processor:
-    package: sample_actors.visual.sample_processor
+    package: actors.visual_processor
     class: Processor
 
 connections:

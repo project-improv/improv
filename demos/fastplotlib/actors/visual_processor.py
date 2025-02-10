@@ -28,7 +28,7 @@ class Processor(Actor):
         self.socket = context.socket(zmq.PUB)
         self.socket.bind("tcp://127.0.0.1:5555")
 
-        logger.info("Completed setup for Processor")
+        logger.info("Completed setup for Processor **visual**")
 
     def stop(self):
         """Trivial stop function for testing purposes."""
