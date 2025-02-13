@@ -8,33 +8,34 @@ logger.setLevel(logging.INFO)
 
 
 class Generator(Actor):
-    """Sample actor to generate a sine/cosine wave based on frame number to pass into a sample processor. Odd frames generate a sine wave and even frames generate a cosine wave.
+    """Sample actor to generate a sine/cosine wave based on frame number to pass into a sample processor.
+
+    Intended for use along with sample_processor.py.
     """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = "Generator"
         self.data = None
-        self.max_frames = 500  # Set the limit for number of frames
+        self.frame_num = 0
 
     def __str__(self):
         return f"Name: {self.name}, Data: {self.data}"
 
     def setup(self):
-        """Initializes all class variables.
+        """Generates an array that serves as an initial source of data.
 
-            self.data (ndarray): 2D NumPy array where the first column is x-values 
-                                (linearly spaced between -10 and 10) and the second column 
-                                is the sine of these x-values.
-            self.frame_num (int): index of the current frame, initialized to 0.
+        Initial data is a 2D cosine wave consisting of 100 evenly spaced xy points ranging from -10 to 10 inclusive.
         """
         logger.info("Beginning setup for Generator")
-        xs = np.linspace(-10, 10, 100)
-        ys = np.sin(xs)
-        self.data = np.column_stack((xs, ys))
-        self.frame_num = 0  # Initialize frame counter
-        logger.info("Completed setup for Generator")
 
+        # generate 100 evenly spaced values from -10 to 10
+        xs = np.linspace(-10, 10, 100)
+        ys = np.cos(xs)
+        # stack xs and ys to create a (100, 2) array of xy points
+        self.data = np.column_stack([xs, ys])
+
+        logger.info("Completed setup for Generator")
 
     def stop(self):
         """Save current wave vector to file."""
@@ -44,37 +45,35 @@ class Generator(Actor):
 
     def runStep(self):
         """Generates additional data after initial setup data is exhausted.
-        
-        Data is a sine wave if the frame number is odd or a cosine wave if the frame number is even.
+
+        If the frame number is odd, the data is a sine wave. If the frame number is even, the data is a cosine wave.
         """
-        time.sleep(0.5) # Add a slight pause between frame generation
-
-        #Sends a flattened array with x and y coordinates along with the current frame number.
-        if self.frame_num >= self.max_frames:
-            logger.info(f"Reached maximum frame count ({self.max_frames}). Stopping generation.")
-            return
-
         xs = np.linspace(-10, 10, 100)
 
         # Generate sine or cosine values based on frame number
         if self.frame_num % 2 == 1:
-            # Even frame: Generate sine wave
             ys = np.sin(xs)
         else:
-            # Odd frame: Generate cosine wave
             ys = np.cos(xs)
 
-        # Combine x and y into a 1D array, append frame_num
-        self.data = np.column_stack((xs, ys))
+        # update data
+        self.data = np.column_stack([xs, ys])
+
+        # create flattened array with x and y coordinates along with the current frame number
         data = np.append(self.data.ravel(), self.frame_num)  # Shape (201,)
 
         # Send the flattened array with frame_num
         try:
-            data_id = self.client.put(data, f"Frame: {self.frame_num}")
-            self.q_out.put([[data_id, f"Frame: {self.frame_num}"]])
-        except Exception as e:
-            logger.error(f"Generator Exception: {e}")
+            data_id = self.client.put(data)
+            if self.store_loc:
+                self.q_out.put([[data_id, str(self.frame_num)]])
+            else:
+                self.q_out.put(data_id)
 
-        # Increment frame number
-        self.frame_num += 1
+            # Increment frame number
+            self.frame_num += 1
+        except Exception as e:
+            logger.error(f"--------------------------------Generator Exception: {e}")
+
+
 
