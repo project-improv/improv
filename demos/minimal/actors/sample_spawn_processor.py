@@ -1,4 +1,4 @@
-from improv.actor import Actor, RunManager
+from improv.actor import Actor
 import numpy as np
 from queue import Empty
 import logging
@@ -39,17 +39,6 @@ class Processor(Actor):
         logger.info("Processor stopping")
         return 0
 
-    # def run(self):
-    #     """ Send array into the store.
-    #     """
-    #     self.fcns = {}
-    #     self.fcns['setup'] = self.setup
-    #     self.fcns['run'] = self.runStep
-    #     self.fcns['stop'] = self.stop
-
-    #     with RunManager(self.name, self.fcns, self.links) as rm:
-    #         logger.info(rm)
-
     def runStep(self):
         """Gets from the input queue and calculates the average.
 
@@ -63,16 +52,21 @@ class Processor(Actor):
             frame = self.q_in.get(timeout=0.05)
         except Empty:
             pass
-        except:
+        except Exception:
             logger.error("Could not get frame!")
             pass
 
         if frame is not None and self.frame_num is not None:
             self.done = False
-            self.frame = self.client.getID(frame[0][0])
+            if self.store_loc:
+                self.frame = self.client.getID(frame[0][0])
+            else:
+                self.frame = self.client.get(frame)
             avg = np.mean(self.frame[0])
-            print(f"Average: {avg}")
+
+            logger.info(f"Average: {avg}")
             self.avg_list.append(avg)
-            print(f"Overall Average: {np.mean(self.avg_list)}")
-            print(f"Frame number: {self.frame_num}")
+            logger.info(f"Overall Average: {np.mean(self.avg_list)}")
+            logger.info(f"Frame number: {self.frame_num}")
+
             self.frame_num += 1

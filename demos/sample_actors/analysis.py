@@ -16,8 +16,8 @@ logger.setLevel(logging.INFO)
 class MeanAnalysis(Actor):
     # TODO: Add additional error handling
     # TODO: this is too complex for a sample actor?
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def setup(self, param_file=None):
         """Set custom parameters here

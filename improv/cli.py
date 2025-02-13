@@ -2,6 +2,7 @@ import logging
 import os.path
 import re
 import argparse
+import signal
 import subprocess
 import sys
 import psutil
@@ -253,12 +254,12 @@ def run_server(args):
 
 def run_list(args, printit=True):
     out_list = []
-    pattern = re.compile(r"(improv (run|client|server)|plasma_store)")
-    mp_pattern = re.compile(r"-c from multiprocessing")
+    pattern = re.compile(r"(improv (run|client|server)|plasma_store|redis-server)")
+    #    mp_pattern = re.compile(r"-c from multiprocessing") # TODO is this right?
     for proc in psutil.process_iter(["pid", "name", "cmdline"]):
         if proc.info["cmdline"]:
             cmdline = " ".join(proc.info["cmdline"])
-            if re.search(pattern, cmdline) or re.search(mp_pattern, cmdline):
+            if re.search(pattern, cmdline):  # or re.search(mp_pattern, cmdline):
                 out_list.append(proc)
                 if printit:
                     print(f"{proc.pid} {proc.name()} {cmdline}")
@@ -280,14 +281,23 @@ def run_cleanup(args, headless=False):
 
         if res.lower() == "y":
             for proc in proc_list:
-                if not proc.status == "terminated":
+                if not proc.status() == psutil.STATUS_STOPPED:
+                    logging.info(
+                        f"process {proc.pid} {proc.name()}"
+                        f" has status {proc.status()}. Interrupting."
+                    )
                     try:
-                        proc.terminate()
+                        proc.send_signal(signal.SIGINT)
                     except psutil.NoSuchProcess:
                         pass
             gone, alive = psutil.wait_procs(proc_list, timeout=3)
             for p in alive:
-                p.kill()
+                p.send_signal(signal.SIGINT)
+                try:
+                    p.wait(timeout=10)
+                except psutil.TimeoutExpired as e:
+                    logging.warning(f"{e}: Process did not exit on time.")
+
     else:
         if not headless:
             print("No running processes found.")

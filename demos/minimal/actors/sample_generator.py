@@ -1,8 +1,7 @@
-from improv.actor import Actor, RunManager
-# from demos.sample_actors.visual.sample_processor import Processor
+from improv.actor import Actor
 import numpy as np
 import logging
-import time  # Importing time module for the delay
+import time
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

@@ -72,3 +72,4 @@ class Processor(Actor):
                 self.socket.send(self.processed_data.tobytes())
             except Exception as e:
                 logger.error(f"Error processing frame: {e}")
+

@@ -4,9 +4,8 @@ actors:
     class: Generator
 
   Processor:
-    package: actors.sample_spawn_processor
+    package: actors.sample_processor
     class: Processor
-    method: spawn
 
 connections:
   Generator.q_out: [Processor.q_in]

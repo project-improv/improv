@@ -1,3 +1,5 @@
+import time
+
 import pytest
 import os
 import asyncio
@@ -34,7 +36,11 @@ def ip():
 
 
 @pytest.mark.parametrize(
-    ("dir", "configfile", "logfile"), [("minimal", "minimal.yaml", "testlog")]
+    ("dir", "configfile", "logfile"),
+    [
+        ("minimal", "minimal.yaml", "testlog"),
+        ("minimal", "minimal_plasma.yaml", "testlog"),
+    ],
 )
 async def test_simple_boot_and_quit(dir, configfile, logfile, setdir, ports):
     os.chdir(dir)
@@ -58,6 +64,8 @@ async def test_simple_boot_and_quit(dir, configfile, logfile, setdir, ports):
 
     with open(logfile, mode="a+") as log:
         server = subprocess.Popen(server_opts, stdout=log, stderr=log)
+        time.sleep(5)
+        print(log.readlines())
     await asyncio.sleep(SERVER_WARMUP)
 
     # initialize client
@@ -79,7 +87,10 @@ async def test_simple_boot_and_quit(dir, configfile, logfile, setdir, ports):
 
 @pytest.mark.parametrize(
     ("dir", "configfile", "logfile", "datafile"),
-    [("minimal", "minimal.yaml", "testlog", "sample_generator_data.npy")],
+    [
+        ("minimal", "minimal.yaml", "testlog", "sample_generator_data.npy"),
+        ("minimal", "minimal_spawn.yaml", "testlog", "sample_generator_data.npy"),
+    ],
 )
 async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
     os.chdir(dir)
@@ -136,8 +147,8 @@ def test_zmq_ps(ip, unused_tcp_port):
     """Tests if we can set the zmq PUB/SUB socket and send message."""
     port = unused_tcp_port
     LOGGER.info("beginning test")
-    act1 = ZmqActor("act1", "/tmp/store", type="PUB", ip=ip, port=port)
-    act2 = ZmqActor("act2", "/tmp/store", type="SUB", ip=ip, port=port)
+    act1 = ZmqActor("act1", type="PUB", ip=ip, port=port)
+    act2 = ZmqActor("act2", type="SUB", ip=ip, port=port)
     LOGGER.info("ZMQ Actors constructed")
     # Note these sockets must be set up for testing
     # this is not needed for running in improv

@@ -5,16 +5,19 @@ on:
     branches:
       - main
       - dev
+      - redis
   push:
     branches:
       - main
       - dev
+      - redis
 
 jobs:
   test:
 
     runs-on: ${{matrix.os}}
     strategy:
+      max-parallel: 1
       fail-fast: false
       matrix:
         python-version: ["3.8", "3.9", "3.10"]
@@ -24,6 +27,26 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Update Ubuntu and Install Dependencies
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y lsb-release curl gpg
+      - name: Fetch Redis gpg (Ubuntu)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+      - name: Configure Redis gpg (Ubuntu)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+      - name: Install Redis (Ubuntu)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y redis && sleep 5 && sudo systemctl stop redis-server
+      - name: Install Redis (macOS)
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          brew install redis
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -34,7 +57,7 @@ jobs:
       - name: Install package (Ubuntu)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-          pip install -e .[tests,lint] --no-binary pyzmq
+          pip install -e .[tests,lint] 
       - name: Install package (Mac)
         if: startsWith(matrix.os, 'macos')
         run: |
@@ -46,6 +69,8 @@ jobs:
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
+        with:
+          parallel: true
 
 
   check-format:
@@ -62,7 +87,7 @@ jobs:
 
       - name: Install package (Ubuntu)
         run: |
-          pip install -e .[lint] --no-binary pyzmq
+          pip install -e .[lint] 
 
       - name: Check format with Black
         uses: psf/black@stable
@@ -72,3 +97,11 @@ jobs:
           pip install flake8
           flake8 
 
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close parallel build
+        uses: coverallsapp/github-action@v1
+        with:
+          parallel-finished: true

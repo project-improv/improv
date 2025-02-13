@@ -16,10 +16,10 @@ class JuliaAnalysis(Actor):
     This actor puts in the data store the average frame intensity.
     """
 
-    def __init__(self, *args, julia_file="julia_func.jl"):
+    def __init__(self, *args, julia_file="julia_func.jl", **kwargs):
         """julia_file: path to .jl file(s) for analyses computed in Julia"""
 
-        super().__init__(*args)
+        super().__init__(*args, **kwargs)
 
         self.julia = None
         self.julia_file = julia_file
