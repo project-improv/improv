@@ -1,0 +1,2 @@
+simplejpeg
+fastplotlib[notebook]

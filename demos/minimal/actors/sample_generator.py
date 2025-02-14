@@ -48,6 +48,10 @@ class Generator(Actor):
 
         If the frame number is odd, the data is a sine wave. If the frame number is even, the data is a cosine wave.
         """
+        # set a max number of frames to generate
+        if self.frame_num > 1000:
+            return
+
         xs = np.linspace(-10, 10, 100)
 
         # Generate sine or cosine values based on frame number

@@ -4,6 +4,7 @@ import logging
 import zmq
 import numpy as np
 import time
+from queue import Empty
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -46,14 +47,18 @@ class Processor(Actor):
     def runStep(self):
         """
         Gets from the input queue, scales the data in the y-dimension by a random number between 1-10 inclusive and then
-        calculates the amplitude.
+        calculates the amplitude of the wave.
         """
+        # delay frame unpacking for visualization purposes
+        time.sleep(0.5)
+
         data_id = None
         try:
             data_id = self.q_in.get(timeout=0.05)
+        except Empty:
+            pass
         except Exception as e:
             logger.error(f"Could not get frame!")
-            pass
 
         if data_id is not None:
             try:
@@ -62,6 +67,7 @@ class Processor(Actor):
                     self.frame = self.client.getID(data_id[0][0])
                 else:
                     self.frame = self.client.get(data_id)
+
 
                 # Unpack the frame to get the data and frame number
                 data = np.array(self.frame, dtype=np.float64)
@@ -80,12 +86,8 @@ class Processor(Actor):
                 # Flatten processed values and append frame number
                 self.processed_data = np.append(data.ravel(), self.frame_num)
 
-                # slight pause for visualization
-                time.sleep(2)
-
-                logger.info("Sending data to visualization notebook!")
-                # Send the processed data through the ZMQ socket
-                self.socket.send(self.processed_data.tobytes())
+                # Send the processed data through the ZMQ socket to be visualized
+                self.socket.send(self.processed_data)
 
             except Exception as e:
                 logger.error(f"Error processing frame: {e}")

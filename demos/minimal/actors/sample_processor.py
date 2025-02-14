@@ -38,7 +38,7 @@ class Processor(Actor):
     def runStep(self):
         """
         Gets from the input queue, scales the data in the y-dimension by a random number between 1-10 inclusive and then
-        calculates the amplitude.
+        calculates the amplitude of the wave.
 
         """
         data_id = None
