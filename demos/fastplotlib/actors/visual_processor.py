@@ -1,9 +1,10 @@
 from improv.actor import Actor
-from queue import Empty
+import random
 import logging
 import zmq
 import numpy as np
-import random
+import time
+from queue import Empty
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -18,35 +19,46 @@ class Processor(Actor):
         super().__init__(*args, **kwargs)
 
     def setup(self):
-        """Initializes all class variables.
+        """Initializes all class variables. Create and bind the socket for zmq to send to fastplotlib.ipynb
+        for visualization.
 
         self.name (string): name of the actor.
         self.frame (ObjectID): StoreInterface object id referencing data from the store.
         self.frame_num (int): index of current frame.
+        self.processed_data (np.array): raveled array containing the processed data appended with the current frame number
         """
         self.name = "Processor"
         self.frame = None
-        self.frame_num = None
+        self.frame_num = 0
+        self.processed_data = None
+
+        context = zmq.Context()
+        self.socket = context.socket(zmq.PUB)
+        self.socket.bind("tcp://127.0.0.1:5555")
 
         logger.info("Completed setup for Processor")
 
     def stop(self):
-        """Trivial stop function for testing purposes."""
+        """Stop function that closes the zmq socket to visualization notebook."""
         logger.info("Processor stopping")
+        self.socket.close()
         return 0
 
     def runStep(self):
         """
         Gets from the input queue, scales the data in the y-dimension by a random number between 1-10 inclusive and then
         calculates the amplitude of the wave.
-
         """
+        # delay frame unpacking for visualization purposes
+        time.sleep(0.5)
+
         data_id = None
         try:
             data_id = self.q_in.get(timeout=0.05)
-        except Exception:
-            logger.error(f"Could not get frame!")
+        except Empty:
             pass
+        except Exception as e:
+            logger.error(f"Could not get frame!")
 
         if data_id is not None:
             try:
@@ -55,6 +67,7 @@ class Processor(Actor):
                     self.frame = self.client.getID(data_id[0][0])
                 else:
                     self.frame = self.client.get(data_id)
+
 
                 # Unpack the frame to get the data and frame number
                 data = np.array(self.frame, dtype=np.float64)
@@ -66,10 +79,15 @@ class Processor(Actor):
                 scale_factor = random.randint(1, 10)
                 data[:, 1] *= scale_factor
 
-                # calculate the amplitude and frequency
+                # calculate the amplitude
                 amplitude = np.round((data.max(axis=0)[1] - data.min(axis=0)[1]) / 2)
                 logger.info(f"Frame {self.frame_num} has amplitude {amplitude}")
 
+                # Flatten processed values and append frame number
+                self.processed_data = np.append(data.ravel(), self.frame_num)
+
+                # Send the processed data through the ZMQ socket to be visualized
+                self.socket.send(self.processed_data)
+
             except Exception as e:
                 logger.error(f"Error processing frame: {e}")
-

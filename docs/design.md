@@ -98,4 +98,4 @@ For examples and further documentation, see [](page:actors).
 ## Logging and persistence
 Finally, _improv_ handles centralized logging via the [`logging`](https://docs.python.org/3/library/logging.html) module, which listens for messages on a global logging port. These messages are written to the experimental log file. 
 
-Data from the server are persisted to disk using [LMDB](http://www.lmdb.tech/doc/) (if `settings: use_hdd` is set to `true` in the configuration file).
+Data from the server are persisted to disk using [Redis Append-Only Log Files](https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/) (if `redis_config: enable_saving` is set to `True` in the configuration file). See the [persistence section](configuration.md#persistence) of the [configuration guide](configuration.md) for more information.

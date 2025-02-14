@@ -29,7 +29,7 @@ def test_connect(setup_store, server_port_num):
     store = StoreInterface(server_port_num=server_port_num)
     assert isinstance(store.client, redis.Redis)
 
-
+    
 def test_plasma_connect(setup_plasma_store, set_store_loc):
     store = PlasmaStoreInterface(store_loc=set_store_loc)
     assert isinstance(store.client, plasma.PlasmaClient)
