@@ -1,0 +1,14 @@
+actors:
+  Generator:
+    package: actors.lorenz_generator
+    class: Generator
+
+  Processor:
+    package: actors.lorenz_processor
+    class: Processor
+
+connections:
+  Generator.q_out: [Processor.q_in]
+
+redis_config:
+  port: 6381
