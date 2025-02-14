@@ -26,7 +26,7 @@ class Processor(Actor):
         """
         self.name = "Processor"
         self.frame = None
-        self.frame_num = 0
+        self.frame_num = None
 
         logger.info("Completed setup for Processor")
 
