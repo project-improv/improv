@@ -1,7 +1,6 @@
 from improv.actor import Actor
 import numpy as np
 import logging
-import time
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -40,18 +39,15 @@ class Generator(Actor):
         return 0
 
     def runStep(self):
-        """Generates the next 10 points in the lorenz system.
+        """Generates the next 25 points in the lorenz system.
 
         Sends the progressively filled data as a flattened array with the frame number appended to the processor.
         """
-        if self.data.shape[0] >= 3000:
-            logger.info(f"Reached end of data generation.")
+        if self.frame_num >= 150:
             return
 
-        time.sleep(0.5)  # Delay for half a second
-
         # Add the next 10 points
-        for _ in range(10):
+        for _ in range(25):
             # Compute the next coordinate
             derivative = lorenz(self.data[-1])
             next_coordinate = self.data[-1] + derivative * self.dt
