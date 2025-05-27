@@ -25,7 +25,7 @@ def set_configdir():
     os.chdir(prev)
 
 
-@pytest.mark.parametrize("test_input", [("good_config.yaml")])
+@pytest.mark.parametrize("test_input", ["good_config.yaml"])
 def test_init(test_input, set_configdir):
     """Checks if cfg.configFile matches the provided configFile.
 
