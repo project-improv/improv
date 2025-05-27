@@ -649,7 +649,7 @@ class Nexus:
         logger.warning("Killing child processes")
         self.out_socket.send_string("QUIT")
 
-        if self.config.hasGUI:
+        if self.config.hasGUI and hasattr(self, 'p_GUI'):
             self.processes.append(self.p_GUI)
 
         for p in self.processes:
