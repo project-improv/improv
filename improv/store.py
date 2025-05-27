@@ -91,7 +91,7 @@ class RedisStoreInterface(StoreInterface):
 
         return self.client
 
-    def put(self, object, ex = 60):
+    def put(self, object, ex=60):
         """
         Put a single object referenced by its string name
         into the store. If the store already has a value stored at this key,
@@ -115,7 +115,9 @@ class RedisStoreInterface(StoreInterface):
             # TODO key; not sure it's worth the network overhead to check every
             # TODO key twice every time. we still need a better solution for
             # TODO this, but it will work now singlethreaded most of the time.
-            self.client.set(object_key, pickle.dumps(object, protocol=5), nx=True, ex = ex)
+            self.client.set(
+                object_key, pickle.dumps(object, protocol=5), nx=True, ex=ex
+            )
         except Exception:
             logger.error("Could not store object {}".format(object_key))
             logger.error(traceback.format_exc())

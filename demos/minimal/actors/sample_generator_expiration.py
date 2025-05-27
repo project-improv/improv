@@ -54,7 +54,7 @@ class Generator(Actor):
                     self.data[self.frame_num], str(f"Gen_raw: {self.frame_num}")
                 )
             else:
-                data_id = self.client.put(self.data[self.frame_num], ex = 40)
+                data_id = self.client.put(self.data[self.frame_num], ex=40)
             # logger.info('Put data in store')
             try:
                 if self.store_loc:
