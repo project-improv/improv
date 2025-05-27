@@ -4,13 +4,13 @@ After installing _improv_, install additional dependencies (JAX on CPU by defaul
 
 - `pip install -r requirements.txt`
 
-To download the sample data from the paper, do:
+To download the sample data from the paper, run the following from the `improv` directory:
 
 - `python demos/bubblewrap/actors/utils.py`
 
-This may take a few minutes. After data is downloaded, run the GUI with:
+This may take a few minutes. After data is downloaded, run the demo with:
 
-- `python demos/bubblewrap/bubble_demo.py`
+- `improv run demos/bubblewrap/bubble_demo.yaml`
 
 A GUI will pop up with two buttons named "setup" and "run". First hit "setup" and wait ~5 seconds, then hit "run". Bubblewrap will perform dimensionality reduction of ~180 neurons to 2 dimensions, represented by grey dots popping up on the plot, and coarsely tile the space with red bubbles to represent transitions in the low-dimension space. All in real-time! 
 
