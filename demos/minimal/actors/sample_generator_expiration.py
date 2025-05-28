@@ -1,4 +1,4 @@
-from improv.actor import Actor
+from actors.sample_generator import Generator
 import numpy as np
 import logging
 
@@ -6,8 +6,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Generator(Actor):
-    """Sample actor to generate data to pass into a sample processor.
+class Generator_exp(Generator):
+    """Sample actor to generate data to pass into a sample processor with TTL for each Redis key
 
     Intended for use along with sample_processor.py.
     """
@@ -15,29 +15,8 @@ class Generator(Actor):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.data = None
-        self.name = "Generator"
+        self.name = "Generator_exp"
         self.frame_num = 0
-
-    def __str__(self):
-        return f"Name: {self.name}, Data: {self.data}"
-
-    def setup(self):
-        """Generates an array that serves as an initial source of data.
-
-        Initial array is a 100 row, 5 column numpy matrix that contains
-        integers from 1-99, inclusive.
-        """
-
-        logger.info("Beginning setup for Generator")
-        self.data = np.asmatrix(np.random.randint(100, size=(100, 5)))
-        logger.info("Completed setup for Generator")
-
-    def stop(self):
-        """Save current randint vector to a file."""
-
-        logger.info("Generator stopping")
-        np.save("sample_generator_data.npy", self.data)
-        return 0
 
     def runStep(self):
         """Generates additional data after initial setup data is exhausted.

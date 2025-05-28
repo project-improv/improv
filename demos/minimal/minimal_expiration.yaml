@@ -1,7 +1,7 @@
 actors:
   Generator:
     package: actors.sample_generator_expiration
-    class: Generator
+    class: Generator_exp
 
   Processor:
     package: actors.sample_processor
