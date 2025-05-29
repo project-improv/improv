@@ -2,7 +2,7 @@ actors:
   GUI:
     package: actors.visual
     class: Visual
-    visual: Visual
+    method: "spawn"
 
   Acquirer:
     package: actors.acquire
@@ -18,16 +18,12 @@ actors:
     package: actors.bubble
     class: Bubble
 
-  Visual:
-    package: actors.visual
-    class: CaimanVisual
-
 connections:
   Acquirer-Reducer:
     sources:
       - Acquirer.q_out
     sinks:
-      DimReduction.q_in
+      - DimReduction.q_in
   
   Reducer-Wrapper:
     sources:
@@ -35,14 +31,14 @@ connections:
     sinks:
       - Bubblewrap.q_in
   
-  Reducer-Visual:
+  Reducer-GUI:
     sources:
       - DimReduction.v_out
     sinks:
-      - Visual.q_in
+      - GUI.q_in
   
-  Wrapper-Visual:
+  Bubblewrapper-GUI:
     sources:
       - Bubblewrap.q_out
     sinks:
-      - Visual.bw_in
+      - GUI.bw_in

@@ -99,12 +99,7 @@ class Config:
                 logger.error(f"Error: {e}")
                 return -1
 
-            if "GUI" in name:
-                logger.info(f"Config detected a GUI actor: {name}")
-                self.hasGUI = True
-                self.gui = config_module
-            else:
-                self.actors.update({name: config_module})
+            self.actors.update({name: config_module})
 
         for name, conn in cfg["connections"].items():
             self.connections.update({name: conn})

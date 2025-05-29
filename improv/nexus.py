@@ -222,12 +222,13 @@ class Nexus:
         # create all data links requested from Config config
         self.create_connections()
 
-        # if self.config.hasGUI:
-        #     # Have to load GUI first (at least with Caiman)
-        #     name = self.config.gui.name
-        #     m = self.config.gui  # m is ConfigModule
-        #     # treat GUI uniquely since user communication comes from here
-        #     try:
+        if self.config.hasGUI:
+            # treat GUI uniquely since user communication comes from here
+            # Have to load GUI first (at least with Caiman)
+            name = self.config.gui.name
+            m = self.config.gui  # m is ConfigModule
+            try:
+                pass
         #         visualClass = m.options["visual"]
         #         # need to instantiate this actor
         #         visualActor = self.config.actors[visualClass]
@@ -248,8 +249,8 @@ class Nexus:
         #         self.p_GUI.daemon = True
         #         self.p_GUI.start()
         #
-        #     except Exception as e:
-        #         logger.error(f"Exception in setting up GUI {name}: {e}")
+            except Exception as e:
+                logger.error(f"Exception in setting up GUI {name}: {e}")
 
         # First set up each class/actor
         for name, actor in self.config.actors.items():
@@ -307,21 +308,21 @@ class Nexus:
         to listen to comm queues
         """
         for name, m in self.actors.items():
-            if "GUI" not in name:  # GUI already started
-                if "method" in self.config.actors[name].options:
-                    meth = self.config.actors[name].options["method"]
-                    logger.info("This actor wants: {}".format(meth))
-                    ctx = get_context(meth)
-                    p = ctx.Process(target=m.run, name=name)
+            # if "GUI" not in name:  # GUI already started
+            if "method" in self.config.actors[name].options:
+                meth = self.config.actors[name].options["method"]
+                logger.info("This actor wants: {}".format(meth))
+                ctx = get_context(meth)
+                p = ctx.Process(target=m.run, name=name)
+            else:
+                ctx = get_context("fork")
+                p = ctx.Process(target=self.run_actor, name=name, args=(m,))
+                if "daemon" in self.config.actors[name].options:
+                    p.daemon = self.config.actors[name].options["daemon"]
+                    logger.info("Setting daemon for {}".format(name))
                 else:
-                    ctx = get_context("fork")
-                    p = ctx.Process(target=self.run_actor, name=name, args=(m,))
-                    if "daemon" in self.config.actors[name].options:
-                        p.daemon = self.config.actors[name].options["daemon"]
-                        logger.info("Setting daemon for {}".format(name))
-                    else:
-                        p.daemon = True  # default behavior
-                self.processes.append(p)
+                    p.daemon = True  # default behavior
+            self.processes.append(p)
 
         self.start()
 
@@ -405,13 +406,13 @@ class Nexus:
         """
         self.actorStates = dict.fromkeys(self.actors.keys())
         self.actor_states = dict.fromkeys(self.actors.keys(), None)
-        if not self.config.hasGUI:
-            # Since Visual is not started, it cannot send a ready signal.
-            try:
-                del self.actorStates["Visual"]
-            except Exception as e:
-                logger.info("Visual is not started: {0}".format(e))
-                pass
+        # if not self.config.hasGUI:
+        #     # Since Visual is not started, it cannot send a ready signal.
+        #     try:
+        #         del self.actorStates["Visual"]
+        #     except Exception as e:
+        #         logger.info("Visual is not started: {0}".format(e))
+        #         pass
 
         self.tasks = []
         self.tasks.append(asyncio.create_task(self.process_actor_message()))

@@ -286,7 +286,7 @@ class ZmqActor(ManagedActor):
 
         rep: ActorStateReplyMsg = self.nexus_comm_socket.recv_pyobj()
         logger.info(
-            f"Got response from nexus:\n"
+            f"Actor {self.name} Got response from nexus:\n"
             f"Status: {rep.status}\n"
             f"Info: {rep.info}\n"
         )
@@ -375,7 +375,7 @@ class AsyncActor(AbstractActor):
 
 
 # Aliasing
-Actor = ManagedActor
+Actor = ZmqActor
 
 
 class RunManager:
