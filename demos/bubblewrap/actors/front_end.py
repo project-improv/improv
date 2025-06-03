@@ -4,15 +4,11 @@ from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QColor
 from . import improv_bubble
 from improv.actor import Signal
-from math import atan2, floor
+from math import atan2
 
 from PyQt5.QtWidgets import QMessageBox
 
-import logging
 import traceback
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
@@ -20,7 +16,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
         """Setup GUI
         Setup and start Nexus controls
         """
-        logger.info("Setup and start Nexus controls")
+        state.logger.info("Setup and start Nexus controls")
         self.state = state
         # self.comm = comm  # Link back to Nexus for transmitting signals
         # self.q_sig = q_sig
@@ -57,8 +53,8 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
             if self.state.getData():
                 self.plotBw()
         except Exception as e:
-            logger.error('Front End Exception: {}'.format(e))
-            logger.error(traceback.format_exc()) 
+            self.state.logger.error('Front End Exception: {}'.format(e))
+            self.state.logger.error(traceback.format_exc()) 
         QtCore.QTimer.singleShot(10, self.update)
 
     def plotBw(self):
@@ -96,12 +92,12 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
 
 
     def _runProcess(self):
-        logger.info("-------------------------   put run in comm")
+        self.state.logger.info("-------------------------   put run in comm")
         self.state.send([Signal.run()])
         
 
     def _setup(self):
-        logger.info("-------------------------   put setup in comm")
+        self.state.logger.info("-------------------------   put setup in comm")
         self.state.send([Signal.setup()])
 
     def closeEvent(self, event):

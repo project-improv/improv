@@ -21,20 +21,27 @@ class Visual(Actor):
     def run(self):
         self.register_with_nexus()
         self.setup_logging()
+        self.state.add_logger(self.improv_logger)
+
         self.register_with_broker()
         self.setup_links()
         self.q_comm = self.links["q_comm"]
         self.q_sig = self.links["q_sig"]
 
-        logger.info("Loading FrontEnd")
+        self.improv_logger.info("Loading FrontEnd")
         self.app = QtWidgets.QApplication([])
         self.viewer = FrontEnd(self.state) #, self.q_comm, self.q_sig)
         self.viewer.show()
-        logger.info("GUI ready")
+        self.improv_logger.info("GUI ready")
         self.q_comm.put([Signal.ready()])
+        # rep = self.q_comm.get()
+        # if rep:
+        #     self.improv_logger.info(print(rep))
+        # else:
+        #     self.improv_logger.info("rep was None")
         # self.visual.q_comm.put([Signal.ready()])
         self.app.exec_()
-        logger.info("Done running GUI")
+        self.improv_logger.info("Done running GUI")
 
 class GUIState:
     def __init__(self, gui):
@@ -59,13 +66,15 @@ class GUIState:
         except Empty as e:
             return False
         except Exception as e:
-            logger.error('Visual: Exception in get data: {}'.format(e))
-            logger.error(traceback.format_exc())
+            self.logger.error('Visual: Exception in get data: {}'.format(e))
+            self.logger.error(traceback.format_exc())
         return True
     
     def send(self, msg_list):
         self.gui.q_comm.put(msg_list)
 
+    def add_logger(self, logger):
+        self.logger = logger
 
 class BWVisual(Actor):
     """Class for preprocessing data from bubblewrap processor"""
