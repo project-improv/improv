@@ -1,7 +1,8 @@
-from improv.actor import Actor, Signal
+from improv.actor import Actor
 from PyQt5 import QtWidgets
 from queue import Empty
 from .front_end import FrontEnd
+from improv.messaging import ActorStateMsg
 import logging
 import traceback
 
@@ -19,8 +20,8 @@ class Visual(Actor):
         self.state = GUIState(self)
 
     def run(self):
-        self.register_with_nexus()
         self.setup_logging()
+        self.register_with_nexus()
         self.state.add_logger(self.improv_logger)
 
         self.register_with_broker()
@@ -30,16 +31,8 @@ class Visual(Actor):
 
         self.improv_logger.info("Loading FrontEnd")
         self.app = QtWidgets.QApplication([])
-        self.viewer = FrontEnd(self.state) #, self.q_comm, self.q_sig)
+        self.viewer = FrontEnd(self.state) 
         self.viewer.show()
-        self.improv_logger.info("GUI ready")
-        self.q_comm.put([Signal.ready()])
-        # rep = self.q_comm.get()
-        # if rep:
-        #     self.improv_logger.info(print(rep))
-        # else:
-        #     self.improv_logger.info("rep was None")
-        # self.visual.q_comm.put([Signal.ready()])
         self.app.exec_()
         self.improv_logger.info("Done running GUI")
 
@@ -70,8 +63,15 @@ class GUIState:
             self.logger.error(traceback.format_exc())
         return True
     
-    def send(self, msg_list):
-        self.gui.q_comm.put(msg_list)
+    def send(self, msg):
+        actor_state = ActorStateMsg(
+            self.gui.name,
+            msg,
+            self.gui.nexus_sig_port,
+            f"Sending signal {msg} to nexus",
+        )
+        self.gui.q_comm.put(actor_state)
+        return self.gui.q_comm.get()
 
     def add_logger(self, logger):
         self.logger = logger
@@ -87,9 +87,6 @@ class BWVisual(Actor):
     def setup(self):
         self.data = None
         self.bw_L = None
-
-    # def run(self):
-    #     pass  # NOTE: Special case here, tied to GUI
 
     def getData(self):
         """Load data from dim reduction and bubblewrap, returns false on timeout"""

@@ -445,8 +445,7 @@ class Nexus:
             queues (improv.link.AsyncQueue): Comm queues for links.
         """
         logger.warning(
-            "Shutting down via signal handler due to {}. \
-                Steps may be out of order or dirty.".format(
+            "Shutting down via signal handler due to {}. Steps may be out of order or dirty.".format(
                 signal
             )
         )

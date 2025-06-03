@@ -208,8 +208,8 @@ class ManagedActor(AbstractActor):
         self.nexus_sig_port: int = None
 
     def run(self):
-        self.register_with_nexus()
         self.setup_logging()
+        self.register_with_nexus()
         self.register_with_broker()
         self.setup_links()
         with RunManager(
@@ -257,7 +257,7 @@ class ZmqActor(ManagedActor):
         self.actions = {"setup": self.setup, "run": self.run_step, "stop": self.stop}
 
     def register_with_nexus(self):
-        logger.info(f"Actor {self.name} registering with nexus")
+        self.improv_logger.info(f"Actor {self.name} registering with nexus")
         self.zmq_context = zmq.Context()
         self.zmq_context.setsockopt(SocketOption.LINGER, 0)
         # create a REQ socket pointed at nexus' global actor in port
@@ -285,8 +285,8 @@ class ZmqActor(ManagedActor):
         self.nexus_comm_socket.send_pyobj(actor_state)
 
         rep: ActorStateReplyMsg = self.nexus_comm_socket.recv_pyobj()
-        logger.info(
-            f"Actor {self.name} Got response from nexus:\n"
+        self.improv_logger.info(
+            f"Actor {self.name} got response from nexus:\n"
             f"Status: {rep.status}\n"
             f"Info: {rep.info}\n"
         )
@@ -294,7 +294,7 @@ class ZmqActor(ManagedActor):
         self.links["q_comm"] = ZmqLink(self.nexus_comm_socket, f"{self.name}.q_comm")
         self.links["q_sig"] = ZmqLink(self.nexus_sig_socket, f"{self.name}.q_sig")
 
-        logger.info(f"Actor {self.name} registered with Nexus")
+        self.improv_logger.info(f"Actor {self.name} registered with Nexus")
 
     def register_with_broker(self):  # really opening sockets here
         self.improv_logger.info(f"Actor {self.name} registering with broker")
