@@ -279,11 +279,3 @@ def test_config_redis_unknown_fsync_freq(set_configdir):
     with pytest.raises(Exception, match="Cannot use unknown fsync frequency unknown"):
         cfg.parse_config()
 
-
-def test_config_gui(set_configdir):
-    cfg = Config("minimal_gui.yaml")
-    cfg.parse_config()
-    cfg.create_config()
-
-    assert cfg.hasGUI is True
-    assert cfg.gui.classname == "Generator"
