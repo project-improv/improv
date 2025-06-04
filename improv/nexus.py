@@ -24,7 +24,7 @@ from improv.log import bootstrap_log_server
 from improv.messaging import (
     ActorStateMsg,
     ActorStateReplyMsg,
-    ActorSignalMsg,
+    NexusSignalMsg,
     BrokerInfoReplyMsg,
     BrokerInfoMsg,
     LogInfoMsg,
@@ -631,7 +631,7 @@ class Nexus:
             actor.sig_socket = self.zmq_context.socket(REQ)
             actor.sig_socket.connect(f"tcp://{actor.hostname}:{actor.nexus_in_port}")
             await actor.sig_socket.send_pyobj(
-                ActorSignalMsg(actor.actor_name, Signal.setup(), "")
+                NexusSignalMsg(actor.actor_name, Signal.setup(), "")
             )
             await actor.sig_socket.recv_pyobj()
 
@@ -639,7 +639,7 @@ class Nexus:
         if self.allowStart:
             for actor in self.actor_states.values():
                 await actor.sig_socket.send_pyobj(
-                    ActorSignalMsg(actor.actor_name, Signal.run(), "")
+                    NexusSignalMsg(actor.actor_name, Signal.run(), "")
                 )
                 await actor.sig_socket.recv_pyobj()
         else:
@@ -670,7 +670,7 @@ class Nexus:
         for actor in self.actor_states.values():
             try:
                 await actor.sig_socket.send_pyobj(
-                    ActorSignalMsg(
+                    NexusSignalMsg(
                         actor.actor_name, Signal.stop(), "Nexus sending stop signal"
                     )
                 )
@@ -714,7 +714,7 @@ class Nexus:
         for actor in self.actor_states.values():
             try:
                 await actor.sig_socket.send_pyobj(
-                    ActorSignalMsg(
+                    NexusSignalMsg(
                         actor.actor_name, shutdown_message, "Nexus sending quit signal"
                     )
                 )

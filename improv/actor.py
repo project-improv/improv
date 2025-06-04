@@ -11,7 +11,7 @@ from zmq import SocketOption
 
 from improv import log
 from improv.link import ZmqLink
-from improv.messaging import ActorStateMsg, ActorStateReplyMsg, ActorSignalReplyMsg
+from improv.messaging import ActorStateMsg, ActorStateReplyMsg, NexusSignalReplyMsg
 from improv.store import StoreInterface
 
 import logging
@@ -452,7 +452,7 @@ class RunManager:
             try:
                 signal_msg = self.q_sig.get(timeout=self.timeout)
                 signal = signal_msg.signal
-                self.q_sig.put(ActorSignalReplyMsg(an, signal, "OK", ""))
+                self.q_sig.put(NexusSignalReplyMsg(an, signal, "OK", ""))
                 self.improv_logger.warning(
                     "{} received Signal {}".format(self.actorName, signal)
                 )

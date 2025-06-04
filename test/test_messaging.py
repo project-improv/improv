@@ -27,7 +27,7 @@ def test_actor_signal_msg():
     name = "test name"
     signal = "test signal"
     info = "test info"
-    msg = improv.messaging.ActorSignalMsg(name, signal, info)
+    msg = improv.messaging.NexusSignalMsg(name, signal, info)
     assert msg.actor_name == name
     assert msg.signal == signal
     assert msg.info == info
@@ -38,7 +38,7 @@ def test_actor_signal_reply_msg():
     status = "test status"
     signal = "test_signal"
     info = "test info"
-    msg = improv.messaging.ActorSignalReplyMsg(name, signal, status, info)
+    msg = improv.messaging.NexusSignalReplyMsg(name, signal, status, info)
     assert msg.actor_name == name
     assert msg.status == status
     assert msg.info == info

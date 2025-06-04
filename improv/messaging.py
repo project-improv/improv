@@ -13,14 +13,14 @@ class ActorStateReplyMsg:
         self.info = info
 
 
-class ActorSignalMsg:
+class NexusSignalMsg:
     def __init__(self, actor_name, signal, info):
         self.actor_name = actor_name
         self.signal = signal
         self.info = info
 
 
-class ActorSignalReplyMsg:
+class NexusSignalReplyMsg:
     def __init__(self, actor_name, signal, status, info):
         self.actor_name = actor_name
         self.signal = signal
