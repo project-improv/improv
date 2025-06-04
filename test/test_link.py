@@ -3,7 +3,7 @@ import time
 
 import pytest
 import zmq
-from improv.actor import Actor
+from improv.actor import ManagedActor
 from zmq import SocketOption
 
 from improv.link import ZmqLink
@@ -140,7 +140,7 @@ def test_put_unserializable(test_pub_link):
     Raises:
         SerializationCallbackError: Actor objects are unserializable.
     """
-    act = Actor("test", "/tmp/store")
+    act = ManagedActor("test", "/tmp/store")
     link, link_sub_socket = test_pub_link
     sentinel = True
     try:
