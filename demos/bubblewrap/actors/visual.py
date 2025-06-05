@@ -2,7 +2,7 @@ from improv.actor import Actor
 from PyQt5 import QtWidgets
 from queue import Empty
 from .front_end import FrontEnd
-from improv.messaging import ActorStateMsg
+from improv.messaging import ActorSignalMsg
 import logging
 import traceback
 
@@ -63,14 +63,13 @@ class GUIState:
             self.logger.error(traceback.format_exc())
         return True
     
-    def send(self, msg):
-        actor_state = ActorStateMsg(
+    def send(self, signal):
+        actor_signal = ActorSignalMsg(
             self.gui.name,
-            msg,
-            self.gui.nexus_sig_port,
-            f"Sending signal {msg} to nexus",
+            signal,
+            f"Sending signal {signal} to nexus",
         )
-        self.gui.q_comm.put(actor_state)
+        self.gui.q_comm.put(actor_signal)
         return self.gui.q_comm.get()
 
     def add_logger(self, logger):
