@@ -304,7 +304,7 @@ class Nexus:
 
         return
 
-    def start_nexus(self, serve_function, *args, **kwargs):
+    def start_nexus(self, *args, **kwargs):
         """
         Puts all actors in separate processes and begins polling
         to listen to comm queues
@@ -332,7 +332,7 @@ class Nexus:
         res = ""
         try:
             self.out_socket.send_string("Awaiting input:")
-            res = loop.run_until_complete(self.serve(serve_function, *args, **kwargs))
+            res = loop.run_until_complete(self.poll_queues())
         except asyncio.CancelledError:
             logger.info("Loop is cancelled")
 
@@ -343,8 +343,6 @@ class Nexus:
 
         logger.info(f"Current loop: {asyncio.get_event_loop()}")
 
-        # loop.stop()
-        # loop.close()
         logger.info("Shutdown loop")
 
     def start(self):
@@ -393,7 +391,7 @@ class Nexus:
         if self.zmq_sync_context:
             self.zmq_sync_context.destroy(linger=0)
 
-    async def poll_queues(self, poll_function, *args, **kwargs):
+    async def poll_queues(self):
         """
         Listens to links and processes their signals.
 
@@ -424,7 +422,21 @@ class Nexus:
         logger.info("Nexus signal handlers added")
 
         while not self.flags["quit"]:
-            await poll_function(*args, **kwargs)
+            try:
+                done, pending = await asyncio.wait(
+                    self.tasks, return_when=concurrent.futures.FIRST_COMPLETED
+                )
+            except asyncio.CancelledError:
+                pass
+
+            # sort through tasks to see where we got input from
+            # (so we can choose a handler)
+            for i, t in enumerate(self.tasks):
+                if i == 0:
+                    if t in done:
+                        self.tasks[i] = asyncio.create_task(self.process_actor_message())
+                elif t in done:
+                    self.tasks[i] = asyncio.create_task(self.remote_input())
 
         return "Shutting Down"
 
@@ -1229,23 +1241,3 @@ class Nexus:
             )
         )
         logger.info("Harvester server started")
-
-    async def serve(self, serve_function, *args, **kwargs):
-        await serve_function(*args, **kwargs)
-
-    async def poll_kernel(self):
-        try:
-            done, pending = await asyncio.wait(
-                self.tasks, return_when=concurrent.futures.FIRST_COMPLETED
-            )
-        except asyncio.CancelledError:
-            pass
-
-        # sort through tasks to see where we got input from
-        # (so we can choose a handler)
-        for i, t in enumerate(self.tasks):
-            if i == 0:
-                if t in done:
-                    self.tasks[i] = asyncio.create_task(self.process_actor_message())
-            elif t in done:
-                self.tasks[i] = asyncio.create_task(self.remote_input())

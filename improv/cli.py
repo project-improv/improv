@@ -225,7 +225,7 @@ def run_server(args):
         f"Press Ctrl-C to quit."
     )
     try:
-        server.start_nexus(server.poll_queues, poll_function=server.poll_kernel)
+        server.start_nexus()
     except Exception as e:
         print(f"CLI-started server run encountered uncaught error {e}")
         logging.error(f"CLI-started server run encountered uncaught error {e}")
