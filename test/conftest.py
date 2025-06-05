@@ -13,7 +13,7 @@ from improv.actor import ZmqActor
 from improv.harvester import bootstrap_harvester
 from improv.nexus import Nexus
 
-redis_port_num = 6379
+REDIS_PORT_NUM = 6379
 WAIT_TIMEOUT = 10
 
 SERVER_COUNTER = 0
@@ -27,12 +27,10 @@ def ports():
     CONTROL_PORT = 30000
     OUTPUT_PORT = 30001
     LOGGING_PORT = 30002
-    ACTOR_IN_PORT = 30003
     yield (
         CONTROL_PORT + SERVER_COUNTER,
         OUTPUT_PORT + SERVER_COUNTER,
         LOGGING_PORT + SERVER_COUNTER,
-        ACTOR_IN_PORT + SERVER_COUNTER,
     )
     SERVER_COUNTER += 4
 
@@ -78,7 +76,7 @@ def sample_nex(setdir, ports):
 
 @pytest.fixture
 def server_port_num():
-    return redis_port_num
+    return REDIS_PORT_NUM
 
 
 @pytest.fixture
@@ -112,7 +110,7 @@ def setup_store(server_port_num):
 
 @pytest.fixture
 def zmq_actor(ports):
-    actor = ZmqActor(ports[3], None, None, ports[2], None, None, name="test")
+    actor = ZmqActor(ports[0], None, None, ports[2], None, None, name="test")
 
     p = multiprocessing.Process(target=actor_startup, args=(actor,))
 
@@ -138,7 +136,7 @@ def harvester(ports):
         target=bootstrap_harvester,
         args=(
             "localhost",
-            ports[3],
+            ports[0],
             "localhost",
             6379,
             "localhost",

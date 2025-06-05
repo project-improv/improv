@@ -83,8 +83,6 @@ class Nexus:
         self.logfile: str | None = None
         self.p_harvester: multiprocessing.Process | None = None
         self.p_broker: multiprocessing.Process | None = None
-        self.actor_in_socket_port: int | None = None
-        self.actor_in_socket: zmq.Socket | None = None
         self.in_socket: zmq.Socket | None = None
         self.out_socket: zmq.Socket | None = None
         self.zmq_context: zmq.Context | None = None
@@ -121,7 +119,6 @@ class Nexus:
         control_port=None,
         output_port=None,
         log_server_pub_port=None,
-        actor_in_port=None,
         logfile="global.log",
     ):
         """Function to initialize class variables based on config file.
@@ -135,8 +132,6 @@ class Nexus:
             store_size (int): initial store size
             control_port (int): port number for input socket
             output_port (int): port number for output socket
-            actor_in_port (int): port number for the socket which receives
-                                 actor communications
 
         Returns:
             string: "Shutting down", to notify start() that pollQueues has completed.
@@ -162,12 +157,11 @@ class Nexus:
         self.apply_cli_config_overrides(
             store_size=store_size,
             control_port=control_port,
-            output_port=output_port,
-            actor_in_port=actor_in_port,
+            output_port=output_port
         )
 
         logger.debug("Setting up sockets")
-        self.set_up_sockets(actor_in_port=self.config.settings["actor_in_port"])
+        self.set_up_sockets()
 
         logger.debug("Setting up services")
         self.start_improv_services(
@@ -231,26 +225,6 @@ class Nexus:
             m = self.config.gui  # m is ConfigModule
             try:
                 pass
-        #         visualClass = m.options["visual"]
-        #         # need to instantiate this actor
-        #         visualActor = self.config.actors[visualClass]
-        #         self.create_actor(visualClass, visualActor)
-        #         # then add links for visual
-        #         for k, l in {
-        #             key: self.data_queues[key]
-        #             for key in self.data_queues.keys()
-        #             if visualClass in key
-        #         }.items():
-        #             self.assign_link(k, l)
-        #
-        #         # then give it to our GUI
-        #         self.create_actor(name, m)
-        #         self.actors[name].setup(visual=self.actors[visualClass])
-        #
-        #         self.p_GUI = Process(target=self.actors[name].run, name=name)
-        #         self.p_GUI.daemon = True
-        #         self.p_GUI.start()
-        #
             except Exception as e:
                 logger.error(f"Exception in setting up GUI {name}: {e}")
 
@@ -265,11 +239,6 @@ class Nexus:
                     logger.error(f"Exception in setting up actor {name}: {e}.")
                     self.quit()
                     raise e
-
-        # Second set up each connection b/t actors
-        # TODO: error handling for if a user tries to use q_in without defining it
-        # for name, link in self.data_queues.items():
-        #     self.assign_link(name, link)
 
     def configure_redis_persistence(self):
         # invalid configs: specifying filename and using an ephemeral filename,
@@ -331,7 +300,6 @@ class Nexus:
         loop = asyncio.get_event_loop()
         res = ""
         try:
-            self.out_socket.send_string("Awaiting input:")
             res = loop.run_until_complete(self.poll_queues())
         except asyncio.CancelledError:
             logger.info("Loop is cancelled")
@@ -341,9 +309,7 @@ class Nexus:
         except Exception as e:
             logger.info(f"Res failed to await: {e}")
 
-        logger.info(f"Current loop: {asyncio.get_event_loop()}")
-
-        logger.info("Shutdown loop")
+        logger.info("End Nexus")
 
     def start(self):
         """
@@ -370,8 +336,6 @@ class Nexus:
             self.out_socket.close(linger=0)
         if self.in_socket:
             self.in_socket.close(linger=0)
-        if self.actor_in_socket:
-            self.actor_in_socket.close(linger=0)
         if self.broker_in_socket:
             self.broker_in_socket.close(linger=0)
         if self.logger_in_socket:
@@ -409,7 +373,7 @@ class Nexus:
 
         self.tasks = []
         self.tasks.append(asyncio.create_task(self.process_actor_message()))
-        self.tasks.append(asyncio.create_task(self.remote_input()))
+        # self.tasks.append(asyncio.create_task(self.remote_input()))
 
         # add signal handlers
         loop = asyncio.get_event_loop()
@@ -421,39 +385,45 @@ class Nexus:
 
         logger.info("Nexus signal handlers added")
 
+        await self.out_socket.send_string("Awaiting input:")
+
         while not self.flags["quit"]:
             try:
                 done, pending = await asyncio.wait(
                     self.tasks, return_when=concurrent.futures.FIRST_COMPLETED
                 )
+
+                for i, t in enumerate(self.tasks):
+                    if i == 0:  # this index is the original task that processes input
+                        if t in done:
+                            self.tasks[i] = asyncio.create_task(self.process_actor_message())
+
             except asyncio.CancelledError:
                 pass
 
-            # sort through tasks to see where we got input from
-            # (so we can choose a handler)
-            for i, t in enumerate(self.tasks):
-                if i == 0:
-                    if t in done:
-                        self.tasks[i] = asyncio.create_task(self.process_actor_message())
-                elif t in done:
-                    self.tasks[i] = asyncio.create_task(self.remote_input())
-
         return "Shutting Down"
 
-    async def stop_polling_and_quit(self, signal):
+    async def stop_polling_and_quit(self, stop_signal):
         """
         quit the process and stop polling signals from queues
 
         Args:
-            signal (signal): Signal for handling async polling.
-                             One of: signal.SIGHUP, signal.SIGTERM, signal.SIGINT
+            stop_signal (signal): Signal for handling async polling.
+                                  One of: signal.SIGHUP, signal.SIGTERM, signal.SIGINT
         """
+        if stop_signal == signal.SIGHUP:
+            sig = "SIGHUP"
+        elif stop_signal == signal.SIGTERM:
+            sig = "SIGTERM"
+        elif stop_signal == signal.SIGINT:
+            sig = "SIGINT"
+        elif stop_signal == Signal.quit():
+            sig = "QUIT"
+
         logger.warning(
-            "Shutting down via signal handler due to {}. Steps may be out of order or dirty.".format(
-                signal
-            )
+            f"Shutting down via signal handler due to {sig}. Steps may be out of order or dirty."
         )
-        await self.stop_polling(signal)
+        await self.stop_polling()
         logger.info("Nexus waiting for async tasks to have a chance to send")
         await asyncio.sleep(0)
         self.flags["quit"] = True
@@ -507,16 +477,16 @@ class Nexus:
         return True
 
     async def process_actor_message(self):
-        msg = await self.actor_in_socket.recv_pyobj()
+        msg = await self.in_socket.recv_pyobj()
         if isinstance(msg, ActorStateMsg):
             if self.process_actor_state_update(msg):
-                await self.actor_in_socket.send_pyobj(
+                await self.in_socket.send_pyobj(
                     ActorStateReplyMsg(
                         msg.actor_name, "OK", "actor state updated successfully"
                     )
                 )
             else:
-                await self.actor_in_socket.send_pyobj(
+                await self.in_socket.send_pyobj(
                     ActorStateReplyMsg(
                         msg.actor_name, "ERROR", "actor state update failed"
                     )
@@ -539,33 +509,45 @@ class Nexus:
                 logger.info("All actors ready. Allowing run.")
                 self.allowStart = True
         elif isinstance(msg, ActorSignalMsg):
+            await self.in_socket.send_pyobj(
+                ActorSignalReplyMsg(
+                    msg.actor_name, "OK", f"Signal {msg.signal} received"
+                )
+            )
             await self.process_actor_signal(msg)
+            await self.out_socket.send_string("Awaiting input:")
     
     async def process_actor_signal(self, msg):
         signal = msg.signal
-        match signal:
-            case Signal.setup():
-                logger.info("Running setup")
-                await self.setup()
-            case Signal.run():
-                logger.info("Begin run!")
-                await self.run()
-            case Signal.quit():
-                logger.warning("Quitting the program!")
-                task = asyncio.create_task(self.stop_polling_and_quit(Signal.quit()))
-                done, pending = await asyncio.wait(task)
-                while len(done) == 0:
-                    done, pending = await asyncio.wait(task)
-                self.flags["quit"] = True
+        if signal == Signal.setup():
+            logger.info("Running setup")
+            await self.setup()
+        elif signal == Signal.run(): 
+            logger.info("Begin run!")
+            await self.run()
+        elif signal == Signal.quit():
+            logger.warning("Quitting the program!")
+            task = asyncio.create_task(self.stop_polling_and_quit(Signal.quit()))
+            await task
+            # try:
+            #     done, pending = await asyncio.wait([task])
+            #     while len(done) == 0:
+            #         done, pending = await asyncio.wait([task])
+            # except Exception as e:
+            #     logger.error(f"Caught exception {e} when trying to quit the program.")
+
+            self.flags["quit"] = True
+        
+        
 
 
-    async def remote_input(self):
-        msg = await self.in_socket.recv_multipart()
-        command = msg[0].decode("utf-8")
-        await self.in_socket.send_string("Awaiting input:")
-        if command == Signal.quit():
-            await self.out_socket.send_string("QUIT")
-        await self.process_gui_signal([command], "TUI_Nexus")
+    # async def remote_input(self):
+    #     msg = await self.in_socket.recv_multipart()
+    #     command = msg[0].decode("utf-8")
+    #     await self.in_socket.send_string("Awaiting input:")
+    #     if command == Signal.quit():
+    #         await self.out_socket.send_string("QUIT")
+    #     await self.process_gui_signal([command], "TUI_Nexus")
 
     async def process_gui_signal(self, flag, name):
         """Receive flags from the Front End as user input"""
@@ -672,9 +654,6 @@ class Nexus:
         logger.warning("Killing child processes")
         self.out_socket.send_string("QUIT")
 
-        if self.config.hasGUI and hasattr(self, 'p_GUI'):
-            self.processes.append(self.p_GUI)
-
         for p in self.processes:
             p.terminate()
             p.join(timeout=5)
@@ -719,7 +698,7 @@ class Nexus:
     def revive(self):
         logger.warning("Starting revive")
 
-    async def stop_polling(self, stop_signal):
+    async def stop_polling(self):
         """Cancels outstanding tasks and fills their last request.
 
         Puts a string into all active queues, then cancels their
@@ -730,12 +709,12 @@ class Nexus:
             stop_signal (improv.actor.Signal): Signal for signal handler.
             queues (improv.link.AsyncQueue): Comm queues for links.
         """
-        logger.info("Received shutdown order")
+        logger.info("Received shutdown order. Time to stop polling.")
 
-        logger.info(f"Stop signal: {stop_signal}")
         shutdown_message = Signal.quit()
         for actor in self.actor_states.values():
             try:
+                logger.info(f"Sending quit signal to {actor.actor_name}")
                 await actor.sig_socket.send_pyobj(
                     NexusSignalMsg(
                         actor.actor_name, shutdown_message, "Nexus sending quit signal"
@@ -744,7 +723,10 @@ class Nexus:
                 msg_ready = await actor.sig_socket.poll(timeout=1000)
                 if msg_ready == 0:
                     raise TimeoutError
-                await actor.sig_socket.recv_pyobj()
+                else: 
+                    logger.info(f"Preparing to receive response from {actor.actor_name}")
+                    rep = await actor.sig_socket.recv_pyobj()
+                    logger.info(f"Received reply {rep.info} from {actor.actor_name}")
             except TimeoutError:
                 logger.info(
                     f"Timed out waiting for reply to quit message "
@@ -895,7 +877,7 @@ class Nexus:
         )
         instance = clss(
             name=actor.name,
-            nexus_comm_port=self.actor_in_socket_port,
+            nexus_comm_port=self.config.settings["control_port"],
             broker_sub_port=self.broker_sub_port,
             broker_pub_port=self.broker_pub_port,
             log_pull_port=self.logger_pull_port,
@@ -968,26 +950,6 @@ class Nexus:
                     self.incoming_topics[sink_actor] = [LinkInfo(sink_link, name)]
                 else:
                     self.incoming_topics[sink_actor].append(LinkInfo(sink_link, name))
-
-    def assign_link(self, name, link):
-        """Function to set up Links between actors
-        for data location passing
-        Actor must already be instantiated
-
-        #NOTE: Could use this for reassigning links if actors crash?
-
-        #TODO: Adjust to use default q_out and q_in vs being specified
-        """
-        classname = name.split(".")[0]
-        linktype = name.split(".")[1]
-        if linktype == "q_out":
-            self.actors[classname].set_link_out(link)
-        elif linktype == "q_in":
-            self.actors[classname].set_link_in(link)
-        elif linktype == "watchout":
-            self.actors[classname].set_link_watch(link)
-        else:
-            self.actors[classname].add_link(linktype, link)
 
     def start_logger(self, log_server_pub_port):
         spawn_context = get_context("spawn")
@@ -1123,7 +1085,7 @@ class Nexus:
             except Exception as e:
                 logger.exception(f"Unable to close harvester: {e}")
 
-    def set_up_sockets(self, actor_in_port):
+    def set_up_sockets(self):
 
         logger.debug("Connecting to output")
         cfg = self.config.settings  # this could be self.settings instead
@@ -1139,14 +1101,6 @@ class Nexus:
         self.in_socket.bind("tcp://*:%s" % cfg["control_port"])
         in_port_string = self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
         cfg["control_port"] = int(in_port_string.split(":")[-1])
-
-        logger.debug("Connecting to actor comm socket")
-        self.actor_in_socket = self.zmq_context.socket(REP)
-        self.actor_in_socket.bind(f"tcp://*:{actor_in_port}")
-        in_port_string = self.actor_in_socket.getsockopt_string(
-            SocketOption.LAST_ENDPOINT
-        )
-        self.actor_in_socket_port = int(in_port_string.split(":")[-1])
 
         logger.debug("Setting up sync server startup socket")
         self.zmq_sync_context = zmq_sync.Context()
@@ -1197,7 +1151,7 @@ class Nexus:
         logger.info("all services started")
 
     def apply_cli_config_overrides(
-        self, store_size, control_port, output_port, actor_in_port
+        self, store_size, control_port, output_port
     ):
         if store_size is not None:
             self.config.settings["store_size"] = store_size
@@ -1205,8 +1159,6 @@ class Nexus:
             self.config.settings["control_port"] = control_port
         if output_port is not None:
             self.config.settings["output_port"] = output_port
-        if actor_in_port is not None:
-            self.config.settings["actor_in_port"] = actor_in_port
 
     def start_harvester(self):
         spawn_context = get_context("spawn")

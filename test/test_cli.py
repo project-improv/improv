@@ -23,7 +23,7 @@ def server(setdir, ports):
     tests that as well.
     """
 
-    control_port, output_port, logging_port, actor_in_port = ports
+    control_port, output_port, logging_port = ports
 
     # start server
     server_opts = [
@@ -52,7 +52,7 @@ def server(setdir, ports):
 @pytest.fixture
 def cli_args(setdir, ports):
     logfile = "tmp.log"
-    control_port, output_port, logging_port, actor_in_port = ports
+    control_port, output_port, logging_port = ports
     config_file = "minimal.yaml"
     Args = namedtuple(
         "cli_args",
@@ -192,7 +192,7 @@ def test_improv_kill_empties_list(server):
 
 
 def test_improv_run_writes_stderr_to_log(setdir, ports):
-    control_port, output_port, logging_port, actor_in_port = ports
+    control_port, output_port, logging_port = ports
 
     # start server
     server_opts = [

@@ -1,6 +1,7 @@
 import pytest
 import time
 import improv.tui as tui
+from improv.messaging import ActorSignalReplyMsg
 import logging
 import zmq.asyncio as zmq
 from zmq import PUB, REP
@@ -29,7 +30,7 @@ async def sockets(ports):
 
 @pytest.fixture
 async def app(ports):
-    mock = tui.TUI(*ports[:-1])
+    mock = tui.TUI(*ports)
     yield mock
     time.sleep(0.5)
 
@@ -63,9 +64,13 @@ async def test_input_box_echoed_to_console(app):
     mock_server_socket.bind(f"tcp://*:{app.control_port.split(':')[1]}")
     async with app.run_test() as pilot:
         await pilot.press(*"foo", "enter")
-        await mock_server_socket.recv_string()
-        await mock_server_socket.send_string("test reply")
+        request = await mock_server_socket.recv_pyobj()
+        reply_obj = ActorSignalReplyMsg(
+            "TUI", "OK", "foo"
+        )
+        await mock_server_socket.send_pyobj(reply_obj)
         console = pilot.app.get_widget_by_id("console")
+        assert request.signal == "foo"
         assert console.history[0] == "foo"
 
 

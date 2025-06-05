@@ -17,6 +17,7 @@ from textual.widgets import (
 from textual.message import Message
 import logging
 from zmq.log.handlers import PUBHandler
+from improv.messaging import ActorSignalMsg
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -212,16 +213,20 @@ class TUI(App, inherit_bindings=False):
 
         try:
             logger.info(f"Sending {msg} to controller.")
-            await self.control_socket.send_string(msg)
+            msg_obj = ActorSignalMsg(
+                actor_name="TUI",
+                signal=msg,
+                info="Input from TUI"
+            )
+            await self.control_socket.send_pyobj(msg_obj)
             reply = None
 
             while True:
                 ready = await self.control_socket.poll(REQUEST_TIMEOUT)
 
                 if ready:
-                    reply = await self.control_socket.recv_multipart()
-                    reply = reply[0].decode("utf-8")
-                    logger.info(f"Received {reply} from controller.")
+                    reply = await self.control_socket.recv_pyobj()
+                    logger.info(f"Received {reply.info} from controller.")
                     break
                 else:
                     retries_left -= 1
@@ -245,7 +250,8 @@ class TUI(App, inherit_bindings=False):
         except asyncio.CancelledError:
             pass
 
-        return reply
+        if reply is not None:
+            return reply.info
 
     async def on_mount(self):
         self.set_focus(self.query_one(Input))

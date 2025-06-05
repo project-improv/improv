@@ -52,7 +52,7 @@ def test_create_config_settings(set_configdir):
         "control_port": 5555,
         "output_port": 5556,
         "store_size": 250_000_000,
-        "actor_in_port": 5555,
+        # "actor_in_port": 5555,
         "harvest_data_from_memory": None,
     }
 

@@ -50,7 +50,7 @@ def unused_tcp_port():
 async def test_simple_boot_and_quit(dir, configfile, logfile, setdir, ports):
     os.chdir(dir)
 
-    control_port, output_port, logging_port, actor_in_port = ports
+    control_port, output_port, logging_port = ports
 
     # start server
     server_opts = [
@@ -101,7 +101,7 @@ async def test_simple_boot_and_quit(dir, configfile, logfile, setdir, ports):
 async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
     os.chdir(dir)
 
-    control_port, output_port, logging_port, actor_in_port = ports
+    control_port, output_port, logging_port = ports
 
     # start server
     server_opts = [
@@ -142,10 +142,10 @@ async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
     server.wait(10)
 
     # check that the file written by Generator's stop function got written
-    os.path.isfile(datafile)
-
-    # then remove that file and logile
-    os.remove(datafile)
+    if os.path.isfile(datafile):
+        # then remove that file and logile
+        os.remove(datafile)
+    
     os.remove(logfile)  # later, might want to read this file and check for messages
 
 
@@ -160,7 +160,7 @@ async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
 async def test_stop_output_spawn(dir, configfile, logfile, datafile, setdir, ports):
     os.chdir(dir)
 
-    control_port, output_port, logging_port, actor_in_port = ports
+    control_port, output_port, logging_port = ports
 
     # start server
     server_opts = [

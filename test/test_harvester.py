@@ -18,7 +18,7 @@ def test_harvester_shuts_down_on_sigint(setup_store, harvester):
     harvester_ports, broker_socket, p = harvester
     ctx = zmq.Context()
     s = ctx.socket(zmq.REP)
-    s.bind(f"tcp://*:{harvester_ports[3]}")
+    s.bind(f"tcp://*:{harvester_ports[0]}")
     s.recv_pyobj()
     reply = HarvesterInfoReplyMsg("harvester", "OK", "")
     s.send_pyobj(reply)
@@ -41,7 +41,7 @@ def test_harvester_relieves_memory_pressure(setup_store, harvester):
     broker_link = ZmqLink(broker_socket, "test", "test topic")
     ctx = zmq.Context()
     s = ctx.socket(zmq.REP)
-    s.bind(f"tcp://*:{harvester_ports[3]}")
+    s.bind(f"tcp://*:{harvester_ports[0]}")
     s.recv_pyobj()
     reply = HarvesterInfoReplyMsg("harvester", "OK", "")
     s.send_pyobj(reply)
@@ -109,7 +109,7 @@ def test_harvester_relieves_memory_pressure_one_loop(ports, setup_store):
         try:
             ctx = zmq.Context()
             nex_s = ctx.socket(zmq.REP)
-            nex_s.bind(f"tcp://*:{ports[3]}")
+            nex_s.bind(f"tcp://*:{ports[0]}")
 
             broker_s = ctx.socket(zmq.PUB)
             broker_s.bind("tcp://*:1234")
@@ -122,7 +122,7 @@ def test_harvester_relieves_memory_pressure_one_loop(ports, setup_store):
 
             harvester = RedisHarvester(
                 nexus_hostname="localhost",
-                nexus_comm_port=ports[3],  # never gets called in this test
+                nexus_comm_port=ports[0],  # never gets called in this test
                 redis_hostname="localhost",
                 redis_port=6379,  # never gets called in this test
                 broker_hostname="localhost",
@@ -185,7 +185,7 @@ def test_harvester_loops_with_no_memory_pressure(ports, setup_store):
 
         ctx = zmq.Context()
         nex_s = ctx.socket(zmq.REP)
-        nex_s.bind(f"tcp://*:{ports[3]}")
+        nex_s.bind(f"tcp://*:{ports[0]}")
 
         log_s = ctx.socket(zmq.PULL)
         log_s.bind("tcp://*:0")
@@ -194,7 +194,7 @@ def test_harvester_loops_with_no_memory_pressure(ports, setup_store):
 
         harvester = RedisHarvester(
             nexus_hostname="localhost",
-            nexus_comm_port=ports[3],  # never gets called in this test
+            nexus_comm_port=ports[0],  # never gets called in this test
             redis_hostname="localhost",
             redis_port=6379,  # never gets called in this test
             broker_hostname="localhost",

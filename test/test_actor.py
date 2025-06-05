@@ -256,7 +256,7 @@ def test_actor_connection(setup_store, server_port_num):
 def test_actor_registration_with_nexus(ports, zmq_actor):
     context = zmq.Context()
     nex_socket = context.socket(zmq.REP)
-    nex_socket.bind(f"tcp://*:{ports[3]}")  # actor in port
+    nex_socket.bind(f"tcp://*:{ports[0]}")  # actor in port
 
     zmq_actor.start()
 

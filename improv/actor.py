@@ -452,7 +452,7 @@ class RunManager:
             try:
                 signal_msg = self.q_sig.get(timeout=self.timeout)
                 signal = signal_msg.signal
-                self.q_sig.put(NexusSignalReplyMsg(an, signal, "OK", ""))
+                self.q_sig.put(NexusSignalReplyMsg(an, signal, "OK", "OK"))
                 self.improv_logger.warning(
                     "{} received Signal {}".format(self.actorName, signal)
                 )
@@ -490,7 +490,7 @@ class RunManager:
         return None
 
     def __exit__(self, type, value, traceback):
-        self.improv_logger.info("Ran for " + str(time.time() - self.start) + " seconds")
+        self.improv_logger.info(f"{self.actorName} ran for " + str(time.time() - self.start) + " seconds")
         self.improv_logger.warning("Exiting RunManager")
         return None
 
