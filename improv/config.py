@@ -126,7 +126,7 @@ class Config:
         if "output_port" not in self.config["settings"]:
             self.config["settings"]["output_port"] = 5556
         if "actor_in_port" not in self.config["settings"]:
-            self.config["settings"]["actor_in_port"] = 0
+            self.config["settings"]["actor_in_port"] = self.config['settings']['control_port']
         if "harvest_data_from_memory" not in self.config["settings"]:
             self.config["settings"]["harvest_data_from_memory"] = None
 
