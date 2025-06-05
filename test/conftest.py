@@ -110,34 +110,6 @@ def setup_store(server_port_num):
     p.wait(timeout=WAIT_TIMEOUT)
 
 
-def nex_startup(ports, filename):
-    nex = Nexus("test")
-    nex.create_nexus(
-        file=filename,
-        store_size=100000000,
-        control_port=ports[0],
-        output_port=ports[1],
-        actor_in_port=ports[3],
-    )
-    nex.start_nexus()
-
-
-@pytest.fixture
-def start_nexus_minimal_zmq(ports):
-    filename = "minimal.yaml"
-    p = multiprocessing.Process(target=nex_startup, args=(ports, filename))
-    p.start()
-    time.sleep(1)
-
-    yield p
-
-    p.terminate()
-    p.join(WAIT_TIMEOUT)
-    if p.exitcode is None:
-        logging.exception("Timed out waiting for nexus to stop")
-        p.kill()
-
-
 @pytest.fixture
 def zmq_actor(ports):
     actor = ZmqActor(ports[3], None, None, ports[2], None, None, name="test")

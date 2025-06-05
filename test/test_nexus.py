@@ -689,29 +689,6 @@ def test_save_every_write(caplog, setdir, ports, server_port_num):
 #     assert True
 
 
-# def test_nexus_actor_in_port(ports, setdir, start_nexus_minimal_zmq):
-#     context = zmq.Context()
-#     nex_socket = context.socket(zmq.REQ)
-#     nex_socket.connect(f"tcp://localhost:{ports[3]}")  # actor in port
-#
-#     test_socket = context.socket(zmq.REP)
-#     test_socket.bind("tcp://*:0")
-#     in_port_string = test_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
-#     test_socket_port = int(in_port_string.split(":")[-1])
-#     logging.info(f"Using port {test_socket_port}")
-#
-#     logging.info("waiting to send")
-#     actor_state = ActorStateMsg(
-#         "test_actor", "test_status", test_socket_port, "test info string"
-#     )
-#     nex_socket.send_pyobj(actor_state)
-#     logging.info("Sent")
-#     out = nex_socket.recv_pyobj()
-#     assert isinstance(out, ActorStateReplyMsg)
-#     assert out.actor_name == actor_state.actor_name
-#     assert out.status == "OK"
-
-
 def test_nexus_create_nexus_no_cfg_file(ports):
     nex = Nexus("test")
     with pytest.raises(ConfigFileNotProvidedException):
