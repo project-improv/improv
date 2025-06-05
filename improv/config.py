@@ -42,7 +42,7 @@ class Config:
 
     def populate_defaults(self):
         self.populate_settings_defaults()
-        self.popoulate_redis_defaults()
+        self.populate_redis_defaults()
 
     def validate_config(self):
         self.validate_redis_config()
@@ -130,7 +130,7 @@ class Config:
         if "harvest_data_from_memory" not in self.config["settings"]:
             self.config["settings"]["harvest_data_from_memory"] = None
 
-    def popoulate_redis_defaults(self):
+    def populate_redis_defaults(self):
         if "redis_config" not in self.config:
             self.config["redis_config"] = {}
 
