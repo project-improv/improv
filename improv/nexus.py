@@ -24,6 +24,8 @@ from improv.log import bootstrap_log_server
 from improv.messaging import (
     ActorStateMsg,
     ActorStateReplyMsg,
+    ActorSignalMsg,
+    ActorSignalReplyMsg,
     NexusSignalMsg,
     BrokerInfoReplyMsg,
     BrokerInfoMsg,
@@ -406,19 +408,10 @@ class Nexus:
         """
         self.actorStates = dict.fromkeys(self.actors.keys())
         self.actor_states = dict.fromkeys(self.actors.keys(), None)
-        # if not self.config.hasGUI:
-        #     # Since Visual is not started, it cannot send a ready signal.
-        #     try:
-        #         del self.actorStates["Visual"]
-        #     except Exception as e:
-        #         logger.info("Visual is not started: {0}".format(e))
-        #         pass
 
         self.tasks = []
         self.tasks.append(asyncio.create_task(self.process_actor_message()))
         self.tasks.append(asyncio.create_task(self.remote_input()))
-
-        self.early_exit = False
 
         # add signal handlers
         loop = asyncio.get_event_loop()
@@ -428,7 +421,7 @@ class Nexus:
                 s, lambda s=s: asyncio.create_task(self.stop_polling_and_quit(s))
             )
 
-        logger.info("Nexus signal handler added")
+        logger.info("Nexus signal handlers added")
 
         while not self.flags["quit"]:
             await poll_function(*args, **kwargs)
@@ -442,7 +435,6 @@ class Nexus:
         Args:
             signal (signal): Signal for handling async polling.
                              One of: signal.SIGHUP, signal.SIGTERM, signal.SIGINT
-            queues (improv.link.AsyncQueue): Comm queues for links.
         """
         logger.warning(
             "Shutting down via signal handler due to {}. Steps may be out of order or dirty.".format(
@@ -453,7 +445,6 @@ class Nexus:
         logger.info("Nexus waiting for async tasks to have a chance to send")
         await asyncio.sleep(0)
         self.flags["quit"] = True
-        self.early_exit = True
         self.quit()
 
     def process_actor_state_update(self, msg: ActorStateMsg):
@@ -535,6 +526,26 @@ class Nexus:
             ):
                 logger.info("All actors ready. Allowing run.")
                 self.allowStart = True
+        elif isinstance(msg, ActorSignalMsg):
+            await self.process_actor_signal(msg)
+    
+    async def process_actor_signal(self, msg):
+        signal = msg.signal
+        match signal:
+            case Signal.setup():
+                logger.info("Running setup")
+                await self.setup()
+            case Signal.run():
+                logger.info("Begin run!")
+                await self.run()
+            case Signal.quit():
+                logger.warning("Quitting the program!")
+                task = asyncio.create_task(self.stop_polling_and_quit(Signal.quit()))
+                done, pending = await asyncio.wait(task)
+                while len(done) == 0:
+                    done, pending = await asyncio.wait(task)
+                self.flags["quit"] = True
+
 
     async def remote_input(self):
         msg = await self.in_socket.recv_multipart()
