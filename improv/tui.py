@@ -1,6 +1,7 @@
 import asyncio
 import zmq.asyncio as zmq
-from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER
+import zmq as zmq_sync
+from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER, SocketOption
 from rich.table import Table
 from textual.app import App, ComposeResult
 from textual.containers import Grid, Container
@@ -18,6 +19,7 @@ from textual.message import Message
 import logging
 from zmq.log.handlers import PUBHandler
 from improv.messaging import ActorSignalMsg
+from improv.log import ZmqLogHandler
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -129,18 +131,30 @@ class TUI(App, inherit_bindings=False):
     View class for the text user interface. Implemented as a Textual app.
     """
 
-    def __init__(self, control_port, output_port, logging_port):
+    def __init__(self, control_port, output_port, logging_port, log_host="localhost"):
         super().__init__()
         self.title = "improv console"
         self.control_port = TUI._sanitize_addr(control_port)
         self.output_port = TUI._sanitize_addr(output_port)
         self.logging_port = TUI._sanitize_addr(logging_port)
+        self.log_host = log_host
 
         self.context = zmq.Context()
         self.control_socket = self.context.socket(REQ)
         self.control_socket.connect("tcp://%s" % self.control_port)
 
-        logger.info("Text interface initialized")
+        # set up logging
+        self.zmq_sync_context = zmq_sync.Context()
+        self.zmq_sync_context.setsockopt(SocketOption.LINGER, 0)
+        self.logger = logging.getLogger(self.name)
+        self.logger.setLevel(logging.INFO)
+        for handler in logger.handlers:
+            self.logger.addHandler(handler)
+        # self.logger.addHandler(
+        #     ZmqLogHandler(self.log_host, self.logging_pull_port, self.zmq_sync_context)
+        # )
+
+        self.logger.info("Text interface initialized")
 
     CSS_PATH = "tui.css"
     BINDINGS = [
@@ -212,7 +226,7 @@ class TUI(App, inherit_bindings=False):
         retries_left = REQUEST_RETRIES
 
         try:
-            logger.info(f"Sending {msg} to controller.")
+            self.logger.info(f"Sending {msg} to controller.")
             msg_obj = ActorSignalMsg(
                 actor_name="TUI",
                 signal=msg,
@@ -226,26 +240,26 @@ class TUI(App, inherit_bindings=False):
 
                 if ready:
                     reply = await self.control_socket.recv_pyobj()
-                    logger.info(f"Received {reply.info} from controller.")
+                    self.logger.info(f"Received {reply.info} from controller.")
                     break
                 else:
                     retries_left -= 1
-                    logger.warning("No response from server.")
+                    self.logger.warning("No response from server.")
 
                 # try to close and reconnect
                 self.control_socket.setsockopt(LINGER, 0)
                 self.control_socket.close()
                 if retries_left == 0:
-                    logger.error("Server seems to be offline. Giving up.")
+                    self.logger.error("Server seems to be offline. Giving up.")
                     break
 
-                logger.info("Attempting to reconnect to server...")
+                self.logger.info("Attempting to reconnect to server...")
 
                 self.control_socket = self.context.socket(REQ)
                 self.control_socket.connect("tcp://%s" % self.control_port)
 
-                logger.info(f"Resending {msg} to controller.")
-                await self.control_socket.send_string(msg)
+                self.logger.info(f"Resending {msg} to controller.")
+                await self.control_socket.send_pyobj(msg_obj)
 
         except asyncio.CancelledError:
             pass
@@ -261,10 +275,12 @@ class TUI(App, inherit_bindings=False):
         self.query_one("#console").write(message.value)
         reply = await self.send_to_controller(message.value)
         self.query_one("#console").write(reply)
+        if "QUIT" in reply:
+            self.exit()
 
     async def on_socket_log_echo(self, message):
-        if message.sender.id == "console" and message.value == "QUIT":
-            logger.info("Got QUIT; will try to exit")
+        if message.sender.id == "console" and "QUIT" in message.value:
+            self.logger.info("Got QUIT; will try to exit")
             self.exit()
 
     def action_request_quit(self):

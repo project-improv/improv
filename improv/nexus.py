@@ -425,7 +425,6 @@ class Nexus:
         )
         await self.stop_polling()
         logger.info("Nexus waiting for async tasks to have a chance to send")
-        await asyncio.sleep(0)
         self.flags["quit"] = True
         self.quit()
 
@@ -509,13 +508,17 @@ class Nexus:
                 logger.info("All actors ready. Allowing run.")
                 self.allowStart = True
         elif isinstance(msg, ActorSignalMsg):
+            if msg.signal == Signal.quit():
+                reply_str = "QUIT"
+            else:
+                reply_str = "Awaiting input:"
             await self.in_socket.send_pyobj(
                 ActorSignalReplyMsg(
-                    msg.actor_name, "OK", f"Signal {msg.signal} received"
+                    msg.actor_name, msg.signal, f"Signal {msg.signal} received.\n" + reply_str
                 )
             )
             await self.process_actor_signal(msg)
-            await self.out_socket.send_string("Awaiting input:")
+
     
     async def process_actor_signal(self, msg):
         signal = msg.signal
@@ -528,13 +531,10 @@ class Nexus:
         elif signal == Signal.quit():
             logger.warning("Quitting the program!")
             task = asyncio.create_task(self.stop_polling_and_quit(Signal.quit()))
-            await task
-            # try:
-            #     done, pending = await asyncio.wait([task])
-            #     while len(done) == 0:
-            #         done, pending = await asyncio.wait([task])
-            # except Exception as e:
-            #     logger.error(f"Caught exception {e} when trying to quit the program.")
+            try:
+                await task
+            except Exception as e:
+                logger.error(f"Caught exception {e} when trying to quit the program.")
 
             self.flags["quit"] = True
         
@@ -652,7 +652,6 @@ class Nexus:
 
     def quit(self):
         logger.warning("Killing child processes")
-        self.out_socket.send_string("QUIT")
 
         for p in self.processes:
             p.terminate()
@@ -1138,7 +1137,7 @@ class Nexus:
         self._start_store_interface(store_size)
         logger.info("Redis server started")
 
-        self.out_socket.send_string("StoreInterface started")
+        # self.out_socket.send_string("StoreInterface started")
 
         if self.config.settings["harvest_data_from_memory"]:
             logger.debug("starting harvester")
