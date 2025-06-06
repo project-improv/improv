@@ -373,7 +373,6 @@ class Nexus:
 
         self.tasks = []
         self.tasks.append(asyncio.create_task(self.process_actor_message()))
-        # self.tasks.append(asyncio.create_task(self.remote_input()))
 
         # add signal handlers
         loop = asyncio.get_event_loop()
@@ -384,8 +383,6 @@ class Nexus:
             )
 
         logger.info("Nexus signal handlers added")
-
-        await self.out_socket.send_string("Awaiting input:")
 
         while not self.flags["quit"]:
             try:
@@ -425,6 +422,7 @@ class Nexus:
         )
         await self.stop_polling()
         logger.info("Nexus waiting for async tasks to have a chance to send")
+        await self.out_socket.send_string("QUIT")
         self.flags["quit"] = True
         self.quit()
 
@@ -507,11 +505,20 @@ class Nexus:
             ):
                 logger.info("All actors ready. Allowing run.")
                 self.allowStart = True
+            
+            if msg.actor_name == "TUI" and msg.status == Signal.ready():
+                await self.in_socket.send_pyobj(
+                    ActorStateReplyMsg(
+                        msg.actor_name, "OK", "Awaiting input:"
+                    )
+                )
+
         elif isinstance(msg, ActorSignalMsg):
             if msg.signal == Signal.quit():
-                reply_str = "QUIT"
+                reply_str = ""
             else:
                 reply_str = "Awaiting input:"
+
             await self.in_socket.send_pyobj(
                 ActorSignalReplyMsg(
                     msg.actor_name, msg.signal, f"Signal {msg.signal} received.\n" + reply_str
@@ -536,18 +543,6 @@ class Nexus:
             except Exception as e:
                 logger.error(f"Caught exception {e} when trying to quit the program.")
 
-            self.flags["quit"] = True
-        
-        
-
-
-    # async def remote_input(self):
-    #     msg = await self.in_socket.recv_multipart()
-    #     command = msg[0].decode("utf-8")
-    #     await self.in_socket.send_string("Awaiting input:")
-    #     if command == Signal.quit():
-    #         await self.out_socket.send_string("QUIT")
-    #     await self.process_gui_signal([command], "TUI_Nexus")
 
     async def process_gui_signal(self, flag, name):
         """Receive flags from the Front End as user input"""

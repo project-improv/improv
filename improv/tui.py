@@ -268,6 +268,8 @@ class TUI(App, inherit_bindings=False):
             return reply.info
 
     async def on_mount(self):
+        reply = await self.send_to_controller("ready")
+        self.query_one("#console").write(reply)
         self.set_focus(self.query_one(Input))
 
     async def on_input_submitted(self, message):
@@ -275,7 +277,7 @@ class TUI(App, inherit_bindings=False):
         self.query_one("#console").write(message.value)
         reply = await self.send_to_controller(message.value)
         self.query_one("#console").write(reply)
-        if "QUIT" in reply:
+        if reply and "QUIT" in reply:
             self.exit()
 
     async def on_socket_log_echo(self, message):
