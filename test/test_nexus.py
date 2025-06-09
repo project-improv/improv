@@ -337,8 +337,9 @@ async def test_process_actor_message(caplog, setdir, ports):
         actor1_message = ActorStateMsg("test actor1", "ready", 1234, "test info")
 
         ctx = nex.zmq_context
+        cfg = nex.config.settings
         s = ctx.socket(zmq.REQ)
-        s.connect(f"tcp://localhost:{nex.actor_in_socket_port}")
+        s.connect(f"tcp://localhost:{cfg['control_port']}")
 
         s.send_pyobj(actor1_message)
 
