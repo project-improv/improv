@@ -23,7 +23,7 @@ def server(setdir, ports):
     tests that as well.
     """
 
-    control_port, output_port, logging_port = ports
+    control_port, output_port, logging_port, logging_input_port = ports
 
     # start server
     server_opts = [
@@ -35,6 +35,8 @@ def server(setdir, ports):
         str(output_port),
         "-l",
         str(logging_port),
+        "-i",
+        str(logging_input_port),
         "-a",
         "..",
         "-f",
@@ -52,14 +54,14 @@ def server(setdir, ports):
 @pytest.fixture
 def cli_args(setdir, ports):
     logfile = "tmp.log"
-    control_port, output_port, logging_port = ports
+    control_port, output_port, logging_port, logging_input_port = ports
     config_file = "minimal.yaml"
     Args = namedtuple(
         "cli_args",
-        "control_port output_port logging_port logfile configfile actor_path",
+        "control_port output_port logging_port logging_input_port logfile configfile actor_path",
     )
 
-    args = Args(control_port, output_port, logging_port, logfile, config_file, [])
+    args = Args(control_port, output_port, logging_port, logging_input_port, logfile, config_file, [])
     return args
 
 
@@ -92,12 +94,15 @@ def test_multiple_actor_path(set_dir_config_parent):
         ("run", "-c", "6000"),
         ("run", "-o", "6000"),
         ("run", "-l", "6000"),
+        ("run", "-i", "6000"),
         ("server", "-c", "6000"),
         ("server", "-o", "6000"),
         ("server", "-l", "6000"),
+        ("server", "-i", "6000"),
         ("client", "-c", "6000"),
         ("client", "-s", "6000"),
         ("client", "-l", "6000"),
+        ("client", "-i", "6000"),
     ],
 )
 def test_can_override_ports(mode, flag, expected, setdir):
@@ -108,6 +113,7 @@ def test_can_override_ports(mode, flag, expected, setdir):
         "-o": "output_port",
         "-s": "server_port",
         "-l": "logging_port",
+        "-i": "logging_input_port"
     }
 
     if mode in ["run", "server"]:
@@ -192,7 +198,7 @@ def test_improv_kill_empties_list(server):
 
 
 def test_improv_run_writes_stderr_to_log(setdir, ports):
-    control_port, output_port, logging_port = ports
+    control_port, output_port, logging_port, logging_input_port = ports
 
     # start server
     server_opts = [
@@ -204,6 +210,8 @@ def test_improv_run_writes_stderr_to_log(setdir, ports):
         str(output_port),
         "-l",
         str(logging_port),
+        "-i",
+        str(logging_input_port),
         "-a",
         "..",
         "-f",
@@ -229,25 +237,27 @@ def test_get_ports_from_logfile(setdir):
     test_control_port = 53349
     test_output_port = 53350
     test_logging_port = 53351
+    test_logging_input_port = 53352
 
     logfile = "tmp.log"
 
     with open(logfile, "w") as log:
         log.write(
-            "Server running on (control, output, log) ports (53345, 53344, 53343)."
+            "Server running on (control, output, log out, log in) ports (53345, 53344, 53343, 53352).\n"
         )
         log.write(
-            f"Server running on (control, output, log) ports ({test_control_port}, "
-            f"{test_output_port}, {test_logging_port})."
+            f"Server running on (control, output, log out, log in) ports ({test_control_port}, "
+            f"{test_output_port}, {test_logging_port}, {test_logging_input_port})."
         )
 
-    control_port, output_port, logging_port = cli._get_ports(logfile)
+    control_port, output_port, logging_port, logging_input_port = cli._get_ports(logfile)
 
     os.remove(logfile)
 
     assert control_port == test_control_port
     assert output_port == test_output_port
     assert logging_port == test_logging_port
+    assert logging_input_port == test_logging_input_port
 
 
 def test_no_server_start_in_logfile_raises_error(setdir, cli_args, capsys):

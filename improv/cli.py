@@ -90,6 +90,12 @@ def parse_cli_args(args):
         help="local port on which logging messages are broadcast",
     )
     run_parser.add_argument(
+        "-i",
+        "--logging-input-port",
+        type=is_valid_port,
+        help="address to which logging messages are submitted",
+    )
+    run_parser.add_argument(
         "-f", "--logfile", default="global.log", help="name of log file"
     )
     run_parser.add_argument(
@@ -127,6 +133,12 @@ def parse_cli_args(args):
         type=is_valid_ip_addr,
         help="address on which logging messages are broadcast",
     )
+    client_parser.add_argument(
+        "-i",
+        "--logging-input-port",
+        type=is_valid_ip_addr,
+        help="address to which logging messages are submitted",
+    )
     client_parser.set_defaults(func=run_client)
 
     server_parser = subparsers.add_parser(
@@ -149,6 +161,12 @@ def parse_cli_args(args):
         "--logging-port",
         type=is_valid_port,
         help="local port on which logging messages are broadcast",
+    )
+    server_parser.add_argument(
+        "-i",
+        "--logging-input-port",
+        type=is_valid_port,
+        help="address to which logging messages are submitted",
     )
     server_parser.add_argument(
         "-f", "--logfile", default="global.log", help="name of log file"
@@ -189,7 +207,7 @@ def default_invocation():
 
 
 def run_client(args):
-    app = TUI(args.control_port, args.server_port, args.logging_port)
+    app = TUI(args.control_port, args.server_port, args.logging_port, args.logging_input_port)
 
     app.run()
 
@@ -211,17 +229,18 @@ def run_server(args):
         sys.path.extend(args.actor_path)
 
     server = Nexus()
-    control_port, output_port, log_port = server.create_nexus(
+    control_port, output_port, log_port, log_input_port = server.create_nexus(
         file=args.configfile,
         control_port=args.control_port,
         output_port=args.output_port,
         log_server_pub_port=args.logging_port,
+        log_server_pull_port=args.logging_input_port,
         logfile=args.logfile,
     )
     curr_dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(
         f"{curr_dt} Server running on (control, output, log) ports "
-        f"({control_port}, {output_port}, {log_port}).\n"
+        f"({control_port}, {output_port}, {log_port}, {log_input_port}).\n"
         f"Press Ctrl-C to quit."
     )
     try:
@@ -331,6 +350,10 @@ def run(args, timeout=10):
         server_opts.append("-l")
         server_opts.append(str(args.logging_port))
 
+    if args.logging_port:
+        server_opts.append("-i")
+        server_opts.append(str(args.logging_input_port))
+
     server_opts.extend(apath_opts)
     server_opts.append(args.configfile)
 
@@ -342,8 +365,9 @@ def run(args, timeout=10):
     # wait for server to start up
     ports = get_server_ports(args, timeout)
     if ports:
-        control_port, output_port, logging_port = ports
+        control_port, output_port, logging_port, logging_input_port = ports
         args.logging_port = logging_port
+        args.logging_input_port = logging_input_port
         args.control_port = control_port
         args.server_port = output_port
         run_client(args)
@@ -410,7 +434,7 @@ def _get_ports(logfile):
 
 
 def _read_log_contents_for_ports(logfile_contents):
-    pattern = re.compile(r"(?<=\(control, output, log\) ports \()\d*, \d*, \d*")
+    pattern = re.compile(r"(?<=\(control, output, log out, log in\) ports \()\d*, \d*, \d*, \d*")
 
     # get most recent match (log file may contain old runs)
     port_str_list = pattern.findall(logfile_contents)

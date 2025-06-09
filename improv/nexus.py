@@ -119,6 +119,7 @@ class Nexus:
         control_port=None,
         output_port=None,
         log_server_pub_port=None,
+        log_server_pull_port=None,
         logfile="global.log",
     ):
         """Function to initialize class variables based on config file.
@@ -157,7 +158,9 @@ class Nexus:
         self.apply_cli_config_overrides(
             store_size=store_size,
             control_port=control_port,
-            output_port=output_port
+            output_port=output_port,
+            logging_port=log_server_pub_port,
+            logging_input_port=log_server_pull_port
         )
 
         logger.debug("Setting up sockets")
@@ -166,6 +169,7 @@ class Nexus:
         logger.debug("Setting up services")
         self.start_improv_services(
             log_server_pub_port=log_server_pub_port,
+            log_server_pull_port=log_server_pull_port,
             store_size=self.config.settings["store_size"],
         )
 
@@ -179,12 +183,14 @@ class Nexus:
         logger.info(
             f"control: {self.config.settings['control_port']},"
             f" output: {self.config.settings['output_port']},"
-            f" logging: {self.logger_pub_port}"
+            f" logging (output): {self.logger_pub_port},"
+            f" logging (input): {self.logger_pull_port}"
         )
         return (
             self.config.settings["control_port"],
             self.config.settings["output_port"],
             self.logger_pub_port,
+            self.logger_pull_port
         )
 
     def init_config(self):
@@ -950,13 +956,13 @@ class Nexus:
                 else:
                     self.incoming_topics[sink_actor].append(LinkInfo(sink_link, name))
 
-    def start_logger(self, log_server_pub_port):
+    def start_logger(self, log_server_pub_port, log_server_pull_port):
         spawn_context = get_context("spawn")
         self.p_logger = spawn_context.Process(
             target=bootstrap_log_server,
             args=(
                 "localhost",
-                self.logger_in_port,
+                log_server_pull_port,
                 self.logfile,
                 log_server_pub_port,
             ),
@@ -1106,11 +1112,7 @@ class Nexus:
         self.zmq_sync_context.setsockopt(SocketOption.LINGER, 0)
 
         self.logger_in_socket = self.zmq_sync_context.socket(REP)
-        self.logger_in_socket.bind("tcp://*:0")
-        logger_in_port_string = self.logger_in_socket.getsockopt_string(
-            SocketOption.LAST_ENDPOINT
-        )
-        self.logger_in_port = int(logger_in_port_string.split(":")[-1])
+        self.logger_in_socket.bind("tcp://*:%s" % cfg["logging_input_port"])
 
         self.broker_in_socket = self.zmq_sync_context.socket(REP)
         self.broker_in_socket.bind("tcp://*:0")
@@ -1119,9 +1121,9 @@ class Nexus:
         )
         self.broker_in_port = int(broker_in_port_string.split(":")[-1])
 
-    def start_improv_services(self, log_server_pub_port, store_size):
+    def start_improv_services(self, log_server_pub_port, log_server_pull_port, store_size):
         logger.debug("Starting logger")
-        self.start_logger(log_server_pub_port)
+        self.start_logger(log_server_pub_port, log_server_pull_port)
         logger.addHandler(
             log.ZmqLogHandler("localhost", self.logger_pull_port, self.zmq_sync_context)
         )
@@ -1137,8 +1139,6 @@ class Nexus:
         self._start_store_interface(store_size)
         logger.info("Redis server started")
 
-        # self.out_socket.send_string("StoreInterface started")
-
         if self.config.settings["harvest_data_from_memory"]:
             logger.debug("starting harvester")
             self.start_harvester()
@@ -1150,7 +1150,7 @@ class Nexus:
         logger.info("all services started")
 
     def apply_cli_config_overrides(
-        self, store_size, control_port, output_port
+        self, store_size, control_port, output_port, logging_port, logging_input_port
     ):
         if store_size is not None:
             self.config.settings["store_size"] = store_size
@@ -1158,6 +1158,10 @@ class Nexus:
             self.config.settings["control_port"] = control_port
         if output_port is not None:
             self.config.settings["output_port"] = output_port
+        if logging_port is not None:
+            self.config.settings["logging_port"] = logging_port
+        if output_port is not None:
+            self.config.settings["logging_input_port"] = logging_input_port
 
     def start_harvester(self):
         spawn_context = get_context("spawn")

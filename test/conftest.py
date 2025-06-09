@@ -27,10 +27,12 @@ def ports():
     CONTROL_PORT = 30000
     OUTPUT_PORT = 30001
     LOGGING_PORT = 30002
+    LOGGING_INPUT_PORT = 30003
     yield (
         CONTROL_PORT + SERVER_COUNTER,
         OUTPUT_PORT + SERVER_COUNTER,
         LOGGING_PORT + SERVER_COUNTER,
+        LOGGING_INPUT_PORT + SERVER_COUNTER,
     )
     SERVER_COUNTER += 4
 
@@ -60,6 +62,8 @@ def sample_nex(setdir, ports):
             store_size=40000000,
             control_port=ports[0],
             output_port=ports[1],
+            log_server_pub_port=ports[2],
+            log_server_pull_port=ports[3]
         )
     except Exception as e:
         print(f"error caught in test harness during create_nexus step: {e}")

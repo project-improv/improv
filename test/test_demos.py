@@ -39,21 +39,11 @@ def unused_tcp_port():
     yield pytest.unused_tcp_port
     UNUSED_TCP_PORT += 1
 
+@pytest.fixture
+def server_opts(ports, logfile, configfile):
+    control_port, output_port, logging_port, logging_input_port = ports
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    ("dir", "configfile", "logfile"),
-    [
-        ("minimal", "minimal.yaml", "testlog"),
-    ],
-)
-async def test_simple_boot_and_quit(dir, configfile, logfile, setdir, ports):
-    os.chdir(dir)
-
-    control_port, output_port, logging_port = ports
-
-    # start server
-    server_opts = [
+    opts = [
         "improv",
         "server",
         "-c",
@@ -62,10 +52,27 @@ async def test_simple_boot_and_quit(dir, configfile, logfile, setdir, ports):
         str(output_port),
         "-l",
         str(logging_port),
+        "-i",
+        str(logging_input_port),
         "-f",
         logfile,
         configfile,
     ]
+
+    yield opts
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("dir", "configfile", "logfile"),
+    [
+        ("minimal", "minimal.yaml", "testlog"),
+    ],
+)
+async def test_simple_boot_and_quit(dir, logfile, setdir, ports, server_opts):
+    os.chdir(dir)
+
+    control_port, output_port, logging_port, logging_input_port = ports
 
     with open(logfile, mode="a+") as log:
         server = subprocess.Popen(server_opts, stdout=log, stderr=log)
@@ -74,7 +81,7 @@ async def test_simple_boot_and_quit(dir, configfile, logfile, setdir, ports):
     await asyncio.sleep(SERVER_WARMUP)
 
     # initialize client
-    app = tui.TUI(control_port, output_port, logging_port)
+    app = tui.TUI(control_port, output_port, logging_port, logging_input_port)
 
     # run client
     async with app.run_test() as pilot:
@@ -98,32 +105,17 @@ async def test_simple_boot_and_quit(dir, configfile, logfile, setdir, ports):
         ("minimal", "minimal_persistence.yaml", "testlog", "test_persistence.csv"),
     ],
 )
-async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
+async def test_stop_output(dir, logfile, datafile, setdir, ports, server_opts):
     os.chdir(dir)
 
-    control_port, output_port, logging_port = ports
-
-    # start server
-    server_opts = [
-        "improv",
-        "server",
-        "-c",
-        str(control_port),
-        "-o",
-        str(output_port),
-        "-l",
-        str(logging_port),
-        "-f",
-        logfile,
-        configfile,
-    ]
+    control_port, output_port, logging_port, logging_input_port = ports
 
     with open(logfile, mode="a+") as log:
         server = subprocess.Popen(server_opts, stdout=log, stderr=log)
     await asyncio.sleep(SERVER_WARMUP)
 
     # initialize client
-    app = tui.TUI(control_port, output_port, logging_port)
+    app = tui.TUI(control_port, output_port, logging_port, logging_input_port)
 
     # run client
     async with app.run_test() as pilot:
@@ -157,32 +149,17 @@ async def test_stop_output(dir, configfile, logfile, datafile, setdir, ports):
         ("minimal", "minimal_spawn.yaml", "testlog", "sample_generator_data.npy"),
     ],
 )
-async def test_stop_output_spawn(dir, configfile, logfile, datafile, setdir, ports):
+async def test_stop_output_spawn(dir, configfile, logfile, datafile, setdir, ports, server_opts):
     os.chdir(dir)
 
-    control_port, output_port, logging_port = ports
-
-    # start server
-    server_opts = [
-        "improv",
-        "server",
-        "-c",
-        str(control_port),
-        "-o",
-        str(output_port),
-        "-l",
-        str(logging_port),
-        "-f",
-        logfile,
-        configfile,
-    ]
+    control_port, output_port, logging_port, logging_input_port = ports
 
     with open(logfile, mode="a+") as log:
         server = subprocess.Popen(server_opts, stdout=log, stderr=log)
     await asyncio.sleep(SERVER_WARMUP)
 
     # initialize client
-    app = tui.TUI(control_port, output_port, logging_port)
+    app = tui.TUI(control_port, output_port, logging_port, logging_input_port)
 
     # run client
     async with app.run_test() as pilot:

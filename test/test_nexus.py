@@ -33,7 +33,13 @@ def test_init(setdir):
 )
 def test_create_nexus(setdir, ports, cfg_name):
     nex = Nexus("test")
-    nex.create_nexus(file=cfg_name, control_port=ports[0], output_port=ports[1])
+    nex.create_nexus(
+        file=cfg_name, 
+        control_port=ports[0], 
+        output_port=ports[1],
+        log_server_pub_port=ports[2],
+        log_server_pull_port=ports[3],
+    )
     assert list(nex.actors.keys()) == ["Acquirer", "Analysis"]
     assert list(nex.flags.keys()) == ["quit", "run", "load"]
     assert nex.processes == []
@@ -44,7 +50,11 @@ def test_create_nexus(setdir, ports, cfg_name):
 def test_config_logged(setdir, ports, caplog):
     nex = Nexus("test")
     nex.create_nexus(
-        file="minimal_with_settings.yaml", control_port=ports[0], output_port=ports[1]
+        file="minimal_with_settings.yaml", 
+        control_port=ports[0], 
+        output_port=ports[1],
+        log_server_pub_port=ports[2],
+        log_server_pull_port=ports[3],
     )
     nex.destroy_nexus()
     assert any(
@@ -74,6 +84,8 @@ def test_argument_config_precedence(setdir, ports):
         file="minimal_with_settings.yaml",
         control_port=ports[0],
         output_port=ports[1],
+        log_server_pub_port=ports[2],
+        log_server_pull_port=ports[3],
         store_size=11_000_000,
     )
     cfg = nex.config.settings
@@ -129,7 +141,13 @@ def test_config_construction(cfg_name, actor_list, link_list, setdir, ports):
     """
 
     nex = Nexus("test")
-    nex.create_nexus(file=cfg_name, control_port=ports[0], output_port=ports[1])
+    nex.create_nexus(
+        file=cfg_name, 
+        control_port=ports[0], 
+        output_port=ports[1],
+        log_server_pub_port=ports[2],
+        log_server_pull_port=ports[3],
+    )
     logging.info(cfg_name)
 
     # Check for actors
@@ -153,7 +171,11 @@ def test_single_actor(setdir, ports, cfg_name):
     nex = Nexus("test")
     with pytest.raises(AttributeError):
         nex.create_nexus(
-            file="single_actor.yaml", control_port=ports[0], output_port=ports[1]
+            file="single_actor.yaml", 
+            control_port=ports[0], 
+            output_port=ports[1],
+            log_server_pub_port=ports[2],
+            log_server_pull_port=ports[3],
         )
 
     nex.destroy_nexus()
@@ -162,7 +184,11 @@ def test_single_actor(setdir, ports, cfg_name):
 def test_cyclic_graph(setdir, ports):
     nex = Nexus("test")
     nex.create_nexus(
-        file="cyclic_config.yaml", control_port=ports[0], output_port=ports[1]
+        file="cyclic_config.yaml", 
+        control_port=ports[0], 
+        output_port=ports[1],
+        log_server_pub_port=ports[2],
+        log_server_pull_port=ports[3],
     )
     assert True
     nex.destroy_nexus()
@@ -172,7 +198,11 @@ def test_blank_cfg(setdir, caplog, ports):
     nex = Nexus("test")
     with pytest.raises(CannotCreateConfigException):
         nex.create_nexus(
-            file="blank_file.yaml", control_port=ports[0], output_port=ports[1]
+            file="blank_file.yaml", 
+            control_port=ports[0], 
+            output_port=ports[1],
+            log_server_pub_port=ports[2],
+            log_server_pull_port=ports[3],
         )
     assert any(
         ["The config file is empty" in record.msg for record in list(caplog.records)]
@@ -219,6 +249,8 @@ def test_start_harvester(caplog, setdir, ports):
             store_size=100_000_000,
             control_port=ports[0],
             output_port=ports[1],
+            log_server_pub_port=ports[2],
+            log_server_pull_port=ports[3],
         )
 
         time.sleep(3)
@@ -239,6 +271,8 @@ def test_process_actor_state_update(caplog, setdir, ports):
             store_size=100_000_000,
             control_port=ports[0],
             output_port=ports[1],
+            log_server_pub_port=ports[2],
+            log_server_pull_port=ports[3],
         )
 
         time.sleep(3)
@@ -280,6 +314,8 @@ def test_process_actor_state_update_allows_run(caplog, setdir, ports):
             store_size=100_000_000,
             control_port=ports[0],
             output_port=ports[1],
+            log_server_pub_port=ports[2],
+            log_server_pull_port=ports[3],
         )
 
         time.sleep(3)
@@ -327,6 +363,8 @@ async def test_process_actor_message(caplog, setdir, ports):
             store_size=100_000_000,
             control_port=ports[0],
             output_port=ports[1],
+            log_server_pub_port=ports[2],
+            log_server_pull_port=ports[3],
         )
 
         time.sleep(3)
@@ -371,6 +409,8 @@ def test_specified_free_port(caplog, setdir, ports):
             store_size=100_000_000,
             control_port=ports[0],
             output_port=ports[1],
+            log_server_pub_port=ports[2],
+            log_server_pull_port=ports[3],
         )
 
         store = StoreInterface(server_port_num=6378)
@@ -404,6 +444,8 @@ def test_specified_busy_port(caplog, setdir, ports, setup_store):
             store_size=100_000_000,
             control_port=ports[0],
             output_port=ports[1],
+            log_server_pub_port=ports[2],
+            log_server_pull_port=ports[3],
         )
 
         time.sleep(3)
@@ -431,6 +473,8 @@ def test_unspecified_port_default_free(caplog, setdir, ports):
             store_size=100_000_000,
             control_port=ports[0],
             output_port=ports[1],
+            log_server_pub_port=ports[2],
+            log_server_pull_port=ports[3],
         )
 
         time.sleep(3)
@@ -454,6 +498,8 @@ def test_unspecified_port_default_busy(caplog, setdir, ports, setup_store):
             store_size=100_000_000,
             control_port=ports[0],
             output_port=ports[1],
+            log_server_pub_port=ports[2],
+            log_server_pull_port=ports[3],
         )
 
         time.sleep(3)
@@ -503,6 +549,8 @@ def test_default_aof_dir_if_none_specified(caplog, setdir, ports, server_port_nu
             store_size=100_000_000,
             control_port=ports[0],
             output_port=ports[1],
+            log_server_pub_port=ports[2],
+            log_server_pull_port=ports[3],
         )
 
         store = StoreInterface(server_port_num=server_port_num)
@@ -533,6 +581,8 @@ def test_specify_static_aof_dir(caplog, setdir, ports, server_port_num):
             store_size=100_000_000,
             control_port=ports[0],
             output_port=ports[1],
+            log_server_pub_port=ports[2],
+            log_server_pull_port=ports[3],
         )
 
         store = StoreInterface(server_port_num=server_port_num)
@@ -563,6 +613,8 @@ def test_use_ephemeral_aof_dir(caplog, setdir, ports, server_port_num):
             store_size=100_000_000,
             control_port=ports[0],
             output_port=ports[1],
+            log_server_pub_port=ports[2],
+            log_server_pull_port=ports[3],
         )
 
         store = StoreInterface(server_port_num=server_port_num)
@@ -590,6 +642,8 @@ def test_save_no_schedule(caplog, setdir, ports, server_port_num):
             store_size=100_000_000,
             control_port=ports[0],
             output_port=ports[1],
+            log_server_pub_port=ports[2],
+            log_server_pull_port=ports[3],
         )
 
         store = StoreInterface(server_port_num=server_port_num)
@@ -617,6 +671,8 @@ def test_save_every_second(caplog, setdir, ports, server_port_num):
             store_size=100_000_000,
             control_port=ports[0],
             output_port=ports[1],
+            log_server_pub_port=ports[2],
+            log_server_pull_port=ports[3],
         )
 
         store = StoreInterface(server_port_num=server_port_num)
@@ -644,6 +700,8 @@ def test_save_every_write(caplog, setdir, ports, server_port_num):
             store_size=100_000_000,
             control_port=ports[0],
             output_port=ports[1],
+            log_server_pub_port=ports[2],
+            log_server_pull_port=ports[3],
         )
 
         store = StoreInterface(server_port_num=server_port_num)
