@@ -17,7 +17,6 @@ def logger(ports):
     yield logger
     logger.removeHandler(zmq_log_handler)
 
-
 @pytest.fixture
 async def sockets(ports):
     with zmq.Context() as context:
@@ -30,17 +29,16 @@ async def sockets(ports):
 
 @pytest.fixture
 async def app(ports):
-    mock = tui.TUI(*ports)
+    mock = tui.TUI(*ports, testing=True)
     yield mock
     time.sleep(0.5)
-
 
 async def test_console_panel_receives_broadcast(app, sockets, logger):
     async with app.run_test() as pilot:
         await sockets[1].send_string("received")
         await pilot.pause(0.1)
         console = pilot.app.get_widget_by_id("console")
-        console.history[0] == "received"
+        assert console.history[0] == "received"
 
 
 async def test_quit_from_socket(app, sockets):
@@ -58,17 +56,14 @@ async def test_log_panel_receives_logging(app, logger):
         assert "test" in log_window.history[0]
 
 
-async def test_input_box_echoed_to_console(app):
-    ctx = zmq.Context()
-    mock_server_socket = ctx.socket(REP)
-    mock_server_socket.bind(f"tcp://*:{app.control_port.split(':')[1]}")
+async def test_input_box_echoed_to_console(app, sockets):
     async with app.run_test() as pilot:
         await pilot.press(*"foo", "enter")
-        request = await mock_server_socket.recv_pyobj()
+        request = await sockets[0].recv_pyobj()
         reply_obj = ActorSignalReplyMsg(
             "TUI", "OK", "foo"
         )
-        await mock_server_socket.send_pyobj(reply_obj)
+        await sockets[0].send_pyobj(reply_obj)
         console = pilot.app.get_widget_by_id("console")
         assert request.signal == "foo"
         assert console.history[0] == "foo"

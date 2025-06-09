@@ -131,13 +131,14 @@ class TUI(App, inherit_bindings=False):
     View class for the text user interface. Implemented as a Textual app.
     """
 
-    def __init__(self, control_port, output_port, logging_port, log_host="localhost"):
+    def __init__(self, control_port, output_port, logging_port, log_host="localhost", testing=False):
         super().__init__()
         self.title = "improv console"
         self.control_port = TUI._sanitize_addr(control_port)
         self.output_port = TUI._sanitize_addr(output_port)
         self.logging_port = TUI._sanitize_addr(logging_port)
         self.log_host = log_host
+        self.testing = testing
 
         self.context = zmq.Context()
         self.control_socket = self.context.socket(REQ)
@@ -268,8 +269,9 @@ class TUI(App, inherit_bindings=False):
             return reply.info
 
     async def on_mount(self):
-        reply = await self.send_to_controller("ready")
-        self.query_one("#console").write(reply)
+        if not self.testing:
+            reply = await self.send_to_controller("ready")
+            self.query_one("#console").write(reply)
         self.set_focus(self.query_one(Input))
 
     async def on_input_submitted(self, message):
