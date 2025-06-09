@@ -18,7 +18,7 @@ from textual.widgets import (
 from textual.message import Message
 import logging
 from zmq.log.handlers import PUBHandler
-from improv.messaging import ActorSignalMsg
+from improv.messaging import ActorSignalMsg, ActorSignalReplyMsg
 from improv.log import ZmqLogHandler
 
 logger = logging.getLogger(__name__)
@@ -314,11 +314,18 @@ if __name__ == "__main__":
         Fake program to be controlled by TUI.
         """
         while True:
-            msg = await socket.recv_multipart()
-            if msg[0].decode("utf-8") == "quit":
-                await socket.send_string("QUIT")
+            msg = await socket.recv_pyobj()
+            if msg.signal == "quit":
+                reply_str = "QUIT"
+            elif msg.signal == "ready":
+                reply_str = "Awaiting input:"
             else:
-                await socket.send_string("Awaiting input:")
+                reply_str = "Awaiting input:"
+            await socket.send_pyobj(
+                ActorSignalReplyMsg(
+                    msg.actor_name, msg.signal, f"Signal {msg.signal} received.\n" + reply_str
+                )
+            )
 
     async def publish():
         """
@@ -349,7 +356,7 @@ if __name__ == "__main__":
         # the following construct ensures both the
         # (infinite) fake servers are killed once the tui finishes
         finished, unfinished = await asyncio.wait(
-            [app.run_async(), publish(), backend(), log()],
+            [asyncio.create_task(c) for c in (app.run_async(), publish(), backend(), log())],
             return_when=asyncio.FIRST_COMPLETED,
         )
 
