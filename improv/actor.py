@@ -453,28 +453,28 @@ class RunManager:
                 signal_msg = self.q_sig.get(timeout=self.timeout)
                 signal = signal_msg.signal
                 self.q_sig.put(NexusSignalReplyMsg(an, signal, "OK", "OK"))
-                self.improv_logger.warning(
-                    "{} received Signal {}".format(self.actorName, signal)
+                self.improv_logger.info(
+                    "{} received signal {}".format(self.actorName, signal)
                 )
                 if signal == Signal.run():
                     self.run = True
-                    self.improv_logger.warning("Received run signal, begin running")
+                    self.improv_logger.info("Received run signal, begin running")
                 elif signal == Signal.setup():
                     self.config = True
                 elif signal == Signal.stop():
                     self.run = False
                     self.stop = True
-                    self.improv_logger.warning(
+                    self.improv_logger.info(
                         f"actor {self.actorName} received stop signal"
                     )
                 elif signal == Signal.quit():
-                    self.improv_logger.warning("Received quit signal, aborting")
+                    self.improv_logger.info("Received quit signal, aborting")
                     break
                 elif signal == Signal.pause():
-                    self.improv_logger.warning("Received pause signal, pending...")
+                    self.improv_logger.info("Received pause signal, pending...")
                     self.run = False
                 elif signal == Signal.resume():  # currently treat as same as run
-                    self.improv_logger.warning("Received resume signal, resuming")
+                    self.improv_logger.info("Received resume signal, resuming")
                     self.run = True
                 elif signal == Signal.status():
                     self.improv_logger.info(
@@ -491,7 +491,7 @@ class RunManager:
 
     def __exit__(self, type, value, traceback):
         self.improv_logger.info(f"{self.actorName} ran for " + str(time.time() - self.start) + " seconds")
-        self.improv_logger.warning("Exiting RunManager")
+        self.improv_logger.info("Exiting RunManager")
         return None
 
 
@@ -555,24 +555,24 @@ class AsyncRunManager:
             # Check for new Signals received from Nexus
             try:
                 signal = self.q_sig.get(timeout=self.timeout)
-                logger.debug("{} received Signal {}".format(self.actorName, signal))
+                logger.debug("{} received signal {}".format(self.actorName, signal))
                 if signal == Signal.run():
                     self.run = True
-                    logger.warning("Received run signal, begin running")
+                    logger.info("Received run signal, begin running")
                 elif signal == Signal.setup():
                     self.config = True
                 elif signal == Signal.stop():
                     self.run = False
                     self.stop = True
-                    logger.warning(f"actor {self.actorName} received stop signal")
+                    logger.info(f"actor {self.actorName} received stop signal")
                 elif signal == Signal.quit():
-                    logger.warning("Received quit signal, aborting")
+                    logger.info("Received quit signal, aborting")
                     break
                 elif signal == Signal.pause():
-                    logger.warning("Received pause signal, pending...")
+                    logger.info("Received pause signal, pending...")
                     self.run = False
                 elif signal == Signal.resume():  # currently treat as same as run
-                    logger.warning("Received resume signal, resuming")
+                    logger.info("Received resume signal, resuming")
                     self.run = True
             except KeyboardInterrupt:
                 break
@@ -587,7 +587,7 @@ class AsyncRunManager:
 
     async def __aexit__(self, type, value, traceback):
         logger.info("Ran for {} seconds".format(time.time() - self.start))
-        logger.warning("Exiting AsyncRunManager")
+        logger.info("Exiting AsyncRunManager")
         return None
 
 
