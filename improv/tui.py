@@ -152,9 +152,9 @@ class TUI(App, inherit_bindings=False):
         self.logger.setLevel(logging.INFO)
         for handler in logger.handlers:
             self.logger.addHandler(handler)
-        # self.logger.addHandler(
-        #     ZmqLogHandler(self.log_host, self.logging_pull_port, self.zmq_sync_context)
-        # )
+        self.logger.addHandler(
+            ZmqLogHandler(self.log_host, self.logging_input_port, self.zmq_sync_context)
+        )
 
         self.logger.info("Text interface initialized")
 

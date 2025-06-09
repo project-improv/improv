@@ -962,9 +962,9 @@ class Nexus:
             target=bootstrap_log_server,
             args=(
                 "localhost",
-                log_server_pull_port,
+                self.logger_in_port,
                 self.logfile,
-                log_server_pub_port,
+                log_server_pull_port
             ),
         )
         logger.debug("logger created")
@@ -1112,7 +1112,11 @@ class Nexus:
         self.zmq_sync_context.setsockopt(SocketOption.LINGER, 0)
 
         self.logger_in_socket = self.zmq_sync_context.socket(REP)
-        self.logger_in_socket.bind("tcp://*:%s" % cfg["logging_input_port"])
+        self.logger_in_socket.bind("tcp://*:0")
+        logger_in_port_string = self.logger_in_socket.getsockopt_string(
+            SocketOption.LAST_ENDPOINT
+        )
+        self.logger_in_port = int(logger_in_port_string.split(":")[-1])
 
         self.broker_in_socket = self.zmq_sync_context.socket(REP)
         self.broker_in_socket.bind("tcp://*:0")
