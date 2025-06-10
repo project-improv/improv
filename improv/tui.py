@@ -131,13 +131,13 @@ class TUI(App, inherit_bindings=False):
     View class for the text user interface. Implemented as a Textual app.
     """
 
-    def __init__(self, control_port, output_port, logging_port, logging_input_port, log_host="localhost", testing=False):
+    def __init__(self, control_port, output_port, logging_pub_port, logging_pull_port, log_host="localhost", testing=False):
         super().__init__()
         self.title = "improv console"
         self.control_port = TUI._sanitize_addr(control_port)
         self.output_port = TUI._sanitize_addr(output_port)
-        self.logging_port = TUI._sanitize_addr(logging_port)
-        self.logging_input_port = TUI._sanitize_addr(logging_input_port)
+        self.logging_pub_port = TUI._sanitize_addr(logging_pub_port)
+        self.logging_pull_port = TUI._sanitize_addr(logging_pull_port)
         self.log_host = log_host
         self.testing = testing
 
@@ -153,7 +153,7 @@ class TUI(App, inherit_bindings=False):
         for handler in logger.handlers:
             self.logger.addHandler(handler)
         self.logger.addHandler(
-            ZmqLogHandler(self.log_host, self.logging_input_port, self.zmq_sync_context)
+            ZmqLogHandler(self.log_host, self.logging_pull_port, self.zmq_sync_context)
         )
 
         self.logger.info("Text interface initialized")
@@ -203,7 +203,7 @@ class TUI(App, inherit_bindings=False):
             Header("improv console"),
             Label("[white]Log Messages[/]"),
             SocketLog(
-                self.logging_port,
+                self.logging_pub_port,
                 self.context,
                 formatter=self.format_log_messages,
                 markup=True,
@@ -281,24 +281,31 @@ class TUI(App, inherit_bindings=False):
         reply = await self.send_to_controller(message.value)
         self.query_one("#console").write(reply)
         if reply and "QUIT" in reply:
-            self.exit()
+            await self.clean_up_and_exit()
 
     async def on_socket_log_echo(self, message):
         if message.sender.id == "console" and "QUIT" in message.value:
             self.logger.info("Got QUIT; will try to exit")
-            self.exit()
+            await self.clean_up_and_exit()
 
     def action_request_quit(self):
         self.push_screen(QuitScreen())
 
     def action_help(self):
         self.push_screen(HelpScreen())
+    
+    async def clean_up_and_exit(self):
+        self.control_socket.close()
+        self.logger.handlers.pop().close()
+        self.exit()
+
 
 
 if __name__ == "__main__":
     CONTROL_PORT = "5555"
     OUTPUT_PORT = "5556"
     LOGGING_PORT = "5557"
+    LOGGING_PULL_PORT = "5558"
 
     import random
 
@@ -354,7 +361,7 @@ if __name__ == "__main__":
             counter += 1
 
     async def main_loop():
-        app = TUI(CONTROL_PORT, OUTPUT_PORT, LOGGING_PORT)
+        app = TUI(CONTROL_PORT, OUTPUT_PORT, LOGGING_PORT, LOGGING_PULL_PORT)
 
         # the following construct ensures both the
         # (infinite) fake servers are killed once the tui finishes

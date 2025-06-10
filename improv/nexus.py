@@ -168,8 +168,8 @@ class Nexus:
 
         logger.debug("Setting up services")
         self.start_improv_services(
-            log_server_pub_port=log_server_pub_port,
-            log_server_pull_port=log_server_pull_port,
+            log_server_pub_port=self.config.settings["logging_port"],
+            log_server_pull_port=self.config.settings["logging_input_port"],
             store_size=self.config.settings["store_size"],
         )
 
@@ -181,10 +181,10 @@ class Nexus:
         self.stopped = False
 
         logger.info(
-            f"control: {self.config.settings['control_port']},"
-            f" output: {self.config.settings['output_port']},"
-            f" logging (output): {self.logger_pub_port},"
-            f" logging (input): {self.logger_pull_port}"
+            f"control: {self.config.settings['control_port']}, "
+            f"output: {self.config.settings['output_port']}, "
+            f"logging (pub): {self.logger_pub_port}, "
+            f"logging (pull): {self.logger_pull_port}"
         )
         return (
             self.config.settings["control_port"],
@@ -512,13 +512,6 @@ class Nexus:
                 logger.info("All actors ready. Allowing run.")
                 self.allowStart = True
             
-            if msg.actor_name == "TUI" and msg.status == Signal.ready():
-                await self.in_socket.send_pyobj(
-                    ActorStateReplyMsg(
-                        msg.actor_name, "OK", "Awaiting input:"
-                    )
-                )
-
         elif isinstance(msg, ActorSignalMsg):
             if msg.signal == Signal.quit():
                 reply_str = ""
@@ -544,6 +537,8 @@ class Nexus:
         elif signal == Signal.stop(): 
             logger.info("Stop run!")
             await self.stop()
+        elif signal == Signal.ready():
+            pass
         elif signal == Signal.quit():
             logger.warning("Quitting the program!")
             task = asyncio.create_task(self.stop_polling_and_quit(Signal.quit()))
@@ -552,7 +547,7 @@ class Nexus:
             except Exception as e:
                 logger.error(f"Caught exception {e} when trying to quit the program.")
         else:
-            logger.warning("Unknown command")
+            logger.warning(f"Unknown command {signal} from actor {msg.actor_name}")
 
 
     # async def process_gui_signal(self, flag, name):
@@ -964,6 +959,7 @@ class Nexus:
                 "localhost",
                 self.logger_in_port,
                 self.logfile,
+                log_server_pub_port,
                 log_server_pull_port
             ),
         )

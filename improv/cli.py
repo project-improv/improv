@@ -239,7 +239,7 @@ def run_server(args):
     )
     curr_dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(
-        f"{curr_dt} Server running on (control, output, log) ports "
+        f"{curr_dt} Server running on (control, output, log, log input) ports "
         f"({control_port}, {output_port}, {log_port}, {log_input_port}).\n"
         f"Press Ctrl-C to quit."
     )
@@ -434,7 +434,7 @@ def _get_ports(logfile):
 
 
 def _read_log_contents_for_ports(logfile_contents):
-    pattern = re.compile(r"(?<=\(control, output, log out, log in\) ports \()\d*, \d*, \d*, \d*")
+    pattern = re.compile(r"(?<=\(control, output, log, log input\) ports \()\d*, \d*, \d*, \d*")
 
     # get most recent match (log file may contain old runs)
     port_str_list = pattern.findall(logfile_contents)

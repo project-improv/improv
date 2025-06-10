@@ -16,6 +16,7 @@ def logger(ports):
     logger.addHandler(zmq_log_handler)
     yield logger
     logger.removeHandler(zmq_log_handler)
+    zmq_log_handler.close()
 
 @pytest.fixture
 async def sockets(ports):
@@ -33,7 +34,7 @@ async def app(ports):
     yield mock
     time.sleep(0.5)
 
-async def test_console_panel_receives_broadcast(app, sockets, logger):
+async def test_console_panel_receives_broadcast(app, sockets):
     async with app.run_test() as pilot:
         await sockets[1].send_string("received")
         await pilot.pause(0.1)

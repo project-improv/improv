@@ -21,13 +21,13 @@ DEBUG = True
 
 
 def bootstrap_log_server(
-    nexus_hostname, nexus_port, log_filename="global.log", logger_pull_port=None
+    nexus_hostname, nexus_port, log_filename="global.log", logger_pub_port=None, logger_pull_port=None
 ):
     if DEBUG:
         local_log.addHandler(logging.FileHandler("log_server.log"))
     try:
         log_server = LogServer(
-            nexus_hostname, nexus_port, log_filename, logger_pull_port
+            nexus_hostname, nexus_port, log_filename, logger_pub_port, logger_pull_port
         )
         log_server.register_with_nexus()
         log_server.serve(log_server.read_and_log_message)
@@ -38,11 +38,12 @@ def bootstrap_log_server(
 
 
 class ZmqPullListener(handlers.QueueListener):
-    def __init__(self, ctx, /, *handlers, **kwargs):
+    def __init__(self, ctx, pull_port, /, *handlers, **kwargs):
         self.sentinel = False
         self.ctx = ctx
+        self.listen_port = pull_port if pull_port else 0
         self.pull_socket = self.ctx.socket(zmq.PULL)
-        self.pull_socket.bind("tcp://*:0")
+        self.pull_socket.bind(f"tcp://*:{self.listen_port}")
         pull_port_string = self.pull_socket.getsockopt_string(
             SocketOption.LAST_ENDPOINT
         )
@@ -79,9 +80,10 @@ class ZmqLogHandler(QueueHandler):
 
 
 class LogServer:
-    def __init__(self, nexus_hostname, nexus_comm_port, log_filename, pub_port):
+    def __init__(self, nexus_hostname, nexus_comm_port, log_filename, pub_port, pull_port):
         self.running = True
         self.pub_port: int | None = pub_port if pub_port else 0
+        self.pull_port: int | None = pull_port if pull_port else 0
         self.pub_socket: zmq.Socket | None = None
         self.log_filename = log_filename
         self.nexus_hostname: str = nexus_hostname
@@ -109,7 +111,7 @@ class LogServer:
 
         self.listener = ZmqPullListener(
             self.zmq_context,
-            # logging.StreamHandler(sys.stdout),
+            self.pull_port,
             logging.FileHandler(self.log_filename),
             PUBHandler(self.pub_socket, self.zmq_context, "nexus_logging"),
         )
