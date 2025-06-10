@@ -243,10 +243,10 @@ def test_get_ports_from_logfile(setdir):
 
     with open(logfile, "w") as log:
         log.write(
-            "Server running on (control, output, log out, log in) ports (53345, 53344, 53343, 53352).\n"
+            "Server running on (control, output, log, log input) ports (53345, 53344, 53343, 53352).\n"
         )
         log.write(
-            f"Server running on (control, output, log out, log in) ports ({test_control_port}, "
+            f"Server running on (control, output, log, log input) ports ({test_control_port}, "
             f"{test_output_port}, {test_logging_port}, {test_logging_input_port})."
         )
 

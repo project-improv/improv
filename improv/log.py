@@ -25,6 +25,7 @@ def bootstrap_log_server(
 ):
     if DEBUG:
         local_log.addHandler(logging.FileHandler("log_server.log"))
+        local_log.setLevel(logging.DEBUG)
     try:
         log_server = LogServer(
             nexus_hostname, nexus_port, log_filename, logger_pub_port, logger_pull_port

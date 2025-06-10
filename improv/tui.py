@@ -23,7 +23,7 @@ from improv.log import ZmqLogHandler
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
+logger.addHandler(logging.FileHandler("tui.log"))
 
 class SocketLog(TextLog):
     def __init__(self, port, context, *args, **kwargs):
@@ -134,26 +134,23 @@ class TUI(App, inherit_bindings=False):
     def __init__(self, control_port, output_port, logging_pub_port, logging_pull_port, log_host="localhost", testing=False):
         super().__init__()
         self.title = "improv console"
-        self.control_port = TUI._sanitize_addr(control_port)
-        self.output_port = TUI._sanitize_addr(output_port)
-        self.logging_pub_port = TUI._sanitize_addr(logging_pub_port)
-        self.logging_pull_port = TUI._sanitize_addr(logging_pull_port)
         self.log_host = log_host
+        self.control_port = TUI._sanitize_addr(control_port, log_host)
+        self.output_port = TUI._sanitize_addr(output_port, log_host)
+        self.logging_pub_port = TUI._sanitize_addr(logging_pub_port, log_host)
+        self.logging_pull_port = logging_pull_port 
         self.testing = testing
 
         self.context = zmq.Context()
         self.control_socket = self.context.socket(REQ)
-        self.control_socket.connect("tcp://%s" % self.control_port)
+        self.control_socket.connect(f"tcp://{self.control_port}")
 
-        # set up logging
-        self.zmq_sync_context = zmq_sync.Context()
-        self.zmq_sync_context.setsockopt(SocketOption.LINGER, 0)
         self.logger = logging.getLogger(self.name)
         self.logger.setLevel(logging.INFO)
         for handler in logger.handlers:
             self.logger.addHandler(handler)
         self.logger.addHandler(
-            ZmqLogHandler(self.log_host, self.logging_pull_port, self.zmq_sync_context)
+            ZmqLogHandler(self.log_host, self.logging_pull_port, self.context)
         )
 
         self.logger.info("Text interface initialized")
@@ -171,13 +168,13 @@ class TUI(App, inherit_bindings=False):
         log_window.print_debug = not log_window.print_debug
 
     @staticmethod
-    def _sanitize_addr(input):
-        if isinstance(input, int):
-            return "localhost:%s" % str(input)
-        elif ":" in input:
+    def _sanitize_addr(input, host=None):
+        if ":" in str(input):
             return input
+        elif isinstance(input, int) and host is not None:
+            return f"{host}:{input}"
         else:
-            return "localhost:%s" % input
+            return f"localhost:{input}"
 
     @staticmethod
     def format_log_messages(parts):
@@ -228,7 +225,7 @@ class TUI(App, inherit_bindings=False):
         retries_left = REQUEST_RETRIES
 
         try:
-            self.logger.info(f"Sending {msg} to controller.")
+            self.logger.info(f"TUI Sending {msg} to controller.")
             msg_obj = ActorSignalMsg(
                 actor_name="TUI",
                 signal=msg,
@@ -242,11 +239,11 @@ class TUI(App, inherit_bindings=False):
 
                 if ready:
                     reply = await self.control_socket.recv_pyobj()
-                    self.logger.info(f"Received {reply.info} from controller.")
+                    self.logger.info(f"TUI Received '{reply.info}' from controller.")
                     break
                 else:
                     retries_left -= 1
-                    self.logger.warning("No response from server.")
+                    self.logger.warning("No response to TUI from server.")
 
                 # try to close and reconnect
                 self.control_socket.setsockopt(LINGER, 0)
@@ -255,12 +252,12 @@ class TUI(App, inherit_bindings=False):
                     self.logger.error("Server seems to be offline. Giving up.")
                     break
 
-                self.logger.info("Attempting to reconnect to server...")
+                self.logger.info("TUI attempting to reconnect to server...")
 
                 self.control_socket = self.context.socket(REQ)
                 self.control_socket.connect("tcp://%s" % self.control_port)
 
-                self.logger.info(f"Resending {msg} to controller.")
+                self.logger.info(f"TUI resending {msg} to controller.")
                 await self.control_socket.send_pyobj(msg_obj)
 
         except asyncio.CancelledError:
@@ -285,7 +282,7 @@ class TUI(App, inherit_bindings=False):
 
     async def on_socket_log_echo(self, message):
         if message.sender.id == "console" and "QUIT" in message.value:
-            self.logger.info("Got QUIT; will try to exit")
+            self.logger.info("TUI got QUIT; will try to exit")
             await self.clean_up_and_exit()
 
     def action_request_quit(self):
