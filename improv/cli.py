@@ -324,7 +324,7 @@ def run_cleanup(args, headless=False):
             print("No running processes found.")
 
 
-def run(args, timeout=10):
+def run(args, timeout=12):
     apath_opts = []
     for p in args.actor_path:
         if p:

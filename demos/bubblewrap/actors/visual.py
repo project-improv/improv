@@ -1,4 +1,4 @@
-from improv.actor import Actor
+from improv.actor import Actor, RunManager
 from PyQt5 import QtWidgets
 from queue import Empty
 from .front_end import FrontEnd
@@ -23,6 +23,7 @@ class Visual(Actor):
         self.setup_logging()
         self.register_with_nexus()
         self.state.add_logger(self.improv_logger)
+        self.state.add_signal_check()
 
         self.register_with_broker()
         self.setup_links()
@@ -45,6 +46,7 @@ class GUIState:
         self.bw_dead_nodes = None
         self.bw_n_obs = None
         self.frame_num = None
+
     
     def getData(self):
         """Load data from dim reduction and bubblewrap, returns false on timeout"""
@@ -74,6 +76,15 @@ class GUIState:
 
     def add_logger(self, logger):
         self.logger = logger
+    
+    def add_signal_check(self):
+        # make function to perform intermittent signal checking from Nexus
+        gui = self.gui
+        rm = RunManager(
+            gui.name, gui.actions, gui.links, gui.nexus_sig_port, self.logger
+        )
+        self.signal_check = rm.loop_logic
+
 
 class BWVisual(Actor):
     """Class for preprocessing data from bubblewrap processor"""

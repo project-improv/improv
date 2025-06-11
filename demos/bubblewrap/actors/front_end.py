@@ -47,6 +47,12 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
         self.pushButton_2.clicked.connect(_call(self._runProcess))
         self.pushButton_2.clicked.connect(_call(self.update)) # Tell Nexus to start
 
+        # Check for Nexus input on a timer
+        self.timer = QtCore.QTimer(self)
+        self.timer.timeout.connect(state.signal_check)
+        self.timer.setInterval(10)  # Call every 10 ms
+        self.timer.start()
+
     def update(self):
         """Check if get data is successful, call plotting function and update GUI"""
         try:
@@ -92,12 +98,12 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
 
 
     def _runProcess(self):
-        self.state.logger.info("-------------------------   put run in comm")
+        self.state.logger.info("GUI sent run command")
         self.state.send(Signal.run())
         
 
     def _setup(self):
-        self.state.logger.info("-------------------------   put setup in comm")
+        self.state.logger.info("GUI sent setup command")
         self.state.send(Signal.setup())
 
     def closeEvent(self, event):
@@ -114,7 +120,7 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
         if confirm == QMessageBox.Yes:
             self.state.send(Signal.quit())
             # print('Visual broke, avg time per frame: ', np.mean(self.state.total_times, axis=0))
-            print("Visual got through ", self.state.frame_num, " frames")
+            self.state.logger.info("Visual got through ", self.state.frame_num, " frames")
             # print('GUI avg time ', np.mean(self.total_times))
             event.accept()
         else:

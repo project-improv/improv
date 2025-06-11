@@ -408,86 +408,95 @@ class RunManager:
 
     def __enter__(self):
         self.start = time.time()
-        an = self.actorName
 
-        while True:
-            # Run any actions given a received Signal
-            if self.run:
-                try:
-                    self.actions["run"]()
-                except Exception as e:
-                    self.improv_logger.error("Actor {} error in run: {}".format(an, e))
-                    self.improv_logger.error(traceback.format_exc())
-            elif self.stop:
-                try:
-                    self.actions["stop"]()
-                except Exception as e:
-                    self.improv_logger.error("Actor {} error in stop: {}".format(an, e))
-                    self.improv_logger.error(traceback.format_exc())
-                self.stop = False  # Run once
-            elif self.config:
-                try:
-                    if self.runStoreInterface:
-                        self.runStoreInterface()
-                    self.actions["setup"]()
-                    self.q_comm.put(
-                        ActorStateMsg(
-                            self.actorName, Signal.ready(), self.nexus_sig_port, ""
-                        )
-                    )
-                    res = self.q_comm.get()
-                    self.improv_logger.info(
-                        f"Actor {res.actor_name} got state update reply:\n"
-                        f"Status: {res.status}\n"
-                        f"Info: {res.info}\n"
-                    )
-                except Exception as e:
-                    self.improv_logger.error(
-                        "Actor {} error in setup: {}".format(an, e)
-                    )
-                    self.improv_logger.error(traceback.format_exc())
-                self.config = False
-
-            # Check for new Signals received from Nexus
-            try:
-                signal_msg = self.q_sig.get(timeout=self.timeout)
-                signal = signal_msg.signal
-                self.q_sig.put(NexusSignalReplyMsg(an, signal, "OK", "OK"))
-                self.improv_logger.info(
-                    "{} received signal {}".format(self.actorName, signal)
-                )
-                if signal == Signal.run():
-                    self.run = True
-                    self.improv_logger.info("Received run signal, begin running")
-                elif signal == Signal.setup():
-                    self.config = True
-                elif signal == Signal.stop():
-                    self.run = False
-                    self.stop = True
-                    self.improv_logger.info(
-                        f"actor {self.actorName} received stop signal"
-                    )
-                elif signal == Signal.quit():
-                    self.improv_logger.info("Received quit signal, aborting")
-                    break
-                elif signal == Signal.pause():
-                    self.improv_logger.info("Received pause signal, pending...")
-                    self.run = False
-                elif signal == Signal.resume():  # currently treat as same as run
-                    self.improv_logger.info("Received resume signal, resuming")
-                    self.run = True
-                elif signal == Signal.status():
-                    self.improv_logger.info(
-                        f"Actor {self.actorName} received status request"
-                    )
-            except KeyboardInterrupt:
-                break
-            except Empty:
-                pass  # No signal from Nexus
-            except TimeoutError:
-                pass  # No signal from Nexus over zmq
+        do_loop = True
+        while do_loop:
+            do_loop = self.loop_logic()
 
         return None
+    
+    def loop_logic(self):
+        # broken out into a separate function for use elsewhere
+        an = self.actorName
+        keep_going = True
+
+        # Run any actions given a received Signal
+        if self.run:
+            try:
+                self.actions["run"]()
+            except Exception as e:
+                self.improv_logger.error("Actor {} error in run: {}".format(an, e))
+                self.improv_logger.error(traceback.format_exc())
+        elif self.stop:
+            try:
+                self.actions["stop"]()
+            except Exception as e:
+                self.improv_logger.error("Actor {} error in stop: {}".format(an, e))
+                self.improv_logger.error(traceback.format_exc())
+            self.stop = False  # Run once
+        elif self.config:
+            try:
+                if self.runStoreInterface:
+                    self.runStoreInterface()
+                self.actions["setup"]()
+                self.q_comm.put(
+                    ActorStateMsg(
+                        self.actorName, Signal.ready(), self.nexus_sig_port, ""
+                    )
+                )
+                res = self.q_comm.get()
+                self.improv_logger.info(
+                    f"Actor {res.actor_name} got state update reply:\n"
+                    f"Status: {res.status}\n"
+                    f"Info: {res.info}\n"
+                )
+            except Exception as e:
+                self.improv_logger.error(
+                    "Actor {} error in setup: {}".format(an, e)
+                )
+                self.improv_logger.error(traceback.format_exc())
+            self.config = False
+
+        # Check for new Signals received from Nexus
+        try:
+            signal_msg = self.q_sig.get(timeout=self.timeout)
+            signal = signal_msg.signal
+            self.q_sig.put(NexusSignalReplyMsg(an, signal, "OK", "OK"))
+            self.improv_logger.info(
+                "{} received signal {}".format(self.actorName, signal)
+            )
+            if signal == Signal.run():
+                self.run = True
+                self.improv_logger.info("Received run signal, begin running")
+            elif signal == Signal.setup():
+                self.config = True
+            elif signal == Signal.stop():
+                self.run = False
+                self.stop = True
+                self.improv_logger.info(
+                    f"actor {self.actorName} received stop signal"
+                )
+            elif signal == Signal.quit():
+                self.improv_logger.info("Received quit signal, aborting")
+                keep_going = False
+            elif signal == Signal.pause():
+                self.improv_logger.info("Received pause signal, pending...")
+                self.run = False
+            elif signal == Signal.resume():  # currently treat as same as run
+                self.improv_logger.info("Received resume signal, resuming")
+                self.run = True
+            elif signal == Signal.status():
+                self.improv_logger.info(
+                    f"Actor {self.actorName} received status request"
+                )
+        except KeyboardInterrupt:
+            keep_going = False
+        except Empty:
+            pass  # No signal from Nexus
+        except TimeoutError:
+            pass  # No signal from Nexus over zmq
+    
+        return keep_going
 
     def __exit__(self, type, value, traceback):
         self.improv_logger.info(f"{self.actorName} ran for " + str(time.time() - self.start) + " seconds")
