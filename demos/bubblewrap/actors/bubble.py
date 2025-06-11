@@ -21,7 +21,10 @@ class Bubble(Actor):
         while shape_id is None:
             try:
                 shape_id = self.q_in.get(timeout=0.0005)
-            except Empty: pass
+            except Empty: 
+                pass
+            except TimeoutError:
+                pass
         dat_shape_0 = self.client.get(shape_id)
         # init bubblewrap
         M = 20
@@ -47,7 +50,10 @@ class Bubble(Actor):
         while id is None:
             try:
                 id = self.q_in.get(timeout = 0.0005)
-            except Empty: pass
+            except Empty: 
+                pass
+            except TimeoutError:
+                pass
         init_data = self.client.getID(id)
 
         for i in np.arange(0, M):

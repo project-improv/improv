@@ -20,7 +20,10 @@ class DimReduction(Actor):
         while init_id is None:
             try:
                 init_id = self.q_in.get(timeout = 0.0005)
-            except Empty: pass
+            except Empty: 
+                pass
+            except TimeoutError:
+                pass
         logger.info("Got init data")
         my_list = self.client.getID(init_id)
         dat_shape_0 = my_list[0]

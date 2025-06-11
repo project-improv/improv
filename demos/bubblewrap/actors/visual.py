@@ -58,7 +58,9 @@ class GUIState:
             self.bw_mu = self.gui.client.getID(bw_res[1][2])
             self.bw_n_obs = self.gui.client.getID(bw_res[1][3])
             self.bw_dead_nodes = self.gui.client.getID(bw_res[1][6])
-        except Empty as e:
+        except Empty:
+            return False
+        except TimeoutError:
             return False
         except Exception as e:
             self.logger.error('Visual: Exception in get data: {}'.format(e))

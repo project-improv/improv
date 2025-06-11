@@ -4,7 +4,6 @@ import mat73
 import time
 import logging
 import traceback
-import time
 
 
 logger = logging.getLogger(__name__)
@@ -14,7 +13,8 @@ logger.setLevel(logging.INFO)
 class Acquirer(Actor):
     def __init__(self, *args, filename=None, **kwargs):
         super().__init__(*args, **kwargs)
-        if not filename: logger.error('Error: Filename not specified')
+        if not filename: 
+            logger.error('Error: Filename not specified')
         self.file = filename
         self.frame_num = 0
         self.done = False
