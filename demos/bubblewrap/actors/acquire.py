@@ -58,7 +58,7 @@ class Acquirer(Actor):
         self.num_iters = np.floor((self.data.shape[0] - l1 - self.l)/self.l).astype('int')
 
         #send to dim reduction
-        init_id = self.client.put([self.data.shape[0], self.data[:l1, :]], "init_data")
+        init_id = self.client.put([self.data.shape[0], self.data[:l1, :]])
         logger.info("Putted init data")
         self.q_out.put(init_id)
 
@@ -66,7 +66,7 @@ class Acquirer(Actor):
         logger.info(f"Stopped running Acquire, avg time per frame: {np.mean(self.total_times)}")
         logger.info(f"Acquire got through {self.frame_num} frames")
     
-    def runStep(self):
+    def run_step(self):
         """Send data to dim reduction one frame at a time"""
         if self.done:
             pass
@@ -74,7 +74,7 @@ class Acquirer(Actor):
             start, end = self.t, self.t + 1
             frame = self.data[start:end, :]
             t = time.time()
-            id = self.client.put([self.t, frame], "acq_bubble" + str(self.frame_num))
+            id = self.client.put([self.t, frame])
             self.timestamp.append([time.time(), self.frame_num])
             try:
                 self.q_out.put([str(self.frame_num), id])

@@ -895,7 +895,7 @@ class Nexus:
                 instance.set_store_interface(store)
             else:
                 # spawn or forkserver; can't pickle plasma store
-                logger.info("No store for this actor yet {}".format(name))
+                logger.info("No store for this actor yet: {}".format(name))
         else:
             # Add link to StoreInterface store
             store = self.create_store_interface()

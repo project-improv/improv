@@ -36,6 +36,9 @@ class Visual(Actor):
         self.viewer.show()
         self.app.exec_()
         self.improv_logger.info("Done running GUI")
+    
+    def run_step(self):
+        pass
 
 class GUIState:
     def __init__(self, gui):
@@ -53,11 +56,11 @@ class GUIState:
         try:
             bw_res = self.gui.links['bw_in'].get(timeout=0.0005)
             res = self.gui.q_in.get(timeout=0.0005)
-            self.data = self.gui.client.getID(res[1])
-            self.bw_L = self.gui.client.getID(bw_res[1][1])
-            self.bw_mu = self.gui.client.getID(bw_res[1][2])
-            self.bw_n_obs = self.gui.client.getID(bw_res[1][3])
-            self.bw_dead_nodes = self.gui.client.getID(bw_res[1][6])
+            self.data = self.gui.client.get(res[1])
+            self.bw_L = self.gui.client.get(bw_res[1][1])
+            self.bw_mu = self.gui.client.get(bw_res[1][2])
+            self.bw_n_obs = self.gui.client.get(bw_res[1][3])
+            self.bw_dead_nodes = self.gui.client.get(bw_res[1][6])
         except Empty:
             return False
         except TimeoutError:
@@ -88,31 +91,31 @@ class GUIState:
         self.signal_check = rm.loop_logic
 
 
-class BWVisual(Actor):
-    """Class for preprocessing data from bubblewrap processor"""
+# class BWVisual(Actor):
+#     """Class for preprocessing data from bubblewrap processor"""
 
-    def __init__(self, *args, showConnectivity=False, **kwargs):
-        super().__init__(*args, **kwargs)
-        if "name" in kwargs:
-            self.name = kwargs["name"]
+#     def __init__(self, *args, showConnectivity=False, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         if "name" in kwargs:
+#             self.name = kwargs["name"]
 
-    def setup(self):
-        self.data = None
-        self.bw_L = None
+#     def setup(self):
+#         self.data = None
+#         self.bw_L = None
 
-    def getData(self):
-        """Load data from dim reduction and bubblewrap, returns false on timeout"""
-        try:
-            bw_res = self.links['bw_in'].get(timeout=0.0005)
-            res = self.q_in.get(timeout=0.0005)
-            self.data = self.client.getID(res[1])
-            self.bw_L = self.client.getID(bw_res[1][1])
-            self.bw_mu = self.client.getID(bw_res[1][2])
-            self.bw_n_obs = self.client.getID(bw_res[1][3])
-            self.bw_dead_nodes = self.client.getID(bw_res[1][6])
-        except Empty as e:
-            return False
-        except Exception as e:
-            logger.error('Visual: Exception in get data: {}'.format(e))
-            logger.error(traceback.format_exc())
-        return True
+#     def getData(self):
+#         """Load data from dim reduction and bubblewrap, returns false on timeout"""
+#         try:
+#             bw_res = self.links['bw_in'].get(timeout=0.0005)
+#             res = self.q_in.get(timeout=0.0005)
+#             self.data = self.client.get(res[1])
+#             self.bw_L = self.client.get(bw_res[1][1])
+#             self.bw_mu = self.client.get(bw_res[1][2])
+#             self.bw_n_obs = self.client.get(bw_res[1][3])
+#             self.bw_dead_nodes = self.client.get(bw_res[1][6])
+#         except Empty as e:
+#             return False
+#         except Exception as e:
+#             logger.error('Visual: Exception in get data: {}'.format(e))
+#             logger.error(traceback.format_exc())
+#         return True

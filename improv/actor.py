@@ -467,27 +467,27 @@ class RunManager:
             )
             if signal == Signal.run():
                 self.run = True
-                self.improv_logger.info("Received run signal, begin running")
+                self.improv_logger.info(f"{self.actorName} received run signal, begin running")
             elif signal == Signal.setup():
                 self.config = True
             elif signal == Signal.stop():
                 self.run = False
                 self.stop = True
                 self.improv_logger.info(
-                    f"actor {self.actorName} received stop signal"
+                    f"Actor {self.actorName} received stop signal"
                 )
             elif signal == Signal.quit():
-                self.improv_logger.info("Received quit signal, aborting")
+                self.improv_logger.info(f"{self.actorName} received quit signal, aborting")
                 keep_going = False
             elif signal == Signal.pause():
-                self.improv_logger.info("Received pause signal, pending...")
+                self.improv_logger.info(f"{self.actorName} received pause signal, pending...")
                 self.run = False
             elif signal == Signal.resume():  # currently treat as same as run
-                self.improv_logger.info("Received resume signal, resuming")
+                self.improv_logger.info(f"{self.actorName} Received resume signal, resuming")
                 self.run = True
             elif signal == Signal.status():
                 self.improv_logger.info(
-                    f"Actor {self.actorName} received status request"
+                    f"{self.actorName} received status request"
                 )
         except KeyboardInterrupt:
             keep_going = False
