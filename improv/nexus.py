@@ -607,7 +607,9 @@ class Nexus:
     #                         p = ctx.Process(target=m.run, name=name)
     #                     else:
     #                         ctx = get_context("fork")
-    #                         p = ctx.Process(target=self.run_actor, name=name, args=(m,))
+    #                        p = ctx.Process(
+    #                            target=self.run_actor, name=name, args=(m,)
+    #                            )
     #                         if "daemon" in actor.options:
     #                             p.daemon = actor.options["daemon"]
     #                             logger.info("Setting daemon for {}".format(name))
@@ -627,7 +629,9 @@ class Nexus:
     #                 # TODO: ensure waiting for ready before run?
     #                 m.q_sig.put_nowait(Signal.run())
 
-    #             self.processes = [p for p in list(self.processes) if p.exitcode is None]
+    #             self.processes = [
+    #                 p for p in list(self.processes) if p.exitcode is None
+    #                 ]
     #         elif flag[0] == Signal.stop():
     #             logger.info("Nexus received stop signal")
     #             await self.stop()
