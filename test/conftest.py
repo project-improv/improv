@@ -63,7 +63,7 @@ def sample_nex(setdir, ports):
             control_port=ports[0],
             output_port=ports[1],
             log_server_pub_port=ports[2],
-            log_server_pull_port=ports[3]
+            log_server_pull_port=ports[3],
         )
     except Exception as e:
         print(f"error caught in test harness during create_nexus step: {e}")

@@ -279,4 +279,3 @@ def test_config_redis_unknown_fsync_freq(set_configdir):
     cfg.config["redis_config"]["fsync_frequency"] = "unknown"
     with pytest.raises(Exception, match="Cannot use unknown fsync frequency unknown"):
         cfg.parse_config()
-

@@ -34,8 +34,8 @@ def test_init(setdir):
 def test_create_nexus(setdir, ports, cfg_name):
     nex = Nexus("test")
     nex.create_nexus(
-        file=cfg_name, 
-        control_port=ports[0], 
+        file=cfg_name,
+        control_port=ports[0],
         output_port=ports[1],
         log_server_pub_port=ports[2],
         log_server_pull_port=ports[3],
@@ -50,8 +50,8 @@ def test_create_nexus(setdir, ports, cfg_name):
 def test_config_logged(setdir, ports, caplog):
     nex = Nexus("test")
     nex.create_nexus(
-        file="minimal_with_settings.yaml", 
-        control_port=ports[0], 
+        file="minimal_with_settings.yaml",
+        control_port=ports[0],
         output_port=ports[1],
         log_server_pub_port=ports[2],
         log_server_pull_port=ports[3],
@@ -142,8 +142,8 @@ def test_config_construction(cfg_name, actor_list, link_list, setdir, ports):
 
     nex = Nexus("test")
     nex.create_nexus(
-        file=cfg_name, 
-        control_port=ports[0], 
+        file=cfg_name,
+        control_port=ports[0],
         output_port=ports[1],
         log_server_pub_port=ports[2],
         log_server_pull_port=ports[3],
@@ -171,8 +171,8 @@ def test_single_actor(setdir, ports, cfg_name):
     nex = Nexus("test")
     with pytest.raises(AttributeError):
         nex.create_nexus(
-            file="single_actor.yaml", 
-            control_port=ports[0], 
+            file="single_actor.yaml",
+            control_port=ports[0],
             output_port=ports[1],
             log_server_pub_port=ports[2],
             log_server_pull_port=ports[3],
@@ -184,8 +184,8 @@ def test_single_actor(setdir, ports, cfg_name):
 def test_cyclic_graph(setdir, ports):
     nex = Nexus("test")
     nex.create_nexus(
-        file="cyclic_config.yaml", 
-        control_port=ports[0], 
+        file="cyclic_config.yaml",
+        control_port=ports[0],
         output_port=ports[1],
         log_server_pub_port=ports[2],
         log_server_pull_port=ports[3],
@@ -198,8 +198,8 @@ def test_blank_cfg(setdir, caplog, ports):
     nex = Nexus("test")
     with pytest.raises(CannotCreateConfigException):
         nex.create_nexus(
-            file="blank_file.yaml", 
-            control_port=ports[0], 
+            file="blank_file.yaml",
+            control_port=ports[0],
             output_port=ports[1],
             log_server_pub_port=ports[2],
             log_server_pull_port=ports[3],

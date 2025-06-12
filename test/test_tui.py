@@ -18,6 +18,7 @@ def logger(ports):
     logger.removeHandler(zmq_log_handler)
     zmq_log_handler.close()
 
+
 @pytest.fixture
 async def sockets(ports):
     with zmq.Context() as context:
@@ -33,6 +34,7 @@ async def app(ports):
     mock = tui.TUI(*ports, testing=True)
     yield mock
     time.sleep(0.5)
+
 
 async def test_console_panel_receives_broadcast(app, sockets):
     async with app.run_test() as pilot:
@@ -61,9 +63,7 @@ async def test_input_box_echoed_to_console(app, sockets):
     async with app.run_test() as pilot:
         await pilot.press(*"foo", "enter")
         request = await sockets[0].recv_pyobj()
-        reply_obj = ActorSignalReplyMsg(
-            "TUI", "OK", "foo"
-        )
+        reply_obj = ActorSignalReplyMsg("TUI", "OK", "foo")
         await sockets[0].send_pyobj(reply_obj)
         console = pilot.app.get_widget_by_id("console")
         assert request.signal == "foo"

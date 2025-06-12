@@ -22,6 +22,7 @@ def test_actor_state_reply_msg():
     assert msg.status == status
     assert msg.info == info
 
+
 def test_actor_signal_msg():
     name = "test name"
     signal = "test signal"
@@ -31,6 +32,7 @@ def test_actor_signal_msg():
     assert msg.signal == signal
     assert msg.info == info
 
+
 def test_actor_signal_reply_msg():
     name = "test name"
     signal = "test_signal"
@@ -39,6 +41,7 @@ def test_actor_signal_reply_msg():
     assert msg.actor_name == name
     assert msg.info == info
     assert msg.signal == signal
+
 
 def test_nexus_signal_msg():
     name = "test name"
@@ -60,6 +63,7 @@ def test_nexus_signal_reply_msg():
     assert msg.status == status
     assert msg.info == info
     assert msg.signal == signal
+
 
 def test_broker_info_msg():
     name = "test name"

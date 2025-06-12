@@ -61,7 +61,15 @@ def cli_args(setdir, ports):
         "control_port output_port logging_port logging_input_port logfile configfile actor_path",
     )
 
-    args = Args(control_port, output_port, logging_port, logging_input_port, logfile, config_file, [])
+    args = Args(
+        control_port,
+        output_port,
+        logging_port,
+        logging_input_port,
+        logfile,
+        config_file,
+        [],
+    )
     return args
 
 
@@ -113,7 +121,7 @@ def test_can_override_ports(mode, flag, expected, setdir):
         "-o": "output_port",
         "-s": "server_port",
         "-l": "logging_port",
-        "-i": "logging_input_port"
+        "-i": "logging_input_port",
     }
 
     if mode in ["run", "server"]:
@@ -250,7 +258,9 @@ def test_get_ports_from_logfile(setdir):
             f"{test_output_port}, {test_logging_port}, {test_logging_input_port})."
         )
 
-    control_port, output_port, logging_port, logging_input_port = cli._get_ports(logfile)
+    control_port, output_port, logging_port, logging_input_port = cli._get_ports(
+        logfile
+    )
 
     os.remove(logfile)
 

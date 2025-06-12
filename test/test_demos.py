@@ -39,6 +39,7 @@ def unused_tcp_port():
     yield pytest.unused_tcp_port
     UNUSED_TCP_PORT += 1
 
+
 @pytest.fixture
 def server_opts(ports, logfile, configfile):
     control_port, output_port, logging_port, logging_input_port = ports
@@ -137,7 +138,7 @@ async def test_stop_output(dir, logfile, datafile, setdir, ports, server_opts):
     if os.path.isfile(datafile):
         # then remove that file and logile
         os.remove(datafile)
-    
+
     os.remove(logfile)  # later, might want to read this file and check for messages
 
 
@@ -149,7 +150,9 @@ async def test_stop_output(dir, logfile, datafile, setdir, ports, server_opts):
         ("minimal", "minimal_spawn.yaml", "testlog", "sample_generator_data.npy"),
     ],
 )
-async def test_stop_output_spawn(dir, configfile, logfile, datafile, setdir, ports, server_opts):
+async def test_stop_output_spawn(
+    dir, configfile, logfile, datafile, setdir, ports, server_opts
+):
     os.chdir(dir)
 
     control_port, output_port, logging_port, logging_input_port = ports

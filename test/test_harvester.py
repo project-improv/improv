@@ -165,7 +165,6 @@ def test_harvester_relieves_memory_pressure_one_loop(ports, setup_store):
             pass
 
         try:
-
             nex_s.close(linger=0)
             broker_s.close(linger=0)
             log_s.close(linger=0)
@@ -182,7 +181,6 @@ def test_harvester_loops_with_no_memory_pressure(ports, setup_store):
         harvester_instance.stop(signal.SIGINT, None)
 
     with SignalManager():
-
         ctx = zmq.Context()
         nex_s = ctx.socket(zmq.REP)
         nex_s.bind(f"tcp://*:{ports[0]}")
