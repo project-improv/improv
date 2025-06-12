@@ -78,8 +78,7 @@ class GUIState:
             signal,
             f"Sending signal {signal} to nexus",
         )
-        self.gui.q_comm.put(actor_signal)
-        return self.gui.q_comm.get()
+        return self.gui.q_comm.send(actor_signal)
 
     def add_logger(self, logger):
         self.logger = logger

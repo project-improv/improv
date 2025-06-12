@@ -59,7 +59,20 @@ class ZmqLink:
             )
         else:
             self.socket.send_pyobj(item)
-
+    
+    def send(
+            self, item
+    ):
+        """
+        This combines put and get in the case of a REQ/REP socket to ensure links aren't
+        left in an inconsistent state.
+        """
+        self.put(item)
+        if self.socket_type == zmq.SUB:
+            return None
+        else:
+            return self.get()
+    
     async def put_async(self, item):
         loop = asyncio.get_event_loop()
         res = await loop.run_in_executor(self._executor, self.put, item)
