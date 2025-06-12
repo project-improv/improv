@@ -96,7 +96,7 @@ def test_argument_config_precedence(setdir, ports):
 
 
 # delete this comment later
-@pytest.mark.skip()(reason="makes use of parameterized start_nexus")
+@pytest.mark.skip(reason="makes use of parameterized start_nexus")
 def test_start_nexus(sample_nex):
     with SignalManager():
 
@@ -354,7 +354,7 @@ def test_process_actor_state_update_allows_run(caplog, setdir, ports):
     assert nex.allowStart
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_process_actor_message(caplog, setdir, ports):
     nex = Nexus("test")
     try:
@@ -780,7 +780,7 @@ def test_nexus_create_nexus_no_cfg_file(ports):
 #     conftest.nex_startup(ports, filename)
 #
 #
-# @pytest.mark.skip()(reason="Test isn't meant to be used for coverage")
+# @pytest.mark.skip(reason="Test isn't meant to be used for coverage")
 # def test_nex_cfg(ports, setdir):
 #     filename = "minimal_zmq.yaml"
 #     nex = Nexus("test")

@@ -9,7 +9,7 @@ from zmq import SocketOption
 from improv.link import ZmqLink
 
 
-@pytest.fixture()
+@pytest.fixture
 def test_sub_link():
     """Fixture to provide a commonly used Link object."""
     ctx = zmq.Context()
@@ -36,7 +36,7 @@ def test_sub_link():
     ctx.destroy(linger=0)
 
 
-@pytest.fixture()
+@pytest.fixture
 def test_pub_link():
     """Fixture to provide a commonly used Link object."""
     ctx = zmq.Context()
@@ -60,7 +60,7 @@ def test_pub_link():
     ctx.destroy(linger=0)
 
 
-@pytest.fixture()
+@pytest.fixture
 def test_req_link():
     """Fixture to provide a commonly used Link object."""
     ctx = zmq.Context()
@@ -80,7 +80,7 @@ def test_req_link():
     ctx.destroy(linger=0)
 
 
-@pytest.fixture()
+@pytest.fixture
 def test_rep_link():
     """Fixture to provide a commonly used Link object."""
     ctx = zmq.Context()
@@ -199,7 +199,7 @@ def test_put_multiple(test_pub_link):
     assert messages_out == messages
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_put_and_get_async(test_pub_link):
     """Tests if async get preserves order after async put."""
 
@@ -348,7 +348,7 @@ def test_get_nowait_empty(test_sub_link):
         link.get_nowait()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_get_async_success(test_sub_link):
     """Tests if async_get gets the correct element from the queue."""
 

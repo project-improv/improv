@@ -21,7 +21,7 @@ SERVER_COUNTER = 0
 signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
 
 
-@pytest.fixture()
+@pytest.fixture
 def ports():
     global SERVER_COUNTER
     CONTROL_PORT = 30000
@@ -37,7 +37,7 @@ def ports():
     SERVER_COUNTER += 4
 
 
-@pytest.fixture()
+@pytest.fixture
 def setdir():
     prev = os.getcwd()
     os.chdir(os.path.dirname(__file__) + "/configs")
@@ -45,7 +45,7 @@ def setdir():
     os.chdir(prev)
 
 
-@pytest.fixture()
+@pytest.fixture
 def set_dir_config_parent():
     prev = os.getcwd()
     os.chdir(os.path.dirname(__file__))
@@ -53,7 +53,7 @@ def set_dir_config_parent():
     os.chdir(prev)
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_nex(setdir, ports):
     nex = Nexus("test")
     try:
@@ -78,12 +78,12 @@ def sample_nex(setdir, ports):
         raise e
 
 
-@pytest.fixture()
+@pytest.fixture
 def server_port_num():
     return REDIS_PORT_NUM
 
 
-@pytest.fixture()
+@pytest.fixture
 # TODO: put in conftest.py
 def setup_store(server_port_num):
     """Start the server"""
@@ -112,7 +112,7 @@ def setup_store(server_port_num):
     p.wait(timeout=WAIT_TIMEOUT)
 
 
-@pytest.fixture()
+@pytest.fixture
 def zmq_actor(ports):
     actor = ZmqActor(ports[0], None, None, ports[2], None, None, name="test")
 
@@ -131,7 +131,7 @@ def actor_startup(actor):
     actor.register_with_nexus()
 
 
-@pytest.fixture()
+@pytest.fixture
 def harvester(ports):
     ctx = zmq.Context()
     socket = ctx.socket(zmq.PUB)

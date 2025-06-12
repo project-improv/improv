@@ -99,7 +99,7 @@ def test_harvester_stop_logs_and_halts_running():
         ctx.destroy(linger=0)
 
 
-# @pytest.mark.skip()
+# @pytest.mark.skip
 def test_harvester_relieves_memory_pressure_one_loop(ports, setup_store):
     def harvest_and_quit(harvester_instance: RedisHarvester):
         harvester_instance.collect()

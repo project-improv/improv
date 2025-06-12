@@ -15,7 +15,7 @@ SERVER_WARMUP = 10
 SERVER_TIMEOUT = 15
 
 
-@pytest.fixture()
+@pytest.fixture
 def server(setdir, ports):
     """
     Sets up a server using minimal.yaml in the configs folder.
@@ -51,7 +51,7 @@ def server(setdir, ports):
         pytest.fail("Server did not shut down correctly.")
 
 
-@pytest.fixture()
+@pytest.fixture
 def cli_args(setdir, ports):
     logfile = "tmp.log"
     control_port, output_port, logging_port, logging_input_port = ports

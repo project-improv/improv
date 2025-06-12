@@ -15,7 +15,7 @@ SERVER_WARMUP = 10
 UNUSED_TCP_PORT = 10567
 
 
-@pytest.fixture()
+@pytest.fixture
 def setdir():
     prev = os.getcwd()
     os.chdir(os.path.dirname(__file__))
@@ -24,7 +24,7 @@ def setdir():
     os.chdir(prev)
 
 
-@pytest.fixture()
+@pytest.fixture
 def ip():
     """Fixture to provide an IP test input."""
 
@@ -32,7 +32,7 @@ def ip():
     return pytest.ip
 
 
-@pytest.fixture()
+@pytest.fixture
 def unused_tcp_port():
     global UNUSED_TCP_PORT
     pytest.unused_tcp_port = UNUSED_TCP_PORT
@@ -40,7 +40,7 @@ def unused_tcp_port():
     UNUSED_TCP_PORT += 1
 
 
-@pytest.fixture()
+@pytest.fixture
 def server_opts(ports, logfile, configfile):
     control_port, output_port, logging_port, logging_input_port = ports
 
@@ -63,7 +63,7 @@ def server_opts(ports, logfile, configfile):
     return opts
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("dir", "configfile", "logfile"),
     [
@@ -98,7 +98,7 @@ async def test_simple_boot_and_quit(dir, logfile, setdir, ports, server_opts):
     # os.remove(logfile)  # later, might want to read this file and check for messages
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("dir", "configfile", "logfile", "datafile"),
     [
@@ -142,8 +142,8 @@ async def test_stop_output(dir, logfile, datafile, setdir, ports, server_opts):
     os.remove(logfile)  # later, might want to read this file and check for messages
 
 
-@pytest.mark.skip()
-@pytest.mark.asyncio()
+@pytest.mark.skip
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("dir", "configfile", "logfile", "datafile"),
     [
