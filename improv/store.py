@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-class StoreInterface:
+class AbstractStoreInterface:
     """General interface for a store"""
 
     def get(self):
@@ -35,7 +35,7 @@ class StoreInterface:
         raise NotImplementedError
 
 
-class RedisStoreInterface(StoreInterface):
+class RedisStoreInterface(AbstractStoreInterface):
     def __init__(
         self,
         name="default",

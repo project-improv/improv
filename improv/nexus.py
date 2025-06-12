@@ -887,20 +887,6 @@ class Nexus:
             **actor.options,
         )
 
-        if "method" in actor.options.keys():
-            # check for spawn
-            if "fork" == actor.options["method"]:
-                # Add link to StoreInterface store
-                store = self.create_store_interface()
-                instance.set_store_interface(store)
-            else:
-                # spawn or forkserver; can't pickle plasma store
-                logger.info("No store for this actor yet: {}".format(name))
-        else:
-            # Add link to StoreInterface store
-            store = self.create_store_interface()
-            instance.set_store_interface(store)
-
         # Update information
         self.actors.update({name: instance})
 

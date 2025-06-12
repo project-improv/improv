@@ -30,6 +30,8 @@ class Visual(Actor):
         self.q_comm = self.links["q_comm"]
         self.q_sig = self.links["q_sig"]
 
+        self.get_store_interface()
+
         self.improv_logger.info("Loading FrontEnd")
         self.app = QtWidgets.QApplication([])
         self.viewer = FrontEnd(self.state) 
@@ -89,33 +91,3 @@ class GUIState:
             gui.name, gui.actions, gui.links, gui.nexus_sig_port, self.logger
         )
         self.signal_check = rm.loop_logic
-
-
-# class BWVisual(Actor):
-#     """Class for preprocessing data from bubblewrap processor"""
-
-#     def __init__(self, *args, showConnectivity=False, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         if "name" in kwargs:
-#             self.name = kwargs["name"]
-
-#     def setup(self):
-#         self.data = None
-#         self.bw_L = None
-
-#     def getData(self):
-#         """Load data from dim reduction and bubblewrap, returns false on timeout"""
-#         try:
-#             bw_res = self.links['bw_in'].get(timeout=0.0005)
-#             res = self.q_in.get(timeout=0.0005)
-#             self.data = self.client.get(res[1])
-#             self.bw_L = self.client.get(bw_res[1][1])
-#             self.bw_mu = self.client.get(bw_res[1][2])
-#             self.bw_n_obs = self.client.get(bw_res[1][3])
-#             self.bw_dead_nodes = self.client.get(bw_res[1][6])
-#         except Empty as e:
-#             return False
-#         except Exception as e:
-#             logger.error('Visual: Exception in get data: {}'.format(e))
-#             logger.error(traceback.format_exc())
-#         return True

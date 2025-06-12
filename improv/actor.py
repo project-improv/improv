@@ -73,7 +73,7 @@ class AbstractActor:
         """
         self.client = client
 
-    def _get_store_interface(self):
+    def get_store_interface(self):
         # TODO: Where do we require this be run? Add a Signal and include in RM?
         if not self.client:
             store = None
@@ -205,13 +205,14 @@ class ManagedActor(AbstractActor):
         self.actions["setup"] = self.setup
         self.actions["run"] = self.run_step
         self.actions["stop"] = self.stop
-        self.nexus_sig_port: int = None
+        self.nexus_sig_port: int | None = None
 
     def run(self):
         self.setup_logging()
         self.register_with_nexus()
         self.register_with_broker()
         self.setup_links()
+        self.get_store_interface()
         with RunManager(
             self.name, self.actions, self.links, self.nexus_sig_port, self.improv_logger
         ):
