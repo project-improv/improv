@@ -14,7 +14,7 @@ pytest.example_string_links = {}
 pytest.example_links = {}
 
 
-@pytest.fixture
+@pytest.fixture()
 def init_actor():
     """Fixture to initialize and teardown an instance of actor."""
 
@@ -23,7 +23,7 @@ def init_actor():
     act = None
 
 
-@pytest.fixture
+@pytest.fixture()
 def example_string_links():
     """Fixture to provide a commonly used test input."""
 
@@ -31,7 +31,7 @@ def example_string_links():
     return pytest.example_string_links
 
 
-@pytest.fixture
+@pytest.fixture()
 def example_links(setup_store, server_port_num):
     """Fixture to provide link objects as test input and setup store."""
     StoreInterface(server_port_num=server_port_num)

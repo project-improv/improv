@@ -338,7 +338,8 @@ class ZmqActor(ManagedActor):
         try:
             return self._logger
         except AttributeError as e:
-            err_str = f"Caught exception {e} in {self.name}. Did you forget to call setup_logging?"
+            err_str = f"Caught exception {e} in {self.name}. "
+            "Did you forget to call setup_logging?"
             logger = logging.getLogger(self.name)
             logger.error(err_str)
 

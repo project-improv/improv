@@ -1,7 +1,6 @@
 import asyncio
 import zmq.asyncio as zmq
-import zmq as zmq_sync
-from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER, SocketOption
+from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER
 from rich.table import Table
 from textual.app import App, ComposeResult
 from textual.containers import Grid, Container

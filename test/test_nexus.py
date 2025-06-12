@@ -96,7 +96,7 @@ def test_argument_config_precedence(setdir, ports):
 
 
 # delete this comment later
-@pytest.mark.skip(reason="makes use of parameterized start_nexus")
+@pytest.mark.skip()(reason="makes use of parameterized start_nexus")
 def test_start_nexus(sample_nex):
     with SignalManager():
 
@@ -108,7 +108,7 @@ def test_start_nexus(sample_nex):
         assert [p.name for p in nex.processes] == ["Acquirer", "Analysis"]
 
 
-@pytest.mark.skip(
+@pytest.mark.skip()(
     reason="This test is unfinished - it does not validate link structure"
 )
 @pytest.mark.parametrize(
@@ -354,7 +354,7 @@ def test_process_actor_state_update_allows_run(caplog, setdir, ports):
     assert nex.allowStart
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_process_actor_message(caplog, setdir, ports):
     nex = Nexus("test")
     try:
@@ -756,7 +756,7 @@ def test_nexus_create_nexus_no_cfg_file(ports):
 
 
 #
-# @pytest.mark.skip(reason="Blocking comms so this won't work as-is")
+# @pytest.mark.skip()(reason="Blocking comms so this won't work as-is")
 # def test_nexus_actor_comm_setup(ports, setdir):
 #     filename = "minimal_zmq.yaml"
 #     nex = Nexus("test")
@@ -774,13 +774,13 @@ def test_nexus_create_nexus_no_cfg_file(ports):
 #     nex.process_actor_message()
 #
 #
-# @pytest.mark.skip(reason="Test isn't meant to be used for coverage")
+# @pytest.mark.skip()(reason="Test isn't meant to be used for coverage")
 # def test_debug_nex(ports, setdir):
 #     filename = "minimal_zmq.yaml"
 #     conftest.nex_startup(ports, filename)
 #
 #
-# @pytest.mark.skip(reason="Test isn't meant to be used for coverage")
+# @pytest.mark.skip()(reason="Test isn't meant to be used for coverage")
 # def test_nex_cfg(ports, setdir):
 #     filename = "minimal_zmq.yaml"
 #     nex = Nexus("test")

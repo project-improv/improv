@@ -8,7 +8,7 @@ from zmq import PUB, REP
 from zmq.log.handlers import PUBHandler
 
 
-@pytest.fixture
+@pytest.fixture()
 def logger(ports):
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
@@ -19,7 +19,7 @@ def logger(ports):
     zmq_log_handler.close()
 
 
-@pytest.fixture
+@pytest.fixture()
 async def sockets(ports):
     with zmq.Context() as context:
         ctrl_socket = context.socket(REP)
@@ -29,7 +29,7 @@ async def sockets(ports):
         yield (ctrl_socket, out_socket)
 
 
-@pytest.fixture
+@pytest.fixture()
 async def app(ports):
     mock = tui.TUI(*ports, testing=True)
     yield mock

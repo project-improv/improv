@@ -426,7 +426,8 @@ class Nexus:
             sig = "QUIT"
 
         logger.warning(
-            f"Shutting down via signal handler due to {sig}. Steps may be out of order or dirty."
+            f"Shutting down via signal handler due to {sig}. "
+            "Steps may be out of order or dirty."
         )
         await self.stop_polling()
         logger.info("Nexus waiting for async tasks to have a chance to send")
