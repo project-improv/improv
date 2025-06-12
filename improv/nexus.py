@@ -638,22 +638,11 @@ class Nexus:
             )
             return
 
-        for actor in self.actor_states.values():
-            logger.info("Starting setup: " + str(actor.actor_name))
-            actor.sig_socket = self.zmq_context.socket(REQ)
-            actor.sig_socket.connect(f"tcp://{actor.hostname}:{actor.nexus_in_port}")
-            await actor.sig_socket.send_pyobj(
-                NexusSignalMsg(actor.actor_name, Signal.setup(), "")
-            )
-            await actor.sig_socket.recv_pyobj()
+        await self.signal_to_actors(Signal.setup())
 
     async def run(self):
         if self.allowStart:
-            for actor in self.actor_states.values():
-                await actor.sig_socket.send_pyobj(
-                    NexusSignalMsg(actor.actor_name, Signal.run(), "")
-                )
-                await actor.sig_socket.recv_pyobj()
+            await self.signal_to_actors(Signal.run())
         else:
             logger.error("Not all actors ready yet, please wait and then try again.")
 
@@ -675,11 +664,24 @@ class Nexus:
         logger.warning("Starting stop procedure")
         self.allowStart = False
 
+        await self.signal_to_actors(Signal.stop())
+
+        self.allowStart = True
+
+    async def revive(self):
+        logger.warning("Starting revive")
+
+        await self.signal_to_actors(Signal.revive())
+
+    async def signal_to_actors(self, signal):
+        """Sends signal to actors safely (with error handling 
+        and timeout).
+        """
         for actor in self.actor_states.values():
             try:
                 await actor.sig_socket.send_pyobj(
                     NexusSignalMsg(
-                        actor.actor_name, Signal.stop(), "Nexus sending stop signal"
+                        actor.actor_name, signal, f"Nexus sending {signal} signal to {actor.actor_name}"
                     )
                 )
                 msg_ready = await actor.sig_socket.poll(timeout=1000)
@@ -688,21 +690,17 @@ class Nexus:
                 await actor.sig_socket.recv_pyobj()
             except TimeoutError:
                 logger.info(
-                    f"Timed out waiting for reply to stop message "
+                    f"Timed out waiting for reply to {signal} message "
                     f"from actor {actor.actor_name}. "
                     f"Closing connection."
                 )
                 actor.sig_socket.close(linger=0)
             except Exception as e:
                 logger.info(
-                    f"Unable to send stop message "
+                    f"Unable to send {signal} message "
                     f"to actor {actor.actor_name}: "
                     f"{e}"
                 )
-        self.allowStart = True
-
-    def revive(self):
-        logger.warning("Starting revive")
 
     async def stop_polling(self):
         """Cancels outstanding tasks and fills their last request.
