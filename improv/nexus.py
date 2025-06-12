@@ -637,6 +637,11 @@ class Nexus:
                 "Not all actors connected to Nexus. Please wait, then try again."
             )
             return
+        
+        for actor in self.actor_states.values():
+            logger.info("Starting setup: " + str(actor.actor_name))
+            actor.sig_socket = self.zmq_context.socket(REQ)
+            actor.sig_socket.connect(f"tcp://{actor.hostname}:{actor.nexus_in_port}")
 
         await self.signal_to_actors(Signal.setup())
 
@@ -679,9 +684,11 @@ class Nexus:
         """
         for actor in self.actor_states.values():
             try:
+                send_str = f"Nexus sending {signal} signal to {actor.actor_name}"
+                logger.info(send_str)
                 await actor.sig_socket.send_pyobj(
                     NexusSignalMsg(
-                        actor.actor_name, signal, f"Nexus sending {signal} signal to {actor.actor_name}"
+                        actor.actor_name, signal, send_str
                     )
                 )
                 msg_ready = await actor.sig_socket.poll(timeout=1000)
@@ -689,14 +696,14 @@ class Nexus:
                     raise TimeoutError
                 await actor.sig_socket.recv_pyobj()
             except TimeoutError:
-                logger.info(
+                logger.error(
                     f"Timed out waiting for reply to {signal} message "
                     f"from actor {actor.actor_name}. "
                     f"Closing connection."
                 )
                 actor.sig_socket.close(linger=0)
             except Exception as e:
-                logger.info(
+                logger.error(
                     f"Unable to send {signal} message "
                     f"to actor {actor.actor_name}: "
                     f"{e}"
