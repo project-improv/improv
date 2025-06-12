@@ -224,15 +224,15 @@ class Nexus:
         # create all data links requested from Config config
         self.create_connections()
 
-        if self.config.hasGUI:
-            # treat GUI uniquely since user communication comes from here
-            # Have to load GUI first (at least with Caiman)
-            name = self.config.gui.name
-            m = self.config.gui  # m is ConfigModule
-            try:
-                pass
-            except Exception as e:
-                logger.error(f"Exception in setting up GUI {name}: {e}")
+        # if self.config.hasGUI:
+        #     # treat GUI uniquely since user communication comes from here
+        #     # Have to load GUI first (at least with Caiman)
+        #     name = self.config.gui.name
+        #     m = self.config.gui  # m is ConfigModule
+        #     try:
+        #         pass
+        #     except Exception as e:
+        #         logger.error(f"Exception in setting up GUI {name}: {e}")
 
         # First set up each class/actor
         for name, actor in self.config.actors.items():
@@ -524,6 +524,12 @@ class Nexus:
                 )
             )
             await self.process_actor_signal(msg)
+        
+        else:
+            logger.warning(
+                f"Received message {msg} of unrecognized type {type(msg)}."
+                "Expected ActorStateMsg or ActorSignalMsg."
+            )
 
     
     async def process_actor_signal(self, msg):
