@@ -264,7 +264,9 @@ def test_no_server_start_in_logfile_raises_error(setdir, cli_args, capsys):
     with open("improv-debug.log", mode="w") as f:
         f.write("this is some placeholder text")
 
-    cli.get_server_ports(cli_args, timeout=1)
+    curr_dt = datetime.datetime.now().replace(microsecond=0)
+    timeout = 1
+    cli.get_server_ports(cli_args, timeout, curr_dt)
 
     captured = capsys.readouterr()
     assert "Unable to read server start time" in captured.out
@@ -278,7 +280,8 @@ def test_no_ports_in_logfile_raises_error(setdir, cli_args, capsys):
     with open("improv-debug.log", mode="w") as f:
         f.write(f"{curr_dt} Server running on (control, output, log) ports XXX\n")
 
-    cli.get_server_ports(cli_args, timeout=1)
+    timeout = 1
+    cli.get_server_ports(cli_args, timeout, curr_dt)
     captured = capsys.readouterr()
     assert f"Unable to read ports from {'improv-debug.log'}." in captured.out
 

@@ -324,7 +324,7 @@ def run_cleanup(args, headless=False):
             print("No running processes found.")
 
 
-def run(args, timeout=12):
+def run(args, timeout=10):
     apath_opts = []
     for p in args.actor_path:
         if p:
@@ -363,14 +363,22 @@ def run(args, timeout=12):
         server = subprocess.Popen(server_opts, stdout=logfile, stderr=logfile)
 
     # wait for server to start up
-    ports = get_server_ports(args, timeout)
-    if ports:
-        control_port, output_port, logging_port, logging_input_port = ports
-        args.logging_port = logging_port
-        args.logging_input_port = logging_input_port
-        args.control_port = control_port
-        args.server_port = output_port
-        run_client(args)
+    curr_dt = datetime.datetime.now().replace(microsecond=0)
+    ports = None
+    while not ports:
+        ports = get_server_ports(args, timeout, curr_dt)
+        if ports:
+            control_port, output_port, logging_port, logging_input_port = ports
+            args.logging_port = logging_port
+            args.logging_input_port = logging_input_port
+            args.control_port = control_port
+            args.server_port = output_port
+            run_client(args)
+        else:
+            reply = input("Do you want to keep waiting? (y/N) ")
+            print(reply.lower())
+            if not reply.lower() == 'y':
+                break
 
     try:
         wait_timeout = 60
@@ -383,10 +391,7 @@ def run(args, timeout=12):
         run_cleanup(args, headless=True)
 
 
-def get_server_ports(args, timeout):
-    # save current datetime so we can see when server has started up
-    curr_dt = datetime.datetime.now().replace(microsecond=0)
-
+def get_server_ports(args, timeout, curr_dt):
     increment = 0.05
     time_now = 0
     ports = None
