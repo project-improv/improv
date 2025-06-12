@@ -48,7 +48,6 @@ class AbstractActor:
         self.method = method
         self.client = None
         self.lower_priority = False
-        self.improv_logger = None
         self.store_port_num = store_port_num
 
         # Start with no explicit data queues.
@@ -333,13 +332,23 @@ class ZmqActor(ManagedActor):
         if "q_in" in self.links.keys():
             self.q_in = self.links["q_in"]
         self.improv_logger.info(f"Actor {self.name} finished setting up links")
+    
+    @property
+    def improv_logger(self):
+        try:
+            return self._logger
+        except AttributeError as e:
+            err_str = f"Caught exception {e} in {self.name}. Did you forget to call setup_logging?"
+            logger = logging.getLogger(self.name)
+            logger.error(err_str)
+
 
     def setup_logging(self):
-        self.improv_logger = logging.getLogger(self.name)
-        self.improv_logger.setLevel(logging.INFO)
+        self._logger = logging.getLogger(self.name)
+        self._logger.setLevel(logging.INFO)
         for handler in logger.handlers:
-            self.improv_logger.addHandler(handler)
-        self.improv_logger.addHandler(
+            self._logger.addHandler(handler)
+        self._logger.addHandler(
             log.ZmqLogHandler(self.log_host, self.log_pull_port, self.zmq_context)
         )
 

@@ -376,7 +376,6 @@ def run(args, timeout=10):
             run_client(args)
         else:
             reply = input("Do you want to keep waiting? (y/N) ")
-            print(reply.lower())
             if not reply.lower() == 'y':
                 break
 
