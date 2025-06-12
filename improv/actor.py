@@ -332,7 +332,7 @@ class ZmqActor(ManagedActor):
         if "q_in" in self.links.keys():
             self.q_in = self.links["q_in"]
         self.improv_logger.info(f"Actor {self.name} finished setting up links")
-    
+
     @property
     def improv_logger(self):
         try:
@@ -341,7 +341,6 @@ class ZmqActor(ManagedActor):
             err_str = f"Caught exception {e} in {self.name}. Did you forget to call setup_logging?"
             logger = logging.getLogger(self.name)
             logger.error(err_str)
-
 
     def setup_logging(self):
         self._logger = logging.getLogger(self.name)
@@ -424,7 +423,7 @@ class RunManager:
             do_loop = self.loop_logic()
 
         return None
-    
+
     def loop_logic(self):
         # broken out into a separate function for use elsewhere
         an = self.actorName
@@ -461,9 +460,7 @@ class RunManager:
                     f"Info: {res.info}\n"
                 )
             except Exception as e:
-                self.improv_logger.error(
-                    "Actor {} error in setup: {}".format(an, e)
-                )
+                self.improv_logger.error("Actor {} error in setup: {}".format(an, e))
                 self.improv_logger.error(traceback.format_exc())
             self.config = False
 
@@ -477,39 +474,45 @@ class RunManager:
             )
             if signal == Signal.run():
                 self.run = True
-                self.improv_logger.info(f"{self.actorName} received run signal, begin running")
+                self.improv_logger.info(
+                    f"{self.actorName} received run signal, begin running"
+                )
             elif signal == Signal.setup():
                 self.config = True
             elif signal == Signal.stop():
                 self.run = False
                 self.stop = True
-                self.improv_logger.info(
-                    f"Actor {self.actorName} received stop signal"
-                )
+                self.improv_logger.info(f"Actor {self.actorName} received stop signal")
             elif signal == Signal.quit():
-                self.improv_logger.info(f"{self.actorName} received quit signal, aborting")
+                self.improv_logger.info(
+                    f"{self.actorName} received quit signal, aborting"
+                )
                 keep_going = False
             elif signal == Signal.pause():
-                self.improv_logger.info(f"{self.actorName} received pause signal, pending...")
+                self.improv_logger.info(
+                    f"{self.actorName} received pause signal, pending..."
+                )
                 self.run = False
             elif signal == Signal.resume():  # currently treat as same as run
-                self.improv_logger.info(f"{self.actorName} Received resume signal, resuming")
+                self.improv_logger.info(
+                    f"{self.actorName} Received resume signal, resuming"
+                )
                 self.run = True
             elif signal == Signal.status():
-                self.improv_logger.info(
-                    f"{self.actorName} received status request"
-                )
+                self.improv_logger.info(f"{self.actorName} received status request")
         except KeyboardInterrupt:
             keep_going = False
         except Empty:
             pass  # No signal from Nexus
         except TimeoutError:
             pass  # No signal from Nexus over zmq
-    
+
         return keep_going
 
     def __exit__(self, type, value, traceback):
-        self.improv_logger.info(f"{self.actorName} ran for " + str(time.time() - self.start) + " seconds")
+        self.improv_logger.info(
+            f"{self.actorName} ran for " + str(time.time() - self.start) + " seconds"
+        )
         self.improv_logger.info("Exiting RunManager")
         return None
 

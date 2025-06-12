@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.FileHandler("tui.log"))
 
+
 class SocketLog(TextLog):
     def __init__(self, port, context, *args, **kwargs):
         if "formatter" in kwargs:
@@ -131,14 +132,22 @@ class TUI(App, inherit_bindings=False):
     View class for the text user interface. Implemented as a Textual app.
     """
 
-    def __init__(self, control_port, output_port, logging_pub_port, logging_pull_port, log_host="localhost", testing=False):
+    def __init__(
+        self,
+        control_port,
+        output_port,
+        logging_pub_port,
+        logging_pull_port,
+        log_host="localhost",
+        testing=False,
+    ):
         super().__init__()
         self.title = "improv console"
         self.log_host = log_host
         self.control_port = TUI._sanitize_addr(control_port, log_host)
         self.output_port = TUI._sanitize_addr(output_port, log_host)
         self.logging_pub_port = TUI._sanitize_addr(logging_pub_port, log_host)
-        self.logging_pull_port = logging_pull_port 
+        self.logging_pull_port = logging_pull_port
         self.testing = testing
 
         self.context = zmq.Context()
@@ -227,9 +236,7 @@ class TUI(App, inherit_bindings=False):
         try:
             self.logger.info(f"TUI Sending {msg} to controller.")
             msg_obj = ActorSignalMsg(
-                actor_name="TUI",
-                signal=msg,
-                info="Input from TUI"
+                actor_name="TUI", signal=msg, info="Input from TUI"
             )
             await self.control_socket.send_pyobj(msg_obj)
             reply = None
@@ -290,12 +297,11 @@ class TUI(App, inherit_bindings=False):
 
     def action_help(self):
         self.push_screen(HelpScreen())
-    
+
     async def clean_up_and_exit(self):
         self.control_socket.close()
         self.logger.handlers.pop().close()
         self.exit()
-
 
 
 if __name__ == "__main__":
@@ -330,7 +336,9 @@ if __name__ == "__main__":
                 reply_str = "Awaiting input:"
             await socket.send_pyobj(
                 ActorSignalReplyMsg(
-                    msg.actor_name, msg.signal, f"Signal {msg.signal} received.\n" + reply_str
+                    msg.actor_name,
+                    msg.signal,
+                    f"Signal {msg.signal} received.\n" + reply_str,
                 )
             )
 
@@ -363,7 +371,10 @@ if __name__ == "__main__":
         # the following construct ensures both the
         # (infinite) fake servers are killed once the tui finishes
         finished, unfinished = await asyncio.wait(
-            [asyncio.create_task(c) for c in (app.run_async(), publish(), backend(), log())],
+            [
+                asyncio.create_task(c)
+                for c in (app.run_async(), publish(), backend(), log())
+            ],
             return_when=asyncio.FIRST_COMPLETED,
         )
 

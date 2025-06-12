@@ -160,7 +160,7 @@ class Nexus:
             control_port=control_port,
             output_port=output_port,
             logging_port=log_server_pub_port,
-            logging_input_port=log_server_pull_port
+            logging_input_port=log_server_pull_port,
         )
 
         logger.debug("Setting up sockets")
@@ -190,7 +190,7 @@ class Nexus:
             self.config.settings["control_port"],
             self.config.settings["output_port"],
             self.logger_pub_port,
-            self.logger_pull_port
+            self.logger_pull_port,
         )
 
     def init_config(self):
@@ -399,7 +399,9 @@ class Nexus:
                 for i, t in enumerate(self.tasks):
                     if i == 0:  # this index is the original task that processes input
                         if t in done:
-                            self.tasks[i] = asyncio.create_task(self.process_actor_message())
+                            self.tasks[i] = asyncio.create_task(
+                                self.process_actor_message()
+                            )
 
             except asyncio.CancelledError:
                 pass
@@ -511,7 +513,7 @@ class Nexus:
             ):
                 logger.info("All actors ready. Allowing run.")
                 self.allowStart = True
-            
+
         elif isinstance(msg, ActorSignalMsg):
             if msg.signal == Signal.quit():
                 reply_str = ""
@@ -520,27 +522,28 @@ class Nexus:
 
             await self.in_socket.send_pyobj(
                 ActorSignalReplyMsg(
-                    msg.actor_name, msg.signal, f"Signal {msg.signal} received.\n" + reply_str
+                    msg.actor_name,
+                    msg.signal,
+                    f"Signal {msg.signal} received.\n" + reply_str,
                 )
             )
             await self.process_actor_signal(msg)
-        
+
         else:
             logger.warning(
                 f"Received message {msg} of unrecognized type {type(msg)}."
                 "Expected ActorStateMsg or ActorSignalMsg."
             )
 
-    
     async def process_actor_signal(self, msg):
         signal = msg.signal
         if signal == Signal.setup():
             logger.info("Running setup")
             await self.setup()
-        elif signal == Signal.run(): 
+        elif signal == Signal.run():
             logger.info("Begin run!")
             await self.run()
-        elif signal == Signal.stop(): 
+        elif signal == Signal.stop():
             logger.info("Stop run!")
             await self.stop()
         elif signal == Signal.ready():
@@ -554,7 +557,6 @@ class Nexus:
                 logger.error(f"Caught exception {e} when trying to quit the program.")
         else:
             logger.warning(f"Unknown command {signal} from actor {msg.actor_name}")
-
 
     # async def process_gui_signal(self, flag, name):
     #     """Receive flags from the Front End as user input"""
@@ -637,7 +639,7 @@ class Nexus:
                 "Not all actors connected to Nexus. Please wait, then try again."
             )
             return
-        
+
         for actor in self.actor_states.values():
             logger.info("Starting setup: " + str(actor.actor_name))
             actor.sig_socket = self.zmq_context.socket(REQ)
@@ -679,7 +681,7 @@ class Nexus:
         await self.signal_to_actors(Signal.revive())
 
     async def signal_to_actors(self, signal):
-        """Sends signal to actors safely (with error handling 
+        """Sends signal to actors safely (with error handling
         and timeout).
         """
         for actor in self.actor_states.values():
@@ -687,9 +689,7 @@ class Nexus:
                 send_str = f"Nexus sending {signal} signal to {actor.actor_name}"
                 logger.info(send_str)
                 await actor.sig_socket.send_pyobj(
-                    NexusSignalMsg(
-                        actor.actor_name, signal, send_str
-                    )
+                    NexusSignalMsg(actor.actor_name, signal, send_str)
                 )
                 msg_ready = await actor.sig_socket.poll(timeout=1000)
                 if msg_ready == 0:
@@ -734,8 +734,10 @@ class Nexus:
                 msg_ready = await actor.sig_socket.poll(timeout=1000)
                 if msg_ready == 0:
                     raise TimeoutError
-                else: 
-                    logger.info(f"Preparing to receive response from {actor.actor_name}")
+                else:
+                    logger.info(
+                        f"Preparing to receive response from {actor.actor_name}"
+                    )
                     rep = await actor.sig_socket.recv_pyobj()
                     logger.info(f"Received reply {rep.info} from {actor.actor_name}")
             except TimeoutError:
@@ -957,7 +959,7 @@ class Nexus:
                 self.logger_in_port,
                 self.logfile,
                 log_server_pub_port,
-                log_server_pull_port
+                log_server_pull_port,
             ),
         )
         logger.debug("logger created")
@@ -1084,7 +1086,6 @@ class Nexus:
                 logger.exception(f"Unable to close harvester: {e}")
 
     def set_up_sockets(self):
-
         logger.debug("Connecting to output")
         cfg = self.config.settings  # this could be self.settings instead
         self.zmq_context = zmq.Context()
@@ -1118,7 +1119,9 @@ class Nexus:
         )
         self.broker_in_port = int(broker_in_port_string.split(":")[-1])
 
-    def start_improv_services(self, log_server_pub_port, log_server_pull_port, store_size):
+    def start_improv_services(
+        self, log_server_pub_port, log_server_pull_port, store_size
+    ):
         logger.debug("Starting logger")
         self.start_logger(log_server_pub_port, log_server_pull_port)
         logger.addHandler(

@@ -21,7 +21,11 @@ DEBUG = True
 
 
 def bootstrap_log_server(
-    nexus_hostname, nexus_port, log_filename="global.log", logger_pub_port=None, logger_pull_port=None
+    nexus_hostname,
+    nexus_port,
+    log_filename="global.log",
+    logger_pub_port=None,
+    logger_pull_port=None,
 ):
     if DEBUG:
         local_log.addHandler(logging.FileHandler("log_server.log"))
@@ -81,7 +85,9 @@ class ZmqLogHandler(QueueHandler):
 
 
 class LogServer:
-    def __init__(self, nexus_hostname, nexus_comm_port, log_filename, pub_port, pull_port):
+    def __init__(
+        self, nexus_hostname, nexus_comm_port, log_filename, pub_port, pull_port
+    ):
         self.running = True
         self.pub_port: int | None = pub_port if pub_port else 0
         self.pull_port: int | None = pull_port if pull_port else 0

@@ -12,17 +12,20 @@ class ActorStateReplyMsg:
         self.status = status
         self.info = info
 
+
 class ActorSignalMsg:
     def __init__(self, actor_name, signal, info):
         self.actor_name = actor_name
         self.signal = signal
         self.info = info
 
+
 class ActorSignalReplyMsg:
     def __init__(self, actor_name, signal, info):
         self.actor_name = actor_name
         self.signal = signal
         self.info = info
+
 
 class NexusSignalMsg:
     def __init__(self, actor_name, signal, info):

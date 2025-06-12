@@ -207,7 +207,9 @@ def default_invocation():
 
 
 def run_client(args):
-    app = TUI(args.control_port, args.server_port, args.logging_port, args.logging_input_port)
+    app = TUI(
+        args.control_port, args.server_port, args.logging_port, args.logging_input_port
+    )
 
     app.run()
 
@@ -376,7 +378,7 @@ def run(args, timeout=10):
             run_client(args)
         else:
             reply = input("Do you want to keep waiting? (y/N) ")
-            if not reply.lower() == 'y':
+            if not reply.lower() == "y":
                 break
 
     try:
@@ -438,7 +440,9 @@ def _get_ports(logfile):
 
 
 def _read_log_contents_for_ports(logfile_contents):
-    pattern = re.compile(r"(?<=\(control, output, log, log input\) ports \()\d*, \d*, \d*, \d*")
+    pattern = re.compile(
+        r"(?<=\(control, output, log, log input\) ports \()\d*, \d*, \d*, \d*"
+    )
 
     # get most recent match (log file may contain old runs)
     port_str_list = pattern.findall(logfile_contents)
