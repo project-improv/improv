@@ -42,6 +42,7 @@ pip-delete-this-directory.txt
 # Extraneous
 logs/
 data/
+output/
 
 # Demo data
 analyzed_videos/
