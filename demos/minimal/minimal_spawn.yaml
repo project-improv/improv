@@ -4,7 +4,7 @@ actors:
     class: Generator
 
   Processor:
-    package: actors.sample_spawn_processor
+    package: actors.sample_processor_zmq
     class: Processor
     method: spawn
 
