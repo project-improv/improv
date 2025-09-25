@@ -37,7 +37,7 @@ class Generator(ZmqActor):
     #     """
     #     self.fcns = {}
     #     self.fcns['setup'] = self.setup
-    #     self.fcns['run'] = self.runStep
+    #     self.fcns['run'] = self.run_step
     #     self.fcns['stop'] = self.stop
 
     #     with RunManager(self.name, self.fcns, self.links) as rm:

@@ -37,7 +37,7 @@ class Processor(ZmqActor):
         logger.info("Processor stopping")
         return 0
 
-    def runStep(self):
+    def run_step(self):
         """Gets from the input queue and calculates the average.
 
         Receives an ObjectID, references data in the store using that

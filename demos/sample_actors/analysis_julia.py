@@ -55,7 +55,7 @@ class JuliaAnalysis(Actor):
         print("Julia Analysis broke, avg time per frame: ", np.mean(self.t_per_frame))
         print("JuliaAnalysis got through ", self.frame_number, " frames.")
 
-    def runStep(self):
+    def run_step(self):
         t = time.time()
         try:
             obj_id = self.q_in.get(timeout=0.0001)  # List

@@ -75,7 +75,7 @@ class ModelAnalysis(Actor):
         self.fit_times = []
 
         with RunManager(
-            self.name, self.runStep, self.setup, self.q_sig, self.q_comm
+            self.name, self.run_step, self.setup, self.q_sig, self.q_comm
         ) as rm:
             logger.info(rm)
 
@@ -97,7 +97,7 @@ class ModelAnalysis(Actor):
 
         np.savetxt("output/used_stims.txt", self.currStimID)
 
-    def runStep(self):
+    def run_step(self):
         """Take numpy estimates and frame_number
         Create X and Y for plotting
         """

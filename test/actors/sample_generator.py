@@ -37,7 +37,7 @@ class Generator(ZmqActor):
     #     """
     #     self.fcns = {}
     #     self.fcns['setup'] = self.setup
-    #     self.fcns['run'] = self.runStep
+    #     self.fcns['run'] = self.run_step
     #     self.fcns['stop'] = self.stop
 
     #     with RunManager(self.name, self.fcns, self.links) as rm:
@@ -52,7 +52,7 @@ class Generator(ZmqActor):
         # will overwrite previous files with the same name.
         return 0
 
-    def runStep(self):
+    def run_step(self):
         """Generates additional data after initial setup data is exhausted.
 
         Data is of a different form as the setup data in that although it is

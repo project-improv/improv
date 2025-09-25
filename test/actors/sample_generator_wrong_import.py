@@ -39,7 +39,7 @@ class Generator(Actor):
         np.save("sample_generator_data.npy", self.data)
         return 0
 
-    def runStep(self):
+    def run_step(self):
         """Generates additional data after initial setup data is exhausted.
 
         Data is of a different form as the setup data in that although it is

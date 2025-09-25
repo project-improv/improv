@@ -74,7 +74,7 @@ class MeanAnalysis(ZmqActor):
         )
         np.savetxt("output/timing/analysis_timestamp.txt", np.array(self.timestamp))
 
-    def runStep(self):
+    def run_step(self):
         """Take numpy estimates and frame_number
         Create X and Y for plotting
         """
