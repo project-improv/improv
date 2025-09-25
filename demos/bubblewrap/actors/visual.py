@@ -40,7 +40,7 @@ class Visual(Actor):
         self.improv_logger.info("Done running GUI")
     
     def run_step(self):
-        pass
+        self.viewer.update()
 
 class GUIState:
     def __init__(self, gui):

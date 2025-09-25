@@ -18,8 +18,6 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
         """
         state.logger.info("Setup and start Nexus controls")
         self.state = state
-        # self.comm = comm  # Link back to Nexus for transmitting signals
-        # self.q_sig = q_sig
         self.prev = 0
         self.n = 300
 
