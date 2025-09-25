@@ -4,10 +4,35 @@ import mat73
 import time
 import logging
 import traceback
+import sys, os
 
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+def load_data(filename):
+    """
+    Load filename, which may be a relative path. 
+    Return data.
+    """
+    if os.path.isfile(filename):
+        full_fname = filename
+    else:
+        for p in reversed(sys.path):
+        # traverse path in reverse order, on the theory that
+        # the yaml file comes near the end
+            full_fname = os.path.join(p,  filename)
+            if os.path.isfile(full_fname):
+                break
+    
+    try:
+        data = mat73.loadmat(full_fname)
+    except FileNotFoundError:
+        logger.error("Bubblewrap data file not found!")
+    
+    return data
+
+
 
 
 class Acquirer(Actor):
@@ -28,7 +53,7 @@ class Acquirer(Actor):
         Note: A utility function that downloads the required data file can be found in utils.py
         """
         # get unsorted vs sorted units
-        data_dict = mat73.loadmat(self.file)
+        data_dict = load_data(self.file)
         units_unsorted = []
         units_sorted = []
         for ch_curr in data_dict['spikes']:
