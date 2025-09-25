@@ -1,5 +1,6 @@
 import asyncio
 import zmq.asyncio as zmq
+import zmq.error as zmqe
 from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER
 from rich.table import Table
 from textual.app import App, ComposeResult
@@ -59,15 +60,16 @@ class SocketLog(TextLog):
 
     async def poll(self):
         try:
-            ready = await self.socket.poll(10)
-            if ready:
-                parts = await self.socket.recv_multipart()
-                msg_type = parts[0].decode("utf-8")
-                if msg_type != "DEBUG" or self.print_debug:
-                    msg = self.format(parts)
-                    self.write(msg)
-                    self.post_message(self.Echo(self, msg))
-        except asyncio.CancelledError:
+            if not self.socket.closed:
+                ready = await self.socket.poll(10)
+                if ready:
+                    parts = await self.socket.recv_multipart()
+                    msg_type = parts[0].decode("utf-8")
+                    if msg_type != "DEBUG" or self.print_debug:
+                        msg = self.format(parts)
+                        self.write(msg)
+                        self.post_message(self.Echo(self, msg))
+        finally:
             pass
 
     async def on_mount(self) -> None:
@@ -266,7 +268,7 @@ class TUI(App, inherit_bindings=False):
                 self.logger.info(f"TUI resending {msg} to controller.")
                 await self.control_socket.send_pyobj(msg_obj)
 
-        except asyncio.CancelledError:
+        finally:
             pass
 
         if reply is not None:
@@ -298,7 +300,7 @@ class TUI(App, inherit_bindings=False):
         self.push_screen(HelpScreen())
 
     async def clean_up_and_exit(self):
-        self.control_socket.close()
+        self.control_socket.close(linger=0)
         self.logger.handlers.pop().close()
         self.exit()
 

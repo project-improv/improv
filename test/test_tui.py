@@ -39,7 +39,7 @@ async def app(ports):
 async def test_console_panel_receives_broadcast(app, sockets):
     async with app.run_test() as pilot:
         await sockets[1].send_string("received")
-        await pilot.pause(0.3)
+        await pilot.pause(0.1)
         console = pilot.app.get_widget_by_id("console")
         assert console.history[0] == "received"
 
@@ -47,14 +47,14 @@ async def test_console_panel_receives_broadcast(app, sockets):
 async def test_quit_from_socket(app, sockets):
     async with app.run_test() as pilot:
         await sockets[1].send_string("QUIT")
-        await pilot.pause(0.3)
+        await pilot.pause(0.1)
         assert not pilot.app._running
 
 
 async def test_log_panel_receives_logging(app, logger):
     async with app.run_test() as pilot:
         logger.info("test")
-        await pilot.pause(0.3)
+        await pilot.pause(0.1)
         log_window = pilot.app.get_widget_by_id("log")
         assert "test" in log_window.history[0]
 
@@ -83,13 +83,13 @@ async def test_quit_screen(app):
 async def test_turn_on_print_debug_msg(app, logger):
     async with app.run_test() as pilot:
         logger.debug("test debug message")
-        await pilot.pause(0.3)
+        await pilot.pause(0.1)
         log_window = pilot.app.get_widget_by_id("log")
         assert len(log_window.history) == 0
 
         await pilot.press("ctrl+p")
-        await pilot.pause(0.3)
+        await pilot.pause(0.1)
         logger.debug("test debug message")
-        await pilot.pause(0.3)
+        await pilot.pause(0.1)
         log_window = pilot.app.get_widget_by_id("log")
         assert "debug" in log_window.history[0]

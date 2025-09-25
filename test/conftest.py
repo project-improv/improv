@@ -108,8 +108,9 @@ def setup_store(server_port_num):
     yield p
 
     # kill the subprocess when the caller is done with it
-    p.send_signal(signal.SIGINT)
-    p.wait(timeout=WAIT_TIMEOUT)
+    if p.poll() is None:
+        p.send_signal(signal.SIGINT)
+        p.wait(timeout=WAIT_TIMEOUT)
 
 
 @pytest.fixture
