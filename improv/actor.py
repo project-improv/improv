@@ -371,7 +371,7 @@ class AsyncActor(AbstractActor):
         return result
 
     async def setup(self):
-        """Essenitally the registration process
+        """Essentially the registration process
         Can also be an initialization for the actor
         options is a list of options, can be empty
         """
