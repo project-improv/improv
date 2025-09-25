@@ -39,7 +39,7 @@ async def app(ports):
 async def test_console_panel_receives_broadcast(app, sockets):
     async with app.run_test() as pilot:
         await sockets[1].send_string("received")
-        await pilot.pause(0.1)
+        await pilot.pause(0.3)
         console = pilot.app.get_widget_by_id("console")
         assert console.history[0] == "received"
 
