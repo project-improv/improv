@@ -31,8 +31,6 @@ class Processor(ZmqActor):
         self.frame_num = 1
         logger.info("Completed setup for Processor")
 
-        self._get_store_interface()
-
     def stop(self):
         """Trivial stop function for testing purposes."""
 

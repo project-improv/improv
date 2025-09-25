@@ -61,8 +61,6 @@ class Bubble(Actor):
         self.bw.init_nodes()
         logger.info("Nodes initialized")
 
-        # self._get_store_interface()
-
     def run_step(self):
         """Observe new data from dim reduction and update bubblewrap"""
         try:
