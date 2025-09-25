@@ -18,7 +18,7 @@ dependencies = [
     "matplotlib",
     "PyQt5",
     "pyyaml",
-    "textual==0.15.0",
+    "textual==6.1.0",
     "pyzmq",
     "psutil",
     "h5py",

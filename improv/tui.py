@@ -8,7 +8,7 @@ from textual.screen import Screen
 from textual.widgets import (
     Header,
     Footer,
-    TextLog,
+    Log,
     Input,
     Button,
     Static,
@@ -25,7 +25,7 @@ logger.setLevel(logging.INFO)
 logger.addHandler(logging.FileHandler("tui.log"))
 
 
-class SocketLog(TextLog):
+class SocketLog(Log):
     def __init__(self, port, context, *args, **kwargs):
         if "formatter" in kwargs:
             self.format = kwargs["formatter"]
@@ -43,10 +43,11 @@ class SocketLog(TextLog):
     class Echo(Message):
         def __init__(self, sender, value) -> None:
             super().__init__()
+            self.sender = sender
             self.value = value
 
     def write(self, content, width=None, expand=False, shrink=True):
-        TextLog.write(self, content, width, expand, shrink)
+        Log.write(self, content)
         self.history.append(content)
 
     @staticmethod
@@ -66,8 +67,8 @@ class SocketLog(TextLog):
                 if msg_type != "DEBUG" or self.print_debug:
                     msg = self.format(parts)
                     self.write(msg)
-                    self.post_message(self.Echo(self, msg))
-        except asyncio.CancelledError:
+                    self.post_message(self.Echo(self.id, msg))
+        except asyncio.exceptions.CancelledError:
             pass
 
     async def on_mount(self) -> None:
@@ -211,7 +212,6 @@ class TUI(App, inherit_bindings=False):
                 self.logging_pub_port,
                 self.context,
                 formatter=self.format_log_messages,
-                markup=True,
                 id="log",
             ),
             Label("Command History"),
@@ -266,7 +266,7 @@ class TUI(App, inherit_bindings=False):
                 self.logger.info(f"TUI resending {msg} to controller.")
                 await self.control_socket.send_pyobj(msg_obj)
 
-        except asyncio.CancelledError:
+        except asyncio.exceptions.CancelledError:
             pass
 
         if reply is not None:
@@ -287,7 +287,8 @@ class TUI(App, inherit_bindings=False):
             await self.clean_up_and_exit()
 
     async def on_socket_log_echo(self, message):
-        if message.sender.id == "console" and "QUIT" in message.value:
+        print(message)
+        if message.sender == "console" and "QUIT" in message.value:
             self.logger.info("TUI got QUIT; will try to exit")
             await self.clean_up_and_exit()
 
