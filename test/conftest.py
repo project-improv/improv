@@ -14,7 +14,7 @@ from improv.harvester import bootstrap_harvester
 from improv.nexus import Nexus
 
 REDIS_PORT_NUM = 6379
-WAIT_TIMEOUT = 12
+WAIT_TIMEOUT = 20
 
 SERVER_COUNTER = 0
 
