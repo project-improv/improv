@@ -9,8 +9,6 @@ import logging
 
 from improv.store import CannotConnectToStoreInterfaceError
 
-WAIT_TIMEOUT = 10
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
