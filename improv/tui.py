@@ -1,6 +1,5 @@
 import asyncio
 import zmq.asyncio as zmq
-import zmq.error as zmqe
 from zmq import PUB, SUB, SUBSCRIBE, REQ, REP, LINGER
 from rich.table import Table
 from textual.app import App, ComposeResult

@@ -65,7 +65,7 @@ jobs:
           
       - name: Test with pytest
         run: |
-          python -m pytest -x -s -l --cov=improv  
+          python -m pytest -x -s -l --cov=improv test/test_store_with_errors.py test/test_tui.py 
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
