@@ -69,6 +69,8 @@ class SocketLog(TextLog):
                         self.write(msg)
                         self.post_message(self.Echo(self, msg))
         except asyncio.CancelledError as e:
+            if not self.socket.closed:
+                self.socket.close(linger=10)
             raise e
 
     async def on_mount(self) -> None:
@@ -299,8 +301,7 @@ class TUI(App, inherit_bindings=False):
         self.push_screen(HelpScreen())
 
     async def clean_up_and_exit(self):
-        self.control_socket.close(linger=100)
-        self.logger.handlers.pop().close()
+        # self.logger.handlers.pop().close()
         self.exit()
 
 
