@@ -69,8 +69,8 @@ class SocketLog(TextLog):
                         msg = self.format(parts)
                         self.write(msg)
                         self.post_message(self.Echo(self, msg))
-        finally:
-            pass
+        except asyncio.CancelledError as e:
+            raise e
 
     async def on_mount(self) -> None:
         """Event handler called when widget is added to the app."""
@@ -300,7 +300,7 @@ class TUI(App, inherit_bindings=False):
         self.push_screen(HelpScreen())
 
     async def clean_up_and_exit(self):
-        self.control_socket.close(linger=0)
+        self.control_socket.close(linger=10)
         self.logger.handlers.pop().close()
         self.exit()
 
