@@ -97,9 +97,9 @@ class QuitScreen(Screen):
         if event.key == "enter":
             event.stop()
 
-    def on_button_pressed(self, event: Button.Pressed) -> None:
+    async def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "quit":
-            self.app.exit()
+            await self.app.clean_up_and_exit()
         else:
             self.app.pop_screen()
 
@@ -299,7 +299,7 @@ class TUI(App, inherit_bindings=False):
         self.push_screen(HelpScreen())
 
     async def clean_up_and_exit(self):
-        self.control_socket.close(linger=10)
+        self.control_socket.close(linger=100)
         self.logger.handlers.pop().close()
         self.exit()
 

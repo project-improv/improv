@@ -65,7 +65,7 @@ jobs:
           
       - name: Test with pytest
         run: |
-          python -m pytest -x -s -l --cov=improv test/test_store_with_errors.py test/test_tui.py 
+          python -m pytest -x -s -l --cov=improv 
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
@@ -102,6 +102,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Close parallel build
-        uses: coverallsapp/github-action@v1
+        uses: coverallsapp/github-action@v2
         with:
           parallel-finished: true
