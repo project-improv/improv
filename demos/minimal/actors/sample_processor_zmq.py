@@ -1,6 +1,7 @@
 from improv.actor import ZmqActor
 import numpy as np
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -63,3 +64,4 @@ class Processor(ZmqActor):
             self.improv_logger.info(f"Overall Average: {np.mean(self.avg_list)}")
             self.improv_logger.info(f"Frame number: {self.frame_num}")
             self.frame_num += 1
+            time.sleep(1)
