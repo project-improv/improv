@@ -301,7 +301,6 @@ class TUI(App, inherit_bindings=False):
         self.push_screen(HelpScreen())
 
     async def clean_up_and_exit(self):
-        # self.logger.handlers.pop().close()
         self.exit()
 
 
