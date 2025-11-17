@@ -478,6 +478,7 @@ class Nexus:
                 for actor_state in self.actor_states.values()
             ]
         ):
+            logger.info("All actors ready. Allowing run.")
             self.allowStart = True
 
         return True
