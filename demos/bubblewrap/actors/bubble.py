@@ -4,7 +4,7 @@ from queue import Empty
 from bubblewrap import Bubblewrap
 from improv.actor import Actor
 import logging
-
+logging.getLogger("jax").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
