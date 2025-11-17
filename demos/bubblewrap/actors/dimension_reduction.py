@@ -1,6 +1,6 @@
 from improv.actor import Actor
 import numpy as np
-import scipy.signal as signal
+import scipy.signal.windows as signal
 from proSVD import proSVD
 from queue import Empty
 import logging
