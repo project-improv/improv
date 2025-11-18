@@ -1,170 +1,137 @@
-import asyncio
-import queue
-import subprocess
+import json
 import time
 
 import pytest
+import zmq
+from improv.actor import ManagedActor
+from zmq import SocketOption
 
-from improv.actor import Actor
-
-from improv.link import Link
-
-
-def init_actors(n=1):
-    """Function to return n unique actors.
-
-    Returns:
-        list: A list of n actors, each being named after its index.
-    """
-
-    # the links must be specified as an empty dictionary to avoid
-    # actors sharing a dictionary of links
-
-    return [Actor("test " + str(i), "/tmp/store", links={}) for i in range(n)]
+from improv.link import ZmqLink
 
 
 @pytest.fixture
-def example_link(setup_store):
+def test_sub_link():
     """Fixture to provide a commonly used Link object."""
-    act = init_actors(2)
-    lnk = Link("Example", act[0].name, act[1].name)
-    yield lnk
-    lnk = None
+    ctx = zmq.Context()
+    link_socket = ctx.socket(zmq.SUB)
+    link_socket.bind("tcp://*:0")
+    link_socket_string = link_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
+    link_socket_port = int(link_socket_string.split(":")[-1])
+
+    link_socket.poll(timeout=0)
+
+    link_pub_socket = ctx.socket(zmq.PUB)
+    link_pub_socket.connect(f"tcp://localhost:{link_socket_port}")
+
+    link_socket.poll(timeout=0)  # open libzmq bug (not pyzmq)
+    link_socket.subscribe("test_topic")
+    time.sleep(0.5)
+    link_socket.poll(timeout=0)
+
+    link = ZmqLink(link_socket, "test_link", "test_topic")
+
+    yield link, link_pub_socket
+    link.socket.close(linger=0)
+    link_pub_socket.close(linger=0)
+    ctx.destroy(linger=0)
 
 
 @pytest.fixture
-def example_actor_system(setup_store):
-    """Fixture to provide a list of 4 connected actors."""
+def test_pub_link():
+    """Fixture to provide a commonly used Link object."""
+    ctx = zmq.Context()
+    link_socket = ctx.socket(zmq.PUB)
+    link_socket.bind("tcp://*:0")
+    link_socket_string = link_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
+    link_socket_port = int(link_socket_string.split(":")[-1])
 
-    # store = setup_store
-    acts = init_actors(4)
+    link_sub_socket = ctx.socket(zmq.SUB)
+    link_sub_socket.connect(f"tcp://localhost:{link_socket_port}")
+    link_sub_socket.poll(timeout=0)
+    link_sub_socket.subscribe("test_topic")
+    time.sleep(0.5)
+    link_sub_socket.poll(timeout=0)
 
-    L01 = Link("L01", acts[0].name, acts[1].name)
-    L13 = Link("L13", acts[1].name, acts[3].name)
-    L12 = Link("L12", acts[1].name, acts[2].name)
-    L23 = Link("L23", acts[2].name, acts[3].name)
+    link = ZmqLink(link_socket, "test_link", "test_topic")
 
-    links = [L01, L13, L12, L23]
-
-    acts[0].addLink("q_out_1", L01)
-    acts[1].addLink("q_out_1", L13)
-    acts[1].addLink("q_out_2", L12)
-    acts[2].addLink("q_out_1", L23)
-
-    acts[1].addLink("q_in_1", L01)
-    acts[2].addLink("q_in_1", L12)
-    acts[3].addLink("q_in_1", L13)
-    acts[3].addLink("q_in_2", L23)
-
-    yield [acts, links]  # also yield Links
-    acts = None
+    yield link, link_sub_socket
+    link.socket.close(linger=0)
+    link_sub_socket.close(linger=0)
+    ctx.destroy(linger=0)
 
 
 @pytest.fixture
-def _kill_pytest_processes():
-    """Kills all processes with "pytest" in their name.
+def test_req_link():
+    """Fixture to provide a commonly used Link object."""
+    ctx = zmq.Context()
+    link_socket = ctx.socket(zmq.REQ)
+    link_socket.bind("tcp://*:0")
+    link_socket_string = link_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
+    link_socket_port = int(link_socket_string.split(":")[-1])
 
-    NOTE:
-        This fixture should only be used at the end of testing.
-    """
+    link_rep_socket = ctx.socket(zmq.REP)
+    link_rep_socket.connect(f"tcp://localhost:{link_socket_port}")
 
-    subprocess.Popen(
-        ["kill", "`pgrep pytest`"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-    )
+    link = ZmqLink(link_socket, "test_link")
 
-
-@pytest.mark.parametrize(
-    ("attribute", "expected"),
-    [
-        ("name", "Example"),
-        ("real_executor", None),
-        ("cancelled_join", False),
-        ("status", "pending"),
-        ("result", None),
-    ],
-)
-def test_Link_init(setup_store, example_link, attribute, expected):
-    """Tests if the default initialization attributes are set."""
-
-    lnk = example_link
-    atr = getattr(lnk, attribute)
-    assert atr == expected
+    yield link, link_rep_socket
+    link.socket.close(linger=0)
+    link_rep_socket.close(linger=0)
+    ctx.destroy(linger=0)
 
 
-def test_Link_init_start_end(setup_store):
-    """Tests if the initialization has the right actors."""
+@pytest.fixture
+def test_rep_link():
+    """Fixture to provide a commonly used Link object."""
+    ctx = zmq.Context()
+    link_socket = ctx.socket(zmq.REP)
+    link_socket.bind("tcp://*:0")
+    link_socket_string = link_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
+    link_socket_port = int(link_socket_string.split(":")[-1])
 
-    act = init_actors(2)
-    lnk = Link("example_link", act[0].name, act[1].name)
+    link_req_socket = ctx.socket(zmq.REQ)
+    link_req_socket.connect(f"tcp://localhost:{link_socket_port}")
 
-    assert lnk.start == act[0].name
-    assert lnk.end == act[1].name
+    link = ZmqLink(link_socket, "test_link")
 
-
-def test_getstate(example_link):
-    """Tests if __getstate__ has the right values on initialization.
-
-    Gets the dictionary of the link, then compares them against known
-    default values. Does not compare store and actors.
-
-    TODO:
-        Compare store and actors.
-    """
-
-    res = example_link.__getstate__()
-    errors = []
-    errors.append(res["_real_executor"] is None)
-    errors.append(res["cancelled_join"] is False)
-
-    assert all(errors)
+    yield link, link_req_socket
+    link.socket.close(linger=0)
+    link_req_socket.close(linger=0)
+    ctx.destroy(linger=0)
 
 
-@pytest.mark.parametrize(
-    "input",
-    [([None]), ([1]), ([i for i in range(5)]), ([str(i**i) for i in range(10)])],
-)
-def test_qsize_empty(example_link, input):
-    """Tests that the queue has the number of elements in "input"."""
-
-    lnk = example_link
-    for i in input:
-        lnk.put(i)
-
-    qsize = lnk.queue.qsize()
-    assert qsize == len(input)
-
-
-def test_getStart(example_link):
-    """Tests if getStart returns the starting actor."""
-
-    lnk = example_link
-
-    assert lnk.getStart() == Actor("test 0", "/tmp/store").name
-
-
-def test_getEnd(example_link):
-    """Tests if getEnd returns the ending actor."""
-
-    lnk = example_link
-
-    assert lnk.getEnd() == Actor("test 1", "/tmp/store").name
-
-
-def test_put(example_link):
+def test_pub_put(test_pub_link):
     """Tests if messages can be put into the link.
 
     TODO:
         Parametrize multiple test input types.
     """
 
-    lnk = example_link
+    link, link_sub_socket = test_pub_link
     msg = "message"
 
-    lnk.put(msg)
-    assert lnk.get() == "message"
+    link.put(msg)
+    res = link_sub_socket.recv_multipart()
+    assert res[0].decode("utf-8") == "test_topic"
+    assert json.loads(res[1].decode("utf-8")) == msg
 
 
-def test_put_unserializable(example_link, caplog, setup_store):
+def test_req_put(test_req_link):
+    """Tests if messages can be put into the link.
+
+    TODO:
+        Parametrize multiple test input types.
+    """
+
+    link, link_rep_socket = test_req_link
+    msg = "message"
+
+    link.put(msg)
+    res = link_rep_socket.recv_pyobj()
+    assert res == msg
+
+
+def test_put_unserializable(test_pub_link):
     """Tests if an unserializable object raises an error.
 
     Instantiates an actor, which is unserializable, and passes it into
@@ -173,185 +140,199 @@ def test_put_unserializable(example_link, caplog, setup_store):
     Raises:
         SerializationCallbackError: Actor objects are unserializable.
     """
-    # store = setup_store
-    act = Actor("test", "/tmp/store")
-    lnk = example_link
+    act = ManagedActor("test", "/tmp/store")
+    link, link_sub_socket = test_pub_link
     sentinel = True
     try:
-        lnk.put(act)
+        link.put(act)
     except Exception:
         sentinel = False
 
-    assert sentinel, "Unable to put"
-    assert str(lnk.get()) == str(act)
+    assert not sentinel
 
 
-def test_put_irreducible(example_link, setup_store):
+def test_put_irreducible(test_pub_link, setup_store):
     """Tests if an irreducible object raises an error."""
 
-    lnk = example_link
+    link, link_sub_socket = test_pub_link
     store = setup_store
     with pytest.raises(TypeError):
-        lnk.put(store)
+        link.put(store)
 
 
-def test_put_nowait(example_link):
+def test_put_nowait(test_pub_link):
     """Tests if messages can be put into the link without blocking.
 
     TODO:
         Parametrize multiple test input types.
     """
 
-    lnk = example_link
+    link, link_sub_socket = test_pub_link
     msg = "message"
 
     t_0 = time.perf_counter()
 
-    lnk.put_nowait(msg)
+    link.put(msg)  # put is already async even in synchronous zmq
 
     t_1 = time.perf_counter()
     t_net = t_1 - t_0
     assert t_net < 0.005  # 5 ms
 
 
-@pytest.mark.asyncio
-async def test_put_async_success(example_link):
-    """Tests if put_async returns None.
-
-    TODO:
-        Parametrize test input.
-    """
-
-    lnk = example_link
-    msg = "message"
-    res = await lnk.put_async(msg)
-    assert res is None
-
-
-@pytest.mark.asyncio
-async def test_put_async_multiple(example_link):
+def test_put_multiple(test_pub_link):
     """Tests if async putting multiple objects preserves their order."""
+
+    link, link_sub_socket = test_pub_link
 
     messages = [str(i) for i in range(10)]
 
     messages_out = []
 
     for msg in messages:
-        await example_link.put_async(msg)
+        link.put(msg)
 
     for msg in messages:
-        messages_out.append(example_link.get())
+        messages_out.append(
+            json.loads(link_sub_socket.recv_multipart()[1].decode("utf-8"))
+        )
 
     assert messages_out == messages
 
 
 @pytest.mark.asyncio
-async def test_put_and_get_async(example_link):
+async def test_put_and_get_async(test_pub_link):
     """Tests if async get preserves order after async put."""
 
     messages = [str(i) for i in range(10)]
 
     messages_out = []
 
-    for msg in messages:
-        await example_link.put_async(msg)
+    link, link_sub_socket = test_pub_link
 
     for msg in messages:
-        messages_out.append(await example_link.get_async())
+        await link.put_async(msg)
+
+    for msg in messages:
+        messages_out.append(
+            json.loads(link_sub_socket.recv_multipart()[1].decode("utf-8"))
+        )
 
     assert messages_out == messages
 
 
-@pytest.mark.skip(
-    reason="This test needs additional work to cause an overflow in the datastore."
-)
-def test_put_overflow(setup_store, server_port_num, caplog):
-    """Tests if putting too large of an object raises an error."""
-
-    p = subprocess.Popen(
-        ["redis-server", "--port", str(server_port_num), "--maxmemory", str(1000)],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-
-    acts = init_actors(2)
-    lnk = Link("L1", acts[0], acts[1])
-
-    message = [i for i in range(10**6)]  # 24000 bytes
-
-    lnk.put(message)
-
-    p.kill()
-    p.wait()
-
-    if caplog.records:
-        for record in caplog.records:
-            if "PlasmaStoreInterfaceFull" in record.msg:
-                assert True
-    else:
-        pytest.fail("expected an error!")
-
-
 @pytest.mark.parametrize(
     "message",
     [
-        ("message"),
-        (""),
-        (None),
-        ([str(i) for i in range(5)]),
+        "message",
+        "",
+        None,
+        [str(i) for i in range(5)],
     ],
 )
-def test_get(example_link, message):
+@pytest.mark.parametrize(
+    "timeout",
+    [
+        None,
+        5,
+    ],
+)
+def test_sub_get(test_sub_link, message, timeout):
     """Tests if get gets the correct element from the queue."""
 
-    lnk = example_link
+    link, link_pub_socket = test_sub_link
+
+    time.sleep(1)
 
     if type(message) is list:
         for i in message:
-            lnk.put(i)
+            link_pub_socket.send_multipart(
+                [link.topic.encode("utf-8"), json.dumps(i).encode("utf-8")]
+            )
         expected = message[0]
     else:
-        lnk.put(message)
+        link_pub_socket.send_multipart(
+            [link.topic.encode("utf-8"), json.dumps(message).encode("utf-8")]
+        )
         expected = message
 
-    assert lnk.get() == expected
-
-
-def test_get_empty(example_link):
-    """Tests if get blocks if the queue is empty."""
-
-    lnk = example_link
-    if lnk.queue.empty:
-        with pytest.raises(queue.Empty):
-            lnk.get(timeout=5.0)
-    else:
-        pytest.fail("expected a timeout!")
+    assert link.get(timeout=timeout) == expected
 
 
 @pytest.mark.parametrize(
     "message",
     [
-        ("message"),
-        (""),
+        "message",
+        "",
+        None,
+        [str(i) for i in range(5)],
+    ],
+)
+@pytest.mark.parametrize(
+    "timeout",
+    [
+        None,
+        5,
+    ],
+)
+def test_rep_get(test_rep_link, message, timeout):
+    """Tests if get gets the correct element from the queue."""
+
+    link, link_req_socket = test_rep_link
+
+    link_req_socket.send_pyobj(message)
+
+    expected = message
+
+    assert link.get(timeout=timeout) == expected
+
+
+def test_get_empty(test_sub_link):
+    """Tests if get blocks if the queue is empty."""
+
+    link, unused = test_sub_link
+
+    time.sleep(0.1)
+
+    with pytest.raises(TimeoutError):
+        link.get(timeout=0.5)
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "message",
+        "",
         ([str(i) for i in range(5)]),
     ],
 )
-def test_get_nowait(example_link, message):
+def test_get_nowait(test_sub_link, message):
     """Tests if get_nowait gets the correct element from the queue."""
 
-    lnk = example_link
+    link, link_pub_socket = test_sub_link
 
     if type(message) is list:
         for i in message:
-            lnk.put(i)
+            link_pub_socket.send_multipart(
+                [link.topic.encode("utf-8"), json.dumps(i).encode("utf-8")]
+            )
         expected = message[0]
     else:
-        lnk.put(message)
+        link_pub_socket.send_multipart(
+            [link.topic.encode("utf-8"), json.dumps(message).encode("utf-8")]
+        )
         expected = message
+
+    for i in range(20):
+        time.sleep(0.1)
+        avail = link.socket.poll(timeout=100)
+        if avail:
+            break
+    else:
+        pytest.fail("Message was not sent to link after 4s")
 
     t_0 = time.perf_counter()
 
-    res = lnk.get_nowait()
+    res = link.get_nowait()
 
     t_1 = time.perf_counter()
 
@@ -359,95 +340,31 @@ def test_get_nowait(example_link, message):
     assert t_1 - t_0 < 0.005  # 5 msg
 
 
-def test_get_nowait_empty(example_link):
+def test_get_nowait_empty(test_sub_link):
     """Tests if get_nowait raises an error when the queue is empty."""
 
-    lnk = example_link
-    if lnk.queue.empty():
-        with pytest.raises(queue.Empty):
-            lnk.get_nowait()
-    else:
-        pytest.fail("the queue is not empty")
+    link, unused = test_sub_link
+    with pytest.raises(TimeoutError):
+        link.get_nowait()
 
 
 @pytest.mark.asyncio
-async def test_get_async_success(example_link):
+async def test_get_async_success(test_sub_link):
     """Tests if async_get gets the correct element from the queue."""
 
-    lnk = example_link
+    link, link_pub_socket = test_sub_link
     msg = "message"
-    await lnk.put_async(msg)
-    res = await lnk.get_async()
+    link_pub_socket.send_multipart(
+        [link.topic.encode("utf-8"), json.dumps(msg).encode("utf-8")]
+    )
+    res = await link.get_async()
     assert res == "message"
 
 
-@pytest.mark.asyncio
-async def test_get_async_empty(example_link):
-    """Tests if get_async times out given an empty queue.
-
-    TODO:
-        Implement a way to kill the task after execution (subprocess)?
-    """
-
-    lnk = example_link
-    timeout = 5.0
-
-    with pytest.raises(asyncio.TimeoutError):
-        task = asyncio.create_task(lnk.get_async())
-        await asyncio.wait_for(task, timeout)
-        task.cancel()
-
-    lnk.put("exit")  # this is here to break out of get_async()
-
-
-@pytest.mark.skip(reason="unfinished")
-def test_cancel_join_thread(example_link):
-    """Tests cancel_join_thread. This test is unfinished
-
-    TODO:
-        Identify where and when cancel_join_thread is being called.
-    """
-
-    lnk = example_link
-    lnk.cancel_join_thread()
-
-    assert lnk._cancelled_join is True
-
-
-@pytest.mark.skip(reason="unfinished")
-@pytest.mark.asyncio
-async def test_join_thread(example_link):
-    """Tests join_thread. This test is unfinished
-
-    TODO:
-        Identify where and when join_thread is being called.
-    """
-    lnk = example_link
-    await lnk.put_async("message")
-    # msg = await lnk.get_async()
-    lnk.join_thread()
-    assert True
-
-
-@pytest.mark.asyncio
-async def test_multi_actor_system(example_actor_system, setup_store):
-    """Tests if async puts/gets with many actors have good messages."""
-
-    setup_store
-
-    graph = example_actor_system
-
-    acts = graph[0]
-
-    heavy_msg = [str(i) for i in range(10**6)]
-    light_msgs = ["message" + str(i) for i in range(3)]
-
-    await acts[0].links["q_out_1"].put_async(heavy_msg)
-    await acts[1].links["q_out_1"].put_async(light_msgs[0])
-    await acts[1].links["q_out_2"].put_async(light_msgs[1])
-    await acts[2].links["q_out_1"].put_async(light_msgs[2])
-
-    assert await acts[1].links["q_in_1"].get_async() == heavy_msg
-    assert await acts[2].links["q_in_1"].get_async() == light_msgs[1]
-    assert await acts[3].links["q_in_1"].get_async() == light_msgs[0]
-    assert await acts[3].links["q_in_2"].get_async() == light_msgs[2]
+def test_pub_put_no_topic():
+    ctx = zmq.Context()
+    s = ctx.socket(zmq.PUB)
+    with pytest.raises(Exception, match="Cannot open PUB link without topic"):
+        ZmqLink(s, "test")
+    s.close(linger=0)
+    ctx.destroy(linger=0)

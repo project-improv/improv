@@ -20,7 +20,7 @@ In [](tables:signals) we list the signals defined in `Signal` along with the `Ac
 | `actor.Signal` received | `ManagedActor` method called |
 |---|---|
 | `setup` | `setup` |
-| `run` | `runStep` |
+| `run` | `run_step` |
 | `pause` | not yet implemented |
 | `resume` | not yet implemented |
 | `reset` | not yet implemented |

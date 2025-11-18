@@ -14,5 +14,14 @@ actors:
     class: BehaviorAcquirer
 
 connections:
-  Acquirer.q_out: [Analysis.q_in, InputStim.q_in]
-  Analysis.q_out: [Acquirer.q_in]
+  Acquirer-out:
+    sources:
+      - Acquirer.q_out
+    sinks:
+      - Analysis.q_in
+      - InputStim.q_in
+  Analysis-Acquirer:
+    sources:
+      - Analysis.q_out
+    sinks:
+      - Acquirer.q_in

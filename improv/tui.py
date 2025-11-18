@@ -17,9 +17,12 @@ from textual.widgets import (
 from textual.message import Message
 import logging
 from zmq.log.handlers import PUBHandler
+from improv.messaging import ActorSignalMsg, ActorSignalReplyMsg
+from improv.log import ZmqLogHandler
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+logger.addHandler(logging.FileHandler("tui.log"))
 
 
 class SocketLog(TextLog):
@@ -56,16 +59,19 @@ class SocketLog(TextLog):
 
     async def poll(self):
         try:
-            ready = await self.socket.poll(10)
-            if ready:
-                parts = await self.socket.recv_multipart()
-                msg_type = parts[0].decode("utf-8")
-                if msg_type != "DEBUG" or self.print_debug:
-                    msg = self.format(parts)
-                    self.write(msg)
-                    self.post_message(self.Echo(self, msg))
-        except asyncio.CancelledError:
-            pass
+            if not self.socket.closed:
+                ready = await self.socket.poll(10)
+                if ready:
+                    parts = await self.socket.recv_multipart()
+                    msg_type = parts[0].decode("utf-8")
+                    if msg_type != "DEBUG" or self.print_debug:
+                        msg = self.format(parts)
+                        self.write(msg)
+                        self.post_message(self.Echo(self, msg))
+        except asyncio.CancelledError as e:
+            if not self.socket.closed:
+                self.socket.close(linger=10)
+            raise e
 
     async def on_mount(self) -> None:
         """Event handler called when widget is added to the app."""
@@ -93,9 +99,9 @@ class QuitScreen(Screen):
         if event.key == "enter":
             event.stop()
 
-    def on_button_pressed(self, event: Button.Pressed) -> None:
+    async def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "quit":
-            self.app.exit()
+            await self.app.clean_up_and_exit()
         else:
             self.app.pop_screen()
 
@@ -128,18 +134,37 @@ class TUI(App, inherit_bindings=False):
     View class for the text user interface. Implemented as a Textual app.
     """
 
-    def __init__(self, control_port, output_port, logging_port):
+    def __init__(
+        self,
+        control_port,
+        output_port,
+        logging_pub_port,
+        logging_pull_port,
+        log_host="localhost",
+        testing=False,
+    ):
         super().__init__()
         self.title = "improv console"
-        self.control_port = TUI._sanitize_addr(control_port)
-        self.output_port = TUI._sanitize_addr(output_port)
-        self.logging_port = TUI._sanitize_addr(logging_port)
+        self.log_host = log_host
+        self.control_port = TUI._sanitize_addr(control_port, log_host)
+        self.output_port = TUI._sanitize_addr(output_port, log_host)
+        self.logging_pub_port = TUI._sanitize_addr(logging_pub_port, log_host)
+        self.logging_pull_port = logging_pull_port
+        self.testing = testing
 
         self.context = zmq.Context()
         self.control_socket = self.context.socket(REQ)
-        self.control_socket.connect("tcp://%s" % self.control_port)
+        self.control_socket.connect(f"tcp://{self.control_port}")
 
-        logger.info("Text interface initialized")
+        self.logger = logging.getLogger(self.name)
+        self.logger.setLevel(logging.INFO)
+        for handler in logger.handlers:
+            self.logger.addHandler(handler)
+        self.logger.addHandler(
+            ZmqLogHandler(self.log_host, self.logging_pull_port, self.context)
+        )
+
+        self.logger.info("Text interface initialized")
 
     CSS_PATH = "tui.css"
     BINDINGS = [
@@ -154,13 +179,13 @@ class TUI(App, inherit_bindings=False):
         log_window.print_debug = not log_window.print_debug
 
     @staticmethod
-    def _sanitize_addr(input):
-        if isinstance(input, int):
-            return "localhost:%s" % str(input)
-        elif ":" in input:
+    def _sanitize_addr(input, host=None):
+        if ":" in str(input):
             return input
+        elif isinstance(input, int) and host is not None:
+            return f"{host}:{input}"
         else:
-            return "localhost:%s" % input
+            return f"localhost:{input}"
 
     @staticmethod
     def format_log_messages(parts):
@@ -186,7 +211,7 @@ class TUI(App, inherit_bindings=False):
             Header("improv console"),
             Label("[white]Log Messages[/]"),
             SocketLog(
-                self.logging_port,
+                self.logging_pub_port,
                 self.context,
                 formatter=self.format_log_messages,
                 markup=True,
@@ -211,43 +236,49 @@ class TUI(App, inherit_bindings=False):
         retries_left = REQUEST_RETRIES
 
         try:
-            logger.info(f"Sending {msg} to controller.")
-            await self.control_socket.send_string(msg)
+            self.logger.info(f"TUI Sending {msg} to controller.")
+            msg_obj = ActorSignalMsg(
+                actor_name="TUI", signal=msg, info="Input from TUI"
+            )
+            await self.control_socket.send_pyobj(msg_obj)
             reply = None
 
             while True:
                 ready = await self.control_socket.poll(REQUEST_TIMEOUT)
 
                 if ready:
-                    reply = await self.control_socket.recv_multipart()
-                    reply = reply[0].decode("utf-8")
-                    logger.info(f"Received {reply} from controller.")
+                    reply = await self.control_socket.recv_pyobj()
+                    self.logger.info(f"TUI Received '{reply.info}' from controller.")
                     break
                 else:
                     retries_left -= 1
-                    logger.warning("No response from server.")
+                    self.logger.warning("No response to TUI from server.")
 
                 # try to close and reconnect
                 self.control_socket.setsockopt(LINGER, 0)
                 self.control_socket.close()
                 if retries_left == 0:
-                    logger.error("Server seems to be offline. Giving up.")
+                    self.logger.error("Server seems to be offline. Giving up.")
                     break
 
-                logger.info("Attempting to reconnect to server...")
+                self.logger.info("TUI attempting to reconnect to server...")
 
                 self.control_socket = self.context.socket(REQ)
                 self.control_socket.connect("tcp://%s" % self.control_port)
 
-                logger.info(f"Resending {msg} to controller.")
-                await self.control_socket.send_string(msg)
+                self.logger.info(f"TUI resending {msg} to controller.")
+                await self.control_socket.send_pyobj(msg_obj)
 
-        except asyncio.CancelledError:
+        finally:
             pass
 
-        return reply
+        if reply is not None:
+            return reply.info
 
     async def on_mount(self):
+        if not self.testing:
+            reply = await self.send_to_controller("ready")
+            self.query_one("#console").write(reply)
         self.set_focus(self.query_one(Input))
 
     async def on_input_submitted(self, message):
@@ -255,11 +286,13 @@ class TUI(App, inherit_bindings=False):
         self.query_one("#console").write(message.value)
         reply = await self.send_to_controller(message.value)
         self.query_one("#console").write(reply)
+        if reply and "QUIT" in reply:
+            await self.clean_up_and_exit()
 
     async def on_socket_log_echo(self, message):
-        if message.sender.id == "console" and message.value == "QUIT":
-            logger.info("Got QUIT; will try to exit")
-            self.exit()
+        if message.sender.id == "console" and "QUIT" in message.value:
+            self.logger.info("TUI got QUIT; will try to exit")
+            await self.clean_up_and_exit()
 
     def action_request_quit(self):
         self.push_screen(QuitScreen())
@@ -267,11 +300,15 @@ class TUI(App, inherit_bindings=False):
     def action_help(self):
         self.push_screen(HelpScreen())
 
+    async def clean_up_and_exit(self):
+        self.exit()
+
 
 if __name__ == "__main__":
     CONTROL_PORT = "5555"
     OUTPUT_PORT = "5556"
     LOGGING_PORT = "5557"
+    LOGGING_PULL_PORT = "5558"
 
     import random
 
@@ -290,11 +327,20 @@ if __name__ == "__main__":
         Fake program to be controlled by TUI.
         """
         while True:
-            msg = await socket.recv_multipart()
-            if msg[0].decode("utf-8") == "quit":
-                await socket.send_string("QUIT")
+            msg = await socket.recv_pyobj()
+            if msg.signal == "quit":
+                reply_str = "QUIT"
+            elif msg.signal == "ready":
+                reply_str = "Awaiting input:"
             else:
-                await socket.send_string("Awaiting input:")
+                reply_str = "Awaiting input:"
+            await socket.send_pyobj(
+                ActorSignalReplyMsg(
+                    msg.actor_name,
+                    msg.signal,
+                    f"Signal {msg.signal} received.\n" + reply_str,
+                )
+            )
 
     async def publish():
         """
@@ -320,12 +366,15 @@ if __name__ == "__main__":
             counter += 1
 
     async def main_loop():
-        app = TUI(CONTROL_PORT, OUTPUT_PORT, LOGGING_PORT)
+        app = TUI(CONTROL_PORT, OUTPUT_PORT, LOGGING_PORT, LOGGING_PULL_PORT)
 
         # the following construct ensures both the
         # (infinite) fake servers are killed once the tui finishes
         finished, unfinished = await asyncio.wait(
-            [app.run_async(), publish(), backend(), log()],
+            [
+                asyncio.create_task(c)
+                for c in (app.run_async(), publish(), backend(), log())
+            ],
             return_when=asyncio.FIRST_COMPLETED,
         )
 

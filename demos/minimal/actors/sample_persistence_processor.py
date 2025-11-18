@@ -1,13 +1,12 @@
-from improv.actor import Actor
+from improv.actor import ZmqActor
 import numpy as np
-from queue import Empty
 import logging
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Processor(Actor):
+class Processor(ZmqActor):
     """Sample processor used to calculate the average of an array of integers.
 
     Intended for use with sample_generator.py.
@@ -15,6 +14,8 @@ class Processor(Actor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if "name" in kwargs:
+            self.name = kwargs["name"]
 
     def setup(self):
         """Initializes all class variables.
@@ -25,21 +26,20 @@ class Processor(Actor):
         self.frame_num (int): index of current frame.
         """
 
-        self.name = "Processor"
+        if not hasattr(self, "name"):
+            self.name = "Processor"
         self.frame = None
         self.avg_list = []
         self.frame_num = 1
-        logger.info("Completed setup for Processor")
-
-        self._getStoreInterface()
+        self.improv_logger.info("Completed setup for Processor")
 
     def stop(self):
         """Trivial stop function for testing purposes."""
 
-        logger.info("Processor stopping")
+        self.improv_logger.info("Processor stopping")
         return 0
 
-    def runStep(self):
+    def run_step(self):
         """Gets from the input queue and calculates the average.
 
         Receives an ObjectID, references data in the store using that
@@ -50,23 +50,17 @@ class Processor(Actor):
         frame = None
         try:
             frame = self.q_in.get(timeout=0.05)
-        except Empty:
-            pass
-        except Exception:
-            logger.error("Could not get frame!")
+        except Exception as e:
+            # logger.error(f"{self.name} could not get frame! At {self.frame_num}: {e}")
             pass
 
         if frame is not None and self.frame_num is not None:
             self.done = False
-            if self.store_loc:
-                self.frame = self.client.getID(frame[0][0])
-            else:
-                self.frame = self.client.get(frame)
-            avg = np.mean(self.frame[0])
-
-            logger.info(f"Average: {avg}")
+            self.frame = self.client.get(frame)
+            device_data = self.frame[1][1]
+            avg = np.mean(device_data)
+            # self.improv_logger.info(f"Average: {avg}")
             self.avg_list.append(avg)
-            logger.info(f"Overall Average: {np.mean(self.avg_list)}")
-            logger.info(f"Frame number: {self.frame_num}")
-
+            # self.improv_logger.info(f"Overall Average: {np.mean(self.avg_list)}")
+            # self.improv_logger.info(f"Frame number: {self.frame_num}")
             self.frame_num += 1

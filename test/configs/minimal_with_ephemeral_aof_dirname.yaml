@@ -1,14 +1,18 @@
 actors:
   Generator:
-    package: actors.sample_generator
+    package: actors.sample_generator_zmq
     class: Generator
 
   Processor:
-    package: actors.sample_processor
+    package: actors.sample_processor_zmq
     class: Processor
 
 connections:
-  Generator.q_out: [Processor.q_in]
+  Generator-Processor:
+    sources:
+      - Generator.q_out
+    sinks:
+      - Processor.q_in
 
 redis_config:
   generate_ephemeral_aof_dirname: True

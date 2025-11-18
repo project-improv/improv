@@ -58,13 +58,13 @@ class OnePProcessor(CaimanProcessor):
     def stop(self):
         super().stop()
 
-    def runStep(self):
+    def run_step(self):
         """Run process. Runs once per frame.
         Output is a location in the DS to continually
         place the Estimates results, with ref number that
         corresponds to the frame number
         """
-        super().runStep()
+        super().run_step()
 
     def putEstimates(self):
         """Put whatever estimates we currently have

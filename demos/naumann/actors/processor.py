@@ -87,7 +87,7 @@ class Naumann_processor(CaimanProcessor):
 
 
 
-    def runStep(self):
+    def run_step(self):
         """Run process. Runs once per frame.
         Output is a location in the DS to continually
         place the Estimates results, with ref number that

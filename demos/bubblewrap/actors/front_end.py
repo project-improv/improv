@@ -4,26 +4,20 @@ from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QColor
 from . import improv_bubble
 from improv.actor import Signal
-from math import atan2, floor
+from math import atan2
 
 from PyQt5.QtWidgets import QMessageBox
 
-import logging
 import traceback
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
-    def __init__(self, visual, comm, q_sig, parent=None):
+    def __init__(self, state, parent=None):
         """Setup GUI
         Setup and start Nexus controls
         """
-        logger.info("Setup and start Nexus controls")
-        self.visual = visual
-        self.comm = comm  # Link back to Nexus for transmitting signals
-        self.q_sig = q_sig
+        state.logger.info("Setup and start Nexus controls")
+        self.state = state
         self.prev = 0
         self.n = 300
 
@@ -51,35 +45,41 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
         self.pushButton_2.clicked.connect(_call(self._runProcess))
         self.pushButton_2.clicked.connect(_call(self.update)) # Tell Nexus to start
 
+        # Check for Nexus input on a timer
+        self.timer = QtCore.QTimer(self)
+        self.timer.timeout.connect(state.signal_check)
+        self.timer.setInterval(10)  # Call every 10 ms
+        self.timer.start()
+
     def update(self):
         """Check if get data is successful, call plotting function and update GUI"""
         try:
-            if self.visual.getData():
+            if self.state.getData():
                 self.plotBw()
         except Exception as e:
-            logger.error('Front End Exception: {}'.format(e))
-            logger.error(traceback.format_exc()) 
+            self.state.logger.error('Front End Exception: {}'.format(e))
+            self.state.logger.error(traceback.format_exc()) 
         QtCore.QTimer.singleShot(10, self.update)
 
     def plotBw(self):
         """Function for plotting dim reduced trajectories and bubbles"""
         self.plt.clear()
         # Dim reduced data plotting
-        newDat = np.array([self.visual.data[0], self.visual.data[1]])
+        newDat = np.array([self.state.data[0], self.state.data[1]])
         self.data_red = np.vstack([self.data_red, newDat])
         self.scatter.setData(pos=self.data_red)
         self.plt.addItem(self.scatter)
         # bubble plotting
-        for n in np.arange(self.visual.bw_L.shape[0]):
-            if n not in self.visual.bw_dead_nodes:  #ignore dead nodes
-                el = np.linalg.inv(self.visual.bw_L[n])
+        for n in np.arange(self.state.bw_L.shape[0]):
+            if n not in self.state.bw_dead_nodes:  #ignore dead nodes
+                el = np.linalg.inv(self.state.bw_L[n])
                 sig = el.T @ el
                 u,s,v = np.linalg.svd(sig)
                 width, height = np.sqrt(s[0])*3, np.sqrt(s[1])*3
                 angle = atan2(v[0,1],v[0,0])*360 / (2*np.pi)
                 alpha_mat = 0.4
-                x = self.visual.bw_mu[n,0]
-                y = self.visual.bw_mu[n,1]
+                x = self.state.bw_mu[n,0]
+                y = self.state.bw_mu[n,1]
                 el = QtWidgets.QGraphicsEllipseItem(x-(width/2), y-(height/2), width, height, self.plt)
                 el.setBrush(pyqtgraph.mkBrush(QColor(237, 103, 19, int(alpha_mat/1*255))))
                 el.setPen(pyqtgraph.mkPen(None))
@@ -87,23 +87,22 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
                 el.setRotation(angle)
                 self.plt.addItem(el)
 
-        mask = np.ones(self.visual.bw_mu.shape[0], dtype=bool)
-        mask[self.visual.bw_n_obs < .1] = False
-        mask[self.visual.bw_dead_nodes] = False
-        self.bw_center.setData(x = self.visual.bw_mu[mask, 0], y = self.visual.bw_mu[mask, 1])
+        mask = np.ones(self.state.bw_mu.shape[0], dtype=bool)
+        mask[self.state.bw_n_obs < .1] = False
+        mask[self.state.bw_dead_nodes] = False
+        self.bw_center.setData(x = self.state.bw_mu[mask, 0], y = self.state.bw_mu[mask, 1])
         self.plt.addItem(self.bw_center)
 
 
 
     def _runProcess(self):
-        logger.info("-------------------------   put run in comm")
-        self.comm.put([Signal.run()])
+        self.state.logger.info("GUI sent run command")
+        self.state.send(Signal.run())
         
 
     def _setup(self):
-        logger.info("-------------------------   put setup in comm")
-        self.comm.put([Signal.setup()])
-        self.visual.setup()
+        self.state.logger.info("GUI sent setup command")
+        self.state.send(Signal.setup())
 
     def closeEvent(self, event):
         """Clicked x/close on window
@@ -117,9 +116,9 @@ class FrontEnd(QtWidgets.QMainWindow, improv_bubble.Ui_MainWindow):
             QMessageBox.No,
         )
         if confirm == QMessageBox.Yes:
-            self.comm.put([Signal.quit()])
-            # print('Visual broke, avg time per frame: ', np.mean(self.visual.total_times, axis=0))
-            print("Visual got through ", self.visual.frame_num, " frames")
+            self.state.send(Signal.quit())
+            # print('Visual broke, avg time per frame: ', np.mean(self.state.total_times, axis=0))
+            self.state.logger.info("Visual got through ", self.state.frame_num, " frames")
             # print('GUI avg time ', np.mean(self.total_times))
             event.accept()
         else:

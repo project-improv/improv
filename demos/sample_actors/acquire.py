@@ -5,7 +5,7 @@ import random
 import numpy as np
 from skimage.io import imread
 
-from improv.actor import Actor
+from improv.actor import ZmqActor
 
 import logging
 
@@ -15,7 +15,7 @@ logger.setLevel(logging.INFO)
 # Classes: File Acquirer, Stim, Behavior, Tiff
 
 
-class FileAcquirer(Actor):
+class FileAcquirer(ZmqActor):
     """Class to import data from files and output
     frames in a buffer, or discrete.
     """
@@ -64,7 +64,7 @@ class FileAcquirer(Actor):
         np.savetxt("output/timing/acquire_frame_time.txt", np.array(self.total_times))
         np.savetxt("output/timing/acquire_timestamp.txt", np.array(self.timestamp))
 
-    def runStep(self):
+    def run_step(self):
         """While frames exist in location specified during setup,
         grab frame, save, put in store
         """
@@ -109,7 +109,7 @@ class FileAcquirer(Actor):
         self.f.flush()
 
 
-class StimAcquirer(Actor):
+class StimAcquirer(ZmqActor):
     """Class to load visual stimuli data from file
     and stream into the pipeline
     """
@@ -139,7 +139,7 @@ class StimAcquirer(Actor):
         else:
             raise FileNotFoundError
 
-    def runStep(self):
+    def run_step(self):
         """Check for input from behavioral control"""
         if self.n < len(self.stim):
             # s = self.stim[self.sID]
@@ -149,7 +149,7 @@ class StimAcquirer(Actor):
         self.n += 1
 
 
-class BehaviorAcquirer(Actor):
+class BehaviorAcquirer(ZmqActor):
     """Actor that acquires information of behavioral stimulus
     during the experiment
 
@@ -176,7 +176,7 @@ class BehaviorAcquirer(Actor):
         else:
             self.behaviors = [0, 1, 2, 3, 4, 5, 6, 7]  # 8 sets of input stimuli
 
-    def runStep(self):
+    def run_step(self):
         """Check for input from behavioral control"""
         # Faking it for now.
         if self.n % 50 == 0:
@@ -188,7 +188,7 @@ class BehaviorAcquirer(Actor):
         self.n += 1
 
 
-class FileStim(Actor):
+class FileStim(ZmqActor):
     """Actor that acquires information of behavioral stimulus
     during the experiment from a file
     """
@@ -204,7 +204,7 @@ class FileStim(Actor):
 
         self.data = np.loadtxt(self.file)
 
-    def runStep(self):
+    def run_step(self):
         """Check for input from behavioral control"""
         # Faking it for now.
         if self.n % 50 == 0 and self.n < self.data.shape[1] * 50:
@@ -216,7 +216,7 @@ class FileStim(Actor):
         self.n += 1
 
 
-class TiffAcquirer(Actor):
+class TiffAcquirer(ZmqActor):
     """Loops through a TIF file."""
 
     def __init__(self, *args, filename=None, framerate=30, **kwargs):
@@ -236,7 +236,7 @@ class TiffAcquirer(Actor):
         self.imgs = imread(self.filename)
         print(self.imgs.shape)
 
-    def runStep(self):
+    def run_step(self):
         t0 = time.time()
         id_store = self.client.put(
             self.imgs[self.n_frame], "acq_raw" + str(self.n_frame)

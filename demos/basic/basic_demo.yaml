@@ -33,6 +33,3 @@ connections:
   Processor.q_out: [Analysis.q_in]
   Analysis.q_out: [Visual.q_in]
   InputStim.q_out: [Analysis.input_stim_queue]
-
-# settings:
-#   use_watcher: [Acquirer, Processor, Visual, Analysis]

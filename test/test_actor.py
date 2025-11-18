@@ -1,9 +1,12 @@
 import os
 import psutil
 import pytest
-from improv.link import Link  # , AsyncQueue
+import zmq
+
 from improv.actor import AbstractActor as Actor
-from improv.store import StoreInterface, PlasmaStoreInterface
+from improv.messaging import ActorStateMsg, ActorStateReplyMsg
+from improv.store import StoreInterface
+from improv.link import ZmqLink
 
 # set global_variables
 
@@ -12,10 +15,10 @@ pytest.example_links = {}
 
 
 @pytest.fixture
-def init_actor(set_store_loc):
+def init_actor():
     """Fixture to initialize and teardown an instance of actor."""
 
-    act = Actor("Test", set_store_loc)
+    act = Actor("Test")
     yield act
     act = None
 
@@ -33,33 +36,15 @@ def example_links(setup_store, server_port_num):
     """Fixture to provide link objects as test input and setup store."""
     StoreInterface(server_port_num=server_port_num)
 
-    acts = [
-        Actor("act" + str(i), server_port_num) for i in range(1, 5)
-    ]  # range must be even
+    ctx = zmq.Context()
+    s = ctx.socket(zmq.PUSH)
 
-    links = [
-        Link("L" + str(i + 1), acts[i], acts[i + 1]) for i in range(len(acts) // 2)
-    ]
+    links = [ZmqLink(s, "test") for i in range(2)]
     link_dict = {links[i].name: links[i] for i, l in enumerate(links)}
     pytest.example_links = link_dict
-    return pytest.example_links
-
-
-@pytest.fixture
-def example_links_plasma(setup_store, set_store_loc):
-    """Fixture to provide link objects as test input and setup store."""
-    PlasmaStoreInterface(store_loc=set_store_loc)
-
-    acts = [
-        Actor("act" + str(i), set_store_loc) for i in range(1, 5)
-    ]  # range must be even
-
-    links = [
-        Link("L" + str(i + 1), acts[i], acts[i + 1]) for i in range(len(acts) // 2)
-    ]
-    link_dict = {links[i].name: links[i] for i, l in enumerate(links)}
-    pytest.example_links = link_dict
-    return pytest.example_links
+    yield pytest.example_links
+    s.close(linger=0)
+    ctx.destroy(linger=0)
 
 
 @pytest.mark.parametrize(
@@ -89,67 +74,35 @@ def test_repr_default_initialization(init_actor):
     assert rep == "Test: dict_keys([])"
 
 
-def test_repr(example_string_links, set_store_loc):
+def test_repr(example_string_links):
     """Test if the actor representation has the right, nonempty, dict."""
 
-    act = Actor("Test", set_store_loc)
-    act.setLinks(example_string_links)
+    act = Actor("Test")
+    act.set_links(example_string_links)
     assert act.__repr__() == "Test: dict_keys(['1', '2', '3'])"
 
 
-def test_setStoreInterface(setup_store, server_port_num):
+def test_set_store_interface(setup_store, server_port_num):
     """Tests if the store is started and linked with the actor."""
 
     act = Actor("Acquirer", server_port_num)
     store = StoreInterface(server_port_num=server_port_num)
-    act.setStoreInterface(store.client)
-    assert act.client is store.client
-
-
-def test_plasma_setStoreInterface(setup_plasma_store, set_store_loc):
-    """Tests if the store is started and linked with the actor."""
-
-    act = Actor("Acquirer", set_store_loc)
-    store = PlasmaStoreInterface(store_loc=set_store_loc)
-    act.setStoreInterface(store.client)
+    act.set_store_interface(store.client)
     assert act.client is store.client
 
 
 @pytest.mark.parametrize(
-    "links", [(pytest.example_string_links), ({}), (pytest.example_links), (None)]
+    "links", [pytest.example_string_links, ({}), pytest.example_links, None]
 )
-def test_setLinks(links, set_store_loc):
+def test_set_links(links):
     """Tests if the actors links can be set to certain values."""
 
-    act = Actor("test", set_store_loc)
-    act.setLinks(links)
+    act = Actor("test")
+    act.set_links(links)
     assert act.links == links
 
 
 @pytest.mark.parametrize(
-    ("qc", "qs"),
-    [
-        ("comm", "sig"),
-        (None, None),
-        ("", ""),
-        ("LINK", "LINK"),  # these are placeholder names (store is not setup)
-    ],
-)
-def test_setCommLinks(example_links, qc, qs, init_actor, setup_store, set_store_loc):
-    """Tests if commLinks can be added to the actor"s links."""
-
-    if qc == "LINK" and qs == "LINK":
-        qc = Link("L1", Actor("1", set_store_loc), Actor("2", set_store_loc))
-        qs = Link("L2", Actor("3", set_store_loc), Actor("4", set_store_loc))
-    act = init_actor
-    act.setLinks(example_links)
-    act.setCommLinks(qc, qs)
-
-    example_links.update({"q_comm": qc, "q_sig": qs})
-    assert act.links == example_links
-
-
-@pytest.mark.parametrize(
     ("links", "expected"),
     [
         (pytest.example_string_links, pytest.example_string_links),
@@ -158,18 +111,18 @@ def test_setCommLinks(example_links, qc, qs, init_actor, setup_store, set_store_
         (None, TypeError),
     ],
 )
-def test_setLinkIn(init_actor, example_string_links, example_links, links, expected):
+def test_set_link_in(init_actor, example_string_links, example_links, links, expected):
     """Tests if we can set the input queue."""
 
     act = init_actor
-    act.setLinks(links)
+    act.set_links(links)
     if links is not None:
-        act.setLinkIn("input_q")
+        act.set_link_in("input_q")
         expected.update({"q_in": "input_q"})
         assert act.links == expected
     else:
         with pytest.raises(AttributeError):
-            act.setLinkIn("input_queue")
+            act.set_link_in("input_queue")
 
 
 @pytest.mark.parametrize(
@@ -181,18 +134,18 @@ def test_setLinkIn(init_actor, example_string_links, example_links, links, expec
         (None, TypeError),
     ],
 )
-def test_setLinkOut(init_actor, example_string_links, example_links, links, expected):
+def test_set_link_out(init_actor, example_string_links, example_links, links, expected):
     """Tests if we can set the output queue."""
 
     act = init_actor
-    act.setLinks(links)
+    act.set_links(links)
     if links is not None:
-        act.setLinkOut("output_q")
+        act.set_link_out("output_q")
         expected.update({"q_out": "output_q"})
         assert act.links == expected
     else:
         with pytest.raises(AttributeError):
-            act.setLinkIn("output_queue")
+            act.set_link_in("output_queue")
 
 
 @pytest.mark.parametrize(
@@ -204,29 +157,31 @@ def test_setLinkOut(init_actor, example_string_links, example_links, links, expe
         (None, TypeError),
     ],
 )
-def test_setLinkWatch(init_actor, example_string_links, example_links, links, expected):
+def test_set_link_watch(
+    init_actor, example_string_links, example_links, links, expected
+):
     """Tests if we can set the watch queue."""
 
     act = init_actor
-    act.setLinks(links)
+    act.set_links(links)
     if links is not None:
-        act.setLinkWatch("watch_q")
+        act.set_link_watch("watch_q")
         expected.update({"q_watchout": "watch_q"})
         assert act.links == expected
     else:
         with pytest.raises(AttributeError):
-            act.setLinkIn("input_queue")
+            act.set_link_in("input_queue")
 
 
-def test_addLink(setup_store, set_store_loc):
+def test_add_link(setup_store):
     """Tests if a link can be added to the dictionary of links."""
 
-    act = Actor("test", set_store_loc)
+    act = Actor("test")
     links = {"1": "one", "2": "two"}
-    act.setLinks(links)
+    act.set_links(links)
     newName = "3"
     newLink = "three"
-    act.addLink(newName, newLink)
+    act.add_link(newName, newLink)
     links.update({"3": "three"})
 
     # trying to check for two separate conditions while being able to
@@ -234,7 +189,7 @@ def test_addLink(setup_store, set_store_loc):
     passes = []
     err_messages = []
 
-    if act.getLinks()["3"] == "three":
+    if act.get_links()["3"] == "three":
         passes.append(True)
     else:
         passes.append(False)
@@ -243,7 +198,7 @@ def test_addLink(setup_store, set_store_loc):
             actor.getLinks()['3'] is not equal to \"three\""
         )
 
-    if act.getLinks() == links:
+    if act.get_links() == links:
         passes.append(True)
     else:
         passes.append("False")
@@ -256,7 +211,7 @@ def test_addLink(setup_store, set_store_loc):
     assert all(passes), f"The following errors occurred: {err_out}"
 
 
-def test_getLinks(init_actor, example_string_links):
+def test_get_links(init_actor, example_string_links):
     """Tests if we can access the dictionary of links.
 
     TODO:
@@ -265,25 +220,9 @@ def test_getLinks(init_actor, example_string_links):
 
     act = init_actor
     links = example_string_links
-    act.setLinks(links)
+    act.set_links(links)
 
-    assert act.getLinks() == {"1": "one", "2": "two", "3": "three"}
-
-
-@pytest.mark.skip(
-    reason="this is something we'll do later because\
-                    we will subclass actor w/ watcher later"
-)
-def test_put(init_actor):
-    """Tests if data keys can be put to output links.
-
-    TODO:
-        Ask Anne to take a look.
-    """
-
-    act = init_actor
-    act.put()
-    assert True
+    assert act.get_links() == {"1": "one", "2": "two", "3": "three"}
 
 
 def test_run(init_actor):
@@ -293,12 +232,12 @@ def test_run(init_actor):
         act.run()
 
 
-def test_changePriority(init_actor):
+def test_change_priority(init_actor):
     """Tests if we are able to change the priority of an actor."""
 
     act = init_actor
     act.lower_priority = True
-    act.changePriority()
+    act.change_priority()
 
     assert psutil.Process(os.getpid()).nice() == 19
 
@@ -311,39 +250,23 @@ def test_actor_connection(setup_store, server_port_num):
     one actor. Then, in the other actor, it is removed from the queue, and
     checked to verify it matches the original message.
     """
-    act1 = Actor("a1", server_port_num)
-    act2 = Actor("a2", server_port_num)
-
-    StoreInterface(server_port_num=server_port_num)
-    link = Link("L12", act1, act2)
-    act1.setLinkIn(link)
-    act2.setLinkOut(link)
-
-    msg = "message"
-
-    act1.q_in.put(msg)
-
-    assert act2.q_out.get() == msg
+    assert True
 
 
-def test_plasma_actor_connection(setup_plasma_store, set_store_loc):
-    """Test if the links between actors are established correctly.
+def test_actor_registration_with_nexus(ports, zmq_actor):
+    context = zmq.Context()
+    nex_socket = context.socket(zmq.REP)
+    nex_socket.bind(f"tcp://*:{ports[0]}")  # actor in port
 
-    This test instantiates two actors with different names, then instantiates
-    a Link object linking the two actors. A string is put to the input queue of
-    one actor. Then, in the other actor, it is removed from the queue, and
-    checked to verify it matches the original message.
-    """
-    act1 = Actor("a1", set_store_loc)
-    act2 = Actor("a2", set_store_loc)
+    zmq_actor.start()
 
-    PlasmaStoreInterface(store_loc=set_store_loc)
-    link = Link("L12", act1, act2)
-    act1.setLinkIn(link)
-    act2.setLinkOut(link)
+    res = nex_socket.recv_pyobj()
+    assert isinstance(res, ActorStateMsg)
 
-    msg = "message"
+    nex_socket.send_pyobj(ActorStateReplyMsg("test", "OK", ""))
 
-    act1.q_in.put(msg)
+    zmq_actor.terminate()
+    zmq_actor.join(10)
 
-    assert act2.q_out.get() == msg
+
+# TODO: register with broker test

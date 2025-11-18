@@ -1,0 +1,16 @@
+actors:
+  Generator:
+    package: actors.sample_persistence_generator
+    class: Generator
+    output_filename: test_persistence.csv
+
+  Processor:
+    package: actors.sample_persistence_processor
+    class: Processor
+
+connections:
+  Generator-Processor:
+    sources:
+      - Generator.q_out
+    sinks:
+      - Processor.q_in

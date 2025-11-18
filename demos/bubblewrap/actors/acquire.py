@@ -4,17 +4,42 @@ import mat73
 import time
 import logging
 import traceback
-import time
+import sys, os
 
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+def load_data(filename):
+    """
+    Load filename, which may be a relative path. 
+    Return data.
+    """
+    if os.path.isfile(filename):
+        full_fname = filename
+    else:
+        for p in reversed(sys.path):
+        # traverse path in reverse order, on the theory that
+        # the yaml file comes near the end
+            full_fname = os.path.join(p,  filename)
+            if os.path.isfile(full_fname):
+                break
+    
+    try:
+        data = mat73.loadmat(full_fname)
+    except FileNotFoundError:
+        logger.error("Bubblewrap data file not found!")
+    
+    return data
+
+
+
 
 class Acquirer(Actor):
     def __init__(self, *args, filename=None, **kwargs):
         super().__init__(*args, **kwargs)
-        if not filename: logger.error('Error: Filename not specified')
+        if not filename: 
+            logger.error('Error: Filename not specified')
         self.file = filename
         self.frame_num = 0
         self.done = False
@@ -28,7 +53,7 @@ class Acquirer(Actor):
         Note: A utility function that downloads the required data file can be found in utils.py
         """
         # get unsorted vs sorted units
-        data_dict = mat73.loadmat(self.file)
+        data_dict = load_data(self.file)
         units_unsorted = []
         units_sorted = []
         for ch_curr in data_dict['spikes']:
@@ -58,7 +83,7 @@ class Acquirer(Actor):
         self.num_iters = np.floor((self.data.shape[0] - l1 - self.l)/self.l).astype('int')
 
         #send to dim reduction
-        init_id = self.client.put([self.data.shape[0], self.data[:l1, :]], "init_data")
+        init_id = self.client.put([self.data.shape[0], self.data[:l1, :]])
         logger.info("Putted init data")
         self.q_out.put(init_id)
 
@@ -66,7 +91,7 @@ class Acquirer(Actor):
         logger.info(f"Stopped running Acquire, avg time per frame: {np.mean(self.total_times)}")
         logger.info(f"Acquire got through {self.frame_num} frames")
     
-    def runStep(self):
+    def run_step(self):
         """Send data to dim reduction one frame at a time"""
         if self.done:
             pass
@@ -74,7 +99,7 @@ class Acquirer(Actor):
             start, end = self.t, self.t + 1
             frame = self.data[start:end, :]
             t = time.time()
-            id = self.client.put([self.t, frame], "acq_bubble" + str(self.frame_num))
+            id = self.client.put([self.t, frame])
             self.timestamp.append([time.time(), self.frame_num])
             try:
                 self.q_out.put([str(self.frame_num), id])
