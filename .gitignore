@@ -43,6 +43,7 @@ pip-delete-this-directory.txt
 logs/
 data/
 output/
+output_*
 
 # Demo data
 analyzed_videos/
