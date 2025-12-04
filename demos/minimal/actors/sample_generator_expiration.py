@@ -1,4 +1,4 @@
-from actors.sample_generator import Generator
+from actors.sample_generator_zmq import Generator
 import numpy as np
 import logging
 
