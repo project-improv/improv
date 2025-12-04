@@ -841,7 +841,6 @@ class Nexus:
 
     def create_connections(self):
         for name, connection in self.config.connections.items():
-            logger.info(f"Creating connection {name}: {connection}")
             sources = connection["sources"]
             if not isinstance(sources, list):
                 sources = [sources]
