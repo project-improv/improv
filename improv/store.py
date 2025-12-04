@@ -88,7 +88,7 @@ class RedisStoreInterface(AbstractStoreInterface):
 
         return self.client
 
-    def put(self, object):
+    def put(self, object, ex=60):
         """
         Put a single object referenced by its string name
         into the store. If the store already has a value stored at this key,
@@ -99,6 +99,7 @@ class RedisStoreInterface(AbstractStoreInterface):
         Args:
             object: the object to store in Redis
             object_key (str): the key under which the object should be stored
+            ex (int): TTL; the number of seconds after which the object got expired
 
         Returns:
             object: the object that was a
@@ -108,7 +109,7 @@ class RedisStoreInterface(AbstractStoreInterface):
             pickle.dumps(object, protocol=5), level=self.compression_level
         )
 
-        self.client.set(object_key, data, nx=True)
+        self.client.set(object_key, data, nx=True, ex=ex)
 
         return object_key
 
