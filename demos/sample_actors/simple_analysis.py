@@ -3,7 +3,7 @@ import numpy as np
 from queue import Empty
 import os
 
-from improv.actor import Actor, RunManager
+from improv.actor import ZmqActor
 from improv.store import ObjectNotFoundError
 
 import logging
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class SimpleAnalysis(Actor):
+class SimpleAnalysis(ZmqActor):
     # TODO: Add additional error handling
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -72,7 +72,7 @@ class SimpleAnalysis(Actor):
         )
         np.savetxt("output/timing/analysis_timestamp.txt", np.array(self.timestamp))
 
-    def runStep(self):
+    def run_step(self):
         """Take numpy estimates and frame_number
         Create X and Y for plotting
         """

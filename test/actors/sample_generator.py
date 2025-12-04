@@ -1,4 +1,4 @@
-from improv.actor import Actor
+from improv.actor import ZmqActor
 from datetime import date  # used for saving
 import numpy as np
 import logging
@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Generator(Actor):
+class Generator(ZmqActor):
     """Sample actor to generate data to pass into a sample processor.
 
     Intended for use along with sample_processor.py.
@@ -37,7 +37,7 @@ class Generator(Actor):
     #     """
     #     self.fcns = {}
     #     self.fcns['setup'] = self.setup
-    #     self.fcns['run'] = self.runStep
+    #     self.fcns['run'] = self.run_step
     #     self.fcns['stop'] = self.stop
 
     #     with RunManager(self.name, self.fcns, self.links) as rm:
@@ -52,7 +52,7 @@ class Generator(Actor):
         # will overwrite previous files with the same name.
         return 0
 
-    def runStep(self):
+    def run_step(self):
         """Generates additional data after initial setup data is exhausted.
 
         Data is of a different form as the setup data in that although it is

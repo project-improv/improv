@@ -1,36 +1,29 @@
+import time
+
 import pytest
 import os
 import datetime
 from collections import namedtuple
 import subprocess
-import asyncio
 import signal
+
 import improv.cli as cli
 
-from test_nexus import ports
+from conftest import ports
 
-SERVER_WARMUP = 16
-SERVER_TIMEOUT = 16
-
-
-@pytest.fixture
-def setdir():
-    prev = os.getcwd()
-    os.chdir(os.path.dirname(__file__))
-    yield None
-    os.chdir(prev)
+SERVER_WARMUP = 10
+SERVER_TIMEOUT = 15
 
 
 @pytest.fixture
-async def server(setdir, ports):
+def server(setdir, ports):
     """
     Sets up a server using minimal.yaml in the configs folder.
     Requires the actor path command line argument and so implicitly
     tests that as well.
     """
-    os.chdir("configs")
 
-    control_port, output_port, logging_port = ports
+    control_port, output_port, logging_port, logging_input_port = ports
 
     # start server
     server_opts = [
@@ -42,6 +35,8 @@ async def server(setdir, ports):
         str(output_port),
         "-l",
         str(logging_port),
+        "-i",
+        str(logging_input_port),
         "-a",
         "..",
         "-f",
@@ -49,29 +44,33 @@ async def server(setdir, ports):
         "minimal.yaml",
     ]
 
-    server = subprocess.Popen(
-        server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-    )
-    await asyncio.sleep(SERVER_WARMUP)
+    server = subprocess.Popen(server_opts)
+    time.sleep(SERVER_WARMUP)
     yield server
-    server.wait(SERVER_TIMEOUT)
-    try:
-        os.remove("testlog")
-    except FileNotFoundError:
-        pass
+    if server.poll() is None:
+        pytest.fail("Server did not shut down correctly.")
 
 
 @pytest.fixture
-async def cli_args(setdir, ports):
+def cli_args(setdir, ports):
     logfile = "tmp.log"
-    control_port, output_port, logging_port = ports
-    config_file = "configs/minimal.yaml"
+    control_port, output_port, logging_port, logging_input_port = ports
+    config_file = "minimal.yaml"
     Args = namedtuple(
         "cli_args",
-        "control_port output_port logging_port logfile configfile actor_path",
+        "control_port output_port logging_port logging_input_port logfile "
+        "configfile actor_path",
     )
 
-    args = Args(control_port, output_port, logging_port, logfile, config_file, [])
+    args = Args(
+        control_port,
+        output_port,
+        logging_port,
+        logging_input_port,
+        logfile,
+        config_file,
+        [],
+    )
     return args
 
 
@@ -86,7 +85,7 @@ def test_configfile_required(setdir):
         cli.parse_cli_args(["server", "does_not_exist.yaml"])
 
 
-def test_multiple_actor_path(setdir):
+def test_multiple_actor_path(set_dir_config_parent):
     args = cli.parse_cli_args(
         ["run", "-a", "actors", "-a", "configs", "configs/blank_file.yaml"]
     )
@@ -104,22 +103,26 @@ def test_multiple_actor_path(setdir):
         ("run", "-c", "6000"),
         ("run", "-o", "6000"),
         ("run", "-l", "6000"),
+        ("run", "-i", "6000"),
         ("server", "-c", "6000"),
         ("server", "-o", "6000"),
         ("server", "-l", "6000"),
+        ("server", "-i", "6000"),
         ("client", "-c", "6000"),
         ("client", "-s", "6000"),
         ("client", "-l", "6000"),
+        ("client", "-i", "6000"),
     ],
 )
 def test_can_override_ports(mode, flag, expected, setdir):
-    file = "configs/blank_file.yaml"
+    file = "blank_file.yaml"
     localhost = "127.0.0.1:"
     params = {
         "-c": "control_port",
         "-o": "output_port",
         "-s": "server_port",
         "-l": "logging_port",
+        "-i": "logging_input_port",
     }
 
     if mode in ["run", "server"]:
@@ -142,7 +145,7 @@ def test_can_override_ports(mode, flag, expected, setdir):
     ],
 )
 def test_non_port_is_error(mode, flag, expected):
-    file = "configs/blank_file.yaml"
+    file = "blank_file.yaml"
     with pytest.raises(SystemExit):
         cli.parse_cli_args([mode, flag, expected, file])
 
@@ -182,27 +185,29 @@ def test_can_override_ip(mode, flag, expected):
     assert vars(args)[params[flag]] == expected
 
 
-async def test_sigint_kills_server(server):
+def test_sigint_kills_server(server):
     server.send_signal(signal.SIGINT)
+    server.wait(SERVER_TIMEOUT)
 
 
-async def test_improv_list_nonempty(server):
+def test_improv_list_nonempty(server):
     proc_list = cli.run_list("", printit=False)
     assert len(proc_list) > 0
     server.send_signal(signal.SIGINT)
+    server.wait(SERVER_TIMEOUT)
 
 
-async def test_improv_kill_empties_list(server):
+def test_improv_kill_empties_list(server):
     proc_list = cli.run_list("", printit=False)
     assert len(proc_list) > 0
     cli.run_cleanup("", headless=True)
     proc_list = cli.run_list("", printit=False)
     assert len(proc_list) == 0
+    server.wait(SERVER_TIMEOUT)
 
 
-async def test_improv_run_writes_stderr_to_log(setdir, ports):
-    os.chdir("configs")
-    control_port, output_port, logging_port = ports
+def test_improv_run_writes_stderr_to_log(setdir, ports):
+    control_port, output_port, logging_port, logging_input_port = ports
 
     # start server
     server_opts = [
@@ -214,6 +219,8 @@ async def test_improv_run_writes_stderr_to_log(setdir, ports):
         str(output_port),
         "-l",
         str(logging_port),
+        "-i",
+        str(logging_input_port),
         "-a",
         "..",
         "-f",
@@ -223,62 +230,73 @@ async def test_improv_run_writes_stderr_to_log(setdir, ports):
     server = subprocess.Popen(
         server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
     )
-    await asyncio.sleep(SERVER_WARMUP)
+    time.sleep(SERVER_WARMUP)
     server.kill()
     server.wait(SERVER_TIMEOUT)
-    with open("testlog") as log:
+    with open("improv-debug.log") as log:
         contents = log.read()
+    print(contents)
     assert "Traceback" in contents
+    os.remove("improv-debug.log")
     os.remove("testlog")
     cli.run_cleanup("", headless=True)
 
 
-async def test_get_ports_from_logfile(setdir):
+def test_get_ports_from_logfile(setdir):
     test_control_port = 53349
     test_output_port = 53350
     test_logging_port = 53351
+    test_logging_input_port = 53352
 
     logfile = "tmp.log"
 
     with open(logfile, "w") as log:
         log.write(
-            "Server running on (control, output, log) ports (53345, 53344, 53343)."
+            "Server running on (control, output, log, log input) ports "
+            "(53345, 53344, 53343, 53352).\n"
         )
         log.write(
-            f"Server running on (control, output, log) ports ({test_control_port}, "
-            f"{test_output_port}, {test_logging_port})."
+            f"Server running on (control, output, log, log input) ports "
+            f"({test_control_port}, "
+            f"{test_output_port}, {test_logging_port}, {test_logging_input_port})."
         )
 
-    control_port, output_port, logging_port = cli._get_ports(logfile)
+    control_port, output_port, logging_port, logging_input_port = cli._get_ports(
+        logfile
+    )
 
     os.remove(logfile)
 
     assert control_port == test_control_port
     assert output_port == test_output_port
     assert logging_port == test_logging_port
+    assert logging_input_port == test_logging_input_port
 
 
-async def test_no_server_start_in_logfile_raises_error(setdir, cli_args, capsys):
-    with open(cli_args.logfile, mode="w") as f:
+def test_no_server_start_in_logfile_raises_error(setdir, cli_args, capsys):
+    with open("improv-debug.log", mode="w") as f:
         f.write("this is some placeholder text")
 
-    cli.get_server_ports(cli_args, timeout=1)
+    curr_dt = datetime.datetime.now().replace(microsecond=0)
+    timeout = 1
+    cli.get_server_ports(cli_args, timeout, curr_dt)
 
     captured = capsys.readouterr()
     assert "Unable to read server start time" in captured.out
 
-    os.remove(cli_args.logfile)
+    os.remove("improv-debug.log")
     cli.run_cleanup("", headless=True)
 
 
-async def test_no_ports_in_logfile_raises_error(setdir, cli_args, capsys):
+def test_no_ports_in_logfile_raises_error(setdir, cli_args, capsys):
     curr_dt = datetime.datetime.now().replace(microsecond=0)
-    with open(cli_args.logfile, mode="w") as f:
+    with open("improv-debug.log", mode="w") as f:
         f.write(f"{curr_dt} Server running on (control, output, log) ports XXX\n")
 
-    cli.get_server_ports(cli_args, timeout=1)
+    timeout = 1
+    cli.get_server_ports(cli_args, timeout, curr_dt)
     captured = capsys.readouterr()
-    assert f"Unable to read ports from {cli_args.logfile}." in captured.out
+    assert f"Unable to read ports from {'improv-debug.log'}." in captured.out
 
-    os.remove(cli_args.logfile)
+    os.remove("improv-debug.log")
     cli.run_cleanup("", headless=True)

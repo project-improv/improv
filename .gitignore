@@ -130,6 +130,9 @@ dmypy.json
 arrow
 
 .vscode/
+.idea/
 
 *.code-workspace
 improv/_version.py
+
+*venv

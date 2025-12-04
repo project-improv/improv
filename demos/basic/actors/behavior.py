@@ -41,7 +41,7 @@ class RawBehavior(Actor):
         else:
             raise FileNotFoundError
 
-    def runStep(self):
+    def run_step(self):
         if self.done:
             pass
         elif self.frame_num < self.data.shape[2]:
@@ -95,7 +95,7 @@ class MotionBehavior(Actor):
         else:
             raise FileNotFoundError
 
-    def runStep(self):
+    def run_step(self):
         if self.done:
             pass
         elif self.frame_num < len(self.data):

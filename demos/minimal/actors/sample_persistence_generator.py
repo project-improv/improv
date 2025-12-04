@@ -1,22 +1,27 @@
-from improv.actor import Actor
-import numpysssss as np
+import random
+import time
+
+from improv.actor import ZmqActor
+from datetime import date  # used for saving
+import numpy as np
 import logging
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class Generator(Actor):
+class Generator(ZmqActor):
     """Sample actor to generate data to pass into a sample processor.
 
     Intended for use along with sample_processor.py.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, output_filename, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.data = None
         self.name = "Generator"
         self.frame_num = 0
+        self.output_filename = output_filename
 
     def __str__(self):
         return f"Name: {self.name}, Data: {self.data}"
@@ -28,15 +33,13 @@ class Generator(Actor):
         integers from 1-99, inclusive.
         """
 
-        logger.info("Beginning setup for Generator")
         self.data = np.asmatrix(np.random.randint(100, size=(100, 5)))
-        logger.info("Completed setup for Generator")
+        self.improv_logger.info("Completed setup for Generator")
 
     def stop(self):
         """Save current randint vector to a file."""
 
-        logger.info("Generator stopping")
-        np.save("sample_generator_data.npy", self.data)
+        self.improv_logger.info("Generator stopping")
         return 0
 
     def run_step(self):
@@ -48,19 +51,27 @@ class Generator(Actor):
         converge to 5.5.
         """
 
+
+        device_time = time.time_ns()
+        time.sleep(0.0003)
+        acquired_time = time.time_ns()  # mock the time the generator "actually received" the data
+
         if self.frame_num < np.shape(self.data)[0]:
-            data_id = self.client.put(
-                self.data[self.frame_num], str(f"Gen_raw: {self.frame_num}")
-            )
-            # logger.info('Put data in store')
-            try:
-                self.q_out.put([[data_id, str(self.frame_num)]])
-                logger.info("Sent message on")
-                self.frame_num += 1
-            except Exception as e:
-                logger.error(
-                    f"--------------------------------Generator Exception: {e}"
-                )
+
+            with open(self.output_filename, "a+") as f:
+                device_data = self.data[self.frame_num]
+                packaged_data = (acquired_time, (device_time, device_data))
+                # save the data to the flat file before sending it downstream
+                f.write(f"{packaged_data[0]}, {packaged_data[1][0]}, {packaged_data[1][1]}\n")
+
+                data_id = self.client.put(packaged_data)
+                try:
+                    self.q_out.put(data_id)
+                    # self.improv_logger.info(f"Sent {self.data[self.frame_num]} with key {data_id}")
+                    self.frame_num += 1
+
+                except Exception as e:
+                    self.improv_logger.error(f"Generator Exception: {e}")
         else:
             self.data = np.concatenate(
                 (self.data, np.asmatrix(np.random.randint(10, size=(1, 5)))), axis=0

@@ -1,6 +1,3 @@
-# settings:
-#   use_watcher: [Acquirer, Analysis]
-
 actors:
   # GUI:
   #   package: actors.visual

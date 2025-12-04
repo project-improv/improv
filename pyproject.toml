@@ -16,7 +16,6 @@ dependencies = [
     "numpy<=1.26",
     "scipy",
     "matplotlib",
-    "pyarrow==9.0.0",
     "PyQt5",
     "pyyaml",
     "textual==0.15.0",
@@ -56,6 +55,7 @@ exclude = ["test", "pytest", "env", "demos", "figures"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 filterwarnings = [ ]
+asyncio_default_fixture_loop_scope = "function"
 
 log_cli = true
 log_cli_level = "INFO"

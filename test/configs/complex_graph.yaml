@@ -14,8 +14,14 @@ actors:
     class: BehaviorAcquirer
 
 connections:
-  Acquirer.q_out: [Analysis.q_in, InputStim.q_in]
-  Analysis.q_out: [InputStim.q_in]
-
-# settings:
-#   use_watcher: [Acquirer, Processor, Visual, Analysis]
+  Acquirer-out:
+    sources:
+      - Acquirer.q_out
+    sinks:
+      - Analysis.q_in
+      - InputStim.q_in
+  Analysis-InputStim:
+    sources:
+      - Analysis.q_out
+    sinks:
+      - InputStim.q_in

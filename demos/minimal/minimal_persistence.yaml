@@ -1,10 +1,11 @@
 actors:
   Generator:
-    package: actors.sample_generator_zmq
+    package: actors.sample_persistence_generator
     class: Generator
+    output_filename: test_persistence.csv
 
   Processor:
-    package: actors.sample_processor_zmq
+    package: actors.sample_persistence_processor
     class: Processor
 
 connections:
@@ -13,6 +14,3 @@ connections:
       - Generator.q_out
     sinks:
       - Processor.q_in
-
-redis_config:
-  enable_saving: True

@@ -6,5 +6,3 @@ actors:
     framerate: 15
 
 connections:
-# settings:
-#   use_watcher: [Acquirer, Processor, Visual, Analysis]

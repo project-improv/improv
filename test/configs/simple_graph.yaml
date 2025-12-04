@@ -10,7 +10,8 @@ actors:
     class: SimpleAnalysis
 
 connections:
-  Acquirer.q_out: [Analysis.q_in]
-
-# settings:
-#   use_watcher: [Acquirer, Processor, Visual, Analysis]
+  Acquirer-Analysis:
+    sources:
+      - Acquirer.q_out
+    sinks:
+      - Analysis.q_in

@@ -14,5 +14,5 @@ connections:
     sinks:
       - Processor.q_in
 
-redis_config:
-  enable_saving: True
+settings:
+  harvest_data_from_memory: True

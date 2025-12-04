@@ -4,7 +4,7 @@ from queue import Empty
 from bubblewrap import Bubblewrap
 from improv.actor import Actor
 import logging
-
+logging.getLogger("jax").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -21,7 +21,10 @@ class Bubble(Actor):
         while shape_id is None:
             try:
                 shape_id = self.q_in.get(timeout=0.0005)
-            except Empty: pass
+            except Empty: 
+                pass
+            except TimeoutError:
+                pass
         dat_shape_0 = self.client.get(shape_id)
         # init bubblewrap
         M = 20
@@ -47,23 +50,24 @@ class Bubble(Actor):
         while id is None:
             try:
                 id = self.q_in.get(timeout = 0.0005)
-            except Empty: pass
-        init_data = self.client.getID(id)
+            except Empty: 
+                pass
+            except TimeoutError:
+                pass
+        init_data = self.client.get(id)
 
         for i in np.arange(0, M):
             self.bw.observe(init_data[i])
         self.bw.init_nodes()
         logger.info("Nodes initialized")
 
-        self._getStoreInterface()
-
-    def runStep(self):
+    def run_step(self):
         """Observe new data from dim reduction and update bubblewrap"""
         try:
             ids = self.q_in.get(timeout=0.0005)
 
             # expect ids of size 2 containing data location and frame number
-            new_data = self.client.getID(ids[1])
+            new_data = self.client.get(ids[1])
             self.frame_number = ids[0]
 
             self.bw.observe(new_data)
@@ -72,19 +76,17 @@ class Bubble(Actor):
             self.putOutput()
         except Empty:
             pass
+        except TimeoutError:
+            pass
 
     def putOutput(self):
         """Function for putting updated results into the store"""
         ids = []
-        ids.append(self.client.put(np.array(self.bw.A), "A" + str(self.frame_number)))
-        ids.append(self.client.put(np.array(self.bw.L), "L" + str(self.frame_number)))
-        ids.append(self.client.put(np.array(self.bw.mu), "mu" + str(self.frame_number)))
-        ids.append(self.client.put(
-                    np.array(self.bw.n_obs), "n_obs" + str(self.frame_number)))
-        ids.append(self.client.put(
-                    np.array(self.bw.pred), "pred" + str(self.frame_number)))
-        ids.append(self.client.put(
-                    np.array(self.bw.entropy_list), "entropy" + str(self.frame_number)))
-        ids.append(self.client.put(
-                    np.array(self.bw.dead_nodes), "dead_nodes" + str(self.frame_number)))
+        ids.append(self.client.put(np.array(self.bw.A)))
+        ids.append(self.client.put(np.array(self.bw.L)))
+        ids.append(self.client.put(np.array(self.bw.mu)))
+        ids.append(self.client.put(np.array(self.bw.n_obs)))
+        ids.append(self.client.put(np.array(self.bw.pred)))
+        ids.append(self.client.put(np.array(self.bw.entropy_list)))
+        ids.append(self.client.put(np.array(self.bw.dead_nodes)))
         self.q_out.put([self.frame_number, ids])

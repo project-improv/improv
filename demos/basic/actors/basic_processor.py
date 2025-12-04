@@ -61,7 +61,7 @@ class BasicProcessor(CaimanProcessor):
         np.savetxt("output/timing/shape_time.txt", self.shape_time)
         np.savetxt("output/timing/detect_time.txt", self.detect_time)
 
-    def runStep(self):
+    def run_step(self):
         """Run process. Runs once per frame.
         Output is a location in the DS to continually
         place the Estimates results, with ref number that

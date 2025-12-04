@@ -1,4 +1,6 @@
-import os
+from __future__ import annotations
+
+import multiprocessing
 import time
 import uuid
 import signal
@@ -7,46 +9,118 @@ import asyncio
 import concurrent
 import subprocess
 
-from queue import Full
 from datetime import datetime
-from multiprocessing import Process, get_context
+from multiprocessing import get_context
 from importlib import import_module
 
+import zmq as zmq_sync
 import zmq.asyncio as zmq
-from zmq import PUB, REP, SocketOption
+from zmq import PUB, REP, REQ, SocketOption
 
-from improv.store import StoreInterface, RedisStoreInterface, PlasmaStoreInterface
-from improv.actor import Signal
+from improv import log
+from improv.broker import bootstrap_broker
+from improv.harvester import bootstrap_harvester
+from improv.log import bootstrap_log_server
+from improv.messaging import (
+    ActorStateMsg,
+    ActorStateReplyMsg,
+    ActorSignalMsg,
+    ActorSignalReplyMsg,
+    NexusSignalMsg,
+    BrokerInfoReplyMsg,
+    BrokerInfoMsg,
+    LogInfoMsg,
+    LogInfoReplyMsg,
+    HarvesterInfoMsg,
+    HarvesterInfoReplyMsg,
+)
+from improv.store import StoreInterface, RedisStoreInterface
+from improv.actor import Signal, Actor, LinkInfo
 from improv.config import Config
-from improv.link import Link, MultiLink
+
+ASYNC_DEBUG = False
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
+if logger.level == logging.DEBUG:
+    logger.addHandler(logging.StreamHandler())
 
-# TODO: Set up store.notify in async function (?)
+# TODO: redo docsctrings since things are pretty different now
+
+# TODO: socket setup can fail - need to check it
+
+# TODO: redo how actors register with nexus so that we get actor states
+#   earlier
+
+
+class ConfigFileNotProvidedException(Exception):
+    def __init__(self):
+        super().__init__("Config file not provided")
+
+
+class ConfigFileNotValidException(Exception):
+    def __init__(self):
+        super().__init__("Config file not valid")
+
+
+class ActorState:
+    def __init__(
+        self, actor_name, status, nexus_in_port, hostname="localhost", sig_socket=None
+    ):
+        self.actor_name = actor_name
+        self.status = status
+        self.nexus_in_port = nexus_in_port
+        self.hostname = hostname
+        self.sig_socket = None
 
 
 class Nexus:
     """Main server class for handling objects in improv"""
 
     def __init__(self, name="Server"):
+        self.logger_in_port: int | None = None
+        self.zmq_sync_context: zmq_sync.Context | None = None
+        self.logfile: str | None = None
+        self.p_harvester: multiprocessing.Process | None = None
+        self.p_broker: multiprocessing.Process | None = None
+        self.in_socket: zmq.Socket | None = None
+        self.out_socket: zmq.Socket | None = None
+        self.zmq_context: zmq.Context | None = None
+        self.logger_pub_port: int | None = None
+        self.logger_pull_port: int | None = None
+        self.logger_in_socket: zmq.Socket | None = None
+        self.p_logger: multiprocessing.Process | None = None
+        self.broker_pub_port = None
+        self.broker_sub_port = None
+        self.broker_in_port: int | None = None
+        self.broker_in_socket: zmq_sync.Socket | None = None
+        self.actor_states: dict[str, ActorState | None] = dict()
         self.redis_fsync_frequency = None
         self.store = None
         self.config = None
         self.name = name
         self.aof_dir = None
         self.redis_saving_enabled = False
+        self.allow_setup = False
+        self.outgoing_topics = dict()
+        self.incoming_topics = dict()
+        self.data_queues = {}
+        self.actors = {}
+        self.flags = {}
+        self.processes: list[multiprocessing.Process] = []
 
     def __str__(self):
         return self.name
 
-    def createNexus(
+    def create_nexus(
         self,
         file=None,
-        use_watcher=None,
-        store_size=10_000_000,
-        control_port=0,
-        output_port=0,
+        store_size=None,
+        control_port=None,
+        output_port=None,
+        log_server_pub_port=None,
+        log_server_pull_port=None,
+        logfile="global.log",
     ):
         """Function to initialize class variables based on config file.
 
@@ -56,7 +130,6 @@ class Nexus:
 
         Args:
             file (string): Name of the config file.
-            use_watcher (bool): Whether to use watcher for the store.
             store_size (int): initial store size
             control_port (int): port number for input socket
             output_port (int): port number for output socket
@@ -65,92 +138,62 @@ class Nexus:
             string: "Shutting down", to notify start() that pollQueues has completed.
         """
 
+        self.logfile = logfile
+
         curr_dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         logger.info(f"************ new improv server session {curr_dt} ************")
 
         if file is None:
             logger.exception("Need a config file!")
-            raise Exception  # TODO
-        else:
-            logger.info(f"Loading configuration file {file}:")
-            self.loadConfig(file=file)
-            with open(file, "r") as f:  # write config file to log
-                logger.info(f.read())
+            raise ConfigFileNotProvidedException
 
-        # set config options loaded from file
-        # in Python 3.9, can just merge dictionaries using precedence
-        cfg = self.config.settings
-        if "use_watcher" not in cfg:
-            cfg["use_watcher"] = use_watcher
-        if "store_size" not in cfg:
-            cfg["store_size"] = store_size
-        if "control_port" not in cfg or control_port != 0:
-            cfg["control_port"] = control_port
-        if "output_port" not in cfg or output_port != 0:
-            cfg["output_port"] = output_port
+        logger.info(f"Loading configuration file {file}:")
+        self.config = Config(config_file=file)
+        self.config.parse_config()
 
-        # set up socket in lieu of printing to stdout
-        self.zmq_context = zmq.Context()
-        self.zmq_context.setsockopt(SocketOption.LINGER, 1)
-        self.out_socket = self.zmq_context.socket(PUB)
-        self.out_socket.bind("tcp://*:%s" % cfg["output_port"])
-        out_port_string = self.out_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
-        cfg["output_port"] = int(out_port_string.split(":")[-1])
+        with open(file, "r") as f:  # write config file to log
+            logger.info(f.read())
 
-        self.in_socket = self.zmq_context.socket(REP)
-        self.in_socket.bind("tcp://*:%s" % cfg["control_port"])
-        in_port_string = self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
-        cfg["control_port"] = int(in_port_string.split(":")[-1])
+        logger.debug("Applying CLI parameter configuration overrides")
+        self.apply_cli_config_overrides(
+            store_size=store_size,
+            control_port=control_port,
+            output_port=output_port,
+            logging_port=log_server_pub_port,
+            logging_input_port=log_server_pull_port,
+        )
 
-        self.configure_redis_persistence()
+        logger.debug("Setting up sockets")
+        self.set_up_sockets()
 
-        # default size should be system-dependent
-        if self.config and self.config.use_plasma():
-            self._startStoreInterface(store_size)
-        else:
-            self._startStoreInterface(store_size)
-            logger.info("Redis server started")
+        logger.debug("Setting up services")
+        self.start_improv_services(
+            log_server_pub_port=self.config.settings["logging_port"],
+            log_server_pull_port=self.config.settings["logging_input_port"],
+            store_size=self.config.settings["store_size"],
+        )
 
-        self.out_socket.send_string("StoreInterface started")
-
-        # connect to store and subscribe to notifications
-        logger.info("Create new store object")
-        if self.config and self.config.use_plasma():
-            self.store = PlasmaStoreInterface(store_loc=self.store_loc)
-        else:
-            self.store = StoreInterface(server_port_num=self.store_port)
-            logger.info(f"Redis server connected on port {self.store_port}")
-
-        self.store.subscribe()
-
-        # TODO: Better logic/flow for using watcher as an option
-        self.p_watch = None
-        if cfg["use_watcher"]:
-            self.startWatcher()
-
-        # Create dicts for reading config and creating actors
-        self.comm_queues = {}
-        self.sig_queues = {}
-        self.data_queues = {}
-        self.actors = {}
-        self.flags = {}
-        self.processes = []
-
-        self.initConfig()
+        logger.debug("initializing config")
+        self.init_config()
 
         self.flags.update({"quit": False, "run": False, "load": False})
         self.allowStart = False
         self.stopped = False
 
-        return (cfg["control_port"], cfg["output_port"])
+        logger.info(
+            f"control: {self.config.settings['control_port']}, "
+            f"output: {self.config.settings['output_port']}, "
+            f"logging (pub): {self.logger_pub_port}, "
+            f"logging (pull): {self.logger_pull_port}"
+        )
+        return (
+            self.config.settings["control_port"],
+            self.config.settings["output_port"],
+            self.logger_pub_port,
+            self.logger_pull_port,
+        )
 
-    def loadConfig(self, file):
-        """Load configuration file.
-        file: a YAML configuration file name
-        """
-        self.config = Config(configFile=file)
-
-    def initConfig(self):
+    def init_config(self):
         """For each connection:
         create a Link with a name (purpose), start, and end
         Start links to one actor's name, end to the other.
@@ -168,121 +211,50 @@ class Nexus:
         """
         # TODO load from file or user input, as in dialogue through FrontEnd?
 
-        flag = self.config.createConfig()
+        logger.info("initializing config")
+        flag = self.config.create_config()
         if flag == -1:
             logger.error(
                 "An error occurred when loading the configuration file. "
                 "Please see the log file for more details."
             )
+            self.destroy_nexus()
+            raise ConfigFileNotValidException
 
         # create all data links requested from Config config
-        self.createConnections()
+        self.create_connections()
 
-        if self.config.hasGUI:
-            # Have to load GUI first (at least with Caiman)
-            name = self.config.gui.name
-            m = self.config.gui  # m is ConfigModule
-            # treat GUI uniquely since user communication comes from here
-            try:
-                visualClass = m.options["visual"]
-                # need to instantiate this actor
-                visualActor = self.config.actors[visualClass]
-                self.createActor(visualClass, visualActor)
-                # then add links for visual
-                for k, l in {
-                    key: self.data_queues[key]
-                    for key in self.data_queues.keys()
-                    if visualClass in key
-                }.items():
-                    self.assignLink(k, l)
-
-                # then give it to our GUI
-                self.createActor(name, m)
-                self.actors[name].setup(visual=self.actors[visualClass])
-
-                self.p_GUI = Process(target=self.actors[name].run, name=name)
-                self.p_GUI.daemon = True
-                self.p_GUI.start()
-
-            except Exception as e:
-                logger.error(f"Exception in setting up GUI {name}: {e}")
-
-        else:
-            # have fake GUI for communications
-            q_comm = Link("GUI_comm", "GUI", self.name)
-            self.comm_queues.update({q_comm.name: q_comm})
+        # if self.config.hasGUI:
+        #     # treat GUI uniquely since user communication comes from here
+        #     # Have to load GUI first (at least with Caiman)
+        #     name = self.config.gui.name
+        #     m = self.config.gui  # m is ConfigModule
+        #     try:
+        #         pass
+        #     except Exception as e:
+        #         logger.error(f"Exception in setting up GUI {name}: {e}")
 
         # First set up each class/actor
         for name, actor in self.config.actors.items():
             if name not in self.actors.keys():
                 # Check for actors being instantiated twice
                 try:
-                    self.createActor(name, actor)
+                    self.create_actor(name, actor)
                     logger.info(f"Setting up actor {name}")
                 except Exception as e:
                     logger.error(f"Exception in setting up actor {name}: {e}.")
                     self.quit()
-
-        # Second set up each connection b/t actors
-        # TODO: error handling for if a user tries to use q_in without defining it
-        for name, link in self.data_queues.items():
-            self.assignLink(name, link)
-
-        if self.config.settings["use_watcher"]:
-            watchin = []
-            for name in self.config.settings["use_watcher"]:
-                watch_link = Link(name + "_watch", name, "Watcher")
-                self.assignLink(name + ".watchout", watch_link)
-                watchin.append(watch_link)
-            self.createWatcher(watchin)
+                    raise e
 
     def configure_redis_persistence(self):
         # invalid configs: specifying filename and using an ephemeral filename,
         # specifying that saving is off but providing either filename option
-        aof_dirname = self.config.get_redis_aof_dirname()
-        generate_unique_dirname = self.config.generate_ephemeral_aof_dirname()
-        redis_saving_enabled = self.config.redis_saving_enabled()
-        redis_fsync_frequency = self.config.get_redis_fsync_frequency()
-
-        if aof_dirname and generate_unique_dirname:
-            logger.error(
-                "Cannot both generate a unique dirname and use the one provided."
-            )
-            raise Exception("Cannot use unique dirname and use the one provided.")
-
-        if aof_dirname or generate_unique_dirname or redis_fsync_frequency:
-            if redis_saving_enabled is None:
-                redis_saving_enabled = True
-            elif not redis_saving_enabled:
-                logger.error(
-                    "Invalid configuration. Cannot save to disk with saving disabled."
-                )
-                raise Exception("Cannot persist to disk with saving disabled.")
-
-        self.redis_saving_enabled = redis_saving_enabled
-
-        if redis_fsync_frequency and redis_fsync_frequency not in [
-            "every_write",
-            "every_second",
-            "no_schedule",
-        ]:
-            logger.error("Cannot use unknown fsync frequency ", redis_fsync_frequency)
-            raise Exception(
-                "Cannot use unknown fsync frequency ", redis_fsync_frequency
-            )
-
-        if redis_fsync_frequency is None:
-            redis_fsync_frequency = "no_schedule"
-
-        if redis_fsync_frequency == "every_write":
-            self.redis_fsync_frequency = "always"
-        elif redis_fsync_frequency == "every_second":
-            self.redis_fsync_frequency = "everysec"
-        elif redis_fsync_frequency == "no_schedule":
-            self.redis_fsync_frequency = "no"
-        else:
-            logger.error("Unknown fsync frequency ", redis_fsync_frequency)
-            raise Exception("Unknown fsync frequency ", redis_fsync_frequency)
+        aof_dirname = self.config.redis_config["aof_dirname"]
+        generate_unique_dirname = self.config.redis_config[
+            "generate_ephemeral_aof_dirname"
+        ]
+        self.redis_saving_enabled = self.config.redis_config["enable_saving"]
+        self.redis_fsync_frequency = self.config.redis_config["fsync_frequency"]
 
         if aof_dirname:
             self.aof_dir = aof_dirname
@@ -307,35 +279,34 @@ class Nexus:
 
         return
 
-    def startNexus(self):
+    def start_nexus(self, *args, **kwargs):
         """
         Puts all actors in separate processes and begins polling
         to listen to comm queues
         """
         for name, m in self.actors.items():
-            if "GUI" not in name:  # GUI already started
-                if "method" in self.config.actors[name].options:
-                    meth = self.config.actors[name].options["method"]
-                    logger.info("This actor wants: {}".format(meth))
-                    ctx = get_context(meth)
-                    p = ctx.Process(target=m.run, name=name)
+            # if "GUI" not in name:  # GUI already started
+            if "method" in self.config.actors[name].options:
+                meth = self.config.actors[name].options["method"]
+                logger.info("This actor wants: {}".format(meth))
+                ctx = get_context(meth)
+                p = ctx.Process(target=m.run, name=name)
+            else:
+                ctx = get_context("fork")
+                p = ctx.Process(target=self.run_actor, name=name, args=(m,))
+                if "daemon" in self.config.actors[name].options:
+                    p.daemon = self.config.actors[name].options["daemon"]
+                    logger.info("Setting daemon for {}".format(name))
                 else:
-                    ctx = get_context("fork")
-                    p = ctx.Process(target=self.runActor, name=name, args=(m,))
-                    if "Watcher" not in name:
-                        if "daemon" in self.config.actors[name].options:
-                            p.daemon = self.config.actors[name].options["daemon"]
-                            logger.info("Setting daemon for {}".format(name))
-                        else:
-                            p.daemon = True  # default behavior
-                self.processes.append(p)
+                    p.daemon = True  # default behavior
+            self.processes.append(p)
 
         self.start()
 
         loop = asyncio.get_event_loop()
+        res = ""
         try:
-            self.out_socket.send_string("Awaiting input:")
-            res = loop.run_until_complete(self.pollQueues())
+            res = loop.run_until_complete(self.poll_queues())
         except asyncio.CancelledError:
             logger.info("Loop is cancelled")
 
@@ -344,12 +315,7 @@ class Nexus:
         except Exception as e:
             logger.info(f"Res failed to await: {e}")
 
-        logger.info(f"Current loop: {asyncio.get_event_loop()}")
-
-        loop.stop()
-        loop.close()
-        logger.info("Shutdown loop")
-        self.zmq_context.destroy()
+        logger.info("End Nexus")
 
     def start(self):
         """
@@ -363,30 +329,39 @@ class Nexus:
 
         logger.info("All processes started")
 
-    def destroyNexus(self):
+    def destroy_nexus(self):
         """Method that calls the internal method
-        to kill the process running the store (plasma server)
+        to kill the processes running the store
+        and the message broker
         """
         logger.warning("Destroying Nexus")
-        self._closeStoreInterface()
+        self._shutdown_harvester()
+        self._close_store_interface()
 
-        if hasattr(self, "store_loc"):
-            try:
-                os.remove(self.store_loc)
-            except FileNotFoundError:
-                logger.warning(
-                    "StoreInterface file {} is already deleted".format(self.store_loc)
-                )
-            logger.warning("Delete the store at location {0}".format(self.store_loc))
-
-        if hasattr(self, "out_socket"):
+        if self.out_socket:
             self.out_socket.close(linger=0)
-        if hasattr(self, "in_socket"):
+        if self.in_socket:
             self.in_socket.close(linger=0)
-        if hasattr(self, "zmq_context"):
-            self.zmq_context.destroy(linger=0)
+        if self.broker_in_socket:
+            self.broker_in_socket.close(linger=0)
+        if self.logger_in_socket:
+            self.logger_in_socket.close(linger=0)
 
-    async def pollQueues(self):
+        self._shutdown_broker()
+        self._shutdown_logger()
+
+        for handler in logger.handlers:
+            # need to close this one since we're about to destroy the zmq context
+            if isinstance(handler, log.ZmqLogHandler):
+                handler.close()
+                logger.removeHandler(handler)
+
+        if self.zmq_context:
+            self.zmq_context.destroy(linger=0)
+        if self.zmq_sync_context:
+            self.zmq_sync_context.destroy(linger=0)
+
+    async def poll_queues(self):
         """
         Listens to links and processes their signals.
 
@@ -400,239 +375,268 @@ class Nexus:
             string: "Shutting down", Notifies start() that pollQueues has completed.
         """
         self.actorStates = dict.fromkeys(self.actors.keys())
-        if not self.config.hasGUI:
-            # Since Visual is not started, it cannot send a ready signal.
-            try:
-                del self.actorStates["Visual"]
-            except Exception as e:
-                logger.info("Visual is not started: {0}".format(e))
-                pass
-        polling = list(self.comm_queues.values())
-        pollingNames = list(self.comm_queues.keys())
-        self.tasks = []
-        for q in polling:
-            self.tasks.append(asyncio.create_task(q.get_async()))
+        self.actor_states = dict.fromkeys(self.actors.keys(), None)
 
-        self.tasks.append(asyncio.create_task(self.remote_input()))
-        self.early_exit = False
+        self.tasks = []
+        self.tasks.append(asyncio.create_task(self.process_actor_message()))
 
         # add signal handlers
         loop = asyncio.get_event_loop()
         signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
         for s in signals:
             loop.add_signal_handler(
-                s, lambda s=s: self.stop_polling_and_quit(s, polling)
+                s, lambda s=s: asyncio.create_task(self.stop_polling_and_quit(s))
             )
+
+        logger.info("Nexus signal handlers added")
 
         while not self.flags["quit"]:
             try:
                 done, pending = await asyncio.wait(
                     self.tasks, return_when=concurrent.futures.FIRST_COMPLETED
                 )
+
+                for i, t in enumerate(self.tasks):
+                    if i == 0:  # this index is the original task that processes input
+                        if t in done:
+                            self.tasks[i] = asyncio.create_task(
+                                self.process_actor_message()
+                            )
+
             except asyncio.CancelledError:
                 pass
 
-            # sort through tasks to see where we got input from
-            # (so we can choose a handler)
-            for i, t in enumerate(self.tasks):
-                if i < len(polling):
-                    if t in done or polling[i].status == "done":
-                        # catch tasks that complete await wait/gather
-                        r = polling[i].result
-                        if r:
-                            if "GUI" in pollingNames[i]:
-                                self.processGuiSignal(r, pollingNames[i])
-                            else:
-                                self.processActorSignal(r, pollingNames[i])
-                            self.tasks[i] = asyncio.create_task(polling[i].get_async())
-                elif t in done:
-                    logger.debug("t.result = " + str(t.result()))
-                    self.tasks[i] = asyncio.create_task(self.remote_input())
-
-        if not self.early_exit:  # don't run this again if we already have
-            self.stop_polling(Signal.quit(), polling)
-            logger.warning("Shutting down polling")
         return "Shutting Down"
 
-    def stop_polling_and_quit(self, signal, queues):
+    async def stop_polling_and_quit(self, stop_signal):
         """
         quit the process and stop polling signals from queues
 
         Args:
-            signal (signal): Signal for handling async polling.
-                             One of: signal.SIGHUP, signal.SIGTERM, signal.SIGINT
-            queues (improv.link.AsyncQueue): Comm queues for links.
+            stop_signal (signal): Signal for handling async polling.
+                                  One of: signal.SIGHUP, signal.SIGTERM, signal.SIGINT
         """
-        logger.warn(
-            "Shutting down via signal handler due to {}. \
-                Steps may be out of order or dirty.".format(
-                signal
-            )
+        if stop_signal == signal.SIGHUP:
+            sig = "SIGHUP"
+        elif stop_signal == signal.SIGTERM:
+            sig = "SIGTERM"
+        elif stop_signal == signal.SIGINT:
+            sig = "SIGINT"
+        elif stop_signal == Signal.quit():
+            sig = "QUIT"
+
+        logger.warning(
+            f"Shutting down via signal handler due to {sig}. "
+            "Steps may be out of order or dirty."
         )
-        self.stop_polling(signal, queues)
+        await self.stop_polling()
+        logger.info("Nexus waiting for async tasks to have a chance to send")
+        await self.out_socket.send_string("QUIT")
         self.flags["quit"] = True
-        self.early_exit = True
         self.quit()
 
-    async def remote_input(self):
-        msg = await self.in_socket.recv_multipart()
-        command = msg[0].decode("utf-8")
-        await self.in_socket.send_string("Awaiting input:")
-        if command == Signal.quit():
-            await self.out_socket.send_string("QUIT")
-        self.processGuiSignal([command], "TUI_Nexus")
+    def process_actor_state_update(self, msg: ActorStateMsg):
+        actor_state = None
+        if msg.actor_name in self.actor_states.keys():
+            actor_state = self.actor_states[msg.actor_name]
+        if not actor_state:
+            logger.info(
+                f"Received state message from new actor {msg.actor_name}"
+                f" with info: {msg.info}\n"
+            )
+            self.actor_states[msg.actor_name] = ActorState(
+                msg.actor_name, msg.status, msg.nexus_in_port
+            )
+            actor_state = self.actor_states[msg.actor_name]
+        else:
+            logger.info(
+                f"Received state message from actor {msg.actor_name}"
+                f" with info: {msg.info}\n"
+                f"Current state:\n"
+                f"Name: {actor_state.actor_name}\n"
+                f"Status: {actor_state.status}\n"
+                f"Nexus control port: {actor_state.nexus_in_port}\n"
+            )
+            if msg.nexus_in_port != actor_state.nexus_in_port:
+                pass
+                # TODO: this actor's signal socket changed
 
-    def processGuiSignal(self, flag, name):
-        """Receive flags from the Front End as user input"""
-        name = name.split("_")[0]
-        if flag:
-            logger.info("Received signal from user: " + flag[0])
-            if flag[0] == Signal.run():
-                logger.info("Begin run!")
-                # self.flags['run'] = True
-                self.run()
-            elif flag[0] == Signal.setup():
-                logger.info("Running setup")
-                self.setup()
-            elif flag[0] == Signal.ready():
-                logger.info("GUI ready")
-                self.actorStates[name] = flag[0]
-            elif flag[0] == Signal.quit():
-                logger.warning("Quitting the program!")
-                self.flags["quit"] = True
-                self.quit()
-            elif flag[0] == Signal.load():
-                logger.info("Loading Config config from file " + flag[1])
-                self.loadConfig(flag[1])
-            elif flag[0] == Signal.pause():
-                logger.info("Pausing processes")
-                # TODO. Also resume, reset
+            actor_state.actor_name = msg.actor_name
+            actor_state.status = msg.status
+            actor_state.nexus_in_port = msg.nexus_in_port
 
-            # temporary WiP
-            elif flag[0] == Signal.kill():
-                # TODO: specify actor to kill
-                list(self.processes)[0].kill()
-            elif flag[0] == Signal.revive():
-                dead = [p for p in list(self.processes) if p.exitcode is not None]
-                for pro in dead:
-                    name = pro.name
-                    m = self.actors[pro.name]
-                    actor = self.config.actors[name]
-                    if "GUI" not in name:  # GUI hard to revive independently
-                        if "method" in actor.options:
-                            meth = actor.options["method"]
-                            logger.info("This actor wants: {}".format(meth))
-                            ctx = get_context(meth)
-                            p = ctx.Process(target=m.run, name=name)
-                        else:
-                            ctx = get_context("fork")
-                            p = ctx.Process(target=self.runActor, name=name, args=(m,))
-                            if "Watcher" not in name:
-                                if "daemon" in actor.options:
-                                    p.daemon = actor.options["daemon"]
-                                    logger.info("Setting daemon for {}".format(name))
-                                else:
-                                    p.daemon = True
+        logger.info(
+            "Updated actor state:\n"
+            f"Name: {actor_state.actor_name}\n"
+            f"Status: {actor_state.status}\n"
+            f"Nexus control port: {actor_state.nexus_in_port}\n"
+        )
 
-                    # Setting the stores for each actor to be the same
-                    # TODO: test if this works for fork -- don't think it does?
-                    al = [act for act in self.actors.values() if act.name != pro.name]
-                    m.setStoreInterface(al[0].client)
-                    m.client = None
-                    m._getStoreInterface()
+        if all(
+            [
+                actor_state is not None and actor_state.status == Signal.ready()
+                for actor_state in self.actor_states.values()
+            ]
+        ):
+            logger.info("All actors ready. Allowing run.")
+            self.allowStart = True
 
-                    self.processes.append(p)
-                    p.start()
-                    m.q_sig.put_nowait(Signal.setup())
-                    # TODO: ensure waiting for ready before run?
-                    m.q_sig.put_nowait(Signal.run())
+        return True
 
-                self.processes = [p for p in list(self.processes) if p.exitcode is None]
-            elif flag[0] == Signal.stop():
-                logger.info("Nexus received stop signal")
-                self.stop()
-        elif flag:
-            logger.error("Unknown signal received from Nexus: {}".format(flag))
+    async def process_actor_message(self):
+        msg = await self.in_socket.recv_pyobj()
+        if isinstance(msg, ActorStateMsg):
+            if self.process_actor_state_update(msg):
+                await self.in_socket.send_pyobj(
+                    ActorStateReplyMsg(
+                        msg.actor_name, "OK", "actor state updated successfully"
+                    )
+                )
+            else:
+                await self.in_socket.send_pyobj(
+                    ActorStateReplyMsg(
+                        msg.actor_name, "ERROR", "actor state update failed"
+                    )
+                )
+            if (not self.allow_setup) and all(
+                [
+                    actor_state is not None and actor_state.status == Signal.waiting()
+                    for actor_state in self.actor_states.values()
+                ]
+            ):
+                logger.info("All actors connected to Nexus. Allowing setup.")
+                self.allow_setup = True
 
-    def processActorSignal(self, sig, name):
-        if sig is not None:
-            logger.info("Received signal " + str(sig[0]) + " from " + name)
-            state_val = self.actorStates.values()
-            if not self.stopped and sig[0] == Signal.ready():
-                self.actorStates[name.split("_")[0]] = sig[0]
-                if all(val == Signal.ready() for val in state_val):
-                    self.allowStart = True
-                    # TODO: replace with q_sig to FE/Visual
-                    logger.info("Allowing start")
+            if (not self.allowStart) and all(
+                [
+                    actor_state is not None and actor_state.status == Signal.ready()
+                    for actor_state in self.actor_states.values()
+                ]
+            ):
+                logger.info("All actors ready. Allowing run.")
+                self.allowStart = True
 
-            elif self.stopped and sig[0] == Signal.stop_success():
-                self.actorStates[name.split("_")[0]] = sig[0]
-                if all(val == Signal.stop_success() for val in state_val):
-                    self.allowStart = True  # TODO: replace with q_sig to FE/Visual
-                    self.stoppped = False
-                    logger.info("All stops were successful. Allowing start.")
+        elif isinstance(msg, ActorSignalMsg):
+            if msg.signal == Signal.quit():
+                reply_str = ""
+            else:
+                reply_str = "Awaiting input:"
 
-    def setup(self):
-        for q in self.sig_queues.values():
+            await self.in_socket.send_pyobj(
+                ActorSignalReplyMsg(
+                    msg.actor_name,
+                    msg.signal,
+                    f"Signal {msg.signal} received.\n" + reply_str,
+                )
+            )
+            await self.process_actor_signal(msg)
+
+        else:
+            logger.warning(
+                f"Received message {msg} of unrecognized type {type(msg)}."
+                "Expected ActorStateMsg or ActorSignalMsg."
+            )
+
+    async def process_actor_signal(self, msg):
+        signal = msg.signal
+        if signal == Signal.setup():
+            logger.info("Running setup")
+            await self.setup()
+        elif signal == Signal.run():
+            logger.info("Begin run!")
+            await self.run()
+        elif signal == Signal.stop():
+            logger.info("Stop run!")
+            await self.stop()
+        elif signal == Signal.ready():
+            pass
+        elif signal == Signal.quit():
+            logger.warning("Quitting the program!")
+            task = asyncio.create_task(self.stop_polling_and_quit(Signal.quit()))
             try:
-                logger.info("Starting setup: " + str(q))
-                q.put_nowait(Signal.setup())
-            except Full:
-                logger.warning("Signal queue" + q.name + "is full")
+                await task
+            except Exception as e:
+                logger.error(f"Caught exception {e} when trying to quit the program.")
+        else:
+            logger.warning(f"Unknown command {signal} from actor {msg.actor_name}")
 
-    def run(self):
+    async def setup(self):
+        if not self.allow_setup:
+            logger.error(
+                "Not all actors connected to Nexus. Please wait, then try again."
+            )
+            return
+
+        for actor in self.actor_states.values():
+            logger.info("Starting setup: " + str(actor.actor_name))
+            actor.sig_socket = self.zmq_context.socket(REQ)
+            actor.sig_socket.connect(f"tcp://{actor.hostname}:{actor.nexus_in_port}")
+
+        await self.signal_to_actors(Signal.setup())
+
+    async def run(self):
         if self.allowStart:
-            for q in self.sig_queues.values():
-                try:
-                    q.put_nowait(Signal.run())
-                except Full:
-                    logger.warning("Signal queue" + q.name + "is full")
-                    # queue full, keep going anyway
-                    # TODO: add repeat trying as async task
+            await self.signal_to_actors(Signal.run())
         else:
             logger.error("Not all actors ready yet, please wait and then try again.")
 
     def quit(self):
         logger.warning("Killing child processes")
-        self.out_socket.send_string("QUIT")
-
-        for q in self.sig_queues.values():
-            try:
-                q.put_nowait(Signal.quit())
-            except Full:
-                logger.warning("Signal queue {} full, cannot quit".format(q.name))
-            except FileNotFoundError:
-                logger.warning("Queue {} corrupted.".format(q.name))
-
-        if self.config.hasGUI:
-            self.processes.append(self.p_GUI)
-
-        if self.p_watch:
-            self.processes.append(self.p_watch)
 
         for p in self.processes:
             p.terminate()
-            p.join()
+            p.join(timeout=5)
+            if p.exitcode is None:
+                p.kill()
+                logger.error("Process did not exit in time. Kill signal sent.")
 
         logger.warning("Actors terminated")
 
-        self.destroyNexus()
+        self.destroy_nexus()
 
-    def stop(self):
+    async def stop(self):
         logger.warning("Starting stop procedure")
         self.allowStart = False
 
-        for q in self.sig_queues.values():
-            try:
-                q.put_nowait(Signal.stop())
-            except Full:
-                logger.warning("Signal queue" + q.name + "is full")
+        await self.signal_to_actors(Signal.stop())
+
         self.allowStart = True
 
-    def revive(self):
+    async def revive(self):
         logger.warning("Starting revive")
 
-    def stop_polling(self, stop_signal, queues):
+        await self.signal_to_actors(Signal.revive())
+
+    async def signal_to_actors(self, signal):
+        """Sends signal to actors safely (with error handling
+        and timeout).
+        """
+        for actor in self.actor_states.values():
+            try:
+                send_str = f"Nexus sending {signal} signal to {actor.actor_name}"
+                logger.info(send_str)
+                await actor.sig_socket.send_pyobj(
+                    NexusSignalMsg(actor.actor_name, signal, send_str)
+                )
+                msg_ready = await actor.sig_socket.poll(timeout=1000)
+                if msg_ready == 0:
+                    raise TimeoutError
+                await actor.sig_socket.recv_pyobj()
+            except TimeoutError:
+                logger.error(
+                    f"Timed out waiting for reply to {signal} message "
+                    f"from actor {actor.actor_name}. "
+                    f"Closing connection."
+                )
+                actor.sig_socket.close(linger=0)
+            except Exception as e:
+                logger.error(
+                    f"Unable to send {signal} message "
+                    f"to actor {actor.actor_name}: "
+                    f"{e}"
+                )
+
+    async def stop_polling(self):
         """Cancels outstanding tasks and fills their last request.
 
         Puts a string into all active queues, then cancels their
@@ -643,15 +647,39 @@ class Nexus:
             stop_signal (improv.actor.Signal): Signal for signal handler.
             queues (improv.link.AsyncQueue): Comm queues for links.
         """
-        logger.info("Received shutdown order")
+        logger.info("Received shutdown order. Time to stop polling.")
 
-        logger.info(f"Stop signal: {stop_signal}")
         shutdown_message = Signal.quit()
-        for q in queues:
+        for actor in self.actor_states.values():
             try:
-                q.put(shutdown_message)
-            except Exception:
-                logger.info("Unable to send shutdown message to {}.".format(q.name))
+                logger.info(f"Sending quit signal to {actor.actor_name}")
+                await actor.sig_socket.send_pyobj(
+                    NexusSignalMsg(
+                        actor.actor_name, shutdown_message, "Nexus sending quit signal"
+                    )
+                )
+                msg_ready = await actor.sig_socket.poll(timeout=1000)
+                if msg_ready == 0:
+                    raise TimeoutError
+                else:
+                    logger.info(
+                        f"Preparing to receive response from {actor.actor_name}"
+                    )
+                    rep = await actor.sig_socket.recv_pyobj()
+                    logger.info(f"Received reply {rep.info} from {actor.actor_name}")
+            except TimeoutError:
+                logger.info(
+                    f"Timed out waiting for reply to quit message "
+                    f"from actor {actor.actor_name}. "
+                    f"Closing connection."
+                )
+                actor.sig_socket.close(linger=0)
+            except Exception as e:
+                logger.info(
+                    f"Unable to send shutdown message "
+                    f"to actor {actor.actor_name}: "
+                    f"{e}"
+                )
 
         logger.info("Canceling outstanding tasks")
 
@@ -659,19 +687,14 @@ class Nexus:
 
         logger.info("Polling has stopped.")
 
-    def createStoreInterface(self, name):
+    def create_store_interface(self):
         """Creates StoreInterface"""
-        if self.config.use_plasma():
-            return PlasmaStoreInterface(name, self.store_loc)
-        else:
-            return RedisStoreInterface(server_port_num=self.store_port)
+        return RedisStoreInterface(server_port_num=self.store_port)
 
-    def _startStoreInterface(self, size, attempts=20):
-        """Start a subprocess that runs the plasma store
-        Raises a RuntimeError exception size is undefined
-        Raises an Exception if the plasma store doesn't start
-
-        #TODO: Generalize this to non-plasma stores
+    def _start_store_interface(self, size, attempts=20):
+        """Start a subprocess that runs the redis store
+        Raises a RuntimeError exception if size is undefined
+        Raises an Exception if the redis store doesn't start
 
         Args:
             size: in bytes
@@ -683,64 +706,27 @@ class Nexus:
         """
         if size is None:
             raise RuntimeError("Server size needs to be specified")
-        self.use_plasma = False
-        if self.config and self.config.use_plasma():
-            self.use_plasma = True
-            self.store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
-            self.p_StoreInterface = subprocess.Popen(
-                [
-                    "plasma_store",
-                    "-s",
-                    self.store_loc,
-                    "-m",
-                    str(size),
-                    "-e",
-                    "hashtable://test",
-                ],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-            logger.info("StoreInterface start successful: {}".format(self.store_loc))
-        else:
-            logger.info("Setting up Redis store.")
-            self.store_port = (
-                self.config.get_redis_port()
-                if self.config and self.config.redis_port_specified()
-                else Config.get_default_redis_port()
-            )
-            if self.config and self.config.redis_port_specified():
-                logger.info(
-                    "Attempting to connect to Redis on port {}".format(self.store_port)
-                )
-                # try with failure, incrementing port number
-                self.p_StoreInterface = self.start_redis(size)
-                time.sleep(3)
-                if self.p_StoreInterface.poll():
-                    logger.error("Could not start Redis on specified port number.")
-                    raise Exception("Could not start Redis on specified port.")
-            else:
-                logger.info("Redis port not specified. Searching for open port.")
-                for attempt in range(attempts):
-                    logger.info(
-                        "Attempting to connect to Redis on port {}".format(
-                            self.store_port
-                        )
-                    )
-                    # try with failure, incrementing port number
-                    self.p_StoreInterface = self.start_redis(size)
-                    time.sleep(3)
-                    if self.p_StoreInterface.poll():  # Redis could not start
-                        logger.info(
-                            "Could not connect to port {}".format(self.store_port)
-                        )
-                        self.store_port = str(int(self.store_port) + 1)
-                    else:
-                        break
-                else:
-                    logger.error("Could not start Redis on any tried port.")
-                    raise Exception("Could not start Redis on any tried ports.")
 
-            logger.info(f"StoreInterface start successful on port {self.store_port}")
+        logger.info("Setting up Redis store.")
+        self.store_port = self.config.redis_config["port"] if self.config else 6379
+        logger.info("Searching for open port starting at specified port.")
+        for attempt in range(attempts):
+            logger.info(
+                "Attempting to connect to Redis on port {}".format(self.store_port)
+            )
+            # try with failure, incrementing port number
+            self.p_StoreInterface = self.start_redis(size)
+            time.sleep(1)
+            if self.p_StoreInterface.poll():  # Redis could not start
+                logger.info("Could not connect to port {}".format(self.store_port))
+                self.store_port = str(int(self.store_port) + 1)
+            else:
+                break
+        else:
+            logger.error("Could not start Redis on any tried port.")
+            raise Exception("Could not start Redis on any tried ports.")
+
+        logger.info(f"StoreInterface start successful on port {self.store_port}")
 
     def start_redis(self, size):
         subprocess_command = [
@@ -788,26 +774,27 @@ class Nexus:
             stderr=subprocess.DEVNULL,
         )
 
-    def _closeStoreInterface(self):
+    def _close_store_interface(self):
         """Internal method to kill the subprocess
-        running the store (plasma sever)
+        running the store
         """
         if hasattr(self, "p_StoreInterface"):
             try:
                 self.p_StoreInterface.send_signal(signal.SIGINT)
-                self.p_StoreInterface.wait()
-                logger.info(
-                    "StoreInterface close successful: {}".format(
-                        self.store_loc
-                        if self.config and self.config.use_plasma()
-                        else self.store_port
+                try:
+                    self.p_StoreInterface.wait(timeout=30)
+                    logger.info(
+                        "StoreInterface close successful: {}".format(self.store_port)
                     )
-                )
+                except subprocess.TimeoutExpired as e:
+                    logger.error(e)
+                    self.p_StoreInterface.send_signal(signal.SIGKILL)
+                    logger.info("Killed datastore process")
 
             except Exception as e:
                 logger.exception("Cannot close store {}".format(e))
 
-    def createActor(self, name, actor):
+    def create_actor(self, name, actor):
         """Function to instantiate actor, add signal and comm Links,
         and update self.actors dictionary
 
@@ -818,35 +805,32 @@ class Nexus:
         # Instantiate selected class
         mod = import_module(actor.packagename)
         clss = getattr(mod, actor.classname)
-        if self.config.use_plasma():
-            instance = clss(actor.name, store_loc=self.store_loc, **actor.options)
-        else:
-            instance = clss(actor.name, store_port_num=self.store_port, **actor.options)
-
-        if "method" in actor.options.keys():
-            # check for spawn
-            if "fork" == actor.options["method"]:
-                # Add link to StoreInterface store
-                store = self.createStoreInterface(actor.name)
-                instance.setStoreInterface(store)
-            else:
-                # spawn or forkserver; can't pickle plasma store
-                logger.info("No store for this actor yet {}".format(name))
-        else:
-            # Add link to StoreInterface store
-            store = self.createStoreInterface(actor.name)
-            instance.setStoreInterface(store)
-
-        q_comm = Link(actor.name + "_comm", actor.name, self.name)
-        q_sig = Link(actor.name + "_sig", self.name, actor.name)
-        self.comm_queues.update({q_comm.name: q_comm})
-        self.sig_queues.update({q_sig.name: q_sig})
-        instance.setCommLinks(q_comm, q_sig)
+        outgoing_links = (
+            self.outgoing_topics[actor.name]
+            if actor.name in self.outgoing_topics
+            else []
+        )
+        incoming_links = (
+            self.incoming_topics[actor.name]
+            if actor.name in self.incoming_topics
+            else []
+        )
+        instance = clss(
+            name=actor.name,
+            nexus_comm_port=self.config.settings["control_port"],
+            broker_sub_port=self.broker_sub_port,
+            broker_pub_port=self.broker_pub_port,
+            log_pull_port=self.logger_pull_port,
+            outgoing_links=outgoing_links,
+            incoming_links=incoming_links,
+            store_port_num=self.store_port,
+            **actor.options,
+        )
 
         # Update information
         self.actors.update({name: instance})
 
-    def runActor(self, actor):
+    def run_actor(self, actor: Actor):
         """Run the actor continually; used for separate processes
         #TODO: hook into monitoring here?
 
@@ -855,55 +839,288 @@ class Nexus:
         """
         actor.run()
 
-    def createConnections(self):
-        """Assemble links (multi or other)
-        for later assignment
+    def create_connections(self):
+        for name, connection in self.config.connections.items():
+            logger.info(f"Creating connection {name}: {connection}")
+            sources = connection["sources"]
+            if not isinstance(sources, list):
+                sources = [sources]
+            sinks = connection["sinks"]
+            if not isinstance(sinks, list):
+                sinks = [sinks]
+
+            name_input = tuple(
+                ["inputs:"]
+                + [name for name in sources]
+                + ["outputs:"]
+                + [name for name in sinks]
+            )
+            name = str(
+                hash(name_input)
+            )  # space-efficient key for uniquely referring to this connection
+            logger.info(f"Created link name {name} for link {name_input}")
+
+            for source in sources:
+                source_actor = source.split(".")[0]
+                source_link = source.split(".")[1]
+                if source_actor not in self.outgoing_topics.keys():
+                    self.outgoing_topics[source_actor] = [LinkInfo(source_link, name)]
+                else:
+                    self.outgoing_topics[source_actor].append(
+                        LinkInfo(source_link, name)
+                    )
+
+            for sink in sinks:
+                sink_actor = sink.split(".")[0]
+                sink_link = sink.split(".")[1]
+                if sink_actor not in self.incoming_topics.keys():
+                    self.incoming_topics[sink_actor] = [LinkInfo(sink_link, name)]
+                else:
+                    self.incoming_topics[sink_actor].append(LinkInfo(sink_link, name))
+
+    def start_logger(self, log_server_pub_port, log_server_pull_port):
+        spawn_context = get_context("spawn")
+        self.p_logger = spawn_context.Process(
+            target=bootstrap_log_server,
+            args=(
+                "localhost",
+                self.logger_in_port,
+                self.logfile,
+                log_server_pub_port,
+                log_server_pull_port,
+            ),
+        )
+        logger.debug("logger created")
+        self.p_logger.start()
+        time.sleep(1)
+        logger.debug("logger started")
+        if not self.p_logger.is_alive():
+            logger.error(
+                "Logger process failed to start. "
+                "Please see the log server log file for more information. "
+                "The improv server will now exit."
+            )
+            self.quit()
+            raise Exception("Could not start log server.")
+        logger.debug("logger is alive")
+        poll_res = self.logger_in_socket.poll(timeout=5000)
+        if poll_res == 0:
+            logger.error(
+                "Never got reply from logger. Cannot proceed setting up Nexus."
+            )
+            try:
+                with open("log_server.log", "r") as file:
+                    logger.debug(file.read())
+            except Exception as e:
+                logger.error(e)
+            self.destroy_nexus()
+            logger.error("exiting after destroy")
+            exit(1)
+        logger_info: LogInfoMsg = self.logger_in_socket.recv_pyobj()
+        self.logger_pull_port = logger_info.pull_port
+        self.logger_pub_port = logger_info.pub_port
+        self.logger_in_socket.send_pyobj(
+            LogInfoReplyMsg(logger_info.name, "OK", "registered logger information")
+        )
+        logger.debug("logger replied with setup message")
+
+    def start_message_broker(self):
+        spawn_context = get_context("spawn")
+        self.p_broker = spawn_context.Process(
+            target=bootstrap_broker, args=("localhost", self.broker_in_port)
+        )
+        logger.debug("broker created")
+        self.p_broker.start()
+        time.sleep(1)
+        logger.debug("broker started")
+        if not self.p_broker.is_alive():
+            logger.error(
+                "Broker process failed to start. "
+                "Please see the log file for more information. "
+                "The improv server will now exit."
+            )
+            self.quit()
+            raise Exception("Could not start message broker server.")
+        logger.debug("broker is alive")
+        poll_res = self.broker_in_socket.poll(timeout=5000)
+        if poll_res == 0:
+            logger.error("Never got reply from broker. Cannot proceed.")
+            try:
+                with open("broker_server.log", "r") as file:
+                    logger.debug(file.read())
+            except Exception as e:
+                logger.error(e)
+            self.destroy_nexus()
+            logger.debug("exiting after destroy")
+            exit(1)
+        broker_info: BrokerInfoMsg = self.broker_in_socket.recv_pyobj()
+        self.broker_sub_port = broker_info.sub_port
+        self.broker_pub_port = broker_info.pub_port
+        self.broker_in_socket.send_pyobj(
+            BrokerInfoReplyMsg(broker_info.name, "OK", "registered broker information")
+        )
+        logger.debug("broker replied with setup message")
+
+    def _shutdown_broker(self):
+        """Internal method to kill the subprocess
+        running the message broker
         """
-        for source, drain in self.config.connections.items():
-            name = source.split(".")[0]
-            # current assumption is connection goes from q_out to something(s) else
-            if len(drain) > 1:  # we need multiasyncqueue
-                link, endLinks = MultiLink(name + "_multi", source, drain)
-                self.data_queues.update({source: link})
-                for i, e in enumerate(endLinks):
-                    self.data_queues.update({drain[i]: e})
-            else:  # single input, single output
-                d = drain[0]
-                d_name = d.split(".")  # TODO: check if .anything, if not assume q_in
-                link = Link(name + "_" + d_name[0], source, d)
-                self.data_queues.update({source: link})
-                self.data_queues.update({d: link})
+        if self.p_broker:
+            try:
+                self.p_broker.terminate()
+                self.p_broker.join(timeout=5)
+                if self.p_broker.exitcode is None:
+                    self.p_broker.kill()
+                    logger.error("Killed broker process")
+                else:
+                    logger.info(
+                        "Broker shutdown successful with exit code {}".format(
+                            self.p_broker.exitcode
+                        )
+                    )
+            except Exception as e:
+                logger.exception(f"Unable to close broker {e}")
 
-    def assignLink(self, name, link):
-        """Function to set up Links between actors
-        for data location passing
-        Actor must already be instantiated
-
-        #NOTE: Could use this for reassigning links if actors crash?
-
-        #TODO: Adjust to use default q_out and q_in vs being specified
+    def _shutdown_logger(self):
+        """Internal method to kill the subprocess
+        running the logger
         """
-        classname = name.split(".")[0]
-        linktype = name.split(".")[1]
-        if linktype == "q_out":
-            self.actors[classname].setLinkOut(link)
-        elif linktype == "q_in":
-            self.actors[classname].setLinkIn(link)
-        elif linktype == "watchout":
-            self.actors[classname].setLinkWatch(link)
-        else:
-            self.actors[classname].addLink(linktype, link)
+        if self.p_logger:
+            try:
+                self.p_logger.terminate()
+                self.p_logger.join(timeout=5)
+                if self.p_logger.exitcode is None:
+                    self.p_logger.kill()
+                    logger.error("Killed logger process")
+                else:
+                    logger.info("Logger shutdown successful")
+            except Exception as e:
+                logger.exception(f"Unable to close logger: {e}")
 
-    # TODO: StoreInterface access here seems wrong, need to test
-    def startWatcher(self):
-        from improv.watcher import Watcher
+    def _shutdown_harvester(self):
+        """Internal method to kill the subprocess
+        running the logger
+        """
+        if self.p_harvester:
+            try:
+                self.p_harvester.terminate()
+                self.p_harvester.join(timeout=5)
+                if self.p_harvester.exitcode is None:
+                    self.p_harvester.kill()
+                    logger.error("Killed harvester process")
+                else:
+                    logger.info("Harvester shutdown successful")
+            except Exception as e:
+                logger.exception(f"Unable to close harvester: {e}")
 
-        self.watcher = Watcher("watcher", self.createStoreInterface("watcher"))
-        q_sig = Link("watcher_sig", self.name, "watcher")
-        self.watcher.setLinks(q_sig)
-        self.sig_queues.update({q_sig.name: q_sig})
+    def set_up_sockets(self):
+        logger.debug("Connecting to output")
+        cfg = self.config.settings  # this could be self.settings instead
+        self.zmq_context = zmq.Context()
+        self.zmq_context.setsockopt(SocketOption.LINGER, 0)
+        self.out_socket = self.zmq_context.socket(PUB)
+        self.out_socket.bind("tcp://*:%s" % cfg["output_port"])
+        out_port_string = self.out_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
+        cfg["output_port"] = int(out_port_string.split(":")[-1])
 
-        self.p_watch = Process(target=self.watcher.run, name="watcher_process")
-        self.p_watch.daemon = True
-        self.p_watch.start()
-        self.processes.append(self.p_watch)
+        logger.debug("Connecting to control")
+        self.in_socket = self.zmq_context.socket(REP)
+        self.in_socket.bind("tcp://*:%s" % cfg["control_port"])
+        in_port_string = self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT)
+        cfg["control_port"] = int(in_port_string.split(":")[-1])
+
+        logger.debug("Setting up sync server startup socket")
+        self.zmq_sync_context = zmq_sync.Context()
+        self.zmq_sync_context.setsockopt(SocketOption.LINGER, 0)
+
+        self.logger_in_socket = self.zmq_sync_context.socket(REP)
+        self.logger_in_socket.bind("tcp://*:0")
+        logger_in_port_string = self.logger_in_socket.getsockopt_string(
+            SocketOption.LAST_ENDPOINT
+        )
+        self.logger_in_port = int(logger_in_port_string.split(":")[-1])
+
+        self.broker_in_socket = self.zmq_sync_context.socket(REP)
+        self.broker_in_socket.bind("tcp://*:0")
+        broker_in_port_string = self.broker_in_socket.getsockopt_string(
+            SocketOption.LAST_ENDPOINT
+        )
+        self.broker_in_port = int(broker_in_port_string.split(":")[-1])
+
+    def start_improv_services(
+        self, log_server_pub_port, log_server_pull_port, store_size
+    ):
+        logger.debug("Starting logger")
+        self.start_logger(log_server_pub_port, log_server_pull_port)
+        logger.addHandler(
+            log.ZmqLogHandler("localhost", self.logger_pull_port, self.zmq_sync_context)
+        )
+
+        logger.debug("starting broker")
+        self.start_message_broker()
+
+        logger.debug("Parsing redis persistence")
+        self.configure_redis_persistence()
+
+        logger.debug("Starting redis server")
+        # default size should be system-dependent
+        self._start_store_interface(store_size)
+        logger.info("Redis server started")
+
+        if self.config.settings["harvest_data_from_memory"]:
+            logger.debug("starting harvester")
+            self.start_harvester()
+
+        # connect to store and subscribe to notifications
+        logger.info("Create new store object")
+        self.store = StoreInterface(server_port_num=self.store_port)
+        logger.info(f"Redis server connected on port {self.store_port}")
+        logger.info("all services started")
+
+    def apply_cli_config_overrides(
+        self, store_size, control_port, output_port, logging_port, logging_input_port
+    ):
+        if store_size is not None:
+            self.config.settings["store_size"] = store_size
+        if control_port is not None:
+            self.config.settings["control_port"] = control_port
+        if output_port is not None:
+            self.config.settings["output_port"] = output_port
+        if logging_port is not None:
+            self.config.settings["logging_port"] = logging_port
+        if output_port is not None:
+            self.config.settings["logging_input_port"] = logging_input_port
+
+    def start_harvester(self):
+        spawn_context = get_context("spawn")
+        self.p_harvester = spawn_context.Process(
+            target=bootstrap_harvester,
+            args=(
+                "localhost",
+                self.broker_in_port,
+                "localhost",
+                self.store_port,
+                "localhost",
+                self.broker_pub_port,
+                "localhost",
+                self.logger_pull_port,
+            ),
+        )
+        self.p_harvester.start()
+        time.sleep(1)
+        if not self.p_harvester.is_alive():
+            logger.error(
+                "Harvester process failed to start. "
+                "Please see the log file for more information. "
+                "The improv server will now exit."
+            )
+            self.quit()
+            raise Exception("Could not start harvester server.")
+
+        harvester_info: HarvesterInfoMsg = self.broker_in_socket.recv_pyobj()
+        self.broker_in_socket.send_pyobj(
+            HarvesterInfoReplyMsg(
+                harvester_info.name, "OK", "registered harvester information"
+            )
+        )
+        logger.info("Harvester server started")
